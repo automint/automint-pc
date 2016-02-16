@@ -3,12 +3,18 @@
 altairApp
     .config([
         '$ocLazyLoadProvider',
-        function($ocLazyLoadProvider) {
+        function ($ocLazyLoadProvider) {
             $ocLazyLoadProvider.config({
                 debug: false,
                 events: false,
                 modules: [
                     // ----------- FORM ELEMENTS -----------
+                    {
+                        name: 'lazy_indexdb',
+                        files: [
+                            'bower_components/angular-indexedDB/angular-indexed-db.min.js'
+                        ]
+                    },
                     {
                         name: 'lazy_autosize',
                         files: [

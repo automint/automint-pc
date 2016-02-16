@@ -1,0 +1,119 @@
+<div id="page_content">
+    <div id="page_content_inner">
+
+        <div class="md-card">
+            <div class="md-card-content">
+                <h3 class="heading_a">Add Service</h3>
+                <div class="uk-grid" data-uk-grid-margin>
+                    <div class="uk-width-medium-1-2">
+                        <div class="uk-form-row">
+                            <label>Mobile Number</label>
+                            <input type="text" ng-model="service.mobile" ng-blur="getUserAndVehicleDetails()" class="md-input" md-input />
+                        </div>
+                        <div class="uk-form-row">
+                            <div class="uk-grid">
+                                <div class="uk-width-medium-1-2">
+                                    <label>First Name</label>
+                                    <input type="text" ng-model="service.firstname" class="md-input" md-input />
+                                </div>
+                                <div class="uk-width-medium-1-2">
+                                    <label>Last Name</label>
+                                    <input type="text" ng-model="service.lastname" class="md-input" md-input />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-form-row">
+                            <label>Email Address</label>
+                            <input type="text" ng-model="service.email" class="md-input" md-input />
+                        </div>
+                    </div>
+                    <div class="uk-width-medium-1-2">
+                        <div class="uk-form-row">
+                            <label>Vehicle Number</label>
+                            <input type="text" ng-model="service.reg" id="vreg" class=" md-input" md-input />
+                        </div>
+                        <div class="uk-form-row">
+                            <div class="uk-grid">
+                                <div class="uk-width-medium-1-2">
+                                    <label>Manufacurer</label>
+                                    <input type="text" ng-model="service.manufec" class="md-input" md-input />
+                                </div>
+                                <div class="uk-width-medium-1-2">
+                                    <label>Model</label>
+                                    <input type="text" ng-model="service.model" class="md-input" md-input />
+                                </div>
+                            </div>
+                        </div>
+                        <div class="uk-form-row">
+                            <label>Odo Reading</label>
+                            <input type="text" ng-model="service.odo" class="md-input" md-input />
+                        </div>
+                        <div class="uk-form-row">
+                            <div class="uk-grid">
+                                <div class="uk-width-medium-1-2">
+                                    <label>Date</label>
+                                    <input type="date" ng-model="service.date" class="md-input" md-input />
+                                </div>
+                                <div class="uk-width-medium-1-2">
+                                    <label>Cost</label>
+                                    <input type="number" ng-model="service.cost" class="md-input" md-input />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="uk-width-medium-1-1">
+                        <div class="uk-form-row">
+                            <label>Description</label>
+                            <input type="text" ng-model="service.details" class="md-input" md-input />
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="md-card">
+            <div class="md-card-content">
+                <h3 class="heading_a uk-float-left">Service's Problems</h3>
+                <span class="uk-text-right uk-input-group-addon">
+                    <a class="md-btn" ng-click="addProblemBlankRow()">ADD</a>
+                </span>
+                <div class="uk-grid" data-uk-grid-margin>
+                    <div class="uk-width-medium-1-1">
+                        <div class="uk-overflow-container">
+                            <div class="uk-form-row">
+                                <table class="uk-table uk-table-hover">
+                                    <tbody>
+                                        <tr ng-repeat="problem in service.problems">
+                                            <td class="uk-width-4-10">
+                                                <label>Issue / Problem</label>
+                                                <input type="text" ng-model="problem.details" class="md-input label-fixed" md-input />
+                                            </td>
+                                            <td class="uk-width-2-10">
+                                                <label>Labour Cost</label>
+                                                <input type="text" class="md-input label-fixed" ng-model="problem.lcost" md-input />
+                                            </td>
+                                            <td class="uk-width-2-10">
+                                                <label>Part Cost</label>
+                                                <input type="text" class="md-input label-fixed" ng-model="problem.pcost" md-input />
+                                            </td>
+                                            <td class="uk-width-2-10">
+                                                <label>Quantity</label>
+                                                <input type="text" class="md-input label-fixed" ng-model="problem.qty" md-input />
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="uk-form-row">
+                                <span class="uk-text-right uk-input-group-addon">
+                                    <a class="md-btn md-btn-primary" ng-click="saveData()">Save</a>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
