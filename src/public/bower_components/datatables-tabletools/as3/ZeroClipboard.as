@@ -1,4 +1,4 @@
-/* Compile using: mxmlc --target-player=10.0.0 ZeroClipboard.as */
+﻿/* Compile using: mxmlc --target-player=10.0.0 ZeroClipboard.as */
 package {
 	import flash.display.Stage;
 	import flash.display.Sprite;

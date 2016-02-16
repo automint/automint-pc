@@ -1,6 +1,5 @@
 {
   "name": "d3",
-  "version": "3.5.0",
   "main": "d3.js",
   "scripts": [
     "d3.js"
@@ -16,6 +15,7 @@
     "bin",
     "component.json",
     "composer.json",
+    "d3.zip",
     "index.js",
     "lib",
     "node_modules",

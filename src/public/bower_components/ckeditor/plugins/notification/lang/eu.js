@@ -1,1 +1,1 @@
-CKEDITOR.plugins.setLang("notification","eu",{closed:"Jakinarazpena itxita."});
+﻿CKEDITOR.plugins.setLang("notification","eu",{closed:"Jakinarazpena itxita."});

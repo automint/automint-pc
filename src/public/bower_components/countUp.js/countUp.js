@@ -1,7 +1,8 @@
 /*
 
     countUp.js
-    by @inorganik
+    (c) 2014-2015 @inorganik
+    Licensed under the MIT license.
 
 */
 
@@ -45,7 +46,8 @@ var CountUp = function(target, startVal, endVal, decimals, duration, options) {
         useEasing : true, // toggle easing
         useGrouping : true, // 1,000,000 vs 1000000
         separator : ',', // character to use as a separator
-        decimal : '.' // character to use as a decimal
+        decimal : '.', // character to use as a decimal
+        postFormatter: null // post formatter to run after internal formatting
     };
     // extend default options with passed options object
     for (var key in options) {
@@ -67,7 +69,7 @@ var CountUp = function(target, startVal, endVal, decimals, duration, options) {
     this.duration = Number(duration) * 1000 || 2000;
     var self = this;
 
-    this.version = function () { return '1.6.0'; };
+    this.version = function () { return '1.6.1'; };
 
     // Print value to target
     this.printValue = function(value) {
@@ -75,7 +77,7 @@ var CountUp = function(target, startVal, endVal, decimals, duration, options) {
         if (self.d.tagName == 'INPUT') {
             this.d.value = result;
         }
-        else if (self.d.tagName == 'text') {
+        else if (self.d.tagName == 'text' || self.d.tagName == 'tspan') {
             this.d.textContent = result;
         }
         else {
@@ -119,7 +121,7 @@ var CountUp = function(target, startVal, endVal, decimals, duration, options) {
         }
 
         // decimal
-        self.frameVal = Math.round(self.frameVal*self.dec)/self.dec;
+        self.frameVal = Math.floor(self.frameVal*self.dec)/self.dec;
 
         // format and print value
         self.printValue(self.frameVal);
@@ -181,7 +183,11 @@ var CountUp = function(target, startVal, endVal, decimals, duration, options) {
                 x1 = x1.replace(rgx, '$1' + self.options.separator + '$2');
             }
         }
-        return self.options.prefix + x1 + x2 + self.options.suffix;
+        var value = self.options.prefix + x1 + x2 + self.options.suffix;
+        if(self.options.postFormatter != null) {
+            value = self.options.postFormatter(value);
+        }
+        return value;
     };
 
     // format startVal on initialization

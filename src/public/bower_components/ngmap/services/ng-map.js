@@ -6,7 +6,7 @@
  */
 (function() {
   'use strict';
-  var $window, $document, $q, $log;
+  var $window, $document, $q;
   var NavigatorGeolocation, Attr2MapOptions, GeoCoder, camelCaseFilter;
 
   var mapControllers = {};
@@ -34,7 +34,7 @@
       ctrl.initializeMap();
       return ctrl.map;
     } else {
-      $log.error('map is already instialized');
+      console.error('map is already instialized');
     }
   };
 
@@ -90,7 +90,7 @@
     var mapId = mapCtrl.map.id || len;
     if (mapCtrl.map) {
       for (var eventName in mapCtrl.mapEvents) {
-        $log.debug('clearing map events', eventName);
+        console.log('clearing map events', eventName);
         google.maps.event.clearListeners(mapCtrl.map, eventName);
       }
       if (mapCtrl.map.controls) {
@@ -99,6 +99,14 @@
         });
       }
     }
+
+    //Remove Heatmap Layers
+    if (mapCtrl.map.heatmapLayers) {
+      Object.keys(mapCtrl.map.heatmapLayers).forEach(function (layer) {
+        mapCtrl.deleteObject('heatmapLayers', mapCtrl.map.heatmapLayers[layer]);
+      });
+    }
+
     delete mapControllers[mapId];
   };
 
@@ -209,14 +217,13 @@
     };
 
     var NgMap = function(
-        _$window_, _$document_, _$q_, _$log_,
+        _$window_, _$document_, _$q_,
         _NavigatorGeolocation_, _Attr2MapOptions_,
         _GeoCoder_, _camelCaseFilter_
       ) {
       $window = _$window_;
       $document = _$document_[0];
       $q = _$q_;
-      $log = _$log_;
       NavigatorGeolocation = _NavigatorGeolocation_;
       Attr2MapOptions = _Attr2MapOptions_;
       GeoCoder = _GeoCoder_;
@@ -234,7 +241,7 @@
       };
     };
     NgMap.$inject = [
-      '$window', '$document', '$q', '$log',
+      '$window', '$document', '$q',
       'NavigatorGeolocation', 'Attr2MapOptions',
       'GeoCoder', 'camelCaseFilter'
     ];

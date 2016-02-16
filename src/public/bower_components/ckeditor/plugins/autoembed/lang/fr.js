@@ -1,1 +1,1 @@
-CKEDITOR.plugins.setLang("autoembed","fr",{embeddingInProgress:"essaye d'incorporer l'URL collée...",embeddingFailed:"Cette URL n'a pas pu être incorporée automatiquement."});
+﻿CKEDITOR.plugins.setLang("autoembed","fr",{embeddingInProgress:"essaye d'incorporer l'URL collée...",embeddingFailed:"Cette URL n'a pas pu être incorporée automatiquement."});

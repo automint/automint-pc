@@ -14,6 +14,18 @@ Licensed under the MIT license (http://www.opensource.org/licenses/mit-license.p
 		}
 	}
 	(function($) {
+		// Use a stripped-down indexOf as it's faster than native
+		// http://jsperf.com/thor-indexof-vs-for/5
+		function indexOf(list, elem) {
+			var i = 0,
+				len = list.length;
+			for (; i < len; i++) {
+				if (list[i] === elem) {
+					return i;
+				}
+			}
+			return -1;
+		}
 		var class2type = {},
 			classTypes = "Boolean Number String Function Array Date RegExp Object Error".split(" ");
 		for (var nameNdx = 0; nameNdx < classTypes.length; nameNdx++) {
@@ -29,19 +41,43 @@ Licensed under the MIT license (http://www.opensource.org/licenses/mit-license.p
 				class2type[class2type.toString.call(obj)] || "object" :
 				typeof obj;
 		}
+
+		function isWindow(obj) {
+			return obj != null && obj === obj.window;
+		}
+
+		function isArraylike(obj) {
+			// Support: iOS 8.2 (not reproducible in simulator)
+			// `in` check used to prevent JIT error (gh-2145)
+			// hasOwn isn't used here due to false negatives
+			// regarding Nodelist length in IE
+			var length = "length" in obj && obj.length,
+				ltype = type(obj);
+
+			if (ltype === "function" || isWindow(obj)) {
+				return false;
+			}
+
+			if (obj.nodeType === 1 && length) {
+				return true;
+			}
+
+			return ltype === "array" || length === 0 ||
+				typeof length === "number" && length > 0 && (length - 1) in obj;
+		}
+		$.inArray = function(elem, arr, i) {
+			return arr == null ? -1 : indexOf(arr, elem, i);
+		};
 		$.isFunction = function(obj) {
 			return type(obj) === "function";
 		};
 		$.isArray = Array.isArray;
-		$.isWindow = function(obj) {
-			return obj != null && obj === obj.window;
-		};
 		$.isPlainObject = function(obj) {
 			// Not plain objects:
 			// - Any object or value whose internal [[Class]] property is not "[object Object]"
 			// - DOM nodes
 			// - window
-			if (type(obj) !== "object" || obj.nodeType || $.isWindow(obj)) {
+			if (type(obj) !== "object" || obj.nodeType || isWindow(obj)) {
 				return false;
 			}
 
@@ -117,9 +153,72 @@ Licensed under the MIT license (http://www.opensource.org/licenses/mit-license.p
 			// Return the modified object
 			return target;
 		};
+		$.each = function(obj, callback) {
+			var value, i = 0;
+
+			if (isArraylike(obj)) {
+				for (var length = obj.length; i < length; i++) {
+					value = callback.call(obj[i], i, obj[i]);
+					if (value === false) {
+						break;
+					}
+				}
+			} else {
+				for (i in obj) {
+					value = callback.call(obj[i], i, obj[i]);
+					if (value === false) {
+						break;
+					}
+				}
+			}
+
+			return obj;
+		};
+		$.map = function(elems, callback) {
+			var value,
+				i = 0,
+				length = elems.length,
+				isArray = isArraylike(elems),
+				ret = [];
+
+			// Go through the array, translating each of the items to their new values
+			if (isArray) {
+				for (; i < length; i++) {
+					value = callback(elems[i], i);
+
+					if (value != null) {
+						ret.push(value);
+					}
+				}
+
+				// Go through every key on the object,
+			} else {
+				for (i in elems) {
+					value = callback(elems[i], i);
+
+					if (value != null) {
+						ret.push(value);
+					}
+				}
+			}
+
+			// Flatten any nested arrays
+			return [].concat(ret);
+		};
 		$.data = function(elem, name, data) {
 			return $(elem).data(name, data);
 		};
+		$.Event = $.Event || function CustomEvent(event, params) {
+			params = params || {
+				bubbles: false,
+				cancelable: false,
+				detail: undefined
+			};
+			var evt = document.createEvent("CustomEvent");
+			evt.initCustomEvent(event, params.bubbles, params.cancelable, params.detail);
+			return evt;
+		}
+		$.Event.prototype = window.Event.prototype;
 
 		window.dependencyLib = $;
 		return $;

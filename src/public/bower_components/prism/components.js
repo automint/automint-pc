@@ -29,6 +29,10 @@ var components = {
 		"prism-coy": {
 			"title": "Coy",
 			"owner": "tshedor"
+		},
+		"prism-solarizedlight": {
+			"title": "Solarized Light",
+			"owner": "hectormatos2011 "
 		}
 	},
 	"languages": {
@@ -257,6 +261,10 @@ var components = {
 			"title": "Java",
 			"require": "clike",
 			"owner": "sherblot"
+		},
+		"json": {
+			"title": "JSON",
+			"owner": "CupOfTea696"
 		},
 		"julia": {
 			"title": "Julia",
@@ -597,6 +605,15 @@ var components = {
 		"keep-markup": {
 			"title": "Keep Markup",
 			"owner": "Golmote",
+			"noCSS": true
+		},
+		"command-line": {
+			"title": "Command Line",
+			"owner": "chriswells0"
+		},
+		"normalize-whitespace": {
+			"title": "Normalize Whitespace",
+			"owner": "zeitgeist87",
 			"noCSS": true
 		}
 	}
