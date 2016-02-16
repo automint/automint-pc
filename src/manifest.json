@@ -1,0 +1,25 @@
+{
+    "name": "Cruzer Workshop",
+    "description": "App for workshops by Cruzer",
+    "version": "0.1",
+    "manifest_version": 2,
+    "app": {
+        "background": {
+            "scripts": ["background.js"]
+        }
+    },
+    "icons": {
+        "16": "workshop-16.png",
+        "128": "workshop-128.png"
+    },
+    "content_security_policy": "default-src 'self' blob: filesystem: chrome-extension-resource:;img-src 'self' blob: filesystem: data: chrome-extension-resource:",
+    "web_accessible_resources": ["public/assets/img/*"],
+    "permissions": [
+        "http://maps.google.com/maps/*",
+        "history",
+        "unlimitedStorage",
+        "storage",
+        "filesystem",
+        "debugger"
+    ]
+}
