@@ -40,7 +40,6 @@ angular
             ]; */
             requestsHandler.service.getAll().then(function (data) {
                 vm.services = data;
-                debugger;
             }, function (e) {
 
             });
@@ -50,16 +49,16 @@ angular
         }
 ])
     .controller('serviceAddEditCtrl', [
-        '$scope',
-        'apiCall',
-        'manufectures',
-        'indexDBHandler',
-        function ($scope, apiCall, manufectures, indexDBHandler) {
+        '$scope', 'apiCall', 'requestsHandler', 'indexDBHandler', '$state',
+        function ($scope, apiCall, requestsHandler, indexDBHandler, $state) {
+
+            var db = indexDBHandler.getDB();
+
             var problemBlankModel = {
                 id: 0,
                 details: "",
-                lcost: 0,
-                pcost: 0,
+                rate: 0,
+                type: 0,
                 qty: 0
             };
             $scope.service = {
@@ -68,90 +67,81 @@ angular
                 lastname: "",
                 email: "",
                 reg: "",
-                manufec: "",
+                manu: "",
                 model: "",
                 date: "",
                 odo: 0,
                 cost: 0,
                 details: "",
+                model_id: "",
                 problems: []
             };
+
+            $scope.modelPre = {};
 
             $scope.service.problems.push(problemBlankModel);
             $scope.service.date = new Date();
 
-
-            /*  $scope.getUserAndVehicleDetails = function ($e) {
-                debugger;
-                var mobile = $scope.service.mobile;
-                if (mobile.trim() === "") {
-                    return;
-                }
-                apiCall.all("users/" + mobile + "/vehicles").success(function (data) {
-                    if (data.errorCode && data.errorCode == 1) {
-                        $scope.service.firstname = "";
-                        $scope.service.lastname = "";
-                        $scope.service.email = "";
-
-                    } else {
-                        $scope.service.firstname = data.firstname;
-                        $scope.service.lastname = data.lastname;
-                        $scope.service.email = data.email;
-                        document.getElementById("vreg").focus();
-                        $scope.userVehicle = data.vehicles;
-                        var regList = [];
-                        for (var i = 0; i < $scope.userVehicle.length; i++) {
-                            regList.push($scope.userVehicle[i].reg);
-                        }
-                        $("#vreg").autocomplete({
-                            source: regList
-                        });
-                    }
-                });
+            $scope.manufList = [];
+            var store = db.transaction(indexDBHandler.stores.manufacturer, 'readwrite').objectStore(indexDBHandler.stores.manufacturer);
+            var rquest = store.getAll().onsuccess = function (e) {
+                $scope.manufList = e.target.result;
+                //$scope.$apply();
             };
-*/
+
+            $scope.getModel = function () {
+                var store = db.transaction(indexDBHandler.stores.model, 'readwrite').objectStore(indexDBHandler.stores.model);
+                store.index('mname').getAll(IDBKeyRange.only($scope.manufecPre.name)).onsuccess = function (e) {
+                    $scope.modelList = e.target.result;
+                };
+            };
+            $scope.setModel = function () {
+                $scope.service.model_id = $scope.modelPre.id;
+                $scope.service.manufec = $scope.manufecPre.name;
+                $scope.service.model = $scope.modelPre.name;
+            };
 
             $scope.addProblemBlankRow = function ($e) {
-                debugger;
                 $scope.service.problems.push({
                     id: 0,
                     details: "",
-                    lcost: 0,
-                    pcost: 0,
+                    rate: 0,
+                    type: 0,
                     qty: 0
                 });
                 return false;
             }
 
             $scope.saveData = function ($e) {
-                debugger;
+                //Mobile Required validation
+                if ($scope.service.mobile.trim() === "") {
+                    UIkit.notify("Mobile number is required", {
+                        status: 'warning',
+                        timeout: 3000
+                    });
+                    return false;
+                }
+                //Reg Required validation
+                if ($scope.service.reg.trim() === "") {
+                    UIkit.notify("Vehicle Number is required", {
+                        status: 'warning',
+                        timeout: 3000
+                    });
+                    return false;
+                }
 
-
-
-
-                var db = indexDBHandler.getDB();
-                // Me Workshop
-                var transaction = db.transaction(indexDBHandler.stores.services, 'readwrite');
-                transaction.onerror = function (e) {
+                requestsHandler.service.add($scope.service).then(function () {
                     debugger;
-                    console.log(e.target.error.message);
-                    console.log("error transaction");
-                };
+                    UIkit.notify("Service Added.", {
+                        status: 'success',
+                        timeout: 3000
+                    });
+                    $state.go('restricted.services')
+                }, function () {
 
-                var serviceData = $scope.service;
-                var serviceStore = transaction.objectStore(indexDBHandler.stores.services);
-
-                var tranRequest = serviceStore.put(serviceData);
-                tranRequest.onsuccess = function (e) {
-                    console.log("New Service added");
-                };
-                tranRequest.onerror = function (e) {
-                    console.log(e.target.error.message);
-                };
-
-
+                });
                 return false;
             };
 
-
-        }]);
+        }
+]);

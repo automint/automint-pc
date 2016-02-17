@@ -146,12 +146,7 @@ altairApp
                                 'bower_components/jquery-ui/ui/autocomplete.js',
                                 'app/pages/services/serviceController.js'
                             ])
-                        }],
-                        manufectures: function (apiCall) {
-                            apiCall.all("manufacturers").success(function (data) {
-                                return data;
-                            });
-                        }
+                        }]
                     },
                     data: {
                         pageTitle: 'Services - List'

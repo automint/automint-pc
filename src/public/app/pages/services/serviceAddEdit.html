@@ -30,17 +30,17 @@
                     <div class="uk-width-medium-1-2">
                         <div class="uk-form-row">
                             <label>Vehicle Number</label>
-                            <input type="text" ng-model="service.reg" id="vreg" class=" md-input" md-input />
+                            <input type="text" ng-model="service.reg" id="vreg" class="md-input" md-input />
                         </div>
                         <div class="uk-form-row">
                             <div class="uk-grid">
                                 <div class="uk-width-medium-1-2">
                                     <label>Manufacurer</label>
-                                    <input type="text" ng-model="service.manufec" class="md-input" md-input />
+                                    <select class="md-input" cid="vmanuf" ng-change="getModel()" ng-model="manufecPre" ng-options="option.name for option in manufList track by option.id" ng-change=""></select>
                                 </div>
                                 <div class="uk-width-medium-1-2">
                                     <label>Model</label>
-                                    <input type="text" ng-model="service.model" class="md-input" md-input />
+                                    <select class="md-input" id="vmodel" ng-model="modelPre" ng-change='setModel()' ng-options="option.name for option in modelList track by option.id" ng-change=""></select>
                                 </div>
                             </div>
                         </div>
@@ -89,12 +89,14 @@
                                                 <input type="text" ng-model="problem.details" class="md-input label-fixed" md-input />
                                             </td>
                                             <td class="uk-width-2-10">
-                                                <label>Labour Cost</label>
-                                                <input type="text" class="md-input label-fixed" ng-model="problem.lcost" md-input />
+                                                <select class="md-input">
+                                                    <option value="1">Labour</option>
+                                                    <option value="1">Parts</option>
+                                                </select>
                                             </td>
                                             <td class="uk-width-2-10">
-                                                <label>Part Cost</label>
-                                                <input type="text" class="md-input label-fixed" ng-model="problem.pcost" md-input />
+                                                <label>Rate</label>
+                                                <input type="text" class="md-input label-fixed" ng-model="problem.rate" md-input />
                                             </td>
                                             <td class="uk-width-2-10">
                                                 <label>Quantity</label>

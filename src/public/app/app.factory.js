@@ -1,3 +1,4 @@
+//'use strict'
 altairApp
     .factory('windowDimensions', [
         '$window',
@@ -184,7 +185,9 @@ altairApp
                 settings: 'setting',
                 user: 'user',
                 services: 'service',
-                workshops: "workshop"
+                workshops: "workshop",
+                manufacturer: "manufcturer",
+                model: "model"
             },
             settingStore: {
 
@@ -205,11 +208,42 @@ altairApp
                             keyPath: "id",
                             autoIncrement: true
                         });
+                        userObjectStore.createIndex('mobile', 'mobile', {
+                            unique: true
+                        });
+                        userObjectStore.createIndex('sid', 'sid', {
+                            unique: true
+                        });
+                        userObjectStore.createIndex('validLoginMobileIdx', ['mobile', 'password'], {
+                            unique: false
+                        });
+                        userObjectStore.createIndex('validLoginEmailIdx', ['email', 'password'], {
+                            unique: false
+                        });
+                        userObjectStore.createIndex('logged', 'logged', {
+                            unique: true
+                        });
 
                         //Workshop Details Store
                         var workshopObjectStore = indexDB.db.createObjectStore('workshop', {
                             keyPath: "id",
                             autoIncrement: true
+                        });
+                        workshopObjectStore.createIndex('sid', 'sid', {
+                            unique: true
+                        });
+
+                        //Manufacturers Details Store
+                        var manufacurerObjectStore = indexDB.db.createObjectStore('manufcturer', {
+                            keyPath: "id"
+                        });
+
+                        //Model Details Store
+                        var modelObjectStore = indexDB.db.createObjectStore('model', {
+                            keyPath: "id"
+                        });
+                        modelObjectStore.createIndex('mname', 'manufacturer', {
+                            unique: false
                         });
 
                         //Service Details Store
@@ -217,25 +251,11 @@ altairApp
                             keyPath: "id",
                             autoIncrement: true
                         });
+                        serviceObjectStore.createIndex('sid', 'sid', {
+                            unique: true
+                        });
 
 
-                        userObjectStore.add({ // remove this dubmmy user 
-                            id: 1,
-                            fname: "Ankur",
-                            lname: "Loriya",
-                            mobile: "9998528138",
-                            email: "ankur.loriya@gmail.com",
-                            pass: "1",
-                            cityid: 1
-                        }).onsuccess = function (e) {
-                            console.log("Dummy user added for testing.");
-                        };
-                        userObjectStore.createIndex('validLoginMobileIdx', ['mobile', 'password'], {
-                            unique: false
-                        });
-                        userObjectStore.createIndex('validLoginEmailIdx', ['email', 'password'], {
-                            unique: false
-                        });
 
 
                         // This setting store has key/value pair for app settings
@@ -299,7 +319,6 @@ altairApp
                                 "mobile": data.id,
                                 "password": data.pass
                             }).then(function (data) { //Success Sync
-                                debugger;
                                 syncNotification.close();
                                 UIkit.notify(data, {
                                     status: 'success',
@@ -347,12 +366,12 @@ altairApp
                     var defer = $q.defer();
                     //Logic
                     var db = indexDBHandler.getDB();
-                    var userStore = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
-                    var rquest = userStore.getAll();
-                    rquest.onsuccess = function (e) {
+                    var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
+                    var request = store.getAll();
+                    request.onsuccess = function (e) {
                         defer.resolve(e.target.result);
                     };
-                    rquest.onsuccess = function (e) {
+                    request.onerror = function (e) {
                         defer.reject(e);
                     };
 
@@ -364,8 +383,8 @@ altairApp
                     var defer = $q.defer();
                     //Logic
                     var db = indexDBHandler.getDB();
-                    var userStore = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
-                    var rquest = userStore.get(id);
+                    var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
+                    var rquest = store.get(id);
                     rquest.onsuccess = function (e) {
                         defer.resolve(e.target.result);
                     };
@@ -381,8 +400,8 @@ altairApp
                     var defer = $q.defer();
                     //Logic
                     var db = indexDBHandler.getDB();
-                    var userStore = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
-                    var rquest = userStore.put(serviceData);
+                    var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
+                    var rquest = store.put(serviceData);
                     /* Sync Adapter */
 
                     rquest.onsuccess = function (e) {
@@ -398,22 +417,61 @@ altairApp
                 add: function (serviceData) {
                     // Return Promise object
                     var defer = $q.defer();
-                    //Logic
                     var db = indexDBHandler.getDB();
-                    var userStore = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
-                    var rquest = userStore.add(serviceData);
 
+                    //Logic
+                    //User Data
+                    /*var userData = {
+                        "sid": undefined,
+                        "mobile": serviceData.mobile,
+                        "firstname": serviceData.firstname,
+                        "lastname": serviceData.lastname,
+                        "email": serviceData.email
+                    };
+                    var store = db.transaction(indexDBHandler.stores.user, 'readwrite').objectStore(indexDBHandler.stores.user);
+                    var rquest = store.add(userData).onsuccess = function (e) {
+                        console.log("User Saved");
+                    };
+
+
+                    //Service Data
+                    var serviceD = {
+                        reg: serviceData.reg,
+                        model: serviceData.model,
+                        date: serviceData.date,
+                        odo: serviceData.odo,
+                        cost: serviceData.cost,
+                        details: serviceData.details,
+                        problems: serviceData.problems
+                    }*/
+
+                    serviceData.sid = -1;
+                    var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
+                    var rquest = store.add(serviceData);
 
                     rquest.onsuccess = function (e) {
                         /* Sync Adapter */
-                        syncRequestHandler.service.add(serviceData).then(function () {
-                            defer.resolve(e.target.result);
-                        }, function () {
+                        debugger;
+                        defer.resolve(e.target.result); // Send to UI
+                        serviceData.id = e.target.result;
+                        syncRequestHandler.service.add(serviceData).then(function (data) {
+                            debugger
+                            serviceData.sid = data.service_id;
+                            var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
+                            var rquest = store.put(serviceData);
+                            rquest.onsuccess = function (e) {
+                                console.log("Update information with server id");
+                            }
+                            console.log("New Service added on server");
 
+                        }, function (e) {
+                            debugger;
+                            console.log("New Service failed add on server");
                         })
 
                     };
-                    rquest.onsuccess = function (e) {
+                    rquest.onerror = function (e) {
+                        debugger;
                         defer.reject(e);
                     };
 
@@ -457,7 +515,35 @@ altairApp
 
             return deff;
         };
+        _this.loginWithCurrentUser = function (callback) {
+            var i = 0;
+            var maxTry = 2;
+            var db = indexDBHandler.getDB();
+            var store = db.transaction(indexDBHandler.stores.user, 'readwrite').objectStore(indexDBHandler.stores.user);
+            var rquest = store.index('logged').get(IDBKeyRange.only(true)).onsuccess = function (e) {
+                var loginData = {
+                    id: e.target.result.mobile,
+                    pass: e.target.result.password
+                };
+                var callLogin = function () {
+                    if (e.target && e.target.result) {
+                        i++;
+                        _this.login(loginData).then(function (data) {
 
+                            if (data.error && i <= maxTry) {
+                                callLogin();
+                            } else {
+                                callback(true);
+                            }
+
+                        }, function () {
+                            callback(false);
+                        });
+                    }
+                };
+            };
+            call();
+        }
 
         //featch data 
         _this.featcher = function (requests) {
@@ -540,7 +626,12 @@ altairApp
                                 data: undefined
                             }
                         };
-
+                        var deffLocal = $.Deferred();
+                        deffLocal.then(function () {
+                            deffOuter.resolve("Syncing Done.");
+                        }, function () {
+                            deffOuter.reject("Syncing Failed.");
+                        });
                         //Featch data
                         _this.featcher(requests).then(function (requests) { //Success when all data loaded
                                 var db = indexDBHandler.getDB();
@@ -559,19 +650,20 @@ altairApp
                                         "latitude": "lati",
                                         "longitude": "long"
                                     }
-
                                 };
 
                                 //Me
                                 var transaction = db.transaction(indexDBHandler.stores.user, 'readwrite');
 
                                 transaction.onerror = function (e) {
-                                    debugger;
                                     console.log(e.target.error.message);
                                     console.log("error transaction");
                                 }
 
-                                var meData = requests.me.data.user_info; //utils.mapJSONKeyName(schemaMaps.customer, requests.me.data.user_info);
+                                var meData = utils.mapJSONKeyName({ //Change key name 'id' to 'sid'
+                                    "id": "sid"
+                                }, requests.me.data.user_info);
+                                meData["logged"] = true;
                                 var userStore = transaction.objectStore(indexDBHandler.stores.user);
                                 var tranRequest = userStore.put(meData);
                                 tranRequest.onsuccess = function (e) {
@@ -584,12 +676,13 @@ altairApp
                                 // Me Workshop
                                 transaction = db.transaction(indexDBHandler.stores.workshops, 'readwrite');
                                 transaction.onerror = function (e) {
-                                    debugger;
                                     console.log(e.target.error.message);
                                     console.log("error transaction");
                                 };
-                                ``
-                                var workshopData = requests.me.data.workshop_info;
+
+                                var workshopData = utils.mapJSONKeyName({ //Change key name 'id' to 'sid'
+                                    "id": "sid"
+                                }, requests.me.data.workshop_info);
                                 var workshopStore = transaction.objectStore(indexDBHandler.stores.workshops);
                                 for (var i = 0; i < workshopData.length; i++) {
                                     var tranRequest = workshopStore.put(workshopData[i]);
@@ -601,12 +694,53 @@ altairApp
                                     };
                                 }
 
+                                //Manufacturer
+                                transaction = db.transaction(indexDBHandler.stores.manufacturer, 'readwrite');
+                                transaction.onerror = function (e) {
+                                    console.log(e.target.error.message);
+                                    console.log("error transaction");
+                                };
+                                debugger;
+                                var meufData = requests.manuf.data;
+                                var i = 0;
+                                //var modelData = requests.model;
+                                var meufStore = transaction.objectStore(indexDBHandler.stores.manufacturer);
+                                var insertNextManuf = function () {
+                                    if (i < meufData.length) {
+                                        meufStore.put(meufData[i]).onsuccess = insertNextManuf;
+                                        ++i;
+                                    } else { // complete
+                                        console.log('All Manufecture Added');
+                                    }
+                                };
+                                insertNextManuf();
+
+                                //Models
+                                transaction = db.transaction(indexDBHandler.stores.model, 'readwrite');
+                                transaction.onerror = function (e) {
+                                    console.log(e.target.error.message);
+                                    console.log("error transaction");
+                                };
+
+                                var modelfData = requests.model.data;
+                                //var modelData = requests.model;
+                                var modelStore = transaction.objectStore(indexDBHandler.stores.model);
+                                var i = 0;
+                                var insertNextModel = function () {
+                                    if (i < modelfData.length) {
+                                        modelStore.put(modelfData[i]).onsuccess = insertNextModel;
+                                        ++i;
+                                    } else { // complete
+                                        console.log('All Models Added');
+                                    }
+                                };
+                                insertNextModel();
+
                                 //Services
                                 var servicesData = requests.service.data;
                                 if (servicesData && !servicesData.success) {
 
                                     var loadProblems = function (service, index) {
-                                        debugger;
                                         service.problems = [];
                                         var deff = $.Deferred();
                                         apiCall.custom2({
@@ -614,7 +748,6 @@ altairApp
                                             method: "GET",
                                             requestType: 'json',
                                         }).then(function (data) {
-                                            debugger;
                                             deff.resolve(data.data, index);
                                         }, function (e) {
                                             deff.reject(e, index);
@@ -629,41 +762,36 @@ altairApp
                                         }, service);
                                         var transaction = db.transaction(indexDBHandler.stores.services, 'readwrite');
                                         transaction.onerror = function (e) {
-                                            debugger;
                                             console.log(e.target.error.message);
                                             console.log("error transaction");
                                         };
                                         var serviceStore = transaction.objectStore(indexDBHandler.stores.services);
                                         var tranRequest = serviceStore.add(service);
                                         tranRequest.onsuccess = function (e) {
-                                            debugger;
                                             console.log("Service Data saved in indexedb");
+                                            deffLocal.resolve();
+
                                         };
                                         tranRequest.onerror = function (e) {
                                             console.log(e.target.error.message);
+                                            deffLocal.resolve();
                                         };
                                     }
 
                                     for (var i = 0; i < servicesData.length; i++) {
                                         loadProblems(servicesData[i], i).then(function (data, index) {
-                                            debugger;
                                             servicesData[index].problems = data;
                                             addService(servicesData[index]);
-
                                         }, function (e) {
                                             addService(servicesData[index]);
-                                        }, function () {
-                                            debugger;
-                                            console.log("finally called");
                                         });
                                     }
                                 }
 
 
                                 //Firest Sync Off
-                                /*transaction = db.transaction(indexDBHandler.stores.settings, 'readwrite');
+                                transaction = db.transaction(indexDBHandler.stores.settings, 'readwrite');
                                 transaction.onerror = function (e) {
-                                    debugger;
                                     console.log(e.target.error.message);
                                     console.log("error transaction");
                                 };
@@ -671,7 +799,7 @@ altairApp
                                 settingStore.put({
                                     "key": "first-login",
                                     "value": false
-                                });*/
+                                });
 
 
                             },
@@ -679,8 +807,6 @@ altairApp
                                 deffOuter.reject("Error :(");
                             });
                         // over rquest for loop
-
-
 
                     },
                     function (e) { // Failed on login
@@ -694,14 +820,28 @@ altairApp
             service: {
                 add: function (serviceData) {
                     var deff = $.Deferred();
-                    deff.resolve(""); // Just testing
-                    var callService = function () {
+                    // Just testing
+                    var callService = function (loginResonse) {
+                        if (loginResonse != undefined && !loginResonse) {
+                            deff.reject("Login failed");
+                            return;
+                        }
                         apiCall.custom2({
-
-                        }).success(function () {
-
+                            url: "/services",
+                            method: "POST",
+                            data: serviceData
+                        }).success(function (data) {
+                            debugger;
+                            if (data.success && data.success == false && data.message.toLowerCase().contains("token")) {
+                                console.log("Login Failed. Try to login.");
+                                loginWithCurrentUser(callService); //Give current function as callback if loging fail or success 
+                            }
+                            deff.resolve(data);
+                        }).error(function (e) {
+                            deff.reject(e);
                         });
                     }
+                    callService();
                     return deff;
                 }
             }
