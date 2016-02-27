@@ -78,8 +78,9 @@ angular
             };
             $scope.modelPre = {};
             $scope.manufList = [];
-            $scope.service.problems.push(problemBlankModel);
             $scope.service.date = new Date();
+            $scope.service.problems.push(problemBlankModel);
+
 
             var store = db.transaction(indexDBHandler.stores.manufacturer, 'readwrite').objectStore(indexDBHandler.stores.manufacturer);
             var rquest = store.getAll().onsuccess = function (e) {
@@ -109,8 +110,6 @@ angular
                 });
             }
 
-
-            $scope.service.problems.push(problemBlankModel);
 
             var store = db.transaction(indexDBHandler.stores.manufacturer, 'readwrite').objectStore(indexDBHandler.stores.manufacturer);
             var rquest = store.getAll().onsuccess = function (e) {

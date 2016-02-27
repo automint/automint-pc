@@ -68,11 +68,16 @@ angular
                     'id': $scope.login_username,
                     'pass': $scope.login_password
                 }).then(function (data) { // Do login proccess 
+                    debugger;
                     if (data.code === 2) {
                         $state.go('restricted.services');
                     }
                 }, function (data) { // Failed login proccess
-
+                    debugger;
+                    UIkit.notify(data.msg, {
+                        status: 'danger',
+                        timeout: 5000
+                    });
                 });
             };
         }
