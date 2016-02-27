@@ -149,12 +149,6 @@ angular
             // menu entries
             $scope.sections = [
                 {
-                    id: 0,
-                    title: 'Dashboard',
-                    icon: '&#xE871;',
-                    link: 'restricted.dashboard'
-                },
-                {
                     id: 1,
                     title: 'Service',
                     icon: '&#xE869;',
@@ -162,7 +156,7 @@ angular
                 },
                 {
                     id: 2,
-                    title: 'Service Add',
+                    title: 'Add Service',
                     icon: '&#xE869;',
                     link: 'restricted.servicesadd'
                 }

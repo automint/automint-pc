@@ -1,3 +1,4 @@
+//'use strict'
 altairApp
     .factory('windowDimensions', [
         '$window',
@@ -96,6 +97,18 @@ altairApp
             }
         };
     })
+    .factory('workshopIdHandler', function () {
+        var currentID = -1;
+
+        return {
+            get: function () {
+                return currentID;
+            },
+            set: function (id) {
+                currentID = id;
+            }
+        }
+    })
     .factory('accessTokenHandler', function () {
         var tokenLocalKeyName = "x-access-token";
         var currentToken = undefined;
@@ -148,17 +161,16 @@ altairApp
             }
         };
     })
-    .factory('httpInterceptor', function (accessTokenHandler) { /* HTTP Interceptor to handle and Check for login */
+    .factory('httpInterceptor', function (accessTokenHandler, workshopIdHandler) { /* HTTP Interceptor to handle and Check for login */
 
         return {
             request: function (config) {
                 //console.log("HTTP Request to " + config.url);
-                var accessToken = accessTokenHandler.get();
                 //console.log("Access Token = " + accessToken);
+                var accessToken = accessTokenHandler.get();
                 if (accessToken) {
                     config.headers['x-access-token'] = accessToken;
-                    config.headers['x-workshop-id'] = 1;
-
+                    config.headers['x-workshop-id'] = workshopIdHandler.get();
                 }
                 return config;
             },
@@ -184,7 +196,9 @@ altairApp
                 settings: 'setting',
                 user: 'user',
                 services: 'service',
-                workshops: "workshop"
+                workshops: "workshop",
+                manufacturer: "manufcturer",
+                model: "model"
             },
             settingStore: {
 
@@ -205,11 +219,42 @@ altairApp
                             keyPath: "id",
                             autoIncrement: true
                         });
+                        userObjectStore.createIndex('mobile', 'mobile', {
+                            unique: true
+                        });
+                        userObjectStore.createIndex('sid', 'sid', {
+                            unique: true
+                        });
+                        userObjectStore.createIndex('validLoginMobileIdx', ['mobile', 'password'], {
+                            unique: false
+                        });
+                        userObjectStore.createIndex('validLoginEmailIdx', ['email', 'password'], {
+                            unique: false
+                        });
+                        userObjectStore.createIndex('logged', 'logged', {
+                            unique: true
+                        });
 
                         //Workshop Details Store
                         var workshopObjectStore = indexDB.db.createObjectStore('workshop', {
                             keyPath: "id",
                             autoIncrement: true
+                        });
+                        workshopObjectStore.createIndex('sid', 'sid', {
+                            unique: true
+                        });
+
+                        //Manufacturers Details Store
+                        var manufacurerObjectStore = indexDB.db.createObjectStore('manufcturer', {
+                            keyPath: "id"
+                        });
+
+                        //Model Details Store
+                        var modelObjectStore = indexDB.db.createObjectStore('model', {
+                            keyPath: "id"
+                        });
+                        modelObjectStore.createIndex('mname', 'manufacturer', {
+                            unique: false
                         });
 
                         //Service Details Store
@@ -217,26 +262,9 @@ altairApp
                             keyPath: "id",
                             autoIncrement: true
                         });
-
-
-                        userObjectStore.add({ // remove this dubmmy user 
-                            id: 1,
-                            fname: "Ankur",
-                            lname: "Loriya",
-                            mobile: "9998528138",
-                            email: "ankur.loriya@gmail.com",
-                            pass: "1",
-                            cityid: 1
-                        }).onsuccess = function (e) {
-                            console.log("Dummy user added for testing.");
-                        };
-                        userObjectStore.createIndex('validLoginMobileIdx', ['mobile', 'password'], {
-                            unique: false
+                        serviceObjectStore.createIndex('sid', 'sid', {
+                            unique: true
                         });
-                        userObjectStore.createIndex('validLoginEmailIdx', ['email', 'password'], {
-                            unique: false
-                        });
-
 
                         // This setting store has key/value pair for app settings
                         indexDB.db.createObjectStore('setting', {
@@ -245,7 +273,6 @@ altairApp
                             "key": "first-login",
                             "val": true // It should be true // false for tesing 
                         });
-
 
                         console.log("DB Update Done");
                     }
@@ -275,7 +302,7 @@ altairApp
         objectIndexDB.open();
         return objectIndexDB;
     })
-    .factory('requestsHandler', function ($q, indexDBHandler, syncRequestHandler) {
+    .factory('requestsHandler', function ($q, indexDBHandler, syncRequestHandler, workshopIdHandler) {
         return {
             login: {
                 doLoing: function (data) {
@@ -299,7 +326,6 @@ altairApp
                                 "mobile": data.id,
                                 "password": data.pass
                             }).then(function (data) { //Success Sync
-                                debugger;
                                 syncNotification.close();
                                 UIkit.notify(data, {
                                     status: 'success',
@@ -323,21 +349,43 @@ altairApp
                             // Check from db
                             var userStore = db.transaction(indexDBHandler.stores.user, 'readwrite').objectStore(indexDBHandler.stores.user);
                             userStore.index('validLoginMobileIdx').get(IDBKeyRange.only([data.id, data.pass])).onsuccess = function (e) {
-                                //console.log(e.target.result);
-                                if (e.target.result) {
-                                    defer.resolve({
-                                        code: 2
-                                    }); // Login success
-                                } else {
-                                    var data = {
-                                        msg: "Email/Mobile and Password not match."
+                                var workshopStore = db.transaction(indexDBHandler.stores.workshops, 'readwrite').objectStore(indexDBHandler.stores.workshops);
+                                workshopStore.getAll().onsuccess = function (e) {
+                                    debugger;
+                                    workshopIdHandler.set(e.target.result[0].sid);
+                                    if (e.target.result) {
+                                        defer.resolve({
+                                            code: 2
+                                        }); // Login success
+                                    } else {
+                                        var data = {
+                                            msg: "Email/Mobile and Password not match."
+                                        }
+                                        defer.reject(data); //Login failed
                                     }
-                                    defer.reject(data); //Login failed
                                 }
                             };
                         }
                     };
                     // Over Login Logic
+                    return defer.promise;
+                }
+            },
+            user: {
+                get: function (id) {
+                    var defer = $q.defer();
+                    //Logic
+                    var db = indexDBHandler.getDB();
+                    var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
+                    var request = store.get(id);
+                    request.onsuccess = function (e) {
+                        defer.resolve(e.target.result);
+                    };
+                    request.onerror = function (e) {
+                        defer.reject(e);
+                    };
+
+                    // Over Logic
                     return defer.promise;
                 }
             },
@@ -347,12 +395,28 @@ altairApp
                     var defer = $q.defer();
                     //Logic
                     var db = indexDBHandler.getDB();
-                    var userStore = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
-                    var rquest = userStore.getAll();
-                    rquest.onsuccess = function (e) {
-                        defer.resolve(e.target.result);
+                    var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
+                    var request = store.getAll();
+                    request.onsuccess = function (e) {
+                        var services = e.target.result;
+                        var i = 0;
+                        var getUsers = function (e) {
+                            if (i >= services.length) { // done all user load in services
+                                defer.resolve(services);
+                                return;
+                            }
+                            var store = db.transaction(indexDBHandler.stores.user, 'readwrite').objectStore(indexDBHandler.stores.user);
+                            var request = store.get(services[i].luid);
+                            request.onsuccess = function (e) {
+                                services[i].user = e.target.result;
+                                i++;
+                                getUsers();
+                            }
+
+                        }
+                        getUsers();
                     };
-                    rquest.onsuccess = function (e) {
+                    request.onerror = function (e) {
                         defer.reject(e);
                     };
 
@@ -361,15 +425,32 @@ altairApp
                 },
                 get: function (id) {
                     // Return Promise object
+
                     var defer = $q.defer();
+                    id = parseInt(id);
+                    if (id === NaN) { //If ID NaN
+                        defer.reject("Id is NaN");
+                        return defer;
+                    }
                     //Logic
                     var db = indexDBHandler.getDB();
-                    var userStore = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
-                    var rquest = userStore.get(id);
+                    var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
+                    var rquest = store.get(id);
                     rquest.onsuccess = function (e) {
-                        defer.resolve(e.target.result);
+                        var service = e.target.result;
+                        var store = db.transaction(indexDBHandler.stores.user, 'readwrite').objectStore(indexDBHandler.stores.user);
+                        var request = store.get(IDBKeyRange.only(service.luid));
+                        request.onsuccess = function (e1) {
+                            var user = e1.target.result;
+                            service.uid = user.sid;
+                            service.firstname = user.firstname;
+                            service.lastname = user.lastname;
+                            service.mobile = user.mobile;
+                            service.email = user.email;
+                            defer.resolve(service);
+                        }
                     };
-                    rquest.onsuccess = function (e) {
+                    rquest.onerror = function (e) {
                         defer.reject(e);
                     };
 
@@ -380,15 +461,21 @@ altairApp
                     // Return Promise object
                     var defer = $q.defer();
                     //Logic
+                    debugger;
                     var db = indexDBHandler.getDB();
-                    var userStore = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
-                    var rquest = userStore.put(serviceData);
-                    /* Sync Adapter */
+                    var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
+                    var rquest = store.put(serviceData);
 
                     rquest.onsuccess = function (e) {
+                        debugger;
+                        syncRequestHandler.service.addUpdate(serviceData).then(function (data) {
+                            debugger;
+                        }, function () {
+                            debugger;
+                        });
                         defer.resolve(e.target.result);
                     };
-                    rquest.onsuccess = function (e) {
+                    rquest.onerror = function (e) {
                         defer.reject(e);
                     };
 
@@ -398,32 +485,69 @@ altairApp
                 add: function (serviceData) {
                     // Return Promise object
                     var defer = $q.defer();
-                    //Logic
                     var db = indexDBHandler.getDB();
-                    var userStore = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
-                    var rquest = userStore.add(serviceData);
 
-
-                    rquest.onsuccess = function (e) {
+                    //Logic
+                    var serviceDataDummy = $.extend(true, {}, serviceData);
+                    var syncCall = function () {
                         /* Sync Adapter */
-                        syncRequestHandler.service.add(serviceData).then(function () {
-                            defer.resolve(e.target.result);
-                        }, function () {
+                        syncRequestHandler.service.addUpdate(serviceDataDummy).then(function (data) {
+                            debugger
+                            serviceData.sid = data.service_id;
+                            serviceData.uid = data.user_id;
+                            serviceData.vid = data.vehicle_id;
+                            for (var i = 0; i < data.problems.length; i++) {
+                                serviceData.problems[i].id = data.problems[i];
+                            }
+                            var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
+                            var rquest = store.put(serviceDataDummy);
+                            rquest.onsuccess = function (e) {
+                                console.log("Update information with server id");
+                            }
+                            console.log("New Service added on server");
 
+                        }, function (e) {
+                            debugger;
+                            console.log("New Service failed add on server");
                         })
-
                     };
-                    rquest.onsuccess = function (e) {
-                        defer.reject(e);
-                    };
+                    var userData = {};
+                    userData.email = serviceData.email;
+                    userData.firstname = serviceData.firstname;
+                    userData.lastname = serviceData.lastname;
+                    userData.mobile = serviceData.mobile;
 
+                    var userStore = db.transaction(indexDBHandler.stores.user, 'readwrite').objectStore(indexDBHandler.stores.user);
+                    var userRquest = userStore.add(userData);
+
+                    userRquest.onsuccess = function (e) {
+                        delete serviceData.email;
+                        delete serviceData.firstname;
+                        delete serviceData.lastname;
+                        delete serviceData.mobile;
+
+                        serviceData.luid = e.target.result;
+                        serviceDataDummy.luid = e.target.result;
+                        var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
+                        var rquest = store.add(serviceData);
+                        rquest.onsuccess = function (e) {
+                            defer.resolve();
+                            debugger;
+                            serviceDataDummy.id = e.target.result;
+                            syncCall();
+                        }
+                        rquest.onerror = function (e) {
+                            debugger;
+                            defer.reject(e);
+                        };
+                    };
                     // Over Logic
                     return defer.promise;
                 }
             }
         };
     })
-    .factory('syncRequestHandler', function (variables, indexDBHandler, apiCall, accessTokenHandler, utils) {
+    .factory('syncRequestHandler', function (variables, indexDBHandler, apiCall, accessTokenHandler, utils, workshopIdHandler) {
         var server = {};
         var token = undefined;
         var _this = {};
@@ -457,19 +581,94 @@ altairApp
 
             return deff;
         };
+        _this.loginWithCurrentUser = function (callback) {
+            var i = 0;
+            var maxTry = 2;
+            var db = indexDBHandler.getDB();
+            var store = db.transaction(indexDBHandler.stores.user, 'readwrite').objectStore(indexDBHandler.stores.user);
+            var rquest = store.index('logged').get(IDBKeyRange.only(true)).onsuccess = function (e) {
+                var loginData = {
+                    id: e.target.result.mobile,
+                    pass: e.target.result.password
+                };
+                var callLogin = function () {
+                    if (e.target && e.target.result) {
+                        i++;
+                        _this.login(loginData).then(function (data) {
 
+                            if (data.error && i <= maxTry) {
+                                callLogin();
+                            } else {
+                                callback(true);
+                            }
+
+                        }, function () {
+                            callback(false);
+                        });
+                    }
+                };
+            };
+            callLogin();
+        }
 
         //featch data 
         _this.featcher = function (requests) {
             //Function for call Network
             var requestCall = function (request, index, key) {
+
+                //Loop Request when parent is run loop for child
+                var deffLoopRequestCall = $.Deferred();
+                var loopIndex = 0;
+                var loopRequestCall = function (data) {
+                    var childURL = request.child.url.replace("{id}", data.data[loopIndex].id);
+                    apiCall.custom2({
+                        url: childURL,
+                        method: request.child.method,
+                        requestType: 'json',
+                    }).then(function (data1) {
+                        data.data[loopIndex][request.child.key] = data1.data;
+                        if (loopIndex < data.data.length - 1) {
+                            loopIndex++;
+                            loopRequestCall(data);
+                        } else {
+                            deffLoopRequestCall.resolve(data);
+                        }
+                    }, function (e) {
+                        deffLoopRequestCall.reject(data);
+                    });
+                }; //loopRequestCall
+
                 var deff = $.Deferred();
                 apiCall.custom2({
                     url: request.url,
                     method: request.method,
                     requestType: 'json',
                 }).then(function (data) {
-                    deff.resolve(data, index, key);
+                    if (request.child) { // Child call 
+                        if (Array.isArray(data.data)) {
+                            loopRequestCall(data);
+                            deffLoopRequestCall.then(function (data) {
+                                deff.resolve(data, index, key);
+                            }, function (data) {
+                                console.log("Error to get child - " + request.child)
+                                deff.resolve(data, index, key);
+                            });
+                        } else {
+                            var childURL = request.child.url.replace("{id}", data.data.id);
+                            apiCall.custom2({
+                                url: childURL,
+                                method: request.child.method,
+                                requestType: 'json',
+                            }).then(function (data1) {
+                                data[request.child.key] = data1.data;
+                                deff.resolve(data, index, key);
+                            }, function (e) {
+                                deff.resolve(data, index, key);
+                            });
+                        }
+                    } else {
+                        deff.resolve(data, index, key);
+                    }
                 }, function (e) {
                     deff.reject({
                         error: e,
@@ -507,12 +706,163 @@ altairApp
                 i++;
             }
             return deffOuter;
-        }
+        }; //Feature 
+
+
+
+        _this.syncSchemaManager = function (requests, schema) {
+            var deffOuter = $.Deferred();
+            var maps = schema.maps;
+            var mapIndex = 0;
+            var cacheIdMaps = {};
+            var returnMapsResult = {};
+
+            var deffNextMap = $.Deferred();
+            var nextMap = function () {
+                debugger;
+
+
+                var map = maps[mapIndex];
+                var request = requests[map.requestName];
+                var cacheIds = undefined;
+
+
+
+                var requestData;
+                if (map.data && map.data.data) {
+                    debugger;
+                    requestData = map.data.data;
+                } else {
+                    if (map.data && map.data.subKey) {
+                        requestData = request.data[map.data.subKey];
+                    } else {
+                        requestData = request.data;
+                    }
+                }
+                //Function for inser or update data
+                var updateDB = function (map, data) {
+                    var deffLocal = $.Deferred();
+                    var db = indexDBHandler.getDB();
+                    var isArrayData = Array.isArray(data);
+
+                    var doneUpdate = function () {
+
+                    }; //doneUpdate()
+
+                    //Create Transaction
+                    var transaction = db.transaction(map.store, 'readwrite');
+                    transaction.onerror = function (e) {
+                        console.log(e.target.error.message);
+                        console.log("error transaction");
+                    };
+                    var deffUpdateRow = $.Deferred();
+                    var nextDataRow = function (dataIndex) {
+                        var dataInsert;
+                        if (isArrayData) {
+                            dataInsert = data[dataIndex];
+                        } else {
+                            dataInsert = data;
+                        }
+
+                        //Append Data
+                        if (map.appendData) {
+                            dataInsert = $.extend(true, dataInsert, map.appendData);
+                        }
+
+                        //Translate Keys 
+                        if (map.translateKeys) {
+                            dataInsert = utils.mapJSONKeyName(map.translateKeys, dataInsert);
+                        }
+
+                        //Remove Keys
+                        if (map.removeKeys) {
+                            debugger;
+                            for (var i = 0; i < map.removeKeys.length; i++) {
+                                delete dataInsert[map.removeKeys[i]];
+                            }
+                        }
+                        //Transtale Local DB key from cached
+                        if (map.translateToLocalKeys) {
+                            if (map.translateToLocalKeys.cacheIdMap) {
+                                debugger
+                                var cachedMap = cacheIdMaps[map.translateToLocalKeys.cacheIdMap.map];
+                                dataInsert[map.translateToLocalKeys.cacheIdMap.newKey] = cachedMap[dataInsert[map.translateToLocalKeys.cacheIdMap.requestKey]];
+                            }
+                        }
+                        var changeRequest;
+                        var store = transaction.objectStore(map.store);
+                        if (map.existOnUpdate) {
+                            changeRequest = store.put(dataInsert);
+                        } else {
+                            changeRequest = store.add(dataInsert);
+                        }
+
+                        changeRequest.onsuccess = function (e) {
+                            //Cache new id for other where use
+                            if (map.cacheIdMap && map.cacheIdMap.name && !map.existOnUpdate) { // Create blank if not exsist 
+                                if (!cacheIdMaps[map.cacheIdMap.name])
+                                    cacheIdMaps[map.cacheIdMap.name] = {};
+
+                                cacheIdMaps[map.cacheIdMap.name][dataInsert.sid] = e.target.result;
+                            }
+
+                            if (isArrayData && dataIndex < data.length - 1) {
+                                nextDataRow(++dataIndex);
+                            } else {
+                                deffUpdateRow.resolve(dataIndex);
+                            }
+                        };
+                        changeRequest.onerror = function (e) {
+                            // console.log(e.target.error.message);
+                            deffUpdateRow.reject(e.target.error.message, dataIndex);
+                        };
+
+
+                    }; // nextDataRow()
+
+                    //Call 
+                    nextDataRow(0);
+                    deffUpdateRow.then(function (index) { // All row updated in db ?
+                        console.log("All row update in '" + map.store + "' store of map : " + map.name);
+                        deffLocal.resolve();
+                    }, function (msg, indexOnFailed) { // No failed
+                        deffLocal.reject(msg);
+                        console.error(msg);
+                    });
+
+                    return deffLocal;
+                }; // updateDB()
+
+                updateDB(map, requestData).then(function () {
+                    if (mapIndex < maps.length - 1) {
+                        mapIndex++;
+                        nextMap();
+                    } else {
+                        deffNextMap.resolve();
+                    }
+                }, function (msg) {
+                    debugger;
+                });
+            }; // nextMap()
+            nextMap();
+            deffNextMap.then(function () {
+                debugger;
+                deffOuter.resolve();
+            }, function () {
+                debugger;
+                deffOuter.reject();
+            });
+            return deffOuter;
+        }; // Sync Manger
+
+
+        //Return object of sync
         return {
             featch: function (data) {
                 var deffOuter = $.Deferred();
                 _this.login(data).then(function (data) { //Success Login
                         console.log("Server Login success with server");
+
                         var requests = {
                             "me": {
                                 url: "/me",
@@ -526,6 +876,16 @@ altairApp
                             },
                             "service": {
                                 url: "/services",
+                                method: "GET",
+                                data: undefined,
+                                child: {
+                                    url: "/services/{id}/problems",
+                                    method: "GET",
+                                    key: "problems"
+                                }
+                            },
+                            "customer": {
+                                url: "/customers",
                                 method: "GET",
                                 data: undefined
                             },
@@ -541,147 +901,107 @@ altairApp
                             }
                         };
 
+
                         //Featch data
                         _this.featcher(requests).then(function (requests) { //Success when all data loaded
-                                var db = indexDBHandler.getDB();
+                            console.log("All Data feached");
+                            var db = indexDBHandler.getDB();
 
-                                //Put in inedexedDB
-                                var schemaMaps = {
-                                    "customer": {
-                                        "firstname": "fname",
-                                        "lastname": "lname",
-                                        "city_id": "cityid",
-                                        "password": "pass",
-                                        //"id": "sid"
+                            var syncSchema = {
+                                maps: [{ //-------------------------------------------- User (logged user)
+                                    name: "me",
+                                    requestName: "me",
+                                    store: indexDBHandler.stores.user,
+                                    existOnUpdate: false,
+                                    data: {
+                                        subKey: "user_info",
+                                        isArray: false
                                     },
-                                    "workshop": {
-                                        "offerings": "offer",
-                                        "latitude": "lati",
-                                        "longitude": "long"
+                                    appendData: {
+                                        "logged": true
+                                    },
+                                    translateKeys: {
+                                        "id": "sid"
+                                    },
+                                    cacheIdMap: {
+                                        name: "usersid"
                                     }
-
-                                };
-
-                                //Me
-                                var transaction = db.transaction(indexDBHandler.stores.user, 'readwrite');
-
-                                transaction.onerror = function (e) {
-                                    debugger;
-                                    console.log(e.target.error.message);
-                                    console.log("error transaction");
-                                }
-
-                                var meData = requests.me.data.user_info; //utils.mapJSONKeyName(schemaMaps.customer, requests.me.data.user_info);
-                                var userStore = transaction.objectStore(indexDBHandler.stores.user);
-                                var tranRequest = userStore.put(meData);
-                                tranRequest.onsuccess = function (e) {
-                                    console.log("User info saved in indexedb");
-                                };
-                                tranRequest.onerror = function (e) {
-                                    console.log(e.target.error.message);
-                                };
-
-                                // Me Workshop
-                                transaction = db.transaction(indexDBHandler.stores.workshops, 'readwrite');
-                                transaction.onerror = function (e) {
-                                    debugger;
-                                    console.log(e.target.error.message);
-                                    console.log("error transaction");
-                                };
-                                ``
-                                var workshopData = requests.me.data.workshop_info;
-                                var workshopStore = transaction.objectStore(indexDBHandler.stores.workshops);
-                                for (var i = 0; i < workshopData.length; i++) {
-                                    var tranRequest = workshopStore.put(workshopData[i]);
-                                    tranRequest.onsuccess = function (e) {
-                                        console.log("Workshop info saved in indexedb");
-                                    };
-                                    tranRequest.onerror = function (e) {
-                                        console.log(e.target.error.message);
-                                    };
-                                }
-
-                                //Services
-                                var servicesData = requests.service.data;
-                                if (servicesData && !servicesData.success) {
-
-                                    var loadProblems = function (service, index) {
-                                        debugger;
-                                        service.problems = [];
-                                        var deff = $.Deferred();
-                                        apiCall.custom2({
-                                            url: "/services/" + service.id + "/problems",
-                                            method: "GET",
-                                            requestType: 'json',
-                                        }).then(function (data) {
-                                            debugger;
-                                            deff.resolve(data.data, index);
-                                        }, function (e) {
-                                            deff.reject(e, index);
-                                        });
-                                        return deff;
-
-                                    }; //Function over
-
-                                    var addService = function (service) {
-                                        var service = utils.mapJSONKeyName({ //Change key name 'id' to 'sid'
-                                            "id": "sid"
-                                        }, service);
-                                        var transaction = db.transaction(indexDBHandler.stores.services, 'readwrite');
-                                        transaction.onerror = function (e) {
-                                            debugger;
-                                            console.log(e.target.error.message);
-                                            console.log("error transaction");
-                                        };
-                                        var serviceStore = transaction.objectStore(indexDBHandler.stores.services);
-                                        var tranRequest = serviceStore.add(service);
-                                        tranRequest.onsuccess = function (e) {
-                                            debugger;
-                                            console.log("Service Data saved in indexedb");
-                                        };
-                                        tranRequest.onerror = function (e) {
-                                            console.log(e.target.error.message);
-                                        };
+                                }, { //-------------------------------------------- Workshops
+                                    name: "appworkshop",
+                                    requestName: "me",
+                                    store: "workshop",
+                                    data: {
+                                        subKey: "workshop_info",
+                                        isArray: true
+                                    },
+                                    translateKeys: {
+                                        "id": "sid"
                                     }
-
-                                    for (var i = 0; i < servicesData.length; i++) {
-                                        loadProblems(servicesData[i], i).then(function (data, index) {
-                                            debugger;
-                                            servicesData[index].problems = data;
-                                            addService(servicesData[index]);
-
-                                        }, function (e) {
-                                            addService(servicesData[index]);
-                                        }, function () {
-                                            debugger;
-                                            console.log("finally called");
-                                        });
+                                }, { //-------------------------------------------- Users / Customers
+                                    name: "customers",
+                                    requestName: "customer",
+                                    store: indexDBHandler.stores.user,
+                                    translateKeys: {
+                                        "id": "sid"
+                                    },
+                                    cacheIdMap: {
+                                        name: "usersid"
                                     }
-                                }
+                                }, { //-------------------------------------------- Services 
+                                    name: "services",
+                                    requestName: "service",
+                                    store: indexDBHandler.stores.services,
+                                    translateKeys: {
+                                        "id": "sid"
+                                    },
+                                    removeKeys: ["firstname", "lastname", "mobile"],
+                                    translateToLocalKeys: {
+                                        cacheIdMap: {
+                                            map: "usersid", // cached ID Map Name
+                                            requestKey: "uid", // Means uid value mapped and converted in to 
+                                            newKey: "luid" //local uid
+                                        }
+                                    }
+                                }, { //-------------------------------------------- manufecturer 
+                                    name: "manufecturer",
+                                    requestName: "manuf",
+                                    store: indexDBHandler.stores.manufacturer,
+                                }, { //-------------------------------------------- model 
+                                    name: "models",
+                                    requestName: "model",
+                                    store: indexDBHandler.stores.model,
+                                }, {
+                                    name: "setoff-firstloging",
+                                    existOnUpdate: true,
+                                    store: indexDBHandler.stores.settings,
+                                    data: {
+                                        data: {
+                                            "key": "first-login",
+                                            "value": false
+                                        }
+                                    }
+                                }],
+                                series: true,
+                            };
 
-
-                                //Firest Sync Off
-                                /*transaction = db.transaction(indexDBHandler.stores.settings, 'readwrite');
-                                transaction.onerror = function (e) {
+                            _this.syncSchemaManager(requests, syncSchema).then(function () {
+                                debugger;
+                                console.log("Sync done");
+                                var workshopStore = indexDBHandler.getDB().transaction(indexDBHandler.stores.workshops, 'readwrite').objectStore(indexDBHandler.stores.workshops);
+                                workshopStore.getAll().onsuccess = function (e) {
                                     debugger;
-                                    console.log(e.target.error.message);
-                                    console.log("error transaction");
-                                };
-                                var settingStore = transaction.objectStore(indexDBHandler.stores.settings);
-                                settingStore.put({
-                                    "key": "first-login",
-                                    "value": false
-                                });*/
-
-
-                            },
-                            function (error) { // Failed Featch any request
-                                deffOuter.reject("Error :(");
+                                    workshopIdHandler.set(e.target.result[0].sid);
+                                    deffOuter.resolve("Syncing Done.");
+                                }
+                            }, function () {
+                                debugger;
+                                console.log("Failed Sync");
+                                deffOuter.reject("Syncing Failed.");
                             });
-                        // over rquest for loop
-
-
-
+                        }, function (e) { // Failed on login
+                            console.error(e);
+                            deffOuter.reject("Fatch Failed");
+                        });
                     },
                     function (e) { // Failed on login
                         console.error(e);
@@ -692,16 +1012,35 @@ altairApp
 
             },
             service: {
-                add: function (serviceData) {
+                addUpdate: function (serviceData, update) {
                     var deff = $.Deferred();
-                    deff.resolve(""); // Just testing
-                    var callService = function () {
+                    // Just testing
+                    var callService = function (loginResonse) {
+                        if (loginResonse != undefined && !loginResonse) {
+                            deff.reject("Login failed");
+                            return;
+                        }
+                        var httpMethod = "POST";
+                        if (update) {
+                            httpMethod = "PUT";
+                        }
                         apiCall.custom2({
-
-                        }).success(function () {
-
+                            url: "/services",
+                            method: httpMethod,
+                            data: serviceData
+                        }).success(function (data) {
+                            debugger;
+                            //Login Failed
+                            if (data.success && data.success == false && data.message.toLowerCase().contains("token")) {
+                                console.log("Login Failed. Try to login.");
+                                _this.loginWithCurrentUser(callService); //Give current function as callback if loging fail or success 
+                            }
+                            deff.resolve(data);
+                        }).error(function (e) {
+                            deff.reject(e);
                         });
                     }
+                    callService();
                     return deff;
                 }
             }

@@ -72,10 +72,7 @@ angular
                         $state.go('restricted.services');
                     }
                 }, function (data) { // Failed login proccess
-                    UIkit.notify(data.msg, {
-                        status: 'warning',
-                        pos: 'bottom-right'
-                    });
+
                 });
             };
         }

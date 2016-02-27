@@ -73,52 +73,6 @@ altairApp
                         }]
                     }
                 })
-                // -- DASHBOARD --
-                .state("restricted.dashboard", {
-                    url: "/",
-                    templateUrl: 'app/components/dashboard/dashboardView.html',
-                    controller: 'dashboardCtrl',
-                    resolve: {
-                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
-                            return $ocLazyLoad.load([
-                                // ocLazyLoad config (app/app.js)
-                                'lazy_countUp',
-                                'lazy_charts_peity',
-                                'lazy_charts_easypiechart',
-                                'lazy_charts_metricsgraphics',
-                                'lazy_charts_chartist',
-                                'lazy_weathericons',
-                                'lazy_google_maps',
-                                'lazy_clndr',
-                                'app/components/dashboard/dashboardController.js'
-                            ], {
-                                serie: true
-                            });
-                        }],
-                        sale_chart_data: function ($http) {
-                            return $http({
-                                    method: 'GET',
-                                    url: 'data/mg_dashboard_chart.min.json'
-                                })
-                                .then(function (data) {
-                                    return data.data;
-                                });
-                        },
-                        user_data: function ($http) {
-                            return $http({
-                                    method: 'GET',
-                                    url: 'data/user_data.json'
-                                })
-                                .then(function (data) {
-                                    return data.data;
-                                });
-                        }
-                    },
-                    data: {
-                        pageTitle: 'Dashboard'
-                    }
-
-                })
                 .state("restricted.services", {
                     url: "/services",
                     templateUrl: 'app/pages/services/serviceView.html',
@@ -138,6 +92,10 @@ altairApp
                 })
                 .state("restricted.servicesadd", {
                     url: "/servicesadd",
+                    params: {
+                        addMode: true,
+                        id: undefined
+                    },
                     templateUrl: 'app/pages/services/serviceAddEdit.html',
                     controller: 'serviceAddEditCtrl',
                     resolve: {
@@ -146,12 +104,7 @@ altairApp
                                 'bower_components/jquery-ui/ui/autocomplete.js',
                                 'app/pages/services/serviceController.js'
                             ])
-                        }],
-                        manufectures: function (apiCall) {
-                            apiCall.all("manufacturers").success(function (data) {
-                                return data;
-                            });
-                        }
+                        }]
                     },
                     data: {
                         pageTitle: 'Services - List'
