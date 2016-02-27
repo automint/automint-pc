@@ -308,13 +308,13 @@ altairApp
                 doLoing: function (data) {
                     //Data = {id:'email/mobile',pass:'password'}
                     // Return Promise object
-                    var defer = $q.defer();
+                    var defer = $.Deferred();
                     //Login Logic
                     var db = indexDBHandler.getDB();
                     var settingStore = db.transaction(indexDBHandler.stores.settings, 'readwrite').objectStore(indexDBHandler.stores.settings);
                     settingStore.get('first-login').onsuccess = function (e) {
-                        var fl = e.target.result.val;
-
+                        var fl = e.target.result.value;
+                        debugger;
                         // Is this first time login ?
                         if (fl) {
                             var syncNotification = UIkit.notify("Syncing in progress....", {
@@ -349,26 +349,36 @@ altairApp
                             // Check from db
                             var userStore = db.transaction(indexDBHandler.stores.user, 'readwrite').objectStore(indexDBHandler.stores.user);
                             userStore.index('validLoginMobileIdx').get(IDBKeyRange.only([data.id, data.pass])).onsuccess = function (e) {
+                                debugger
+                                if (!e.target.result) {
+                                    var data = {
+                                        msg: "Email/Mobile and Password not match."
+                                    }
+                                    defer.reject(data); //Login failed
+                                }
                                 var workshopStore = db.transaction(indexDBHandler.stores.workshops, 'readwrite').objectStore(indexDBHandler.stores.workshops);
-                                workshopStore.getAll().onsuccess = function (e) {
+                                workshopStore.getAll().onsuccess = function (e1) {
                                     debugger;
-                                    workshopIdHandler.set(e.target.result[0].sid);
+
+                                    workshopIdHandler.set(e1.target.result[0].sid);
                                     if (e.target.result) {
                                         defer.resolve({
                                             code: 2
                                         }); // Login success
-                                    } else {
-                                        var data = {
-                                            msg: "Email/Mobile and Password not match."
-                                        }
-                                        defer.reject(data); //Login failed
                                     }
+
                                 }
+                            };
+                            userStore.onerror = function () {
+                                defer.reject({
+                                    msg: "Unkonw error"
+                                }); //Login failed
                             };
                         }
                     };
                     // Over Login Logic
-                    return defer.promise;
+                    debugger;
+                    return defer;
                 }
             },
             user: {
