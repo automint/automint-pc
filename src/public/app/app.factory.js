@@ -563,6 +563,7 @@ altairApp
                 if (data.data.success && data.data.token && data.data.token.trim() !== "") { //Setting up token
                     accessTokenHandler.set(data.data.token); //Store token
                     deff.resolve({ //Response to resolver
+                        data: data,
                         error: false
                     });
                 } else { // Token failed
@@ -620,6 +621,7 @@ altairApp
                 var deffLoopRequestCall = $.Deferred();
                 var loopIndex = 0;
                 var loopRequestCall = function (data) {
+                    debugger;
                     var childURL = request.child.url.replace("{id}", data.data[loopIndex].id);
                     apiCall.custom2({
                         url: childURL,
@@ -834,6 +836,7 @@ altairApp
                 }; // updateDB()
 
                 updateDB(map, requestData).then(function () {
+
                     if (mapIndex < maps.length - 1) {
                         mapIndex++;
                         nextMap();
@@ -863,6 +866,8 @@ altairApp
                 _this.login(data).then(function (data) { //Success Login
                         console.log("Server Login success with server");
 
+                        debugger;
+                        workshopIdHandler.set(data.data.data.workshops_info[0].id);
                         var requests = {
                             "me": {
                                 url: "/me",
@@ -936,6 +941,13 @@ altairApp
                                     },
                                     translateKeys: {
                                         "id": "sid"
+                                    },
+                                    cacheIdMap: {
+                                        name: "workshopid"
+                                    },
+                                    succes: function (map, cache) {
+                                        debugger;
+                                        workshopIdHandler.set(cache);
                                     }
                                 }, { //-------------------------------------------- Users / Customers
                                     name: "customers",
