@@ -313,7 +313,7 @@ altairApp
                     var db = indexDBHandler.getDB();
                     var settingStore = db.transaction(indexDBHandler.stores.settings, 'readwrite').objectStore(indexDBHandler.stores.settings);
                     settingStore.get('first-login').onsuccess = function (e) {
-                        var fl = e.target.result.value;
+                        var fl = e.target.result.val;
                         debugger;
                         // Is this first time login ?
                         if (fl) {
