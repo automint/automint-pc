@@ -478,7 +478,9 @@ altairApp
 
                     rquest.onsuccess = function (e) {
                         debugger;
-                        syncRequestHandler.service.addUpdate(serviceData).then(function (data) {
+                        var serviceDataDummy = $.extend(true, {}, serviceData);
+                        serviceDataDummy.id = serviceDataDummy.sid;
+                        syncRequestHandler.service.addUpdate(serviceDataDummy, true).then(function (data) {
                             debugger;
                         }, function () {
                             debugger;
@@ -496,7 +498,7 @@ altairApp
                     // Return Promise object
                     var defer = $q.defer();
                     var db = indexDBHandler.getDB();
-
+                    debugger;
                     //Logic
                     var serviceDataDummy = $.extend(true, {}, serviceData);
                     var syncCall = function () {
@@ -521,36 +523,48 @@ altairApp
                             console.log("New Service failed add on server");
                         })
                     };
-                    var userData = {};
-                    userData.email = serviceData.email;
-                    userData.firstname = serviceData.firstname;
-                    userData.lastname = serviceData.lastname;
-                    userData.mobile = serviceData.mobile;
 
-                    var userStore = db.transaction(indexDBHandler.stores.user, 'readwrite').objectStore(indexDBHandler.stores.user);
-                    var userRquest = userStore.add(userData);
-
-                    userRquest.onsuccess = function (e) {
+                    var addService = function (serviceData) {
                         delete serviceData.email;
                         delete serviceData.firstname;
                         delete serviceData.lastname;
                         delete serviceData.mobile;
 
-                        serviceData.luid = e.target.result;
-                        serviceDataDummy.luid = e.target.result;
                         var store = db.transaction(indexDBHandler.stores.services, 'readwrite').objectStore(indexDBHandler.stores.services);
                         var rquest = store.add(serviceData);
                         rquest.onsuccess = function (e) {
                             defer.resolve();
                             debugger;
                             serviceDataDummy.id = e.target.result;
+                            serviceData.id = e.target.result;
                             syncCall();
                         }
                         rquest.onerror = function (e) {
                             debugger;
                             defer.reject(e);
                         };
-                    };
+                    }
+                    var userData = {};
+                    if (serviceData.luid) {
+                        console.log("user already found");
+                        addService(serviceData);
+                    } else {
+                        console.log("user not found. first inserting user");
+                        userData.email = serviceData.email;
+                        userData.firstname = serviceData.firstname;
+                        userData.lastname = serviceData.lastname;
+                        userData.mobile = serviceData.mobile;
+
+                        var userStore = db.transaction(indexDBHandler.stores.user, 'readwrite').objectStore(indexDBHandler.stores.user);
+                        var userRquest = userStore.add(userData);
+
+                        userRquest.onsuccess = function (e) {
+                            serviceData.luid = e.target.result;
+                            serviceDataDummy.luid = e.target.result;
+                            addService(serviceData);
+                        };
+                    }
+
                     // Over Logic
                     return defer.promise;
                 }
@@ -710,7 +724,6 @@ altairApp
                     if (resolveFlag) {
                         deffOuter.resolve(requests); // Send all request done
                     }
-
                 }, function (errorData) {
                     fatchFlag = false;
                     console.log("Failed to load - " + requests[errorData.index].url);
@@ -719,8 +732,6 @@ altairApp
             }
             return deffOuter;
         }; //Feature 
-
-
 
         _this.syncSchemaManager = function (requests, schema) {
             var deffOuter = $.Deferred();
@@ -731,14 +742,12 @@ altairApp
 
             var deffNextMap = $.Deferred();
             var nextMap = function () {
-                debugger;
 
+                debugger;
 
                 var map = maps[mapIndex];
                 var request = requests[map.requestName];
                 var cacheIds = undefined;
-
-
 
                 var requestData;
                 if (map.data && map.data.data) {

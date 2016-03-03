@@ -53,12 +53,12 @@ angular
             var db = indexDBHandler.getDB();
 
             //UI Habdle
-            $scope.okButtonLable = "ADD";
+            $scope.okButtonLable = "ADD SERVICE";
 
             var problemBlankModel = {
                 details: "",
                 rate: 0,
-                type: 0,
+                type: "",
                 qty: 0
             };
             $scope.service = {
@@ -81,7 +81,6 @@ angular
             $scope.service.date = new Date();
             $scope.service.problems.push(problemBlankModel);
 
-
             var store = db.transaction(indexDBHandler.stores.manufacturer, 'readwrite').objectStore(indexDBHandler.stores.manufacturer);
             var rquest = store.getAll().onsuccess = function (e) {
                 $scope.manufList = e.target.result;
@@ -89,7 +88,7 @@ angular
             };
 
             if (!$stateParams.addMode && $stateParams.id !== undefined) {
-                $scope.okButtonLable = "UPDATE";
+                $scope.okButtonLable = "UPDATE SERVICE";
                 $("#vmanuf").hide();
                 $("#vmodel").hide();
                 $("#manuModelColumn").hide();
@@ -110,6 +109,23 @@ angular
                 });
             }
 
+            //Get user detail based on mobile number
+            $scope.getUserDetails = function () {
+                debugger;
+                if ($scope.service.mobile !== "") {
+                    var store = db.transaction(indexDBHandler.stores.user, 'readwrite').objectStore(indexDBHandler.stores.user);
+                    store.index('mobile').get(IDBKeyRange.only($scope.service.mobile)).onsuccess = function (e) {
+                        if (!e.target.result) {
+                            return; //No record
+                        }
+                        $scope.service.firstname = e.target.result.firstname;
+                        $scope.service.lastname = e.target.result.lastname;
+                        $scope.service.email = e.target.result.email;
+                        $scope.service.luid = e.target.result.id;
+                        $("#vreg").focus();
+                    };
+                }
+            };
 
             var store = db.transaction(indexDBHandler.stores.manufacturer, 'readwrite').objectStore(indexDBHandler.stores.manufacturer);
             var rquest = store.getAll().onsuccess = function (e) {
@@ -157,7 +173,8 @@ angular
                     return false;
                 }
                 debugger;
-                $scope.service.date = $scope.service.date.getFullYear() + "-" + $scope.service.date.getMonth() + "-" + $scope.service.date.getDate();
+                var serviceData = $.extend(true, {}, $scope.service);
+                serviceData.date = $scope.service.date.getFullYear() + "-" + $scope.service.date.getMonth() + "-" + $scope.service.date.getDate();
                 if (!$stateParams.addMode && $stateParams.id !== undefined) {
                     requestsHandler.service.update($scope.service).then(function () {
                         debugger;
