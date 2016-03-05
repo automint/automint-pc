@@ -59,6 +59,13 @@ altairApp
                     scrollTop: 0
                 }, 200);
 
+                $("#main_view").height(($("body").height()));
+
+                $("body").resize(function () {
+                    $("#main_view").height(($("body").height()));
+
+                })
+
                 $timeout(function () {
                     $rootScope.pageLoading = false;
                     $($window).resize();
