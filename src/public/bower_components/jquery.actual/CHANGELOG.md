@@ -1,11 +1,5 @@
 # jQuery Actual Plugin CHANGELOG
 
-## 1.0.18
-
-- Depend on jQuery as a peer
-
-
-
 ## 1.0.17
 
 - Added display inline support

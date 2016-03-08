@@ -13,16 +13,6 @@
 tinymce.PluginManager.add('importcss', function(editor) {
 	var self = this, each = tinymce.each;
 
-	function removeCacheSuffix(url) {
-		var cacheSuffix = tinymce.Env.cacheSuffix;
-
-		if (typeof url == 'string') {
-			url = url.replace('?' + cacheSuffix, '').replace('&' + cacheSuffix, '');
-		}
-
-		return url;
-	}
-
 	function isSkinContentCss(href) {
 		var settings = editor.settings, skin = settings.skin !== false ? settings.skin || 'lightgray' : false;
 
@@ -60,8 +50,6 @@ tinymce.PluginManager.add('importcss', function(editor) {
 
 		function append(styleSheet, imported) {
 			var href = styleSheet.href, rules;
-
-			href = removeCacheSuffix(href);
 
 			if (!href || !fileFilter(href, imported) || isSkinContentCss(href)) {
 				return;

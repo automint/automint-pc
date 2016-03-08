@@ -6,7 +6,6 @@
 code[class*="language-"],
 pre[class*="language-"] {
 	color: white;
-	background: none;
 	direction: ltr;
 	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
 	text-align: left;
@@ -42,13 +41,13 @@ pre[class*="language-"] {
 	padding: 1em;
 }
 
-pre[class*="language-"]::-moz-selection {
-	/* Firefox */
+pre[class*="language-"]::selection {
+	/* Safari */
 	background: hsl(200, 4%, 16%); /* #282A2B */
 }
 
 pre[class*="language-"]::selection {
-	/* Safari */
+	/* Firefox */
 	background: hsl(200, 4%, 16%); /* #282A2B */
 }
 

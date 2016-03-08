@@ -17,11 +17,6 @@ tinymce.PluginManager.add('template', function(editor) {
 		return function() {
 			var templateList = editor.settings.templates;
 
-			if (typeof templateList == "function") {
-				templateList(callback);
-				return;
-			}
-
 			if (typeof templateList == "string") {
 				tinymce.util.XHR.send({
 					url: templateList,

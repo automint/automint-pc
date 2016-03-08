@@ -125,12 +125,12 @@ $dropify-font-path:        "../fonts" !default;
         font-size: 11px;
         padding: 6px 12px;
         font-weight: bold;
-        color: #fff;
+        color: #fff !important;
         transition: all 0.15s linear;
         border: none;
-        background: transparentize($dropify-clear-color, 0.4);
+        background: $dropify-clear-color;
         &:hover {
-            background: $dropify-clear-color;
+            text-decoration: underline;
         }
     }
     .dropify-preview {
@@ -263,23 +263,19 @@ $dropify-font-path:        "../fonts" !default;
         .dropify-preview {
             position: relative;
             padding: 0;
-
              .dropify-render {
                 display: block;
                 position: relative;
-
                 .dropify-font-file {
                     position: relative;
                     transform: translate(0, 0);
                     top: 0;
                     left: 0;
-
                     &::before {
                         margin-top: 30px;
                         margin-bottom: 30px;
                     }
                 }
-
                 img {
                     position: relative;
                     transform: translate(0, 0);
@@ -289,13 +285,12 @@ $dropify-font-path:        "../fonts" !default;
                 position: relative;
                 opacity: 1;
                 background: transparent;
-
                 .dropify-infos-inner {
                     position: relative;
                     top: 0;
                     transform: translate(0, 0);
-                    padding: 5px 90px 5px 0;
-
+                    padding: 5px 10px;
+                    box-sizing: border-box;
                     p {
                         padding: 0;
                         margin: 0;
@@ -306,19 +301,20 @@ $dropify-font-path:        "../fonts" !default;
                         text-overflow: ellipsis;
                         color: $dropify-text-color;
                         text-align: left;
-                        line-height: 25px;
-
+                        line-height: 20px;
                         &.dropify-filename {
                             font-weight: bold;
+                            padding-top: 4px;
+                            span.file-icon {
+                                margin-right: 0;
+                            }
                         }
-
                         &.dropify-infos-message {
                             margin-top: 0;
                             padding-top: 0;
                             font-size: 11px;
                             position: relative;
                             opacity: 1;
-
                             &::before {
                                 display: none;
                             }
@@ -332,11 +328,12 @@ $dropify-font-path:        "../fonts" !default;
             padding: 40px 0;
         }
         .dropify-clear {
-            top: auto;
-            bottom: 23px;
+            //top: auto;
+            //bottom: 23px;
             opacity: 1;
             border-color: transparentize($dropify-text-color, 0.3);
             color: $dropify-text-color;
+            z-index: 100;
         }
         &.has-preview {
             .dropify-message {

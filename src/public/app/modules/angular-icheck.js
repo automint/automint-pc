@@ -1,3 +1,4 @@
+// https://github.com/fronteed/icheck/issues/62#issuecomment-128480101
 ;'use strict';
 angular
     .module('icheck', [])

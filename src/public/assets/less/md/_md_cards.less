@@ -207,6 +207,25 @@
             padding: 0;
         }
     }
+    &.mdToolbar_fixed {
+        overflow-y: hidden;
+        > .md-card-toolbar {
+            position: fixed;
+            left: 0;
+            right: 0;
+            top: 0;
+            z-index: 9999;
+            .boxShadowHelper(2);
+        }
+        > .md-card-content {
+            overflow-y: scroll;
+            box-sizing: border-box;
+            position: absolute;
+            width: 100%;
+            top: @header_main_height;
+            bottom: 0;
+        }
+    }
     &.md-card-overlay {
         overflow: hidden;
         padding-bottom: 54px;

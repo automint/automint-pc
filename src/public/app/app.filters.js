@@ -56,4 +56,9 @@ altairApp
             }
         };
     })
+    .filter('reverseOrder', function() {
+        return function(items) {
+            return items.slice().reverse();
+        };
+    })
 ;

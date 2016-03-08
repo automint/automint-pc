@@ -47,7 +47,7 @@
 				inside: insideString
 			},
 			{
-				pattern: /(["'])(?:\\\\|\\?[^\\])*?\1/g,
+				pattern: /("|')(?:\\?[\s\S])*?\1/g,
 				inside: insideString
 			}
 		],

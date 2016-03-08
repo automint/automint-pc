@@ -25,6 +25,9 @@
                     height: @header_main_height;
                     z-index: auto;
                     cursor: pointer;
+                    @media @screen_medium_max {
+                        padding: 0 10px;
+                    }
                     &:focus,
                     &:active {
                         background: none;
@@ -104,7 +107,7 @@
                 left: 0;
                 top: 8px;
                 min-width: 20px;
-                padding: 0 4px;
+                padding: 1px 4px;
                 line-height: 14px;
                 border-radius: 2px;
             }

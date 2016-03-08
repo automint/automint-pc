@@ -198,3 +198,21 @@ angular
             };
         }
     ]);
+
+    // tooltip
+    Selectize.define('tooltip', function (options) {
+        var self = this;
+        this.setup = (function () {
+            var original = self.setup;
+            return function () {
+                original.apply(this, arguments);
+                var $wrapper = this.$wrapper,
+                    $input = this.$input;
+                if ($input.attr('title')) {
+                    $wrapper
+                        .attr('title', $input.attr('title'))
+                        .attr('data-uk-tooltip', $input.attr('data-uk-tooltip'));
+                }
+            };
+        })();
+    });

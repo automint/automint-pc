@@ -5,7 +5,7 @@
             <div class="md-card-content">
                 <form id="wizard_advanced_form" class="uk-form-stacked">
                     <wizard on-finish="finishedWizard()" template="app/templates/wizard.tpl.html">
-                        <wz-step title="Owner Information" template="app/templates/wizard.step.tpl.html">
+                        <wz-step wz-title="Owner Information" template="app/templates/wizard.step.tpl.html">
                             <h2 class="heading_a">
                                 Owner Information
                                 <span class="sub-heading">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</span>
@@ -34,7 +34,7 @@
                                     <input type="text" name="wizard_birth_place" id="wizard_birth_place" required class="md-input" md-input ng-model="wizard.w1_birth_place" />
                                 </div>
                                 <div class="uk-width-medium-1-3 parsley-row">
-                                    <label class="uk-form-label">Martial Status<span class="req">*</span></label>
+                                    <label class="uk-form-label">Marital Status<span class="req">*</span></label>
                                     <span class="icheck-inline">
                                         <input type="radio" name="wizard_status" id="wizard_status_married" required value="married" icheck ng-model="wizard.w1_martial" />
                                         <label for="wizard_status_married" class="inline-label">Married</label>
@@ -87,7 +87,7 @@
                                 <button class="md-btn md-btn-primary uk-float-right" type="submit" wz-next>Continue</button>
                             </div>
                         </wz-step>
-                        <wz-step title="Vehicle information" template="app/templates/wizard.step.tpl.html">
+                        <wz-step wz-title="Vehicle information" template="app/templates/wizard.step.tpl.html">
                             <h2 class="heading_a">
                                 Vehicle information
                                 <span class="sub-heading">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</span>
@@ -142,7 +142,7 @@
                                 <button class="md-btn md-btn-primary uk-float-right" type="submit" wz-next>Continue</button>
                             </div>
                         </wz-step>
-                        <wz-step title="Additional information" template="app/templates/wizard.step.tpl.html">
+                        <wz-step wz-title="Additional information" template="app/templates/wizard.step.tpl.html">
                             <h2 class="heading_a">
                                 Additional information
                                 <span class="sub-heading">Lorem ipsum dolor sit amet, consectetur adipisicing elit.</span>

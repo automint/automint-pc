@@ -289,41 +289,44 @@
         function toggleProjects(div) {
 
             $('div.ganttview-vtheader-group-name',div).addClass('toggle_enabled').on('click', function() {
-                $thisId = $(this).attr('id');
-                if(!$(this).hasClass('projectHidden')) {
-                    $(this)
+
+                var $this = $(this),
+                    $thisId = $this.attr('id');
+                if(!$this.hasClass('projectHidden')) {
+                    $this
                         .addClass('projectHidden')
                         .next('div')
                         .children()
                         .velocity("slideUp",{
                             duration: 280,
-                            easing: easing_swiftOut
+                            easing: [ 0.4,0,0.2,1 ]
                         });
 
-                    $('.ganttview-block-container.'+$thisId).hide();
 
+                    $('.ganttview-block-container.'+$thisId).hide();
                     $('.ganttview-grid-row.'+$thisId)
                         .velocity("slideUp",{
                             duration: 280,
-                            easing: easing_swiftOut
+                            easing: [ 0.4,0,0.2,1 ]
                         });
 
                 } else {
-                    $(this)
+                    $this
                         .removeClass('projectHidden')
                         .next('div')
                         .children()
                         .velocity("slideDown",{
                             duration: 280,
-                            easing: easing_swiftOut
+                            easing: [ 0.4,0,0.2,1 ]
                         });
-
-                    $('.ganttview-block-container.'+$thisId).show();
 
                     $('.ganttview-grid-row.'+$thisId)
                         .velocity("slideDown",{
                             duration: 280,
-                            easing: easing_swiftOut
+                            easing: [ 0.4,0,0.2,1 ],
+                            begin: function() {
+                                $('.ganttview-block-container.'+$thisId).fadeIn();
+                            }
                         });
 
                 }

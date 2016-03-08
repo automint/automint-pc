@@ -3,18 +3,39 @@
 altairApp
     .config([
         '$ocLazyLoadProvider',
-        function ($ocLazyLoadProvider) {
+        function($ocLazyLoadProvider) {
             $ocLazyLoadProvider.config({
                 debug: false,
                 events: false,
                 modules: [
-                    // ----------- FORM ELEMENTS -----------
+                    // ----------- UIKIT ------------------
                     {
-                        name: 'lazy_indexdb',
+                        name: 'lazy_uikit',
                         files: [
-                            'bower_components/angular-indexedDB/angular-indexed-db.min.js'
-                        ]
+                            // uikit core
+                            "bower_components/uikit/js/uikit.js",
+                            // uikit components
+                            "bower_components/uikit/js/components/accordion.js",
+                            "bower_components/uikit/js/components/autocomplete.js",
+                            "assets/js/custom/uikit_datepicker.js",
+                            "bower_components/uikit/js/components/form-password.js",
+                            "bower_components/uikit/js/components/form-select.js",
+                            "bower_components/uikit/js/components/grid.js",
+                            "bower_components/uikit/js/components/lightbox.js",
+                            "bower_components/uikit/js/components/nestable.js",
+                            "bower_components/uikit/js/components/notify.js",
+                            "bower_components/uikit/js/components/slideshow.js",
+                            "bower_components/uikit/js/components/sortable.js",
+                            "bower_components/uikit/js/components/sticky.js",
+                            "bower_components/uikit/js/components/tooltip.js",
+                            "assets/js/custom/uikit_timepicker.js",
+                            "bower_components/uikit/js/components/upload.js",
+                            "assets/js/custom/uikit_beforeready.js"
+                        ],
+                        serie: true
                     },
+
+                    // ----------- FORM ELEMENTS -----------
                     {
                         name: 'lazy_autosize',
                         files: [
@@ -26,7 +47,7 @@ altairApp
                     {
                         name: 'lazy_iCheck',
                         files: [
-                            "bower_components/jquery-icheck/icheck.js",
+                            "bower_components/iCheck/icheck.min.js",
                             'app/modules/angular-icheck.js'
                         ],
                         serie: true
@@ -80,7 +101,6 @@ altairApp
                         files: [
                             'assets/js/custom/parsleyjs_config.js',
                             'bower_components/parsleyjs/dist/parsley.min.js',
-                            'bower_components/lodash/lodash.min.js',
                             'bower_components/angular-wizard/dist/angular-wizard.min.js'
                         ],
                         serie: true
@@ -295,7 +315,8 @@ altairApp
                         files: [
                             'assets/skins/dropify/css/dropify.css',
                             'assets/js/custom/dropify/dist/js/dropify.min.js'
-                        ]
+                        ],
+                        insertBefore: '#main_stylesheet'
                     },
                     {
                         name: 'lazy_tree',
@@ -303,6 +324,7 @@ altairApp
                             'assets/js/custom/easytree/skin-material/ui.easytree.min.css',
                             'assets/js/custom/easytree/jquery.easytree.min.js'
                         ],
+                        insertBefore: '#main_stylesheet',
                         serie: true
                     },
 

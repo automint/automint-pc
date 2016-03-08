@@ -14,7 +14,7 @@ altairApp
                 restrict: 'A',
                 link: function() {
                     var listener = function(event, toState) {
-                        var default_title = 'Cruzer Workshop';
+                        var default_title = 'Altair Admin';
                         $timeout(function() {
                             $rootScope.page_title = (toState.data && toState.data.pageTitle)
                                 ? default_title + ' - ' + toState.data.pageTitle : default_title;
@@ -46,7 +46,8 @@ altairApp
     ])
     // print page
     .directive('printPage', [
-        function () {
+        '$rootScope',
+        function ($rootScope) {
             return {
                 restrict: 'A',
                 link: function (scope, elem, attrs) {
@@ -54,6 +55,9 @@ altairApp
                     $(elem).on('click', function(e) {
                         e.preventDefault();
                         UIkit.modal.confirm(message ? message : 'Do you want to print this page?', function () {
+                            // hide sidebar
+                            $rootScope.primarySidebarActive = false;
+                            $rootScope.primarySidebarOpen = false;
                             // wait for dialog to fully hide
                             setTimeout(function () {
                                 window.print();
@@ -449,13 +453,13 @@ altairApp
                                 $timeout(function() {
                                     $rootScope.primarySidebarHiding = false;
                                     $(window).resize();
-                                },280);
+                                },290);
                             }
                         } else {
                             if($rootScope.largeScreen) {
                                 $timeout(function() {
                                     $(window).resize();
-                                });
+                                },290);
                             }
                         }
 
@@ -580,6 +584,7 @@ altairApp
                         $event.preventDefault();
 
                         var $thisCard = $(el).closest('.md-card'),
+                            mdCardToolbarFixed = $thisCard.hasClass('toolbar-fixed'),
                             mdCard_h = $thisCard.height(),
                             mdCard_w = $thisCard.width();
 
@@ -628,6 +633,9 @@ altairApp
                                             $(window).resize();
                                         }
                                     });
+                                    if(mdCardToolbarFixed) {
+                                        $thisCard.addClass('mdToolbar_fixed')
+                                    }
                                 }
                             });
                     }
@@ -655,7 +663,8 @@ altairApp
                             mdPlaceholderCard_w = $thisPlaceholderCard.width(),
                             mdPlaceholderCard_offset_top = $thisPlaceholderCard.offset().top,
                             mdPlaceholderCard_offset_left = $thisPlaceholderCard.offset().left,
-                            $thisCard = $('.md-card-fullscreen');
+                            $thisCard = $('.md-card-fullscreen'),
+                            mdCardToolbarFixed = $thisCard.hasClass('toolbar-fixed');
 
                         $thisCard
                             // resize card to original size
@@ -669,6 +678,9 @@ altairApp
                                     // hide fullscreen content
                                     $thisCard.find('.md-card-fullscreen-content').velocity("transition.slideDownOut",{ duration: 280, easing: variables.easing_swiftOut });
                                     $rootScope.card_fullscreen = false;
+                                    if(mdCardToolbarFixed) {
+                                        $thisCard.removeClass('mdToolbar_fixed')
+                                    }
                                 },
                                 complete: function(elements) {
                                     $rootScope.hide_content_sidebar = false;
@@ -792,6 +804,50 @@ altairApp
                         }
 
                     }
+                }
+            }
+        }
+    ])
+    // card toolbar progress
+    .directive('cardProgress', [
+        '$timeout',
+        function ($timeout) {
+            return {
+                restrict: 'A',
+                scope: true,
+                link: function (scope, el, attrs) {
+
+                    var $this = $(el).children('.md-card-toolbar'),
+                        bg_percent = parseInt(attrs.cardProgress);
+
+
+                    function updateCard(percent) {
+                        var bg_color_default = $this.attr('card-bg-default');
+
+                        if(!bg_color_default) {
+                            var bg_color = $this.css('backgroundColor');
+                            $this.attr('card-bg-default',bg_color)
+                        } else {
+                            var bg_color = bg_color_default;
+                        }
+
+                        $this.css({
+                            'background': '-moz-linear-gradient(left, '+bg_color+' '+percent+'%, #fff '+(percent)+'%)',
+                            'background': '-webkit-linear-gradient(left, '+bg_color+' '+percent+'%, #fff '+(percent)+'%)',
+                            'background': 'linear-gradient(to right,  '+bg_color+' '+percent+'%, #fff '+(percent)+'%)'
+                        });
+
+                        scope.cardPercentage = percent;
+                    }
+
+                    updateCard(bg_percent);
+
+                    scope.$watch(function() {
+                        return $(el).attr('card-progress')
+                    }, function(newValue) {
+                        updateCard(newValue);
+                    });
+
                 }
             }
         }

@@ -76,6 +76,12 @@ angular.module('gridshore.c3js.chart')
  * 
  *   {@link http://c3js.org/reference.html#api-focus| c3js doc}
  *
+ * @param {Number} transition-duration Duration of transition (in milliseconds) for chart animation. If you specify 0, transitions will be disabled which is good for large datasets.
+ *
+ *   {@link http://c3js.org/reference.html#transition-duration| c3js doc}
+ *
+ * @param {Object} initial-config Provide the initial config object to start the graph with.
+ *
  * @example
  * Usage:
  *   <c3chart >
@@ -122,6 +128,8 @@ function C3Chart ($timeout) {
         var paddingBottom = attrs.paddingBottom;
         var paddingLeft = attrs.paddingLeft;
         var sortData = attrs.sortData;
+        var transitionDuration = attrs.transitionDuration;
+        var initialConfig = attrs.initialConfig;
 
         if (paddingTop) {
             chartCtrl.addPadding('top', paddingTop);
@@ -143,6 +151,12 @@ function C3Chart ($timeout) {
         }
         if (attrs.callbackFunction) {
             chartCtrl.addChartCallbackFunction(scope.callbackFunction());
+        }
+        if (transitionDuration) {
+            chartCtrl.addTransitionDuration(transitionDuration);
+        }
+        if (initialConfig) {
+            chartCtrl.addInitialConfig(initialConfig);
         }
         // Trick to wait for all rendering of the DOM to be finished.
         $timeout(function () {

@@ -709,9 +709,7 @@ tinymce.ThemeManager.add('modern', function(editor) {
 
 		// Preload skin css
 		if (args.skinUiCss) {
-			tinymce.DOM.styleSheetLoader.load(args.skinUiCss, function() {
-				editor.fire('SkinLoaded');
-			});
+			tinymce.DOM.styleSheetLoader.load(args.skinUiCss);
 		}
 
 		return {};
@@ -737,9 +735,7 @@ tinymce.ThemeManager.add('modern', function(editor) {
 		}
 
 		if (args.skinUiCss) {
-			tinymce.DOM.styleSheetLoader.load(args.skinUiCss, function() {
-				editor.fire('SkinLoaded');
-			});
+			tinymce.DOM.loadCSS(args.skinUiCss);
 		}
 
 		// Basic UI layout

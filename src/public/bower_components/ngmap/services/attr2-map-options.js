@@ -158,7 +158,7 @@
         }
         for (var key in output) { //jshint ignore:line
           var arr = output[key];
-          if (key == "anchor" || key == "origin" || key == "labelOrigin") {
+          if (key == "anchor" || key == "origin") {
             output[key] = new google.maps.Point(arr[0], arr[1]);
           } else if (key == "size" || key == "scaledSize") {
             output[key] = new google.maps.Size(arr[0], arr[1]);
@@ -351,7 +351,7 @@
             }
             controlOptions[attr] = options;
           } catch (e) {
-            console.error('invald option for', attr, newValue, e, e.stack);
+            $log.error('invald option for', attr, newValue, e, e.stack);
           }
         }
       } // for

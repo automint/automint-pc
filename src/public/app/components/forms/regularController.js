@@ -3,7 +3,8 @@ angular
     .controller('regularCtrl', [
         '$scope',
         '$rootScope',
-        function ($scope,$rootScope) {
+        '$timeout',
+        function ($scope,$rootScope,$timeout) {
 
             $scope.form = {
                 input_d: "Lorem ipsum dolor sit...",
@@ -65,16 +66,32 @@ angular
 
             $scope.selectize_b_options = ["Item A", "Item B", "Item C"];
 
+            $scope.selectize_c_options = ["Item A", "Item B", "Item C"];
+
+            $scope.selectize_c_config = {
+                plugins: [
+                    'tooltip'
+                ],
+                create: false,
+                maxItems: 1,
+                placeholder: 'Select...'
+            };
+
             $scope.switches = {
                 switch_a: 'true',
                 switch_d: 'true',
                 switch_f: 'true',
                 switch_g: 'true',
                 switch_h: 'true',
-                switch_i: 'true'
+                switch_i: 'true',
+                switch_model: 'true'
             };
 
             $scope.checkbox_demo_4 = true;
+
+            $timeout(function() {
+                $scope.switches.switch_model = false;
+            }, 5000);
 
         }
     ]);

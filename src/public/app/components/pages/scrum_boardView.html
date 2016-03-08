@@ -4,10 +4,10 @@
         <div class="scrum_board_overflow">
             <div id="scrum_board" class="uk-clearfix">
 
-                <div ng-repeat="group in task_groups">
+                <div ng-repeat="group in task_groups" >
                     <div class="scrum_column_heading">{{ group.name }}</div>
                     <div class="scrum_column">
-                        <div class="dragula dragula-vertical" dragula-scope="$parent" dragula='"tasks"' dragula-model='dragula_tasks'>
+                        <div class="dragula dragula-vertical" dragula-scope="$parent" dragula='"tasks"' dragula-model='dragula_tasks' id="{{ group.id }}">
                             <div ng-repeat="task in tasks_list | filter: { group: group.id }">
                                 <div class="scrum_task {{ task.status }}">
                                     <h3 class="scrum_task_title"><a href="#task_info" data-uk-modal="{ center:true }" ng-click="taskInfo(task)">{{ task.name }}</a></h3>

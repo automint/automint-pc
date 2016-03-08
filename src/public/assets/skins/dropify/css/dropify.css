@@ -108,12 +108,12 @@
     font-size: 11px;
     padding: 6px 12px;
     font-weight: bold;
-    color: #fff;
+    color: #fff !important;
     transition: all 0.15s linear;
     border: none;
-    background: rgba(229, 57, 53, 0.6); }
+    background: #e53935; }
     .dropify-wrapper .dropify-clear:hover {
-      background: #e53935; }
+      text-decoration: underline; }
   .dropify-wrapper .dropify-preview {
     display: none;
     position: absolute;
@@ -241,7 +241,8 @@
           position: relative;
           top: 0;
           transform: translate(0, 0);
-          padding: 5px 90px 5px 0; }
+          padding: 5px 10px;
+          box-sizing: border-box; }
           .dropify-wrapper.touch-fallback .dropify-preview .dropify-infos .dropify-infos-inner p {
             padding: 0;
             margin: 0;
@@ -252,9 +253,12 @@
             text-overflow: ellipsis;
             color: #727272;
             text-align: left;
-            line-height: 25px; }
+            line-height: 20px; }
             .dropify-wrapper.touch-fallback .dropify-preview .dropify-infos .dropify-infos-inner p.dropify-filename {
-              font-weight: bold; }
+              font-weight: bold;
+              padding-top: 4px; }
+              .dropify-wrapper.touch-fallback .dropify-preview .dropify-infos .dropify-infos-inner p.dropify-filename span.file-icon {
+                margin-right: 0; }
             .dropify-wrapper.touch-fallback .dropify-preview .dropify-infos .dropify-infos-inner p.dropify-infos-message {
               margin-top: 0;
               padding-top: 0;
@@ -267,11 +271,10 @@
       transform: translate(0, 0);
       padding: 40px 0; }
     .dropify-wrapper.touch-fallback .dropify-clear {
-      top: auto;
-      bottom: 23px;
       opacity: 1;
       border-color: rgba(114, 114, 114, 0.7);
-      color: #727272; }
+      color: #727272;
+      z-index: 100; }
     .dropify-wrapper.touch-fallback.has-preview .dropify-message {
       display: none; }
     .dropify-wrapper.touch-fallback:hover .dropify-preview .dropify-infos .dropify-infos-inner {

@@ -75,7 +75,7 @@ angular
             $scope.selectize_emails_config = {
                 plugins: {
                     'remove_button': {
-                        label: ''
+                        label     : ''
                     }
                 },
                 persist: false,
@@ -152,7 +152,7 @@ angular
             });
 
         // masked inputs
-            $maskedInput = $('.masked_input');
+            var $maskedInput = $('.masked_input');
             if($maskedInput.length) {
                 $maskedInput.inputmask();
             }

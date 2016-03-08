@@ -91,15 +91,14 @@
 }
 
 // remove default styles for ordered/unordered list
-.reset_list(@margin: 0) {
+.reset_list(@margin: 0, @padding: 0) {
     margin: @margin;
+    padding: @padding;
+    list-style: none;
     > li {
-        margin: 0;
-    }
-    &,
-    > li {
-        list-style: none;
         padding: 0;
+        margin: 0;
+        list-style: none;
     }
 }
 

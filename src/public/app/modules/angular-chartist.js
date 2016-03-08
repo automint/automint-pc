@@ -3,7 +3,7 @@
     var angularChartist = angular.module('angular-chartist', []);
 
     angularChartist
-        .directive('chartist', function () {
+        .directive('chartist', function ($window) {
         var linkFn = function (scope, elm, attrs) {
             var data, options, responsiveOptions, selector, updateChart, deepWatchData, deepWatchOptions, deepwatch, type;
             data = scope.data;
@@ -36,6 +36,14 @@
             }, deepWatchOptions);
 
             updateChart();
+
+
+            angular.element($window).on('resize', updateChart);
+
+            scope.$on("$destroy", function() {
+                $(window).off('resize', updateChart);
+            });
+
         };
 
         return {

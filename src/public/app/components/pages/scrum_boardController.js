@@ -73,6 +73,11 @@ angular
                 valueField: 'name',
                 labelField: 'title',
                 placeholder: 'Select Group...'
-            }
+            };
+
+            $scope.$on('tasks.drop', function (e, el, target, source) {
+                console.log(target[0].id);
+            });
+
         }
     ]);

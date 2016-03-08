@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html ng-app="altairApp" document-events ng-click="onClick($event)" ng-keyup="onKeyUp($event)" ng-class="{ 'page_loading': pageLoading, 'page_loaded': pageLoaded, 'app_initialized': appInitialized && (!$state.is('login') && !$state.includes('error'))}">
-
 <head>
     <meta charset="UTF-8">
     <title page-title ng-bind="page_title"></title>
@@ -22,40 +21,39 @@
     <link href="http://fonts.googleapis.com/css?family=Source+Code+Pro:400,700" rel="stylesheet" media="all">
 
     <!-- JS -->
-    <!-- common functions -->
-    <script src="assets/js/common.min.js"></script>
-    <!-- uikit functions -->
-    <script src="assets/js/uikit_custom.min.js"></script>
-    <!-- wave effect -->
-    <script src="bower_components/Waves/dist/waves.min.js"></script>
+        <!-- common functions -->
+        <script src="assets/js/common.min.js"></script>
+        <!-- uikit functions -->
+        <script src="assets/js/uikit_custom.min.js"></script>
 
     <!-- ANGULAR -->
-    <!-- angularjs -->
-    <script src="bower_components/angular/angular.min.js"></script>
-    <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
-    <script src="bower_components/angular-animate/angular-animate.min.js"></script>
-    <!-- ui-router -->
-    <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
-    <!-- ocLazyLoad -->
-    <script src="bower_components/oclazyload/dist/ocLazyLoad.min.js"></script>
-    <!-- retina images -->
-    <script src="app/modules/angular-retina.js"></script>
+        <!-- angularjs -->
+        <script src="bower_components/angular/angular.min.js"></script>
+        <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+        <script src="bower_components/angular-animate/angular-animate.min.js"></script>
+        <!-- ui-router -->
+        <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+        <!-- ocLazyLoad -->
+        <script src="bower_components/oclazyload/dist/ocLazyLoad.min.js"></script>
+        <!-- retina images -->
+        <script src="app/modules/angular-retina.js"></script>
+        <!-- breadcrumbs -->
+        <script src="bower_components/angular-breadcrumb/dist/angular-breadcrumb.min.js"></script>
 
-    <!-- altairApp -->
-    <script src="app/app.js"></script>
-    <script src="app/app.factory.js"></script>
-    <script src="app/app.service.js"></script>
-    <script src="app/app.directive.js"></script>
-    <script src="app/app.filters.js"></script>
-    <script src="app/app.states.js"></script>
-    <script src="app/app.controller.js"></script>
-    <script src="app/app.oc_lazy_load.js"></script>
+        <!-- altairApp -->
+        <script src="app/app.js"></script>
+        <script src="app/app.factory.js"></script>
+        <script src="app/app.service.js"></script>
+        <script src="app/app.directive.js"></script>
+        <script src="app/app.filters.js"></script>
+        <script src="app/app.states.js"></script>
+        <script src="app/app.controller.js"></script>
+        <script src="app/app.oc_lazy_load.js"></script>
 
 
     <!-- main stylesheet -->
     <link rel="stylesheet" href="assets/css/main.min.css" media="all" id="main_stylesheet">
 </head>
-
 <body class="{{main_theme}}" data-uk-observe ng-class="{
     'sidebar_main_active': primarySidebarActive && !miniSidebarActive && !topMenuActive && (!$state.is('login') && !$state.includes('error')),
     'sidebar_main_open': primarySidebarOpen && !miniSidebarActive && !topMenuActive && largeScreen && (!$state.is('login') && !$state.includes('error')),
@@ -70,14 +68,14 @@
     'boxed_layout': boxedLayoutActive && (!$state.is('login') && !$state.includes('error')),
     'login_page': $state.is('login'),
     'error_page': $state.includes('error'),
-    'uk-height-1-1': page_full_height
+    'uk-height-1-1': page_full_height,
+    'footer_active': footerActive,
 }" content-sidebar>
-    <div id="page_preloader" ng-hide="hidePreloader"><img src="assets/img/page_preloader.gif" alt="" /></div>
+    <div id="page_preloader" ng-hide="hidePreloader"><img src="assets/img/page_preloader.gif" alt=""/></div>
 
     <div ui-view="main_header"></div>
-    <div ui-view id="main_view" ng-class="{'uk-height-1-1': page_full_height }" style="overflow-y:auto;"></div>
+    <div ui-view id="main_view" ng-class="{'uk-height-1-1': page_full_height }"></div>
     <div ui-view="main_sidebar" ng-hide="topMenuActive"></div>
 
 </body>
-
 </html>

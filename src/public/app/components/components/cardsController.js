@@ -2,7 +2,8 @@ angular
     .module('altairApp')
     .controller('cardsCtrl', [
         '$scope',
-        function ($scope) {
+        '$timeout',
+        function ($scope,$timeout) {
 
             $scope.selectize_card_options = ["Item A", "Item B", "Item C"];
 
@@ -66,6 +67,12 @@ angular
                 labelField: 'title',
                 searchField: 'title'
             };
+
+            $scope.randomProgress = function($event) {
+                var rand = Math.floor((Math.random() * 100) + 1);
+                $($event.currentTarget).closest('.md-card').attr('card-progress',rand);
+            }
+
 
         }
     ]);

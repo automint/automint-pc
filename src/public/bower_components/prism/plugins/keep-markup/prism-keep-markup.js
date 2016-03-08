@@ -4,13 +4,8 @@
 		return;
 	}
 
-	Prism.plugins.KeepMarkup = true;
-
 	Prism.hooks.add('before-highlight', function (env) {
-		if (!env.element.children.length) {
-			return;
-		}
-
+		var firstWhiteSpaces = false;
 		var pos = 0;
 		var data = [];
 		var f = function (elt, baseNode) {
@@ -26,6 +21,11 @@
 				if (child.nodeType === 1) { // element
 					f(child);
 				} else if(child.nodeType === 3) { // text
+					if(!firstWhiteSpaces) {
+						// We need to ignore the first white spaces in the code block
+						child.data = child.data.replace(/^(?:\r?\n|\r)/, '');
+						firstWhiteSpaces = true;
+					}
 					pos += child.data.length;
 				}
 			}

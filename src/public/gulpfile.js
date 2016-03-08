@@ -43,7 +43,7 @@ gulp.task('common_js', function () {
         "bower_components/velocity/velocity.js",
         "bower_components/velocity/velocity.ui.js",
         // advanced cross-browser ellipsis
-        "bower_components/jQuery.dotdotdot/src/js/jquery.dotdotdot.js",
+        "bower_components/jquery.dotdotdot/src/js/jquery.dotdotdot.js",
         // hammerjs
         "bower_components/hammerjs/hammer.js",
         // scrollbar width
@@ -51,7 +51,9 @@ gulp.task('common_js', function () {
         // jquery.debouncedresize
         "bower_components/jquery.debouncedresize/js/jquery.debouncedresize.js",
         // screenfull
-        "bower_components/screenfull/dist/screenfull.js"
+        "bower_components/screenfull/dist/screenfull.js",
+        // waves
+        "bower_components/Waves/dist/waves.min.js"
     ])
         .pipe(plugins.concat('common.js'))
         .on('error', function(err) {
@@ -164,7 +166,7 @@ gulp.task('json_minify', function() {
 });
 
 // -------------------- BROWSER SYNC http://www.browsersync.io/docs/ --------------------
-gulp.task('browser-sync', function() {
+gulp.task('browser-sync', ['default'], function() {
 
     bs_angular.init({
         // http://www.browsersync.io/docs/options/#option-host

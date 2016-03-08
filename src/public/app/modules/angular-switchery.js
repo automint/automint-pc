@@ -47,17 +47,19 @@ angular.module('NgSwitchery', [])
                 } else {
                     previousDisabledValue = value;
                 }
-                initializeSwitch();
+                initializeSwitch(true,true);
             });
 
-            function initializeSwitch() {
+            function initializeSwitch(init,disabled) {
                 $timeout(function() {
                     // Remove any old switcher
-                    if (switcher) {
+                    if(disabled) {
                         angular.element(switcher.switcher).remove();
                     }
-                    // (re)create switcher to reflect latest state of the checkbox element
-                    switcher = new $window.Switchery(elem[0], options);
+                    if (init) {
+                        // (re)create switcher to reflect latest state of the checkbox element
+                        switcher = new $window.Switchery(elem[0], options);
+                    }
                     var element = switcher.element;
                     element.checked = scope.initValue;
                     switcher.setPosition(false);
@@ -65,10 +67,15 @@ angular.module('NgSwitchery', [])
                         scope.$apply(function() {
                             ngModel.$setViewValue(element.checked);
                         })
-                    })
+                    });
                 }, 0);
             }
-            initializeSwitch();
+            initializeSwitch(true,false);
+
+            scope.$watch('initValue', function(newValue, oldValue) {
+                initializeSwitch(false,false);
+            });
+
         }
 
         return {

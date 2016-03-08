@@ -95,11 +95,15 @@
             <div class="md-card-content">
                 <h3 class="heading_a">Select</h3>
                 <div class="uk-grid" data-uk-grid-margin>
-                    <div class="uk-width-medium-1-3 uk-width-large-1-2">
+                    <div class="uk-width-medium-1-3">
                         <input type="text" config="selectize_a_config" options="selectize_a_data.options" ng-model="selectize_a" name="selectize_a" selectize />
                         <span class="uk-form-help-block">Default</span>
                     </div>
-                    <div class="uk-width-medium-1-3 uk-width-large-1-2">
+                    <div class="uk-width-medium-1-3">
+                        <input type="text" config="selectize_c_config" options="selectize_c_options" ng-model="selectize_c" name="selectize_c" selectize data-uk-tooltip="{pos:'top'}" title="Select with tooltip">
+                        <span class="uk-form-help-block">With tooltips</span>
+                    </div>
+                    <div class="uk-width-medium-1-3">
                         <input type="text" config="{ create:false, maxItems: 1, placeholder: 'Select...' }" options="selectize_b_options" ng-model="selectize_b" name="selectize_b" selectize ng-disabled="true"/>
                         <span class="uk-form-help-block">Disabled</span>
                     </div>
@@ -136,6 +140,11 @@
                         <input type="checkbox" class="switchery switchery-small" ui-switch ng-model="switches.switch_e" id="switch_demo_small" />
                         <label for="switch_demo_small" class="inline-label">Label</label>
                         <span class="uk-form-help-block">Small</span>
+                    </div>
+                    <div class="uk-width-medium-1-3">
+                        <input type="checkbox" class="switchery" ui-switch ng-model="switches.switch_model" id="switch_demo_model" />
+                        <label for="switch_demo_small" class="inline-label">Label</label>
+                        <span class="uk-form-help-block">External model change</span>
                     </div>
                 </div>
                 <div class="uk-grid" data-uk-grid-margin>
