@@ -1,0 +1,38 @@
+<div id="page_content">
+    <div id="page_content_inner">
+
+        <h3 class="heading_b uk-margin-bottom">Services</h3>
+        <div class="md-card uk-margin-medium-bottom">
+            <div class="md-card-content">
+                <table datatable="ng" dt-options="showCase.dtOptions" dt-columns="showCase.dtColumn" class="uk-table" cellspacing="0" width="100%">
+                    <tfoot>
+                        <thead>
+                            <tr>
+                                <th class="uk-width-1-10">Customer</th>
+                                <th class="uk-width-3-10">Vehicle</th>
+                                <th class="uk-width-2-10">Date</th>
+                                <th class="uk-width-2-10">Odo</th>
+                                <th class="uk-width-1-10">Description</th>
+                                <th class="uk-width-2-10">Cost</th>
+                                <th class="uk-width-2-10">&nbsp;</th>
+                            </tr>
+                        </thead>
+                    </tfoot>
+                    <tr ng-repeat="service in showCase.services">
+                        <td>{{ service.firstname }}&nbsp;{{ service.lastname }}</td>
+                        <td>{{ service.reg }}&nbsp;({{ service.manu }}-{{ service.model }})</td>
+                        <td>{{ service.date }}</td>
+                        <td>{{ service.odo }}</td>
+                        <td>{{ service.details }}</td>
+                        <td>{{ service.cost }}</td>
+                        <td class="edit-col">
+                            <a class="btn btn-primary" ng-click="editService($event,service.id)">view</a>
+                            <!-- <a href="#" ng-click="customers.deleteApi(person.user_email)" class="btn btn-danger">Remove</a>  -->
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
