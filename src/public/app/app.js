@@ -17,8 +17,12 @@ var altairApp = angular.module('altairApp', [
 altairApp.constant('variables', {
     api_url: "http://localhost:8081",
     api_version: "0.3",
-    db_url: "http://10.50.26.5:4984",
-    db_commons: "cruzer-test-common"
+    db_url: "http://{bucket}.cruzer.io:4984/",
+    db_commons: "cruzer-test-common",
+    localKeys: {
+        login: "loginFlag",
+        bucket: "bucketName"
+    }
 });
 
 
@@ -48,12 +52,32 @@ altairApp
         '$window',
         '$timeout',
         'preloaders',
+        'loginService',
         'variables',
         '$pouchDB',
-        function ($rootScope, $state, $stateParams, $http, $window, $timeout, preloaders, variables, $pouchDB) {
+        function ($rootScope, $state, $stateParams, $http, $window, $timeout, preloaders, loginService, variables, $pouchDB) {
 
             $rootScope.$state = $state;
             $rootScope.$stateParams = $stateParams;
+
+            loginService.isLogin().then(function (res) {
+                debugger;
+                if (res) {
+                    loginService.runDB().then(function () {
+                        debugger;
+                        $state.go('restricted.services');
+                    }, function (err) {
+                        debugger;
+                        console.log("DB Sync fail redirect to login page");
+                        $state.go('login');
+                    });
+                } else {
+                    $state.go('login');
+                }
+            }, function (errr) {
+                debugger;
+            });
+
 
             $rootScope.$on('$stateChangeSuccess', function () {
                 // scroll view to top
