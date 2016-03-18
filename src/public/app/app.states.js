@@ -90,8 +90,9 @@ altairApp
                 .state("restricted.servicesadd", {
                     url: "/servicesadd",
                     params: {
-                        addMode: true,
-                        id: undefined
+                        editMode: true,
+                        id: undefined,
+                        sid: undefined
                     },
                     templateUrl: 'app/pages/services/serviceAddEdit.html',
                     controller: 'serviceAddEditCtrl',
@@ -105,6 +106,19 @@ altairApp
                     },
                     data: {
                         pageTitle: 'Services - List'
+                    }
+                })
+                .state("restricted.settingimport", {
+                    url: "/file_upload",
+                    templateUrl: 'app/components/forms/file_uploadView.html',
+                    controller: 'file_uploadCtrl',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load('app/components/forms/file_uploadController.js');
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'Import'
                     }
                 })
                 // -- DASHBOARD --

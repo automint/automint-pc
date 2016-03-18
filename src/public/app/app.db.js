@@ -128,7 +128,6 @@ angular.module('altairApp')
         }
 
         _this.getAll = function () {
-            debugger;
             return database.allDocs({
                 include_docs: true
             });
@@ -192,7 +191,11 @@ angular.module('altairApp')
         }
 
         _this.delete = function (documentId, documentRevision) {
-            return database.remove(documentId, documentRevision);
+            if (documentRevision) {
+                return database.remove(documentId, documentRevision);
+            } else {
+                return database.remove(documentId);
+            }
         }
 
         _this.get = function (documentId) {
@@ -200,7 +203,6 @@ angular.module('altairApp')
         }
 
         _this.getAll = function () {
-            debugger;
             return database.allDocs({
                 include_docs: true
             });

@@ -203,12 +203,16 @@ angular
                     title: 'Chat',
                     icon: '&#xE0B9;',
                     link: 'restricted.pages.chat'
-                },
-                {
-                    id: 4,
-                    title: 'Scrum Board',
-                    icon: '&#xE85C;',
-                    link: 'restricted.pages.scrum_board'
+                }, {
+                    id: 7,
+                    title: 'Forms',
+                    icon: '&#xE8D2;',
+                    submenu: [
+                        {
+                            title: 'Regular Elements',
+                            link: 'restricted.forms.regular'
+                        }
+                    ]
                 },
                 {
                     id: 5,
