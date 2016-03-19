@@ -99,13 +99,65 @@ angular
                 model_id: "",
                 problems: []
             };
+            
+            $scope.serviceId = undefined;
+            $scope.problemExisting = false;
 
             if (!$state.params.editMode) {
                 $scope.okButtonLable = "UPDATE SERVICE";
+                $pouchDBUser.getAll().then(function (res) {
+                    for (var i = 0; i < res.rows.length; i++) {
+                        var user = res.rows[i].doc.user;
+                        for (var j = 0; j < user.vehicles.length; j++) {
+                            var vehicle = user.vehicles[j];
+                            for (var k = 0; k < vehicle.services.length; k++) {
+                                var serv = vehicle.services[k];
+                                if (serv.id == $state.params.sid) {
+                                    console.log('edit service : match found');
+                                    $scope.serviceId = serv.id;
+                                    $scope.service.mobile = user.mobile;
+                                    $scope.service.firstname = user.firstname;
+                                    $scope.service.lastname = user.lastname;
+                                    $scope.service.email = user.email;
+                                    $scope.service.reg = vehicle.reg;
+                                    $scope.service.manu = vehicle.manufec.name;
+                                    $scope.service.model = vehicle.model.name;
+                                    var serDate = serv.date.split("-");
+                                    console.log(serDate);
+                                    console.log((parseInt(serDate[2]) + " " + parseInt(serDate[1]) + " " + parseInt(serDate[0])))
+                                    $scope.service.date = new Date(parseInt(serDate[2]), parseInt(serDate[1])-1, parseInt(serDate[0]));
+                                    $scope.service.odo = serv.odo;
+                                    $scope.service.cost = serv.cost;
+                                    $scope.service.details = serv.details;
+                                    for (var nop = 0; nop < serv.problems.length; nop++) {
+                                        var prob = serv.problems[nop];
+                                        console.log(prob);
+                                        $scope.service.problems.push({
+                                            details: prob.details,
+                                            rate: prob.rate,
+                                            type: prob.type,
+                                            qty: prob.qty
+                                        });
+                                        $scope.problemExisting = true;
+                                    }
+                                    j = user.vehicles.length;       // break out of vehicles loop
+                                    i = res.rows.length;            // break out of users loop
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    $scope.$apply();
+                }, function (err) {
+                    debugger
+                });
             }
+            
+            $scope.addProblemBlankRow = function () {
+                $scope.service.problems.push(problemBlankModel);
+            };
 
             $scope.service.date = new Date();
-            $scope.service.problems.push(problemBlankModel);
 
             $pouchDBDefault.get('manuf').then(function (res) {
                 $scope.manufList = res.list;
@@ -189,7 +241,7 @@ angular
                 //Make Doc
                 var sdate = $scope.service.date;
                 var s = {
-                    id: (Math.floor(100 + Math.random() * 900000)), //This temp hack
+                    id: ($scope.serviceId == undefined) ? (Math.floor(100 + Math.random() * 900000)) : $scope.serviceId, //This temp hack
                     date: (sdate.getDate() + "-" + (sdate.getMonth() + 1) + "-" + sdate.getFullYear()),
                     odo: $scope.service.odo,
                     cost: $scope.service.cost,
@@ -218,9 +270,19 @@ angular
                     if (res.user) {
                         if (res.user.vehicles) { // vehicle objec found
                             var flagFoundVehicle = false;
+                            var flagFoundService = false;
                             for (var i = 0; i < res.user.vehicles.length; i++) {
                                 if (res.user.vehicles[i].reg === $scope.service.reg) { // vehicle found
-                                    res.user.vehicles[i].services.push(s); //Add/push only service in found vehicle
+                                    for (var j = 0; j < res.user.vehicles[i].services.length; j++) {
+                                        if (res.user.vehicles[i].services[j].id == $scope.serviceId) {
+                                            flagFoundService = true;
+                                            res.user.vehicles[i].services[j] = s;
+                                            break;
+                                        }
+                                    }
+                                    if (!flagFoundService) {
+                                        res.user.vehicles[i].services.push(s); //Add/push only service in found vehicle
+                                    }
                                     flagFoundVehicle = true;
                                     break;
                                 }

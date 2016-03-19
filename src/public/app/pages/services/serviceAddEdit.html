@@ -83,7 +83,7 @@
                             <div class="uk-form-row">
                                 <table class="uk-table uk-table-hover">
                                     <tbody>
-                                        <tr ng-repeat="problem in service.problems">
+                                        <tr ng-repeat="problem in service.problems track by $index">
                                             <td class="uk-width-4-10">
                                                 <label>Issue / Problem</label>
                                                 <input type="text" ng-model="problem.details" class="md-input label-fixed" md-input />
