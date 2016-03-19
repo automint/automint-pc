@@ -33,6 +33,16 @@ angular
                 });
             };
 
+            vm.addService = function () {
+                $state.go('restricted.services.add');
+            };
+
+            $scope.keyPressed = function (e) {
+                $scope.keyCode = e.which;
+                if ($scope.keyCode == 99 || $scope.keyCode == 67) {
+                    vm.addService();
+                }
+            }
 
             //Get Data from DB
             $pouchDBUser.getAll().then(function (res) {
@@ -70,7 +80,7 @@ angular
             });
 
         }
-])
+    ])
     .controller('serviceAddEditCtrl', ['$stateParams', '$scope', '$state', '$pouchDBUser', '$pouchDBDefault',
         function ($stateParams, $scope, $state, $pouchDBUser, $pouchDBDefault) {
             $scope.service = {};
@@ -99,7 +109,15 @@ angular
                 model_id: "",
                 problems: []
             };
-            
+
+            $scope.keyPressed = function (e) {
+                $scope.keyCode = e.which;
+                console.log($scope.keyCode);
+                if ($scope.keyCode == 118 || $scope.keyCode == 86) {
+                    $state.go('restricted.services.all');
+                }
+            }
+
             $scope.serviceId = undefined;
             $scope.problemExisting = false;
 
@@ -120,12 +138,22 @@ angular
                                     $scope.service.lastname = user.lastname;
                                     $scope.service.email = user.email;
                                     $scope.service.reg = vehicle.reg;
-                                    $scope.service.manu = vehicle.manufec.name;
-                                    $scope.service.model = vehicle.model.name;
+                                    $scope.service.manufec = {
+                                        id: vehicle.manufec.id
+                                    };
+                                    for (var j = 0; j < $scope.manufList.length; j++) { // For Model get model details and set
+                                        if ($scope.manufList[j].id === vehicle.manufec.id) {
+                                            $scope.modelList = $scope.manufList[j].models;
+                                            break;
+                                        }
+                                    }
+                                    $scope.service.model = {
+                                        id: vehicle.model.id
+                                    };
                                     var serDate = serv.date.split("-");
                                     console.log(serDate);
                                     console.log((parseInt(serDate[2]) + " " + parseInt(serDate[1]) + " " + parseInt(serDate[0])))
-                                    $scope.service.date = new Date(parseInt(serDate[2]), parseInt(serDate[1])-1, parseInt(serDate[0]));
+                                    $scope.service.date = new Date(parseInt(serDate[2]), parseInt(serDate[1]) - 1, parseInt(serDate[0]));
                                     $scope.service.odo = serv.odo;
                                     $scope.service.cost = serv.cost;
                                     $scope.service.details = serv.details;
@@ -140,8 +168,8 @@ angular
                                         });
                                         $scope.problemExisting = true;
                                     }
-                                    j = user.vehicles.length;       // break out of vehicles loop
-                                    i = res.rows.length;            // break out of users loop
+                                    j = user.vehicles.length; // break out of vehicles loop
+                                    i = res.rows.length; // break out of users loop
                                     break;
                                 }
                             }
@@ -152,7 +180,7 @@ angular
                     debugger
                 });
             }
-            
+
             $scope.addProblemBlankRow = function () {
                 $scope.service.problems.push(problemBlankModel);
             };
@@ -308,4 +336,16 @@ angular
                 });
             }
         }
-]);
+    ])
+    .directive("serviceKbhit", function () {
+        return {
+            restrict: 'E',
+            replace: true,
+            scope: true,
+            link: function postLink(scope, iElement, iAttrs) {
+                jQuery(document).on('keypress', function (e) {
+                    scope.$apply(scope.keyPressed(e));
+                });
+            }
+        };
+    });
