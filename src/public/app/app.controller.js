@@ -188,10 +188,10 @@ angular
                     title: 'Dashboard',
                     icon: '&#xE871;',
                     link: 'restricted.dashboard'
-                },*/ 
+                },*/
                 {
                     id: 0,
-                    title: 'Service',
+                    title: 'Services',
                     icon: '&#xE869;',
                     submenu: [
                         {

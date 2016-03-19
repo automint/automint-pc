@@ -179,6 +179,8 @@ angular
                 }, function (err) {
                     debugger
                 });
+            } else {
+                $scope.service.problems.push(problemBlankModel);
             }
 
             $scope.addProblemBlankRow = function () {
