@@ -72,7 +72,7 @@ angular
                         timeout: 3000
                     });
                     //if (data.code === 2) {
-                    $state.go('restricted.services');
+                    $state.go('restricted.services.all');
                     //}
                 }, function (data) { // Failed login proccess
                     UIkit.notify(data.msg, {

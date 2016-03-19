@@ -26,7 +26,7 @@ angular
             //event
             $scope.editService = function ($e, service) {
                 debugger;
-                $state.go('restricted.servicesadd', {
+                $state.go('restricted.services.add', {
                     editMode: false,
                     id: service.id,
                     sid: service.sid
@@ -232,7 +232,7 @@ angular
                             status: 'info',
                             timeout: 3000
                         });
-                        $state.go("restricted.services");
+                        $state.go("restricted.services.all");
                     }, function (err) {
                         debugger;
                     });

@@ -65,7 +65,7 @@ altairApp
                 if (res) {
                     loginService.runDB().then(function () {
                         debugger;
-                        $state.go('restricted.services');
+                        $state.go('restricted.services.all');
                     }, function (err) {
                         debugger;
                         console.log("DB Sync fail redirect to login page");

@@ -6,8 +6,8 @@ altairApp
 
             // Use $urlRouterProvider to configure any redirects (when) and invalid urls (otherwise).
             $urlRouterProvider
-                .when('/dashboard', '/')
-                .otherwise('/');
+                .when('/dashboard', '/services/all')
+                .otherwise('/services/all');
 
             $stateProvider
             // -- ERROR PAGES --
@@ -70,44 +70,6 @@ altairApp
                         }]
                     }
                 })
-                .state("restricted.services", {
-                    url: "/services",
-                    templateUrl: 'app/pages/services/serviceView.html',
-                    controller: 'serviceListCtrl as showCase',
-                    resolve: {
-                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
-                            return $ocLazyLoad.load([
-                                'bower_components/angular-resource/angular-resource.min.js',
-                                'lazy_datatables',
-                                'app/pages/services/serviceController.js'
-                            ]);
-                        }]
-                    },
-                    data: {
-                        pageTitle: 'Services - List'
-                    }
-                })
-                .state("restricted.servicesadd", {
-                    url: "/servicesadd",
-                    params: {
-                        editMode: true,
-                        id: undefined,
-                        sid: undefined
-                    },
-                    templateUrl: 'app/pages/services/serviceAddEdit.html',
-                    controller: 'serviceAddEditCtrl',
-                    resolve: {
-                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
-                            return $ocLazyLoad.load([
-                                'bower_components/jquery-ui/ui/autocomplete.js',
-                                'app/pages/services/serviceController.js'
-                            ])
-                        }]
-                    },
-                    data: {
-                        pageTitle: 'Services - List'
-                    }
-                })
                 .state("restricted.settingimport", {
                     url: "/file_upload",
                     templateUrl: 'app/components/forms/file_uploadView.html',
@@ -167,6 +129,49 @@ altairApp
                     },
                     ncyBreadcrumb: {
                         label: 'Home'
+                    }
+                })
+                .state("restricted.services", {
+                    url: "/services",
+                    template: '<div ui-view autoscroll="false" />',
+                    abstract: true
+                })
+                .state("restricted.services.all", {
+                    url: "/services",
+                    templateUrl: 'app/pages/services/serviceView.html',
+                    controller: 'serviceListCtrl as showCase',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'bower_components/angular-resource/angular-resource.min.js',
+                                'lazy_datatables',
+                                'app/pages/services/serviceController.js'
+                            ]);
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'Services - List'
+                    }
+                })
+                .state("restricted.services.add", {
+                    url: "/servicesadd",
+                    params: {
+                        editMode: true,
+                        id: undefined,
+                        sid: undefined
+                    },
+                    templateUrl: 'app/pages/services/serviceAddEdit.html',
+                    controller: 'serviceAddEditCtrl',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'bower_components/jquery-ui/ui/autocomplete.js',
+                                'app/pages/services/serviceController.js'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'Services - List'
                     }
                 })
                 // -- FORMS --
