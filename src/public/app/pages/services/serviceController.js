@@ -37,13 +37,6 @@ angular
                 $state.go('restricted.services.add');
             };
 
-            $scope.keyPressed = function (e) {
-                $scope.keyCode = e.which;
-                if ($scope.keyCode == 99 || $scope.keyCode == 67) {
-                    vm.addService();
-                }
-            }
-
             //Get Data from DB
             $pouchDBUser.getAll().then(function (res) {
                 var services = [];
@@ -109,14 +102,6 @@ angular
                 model_id: "",
                 problems: []
             };
-
-            $scope.keyPressed = function (e) {
-                $scope.keyCode = e.which;
-                console.log($scope.keyCode);
-                if ($scope.keyCode == 118 || $scope.keyCode == 86) {
-                    $state.go('restricted.services.all');
-                }
-            }
 
             $scope.serviceId = undefined;
             $scope.problemExisting = false;
@@ -338,16 +323,4 @@ angular
                 });
             }
         }
-    ])
-    .directive("serviceKbhit", function () {
-        return {
-            restrict: 'E',
-            replace: true,
-            scope: true,
-            link: function postLink(scope, iElement, iAttrs) {
-                jQuery(document).on('keypress', function (e) {
-                    scope.$apply(scope.keyPressed(e));
-                });
-            }
-        };
-    });
+    ]);
