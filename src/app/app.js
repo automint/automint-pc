@@ -100,7 +100,7 @@ altairApp
             });
 
             // fastclick (eliminate the 300ms delay between a physical tap and the firing of a click event on mobile browsers)
-            FastClick.attach(document.body);
+            // FastClick.attach(document.body);
 
             // get version from package.json
             $http.get('./package.json').success(function(response) {
