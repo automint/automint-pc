@@ -16,6 +16,8 @@ altairApp
                     var listener = function(event, toState) {
                         var default_title = 'Cruzer Workshop';
                         $timeout(function() {
+                            $rootScope.section_title = (toState.data && toState.data.pageTitle)
+                                ? toState.data.pageTitle : '';
                             $rootScope.page_title = (toState.data && toState.data.pageTitle)
                                 ? toState.data.pageTitle + ' - ' + default_title : default_title;
                         });
