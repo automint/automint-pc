@@ -1,7 +1,8 @@
 /*
-*  Altair Admin AngularJS
-*/
-;"use strict";
+ *  Altair Admin AngularJS
+ */
+;
+"use strict";
 
 var altairApp = angular.module('altairApp', [
     'ui.router',
@@ -12,6 +13,18 @@ var altairApp = angular.module('altairApp', [
     'ncy-angular-breadcrumb',
     'ConsoleLogger'
 ]);
+
+altairApp.constant('variables', {
+    api_url: "http://localhost:8081",
+    api_version: "0.3",
+    db_url: "http://{bucket}.cruzer.io:4984/",
+    db_commons: "cruzer-test-common",
+    localKeys: {
+        login: "loginFlag",
+        bucket: "bucketName"
+    }
+});
+
 
 altairApp.config(function($sceDelegateProvider) {
     $sceDelegateProvider.resourceUrlWhitelist([
@@ -39,22 +52,29 @@ altairApp
         '$window',
         '$timeout',
         'preloaders',
+        'cruzerService',
         'variables',
-        function ($rootScope, $state, $stateParams,$http,$window, $timeout,variables) {
+        '$pouchDB',
+        function($rootScope, $state, $stateParams, $http, $window, $timeout, preloaders, cruzerService, variables, $pouchDB) {
 
             $rootScope.$state = $state;
             $rootScope.$stateParams = $stateParams;
 
-            $rootScope.$on('$stateChangeSuccess', function () {
+            cruzerService.syncDB();
+            $rootScope.$on('$stateChangeSuccess', function() {
                 // scroll view to top
                 $("html, body").animate({
                     scrollTop: 0
                 }, 200);
 
+                $("body").resize(function() {
+                    $("#main_view").height(($("body").height()));
+                });
+
                 $timeout(function() {
                     $rootScope.pageLoading = false;
                     $($window).resize();
-                },300);
+                }, 300);
 
                 $timeout(function() {
                     $rootScope.pageLoaded = true;
@@ -62,11 +82,11 @@ altairApp
                     // wave effects
                     $window.Waves.attach('.md-btn-wave,.md-fab-wave', ['waves-button']);
                     $window.Waves.attach('.md-btn-wave-light,.md-fab-wave-light', ['waves-button', 'waves-light']);
-                },600);
+                }, 600);
 
             });
 
-            $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+            $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
                 // main search
                 $rootScope.mainSearchActive = false;
                 // single card
@@ -87,12 +107,12 @@ altairApp
                 // footer
                 $rootScope.footerActive = false;
 
-                if($($window).width() < 1220 ) {
+                if ($($window).width() < 1220) {
                     // hide primary sidebar
                     $rootScope.primarySidebarActive = false;
                     $rootScope.hide_content_sidebar = false;
                 }
-                if(!toParams.hasOwnProperty('hidePreloader')) {
+                if (!toParams.hasOwnProperty('hidePreloader')) {
                     $rootScope.pageLoading = true;
                     $rootScope.pageLoaded = false;
                 }
@@ -134,5 +154,4 @@ altairApp
             // app debug
             PrintToConsole.active = false;
         }
-    ])
-;
+    ]);
