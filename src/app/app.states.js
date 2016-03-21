@@ -62,8 +62,7 @@ altairApp
                                 'lazy_switchery',
                                 'lazy_prismJS',
                                 'lazy_autosize',
-                                'lazy_iCheck',
-                                'lazy_style_switcher'
+                                'lazy_iCheck'
                             ], {
                                 serie: true
                             });
