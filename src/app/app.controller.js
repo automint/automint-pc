@@ -153,9 +153,18 @@ angular
             $scope.sections = [
                 {
                     id: 0,
-                    title: 'Dashboard',
+                    title: 'Services',
                     icon: '&#xE871;',
-                    link: 'restricted.dashboard'
+                    submenu: [
+                        {
+                            title: 'View All',
+                            link: 'restricted.services.all'
+                        },
+                        {
+                            title: 'Add Service',
+                            link: 'restricted.services.add'
+                        }
+                    ]
                 }
             ]
 

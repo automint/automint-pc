@@ -6,8 +6,8 @@ altairApp
 
             // Use $urlRouterProvider to configure any redirects (when) and invalid urls (otherwise).
             $urlRouterProvider
-                .when('/dashboard', '/')
-                .otherwise('/');
+                .when('/', '/services/all')
+                .otherwise('/services/all');
 
             $stateProvider
             // -- ERROR PAGES --
@@ -115,6 +115,72 @@ altairApp
                     },
                     ncyBreadcrumb: {
                         label: 'Home'
+                    }
+                })
+                // ----- SERVICES -----
+                .state('restricted.services', {
+                    url: '/services',
+                    template: '<div ui-view autoscroll="false" />',
+                    abstract: true,
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'app/cruzer/services/servicesController.js'
+                            ])
+                        }]
+                    }
+                })
+                .state('restricted.services.all', {
+                    url: '/all',
+                    templateUrl: 'app/cruzer/services/services_viewAll.html',
+                    controller: 'servicesViewAllCtrl',
+                    controllerAs: 'serviceData',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'bower_components/angular-resource/angular-resource.min.js',
+                                'lazy_datatables'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'All Services'
+                    }
+                })
+                .state('restricted.services.add', {
+                    url: '/add',
+                    templateUrl: 'app/cruzer/services/services_add.html',
+                    controller: 'servicesAddCtrl',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'lazy_wizard',
+                                'lazy_KendoUI'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'Add a Service'
+                    }
+                })
+                .state('restricted.services.edit', {
+                    url: '/edit',
+                    params: {
+                        id: undefined,
+                        mobile: undefined
+                    },
+                    templateUrl: 'app/cruzer/services/services_add.html',
+                    controller: 'servicesEditCtrl',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'lazy_wizard',
+                                'lazy_KendoUI'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'Edit Service'
                     }
                 })
         }
