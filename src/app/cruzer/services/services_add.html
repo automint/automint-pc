@@ -67,25 +67,13 @@
                         <wz-step wz-title="Service information" template="app/templates/wizard.step.tpl.html">
                             <div class="uk-grid" data-uk-grid-margin>
                                 <div class="uk-width-medium-2-6 parsley-row">
-                                    <label for="wizard_cost">Total Cost&nbsp;<span class="req uk-text-danger">*</span></label>
-                                    <input type="number" name="wizard_cost" id="wizard_cost" required class="md-input" md-input ng-model="service.cost" />
-                                </div>
-                                <div class="uk-width-medium-2-6 parsley-row">
-                                    <label for="wizard_odometer">Odometer Reading</label>
-                                    <input type="number" name="wizard_odometer" id="wizard_odometer" class="md-input" md-input ng-model="service.odo" />
-                                </div>
-                            </div>
-                            <div class="uk-grid" data-uk-grid-margin>
-                                <div class="uk-width-medium-2-6 parsley-row">
                                     <label for="wizard_date" class="uk-form-label">Date</label>
                                     <input kendo-masked-text-box ng-model="service.date" data-uk-datepicker="{format:'DD/MM/YYYY'}" k-mask="'00/00/0000'" style="width: 100%;" id="wizard_date" name="wizard_date" data-uk-tooltip="{pos: 'top-right', animation: 'true'}" title="Format: DD/MM/YYYY"
                                     />
                                 </div>
-                            </div>
-                            <div class="uk-grid">
-                                <div class="uk-width-medium-1-1 parsley-row">
-                                    <label for="wizard_details">Details</label>
-                                    <textarea class="md-input" ng-model="service.details" name="wizard_details" id="wizard_details" md-input textarea-autosize></textarea>
+                                <div class="uk-width-medium-2-6 parsley-row">
+                                    <label for="wizard_odometer" class="uk-form-label">Odometer Reading</label>
+                                    <input kendo-masked-text-box type="number" name="wizard_odometer" id="wizard_odometer" ng-model="service.odo" style="width: 100%" />
                                 </div>
                             </div>
                             <div class="uk-grid">
@@ -127,6 +115,20 @@
                             <div class="uk-grid">
                                 <div class="uk-width-medium-1-2 parsley-row">
                                     <button class="md-btn" ng-click="addProblemRow()">Add Problem</button>
+                                </div>
+                            </div>
+                            <div class="uk-grid">
+                                <div class="uk-width-medium-1-2 parsley-row"></div>
+                                <div class="uk-width-medium-1-4 parsley-row"></div>
+                                <div class="uk-width-medium-2-10 parsley-row">
+                                    <label for="wizard_cost">Total Cost&nbsp;<span class="req uk-text-danger">*</span></label>
+                                    <input type="number" name="wizard_cost" id="wizard_cost" required class="md-input" md-input ng-model="service.cost" />
+                                </div>
+                            </div>
+                            <div class="uk-grid">
+                                <div class="uk-width-medium-1-1 parsley-row">
+                                    <label for="wizard_details">Service Details</label>
+                                    <textarea class="md-input" ng-model="service.details" name="wizard_details" id="wizard_details" md-input textarea-autosize></textarea>
                                 </div>
                             </div>
                             <div class="uk-clearfix uk-margin-large-top">

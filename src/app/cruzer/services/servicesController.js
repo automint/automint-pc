@@ -110,9 +110,11 @@ angular
                 model: ''
             }
 
+            var currentDateObject = new Date();
+            var currentMonthValue = currentDateObject.getUTCMonth() + 1;
             //  keep track of service details from UI
             $scope.service = {
-                date: '',
+                date: currentDateObject.getUTCDate() + "/" + (currentMonthValue < 10 ? "0" + currentMonthValue : currentMonthValue) + "/" + currentDateObject.getUTCFullYear(),
                 odo: 0,
                 cost: 0,
                 details: '',
@@ -331,7 +333,7 @@ angular
                 manuf: '',
                 model: ''
             }
-
+            
             //  keep track of service details from UI
             $scope.service = {
                 date: '',
