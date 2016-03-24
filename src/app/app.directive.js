@@ -14,7 +14,7 @@ altairApp
                 restrict: 'A',
                 link: function() {
                     var listener = function(event, toState) {
-                        var default_title = 'Cruzer Workshop';
+                        var default_title = 'Cruzer';
                         $timeout(function() {
                             $rootScope.section_title = (toState.data && toState.data.pageTitle)
                                 ? toState.data.pageTitle : '';
