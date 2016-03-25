@@ -26,12 +26,12 @@
                     </tfoot>
                     <tr ng-repeat="service in serviceData.services">
                         <td>{{ service.name }}</td>
-                        <td>{{ service.manufacturer }}-{{ service.model }}&nbsp;<span ng-if="service.reg">({{ service.reg }})</span></td>
+                        <td>{{ service.manufacturer }} {{ service.model }}&nbsp;<span ng-if="service.reg">({{ service.reg }})</span></td>
                         <td>{{ service.date }}</td>
                         <td>{{ service.cost }}</td>
                         <td class="edit-col" style="text-align: center">
-                            <a class="btn btn-primary" ng-click="editService($event,service)">edit</a>
-                            <!-- <a href="#" ng-click="customers.deleteApi(person.user_email)" class="btn btn-danger">Remove</a>  -->
+                            <a class="btn btn-primary" ng-click="editService($event, service)">edit</a>&nbsp;|&nbsp;
+                            <a href="#" ng-click="deleteService($event, service)" class="btn btn-danger">Delete</a>
                         </td>
                     </tr>
                 </table>

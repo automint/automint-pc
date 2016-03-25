@@ -33,13 +33,14 @@ angular
                     var vo = {};
                     Object.keys(doc.user.vehicles).forEach(function (vehicleKey) {
                         var vehicle = doc.user.vehicles[vehicleKey];
-                        var so = {}
+                        var so = {};
                         Object.keys(vehicle.services).forEach(function (serviceKey) {
                             var service = vehicle.services[serviceKey];
                             var splitDate = service.date.split("/");
                             var sDate = new Date(parseInt(splitDate[2]), parseInt(splitDate[1]) - 1, parseInt(splitDate[0]));
-                            if ((sDate > queryDate) || (filterMonth == 0 && filterYear == 0)) {    
+                            if (((sDate > queryDate) || (filterMonth == 0 && filterYear == 0)) && !service._deleted) {    
                                 var s = {
+                                    deleted: service._deleted,
                                     cost: service.cost,
                                     date: service.date,
                                 }
@@ -137,6 +138,22 @@ angular
                     userId: service.userId
                 });
             };
+            
+            //  callback for delete service button
+            $scope.deleteService = function ($e, service) {
+                $pouchDBUser.get(service.userId).then(function (res) {
+                    res.user.vehicles[service.vehicleId].services[service.id]._deleted = true;
+                    $pouchDBUser.save(res).then(function(res) {
+                        UIkit.notify("Service has been deleted.", {
+                            status: 'danger',
+                            timeout: 3000
+                        });
+                        setDatatableValues(1, 0);
+                    }, function(err) {
+                        console.log(err);
+                    });
+                });
+            }
 
             //  callback for add service button
             $scope.addService = function() {
