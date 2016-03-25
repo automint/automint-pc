@@ -1,6 +1,5 @@
 angular.module('altairApp')
     .service("$pouchDB", ["$rootScope", "$q", function($rootScope, $q) {
-        var TAG = "pouchDb : ";
         var database;
         var changeListener;
 
@@ -9,7 +8,6 @@ angular.module('altairApp')
         this.setDatabase = function(databaseName, remote) {
             database = new PouchDB(databaseName);
             remoteDatabase = remote;
-            console.log(TAG + " dbName = " + databaseName);
         }
 
         this.startListening = function() {
@@ -17,7 +15,7 @@ angular.module('altairApp')
                 live: true,
                 include_docs: true
             }).on("change", function(change) {
-                console.log(TAG + 'on change - ' + change);
+                console.log(change);
             });
         }
 
@@ -69,7 +67,6 @@ angular.module('altairApp')
             database.destroy();
         }
     }]).factory("$pouchDBDefault", ["$pouchDB", '$q', function($pouchDB, $q) {
-        var TAG = "pouchDbDefault";
         var database;
         var changeListener;
 
@@ -79,7 +76,6 @@ angular.module('altairApp')
         _this.setDatabase = function(databaseName, remote) {
             database = new PouchDB(databaseName);
             remoteDatabase = remote;
-            console.log(TAG + " dbName = " + databaseName);
         }
 
         _this.startListening = function() {
@@ -87,7 +83,7 @@ angular.module('altairApp')
                 live: true,
                 include_docs: true
             }).on("change", function(change) {
-                console.log(TAG + 'on change - ' + change);
+                console.log(change);
             });
         }
 
@@ -141,7 +137,6 @@ angular.module('altairApp')
         return _this;
 
     }]).factory("$pouchDBUser", ["$pouchDB", '$q', function($pouchDB, $q) {
-        var TAG = "pouchDbUser";
         var database;
         var changeListener;
 
@@ -151,7 +146,10 @@ angular.module('altairApp')
         _this.setDatabase = function(databaseName, remote) {
             database = new PouchDB(databaseName);
             remoteDatabase = remote;
-            console.log(TAG + " dbName = " + databaseName);
+        }
+        
+        _this.db = function () {
+            return database;
         }
 
         _this.startListening = function() {
@@ -159,7 +157,7 @@ angular.module('altairApp')
                 live: true,
                 include_docs: true
             }).on("change", function(change) {
-                console.log(TAG + 'on change - ' + change);
+                console.log(change);
             });
         }
 

@@ -7,13 +7,11 @@
                     <tfoot>
                         <thead>
                             <tr>
-                                <th class="uk-width-1-10">Customer</th>
+                                <th class="uk-width-2-10">Customer</th>
                                 <th class="uk-width-3-10">Vehicle</th>
                                 <th class="uk-width-2-10">Date</th>
-                                <th class="uk-width-2-10">Odo</th>
-                                <th class="uk-width-1-10">Description</th>
                                 <th class="uk-width-2-10">Cost</th>
-                                <th class="uk-width-2-10">&nbsp;</th>
+                                <th class="uk-width-1-10">&nbsp;</th>
                             </tr>
                         </thead>
                     </tfoot>
@@ -21,10 +19,8 @@
                         <td>{{ service.name }}</td>
                         <td>{{ service.reg }}&nbsp;({{ service.manufacturer }}-{{ service.model }})</td>
                         <td>{{ service.date }}</td>
-                        <td>{{ service.odo }}</td>
-                        <td>{{ service.details }}</td>
                         <td>{{ service.cost }}</td>
-                        <td class="edit-col">
+                        <td class="edit-col" style="text-align: center">
                             <a class="btn btn-primary" ng-click="editService($event,service)">edit</a>
                             <!-- <a href="#" ng-click="customers.deleteApi(person.user_email)" class="btn btn-danger">Remove</a>  -->
                         </td>

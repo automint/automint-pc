@@ -168,7 +168,7 @@ altairApp
                     params: {
                         id: undefined,
                         vehicleId: undefined,
-                        mobile: undefined
+                        userId: undefined
                     },
                     templateUrl: 'app/cruzer/services/services_add.html',
                     controller: 'servicesEditCtrl',

@@ -7,13 +7,20 @@
                     <wizard on-finish="finishedWizard()" template="app/templates/wizard.tpl.html">
                         <wz-step wz-title="Customer Information" template="app/templates/wizard.step.tpl.html">
                             <div class="uk-grid">
+                                <div class="uk-width-medium-1-1 parsley-row">
+                                    <label for="wizard_customer_name" class="uk-form-label">Customer Name</label>
+                                    <select ng-disabled="operationMode == 'edit'" kendo-combo-box ng-model="user.name" id="wizard_customer_name" ng-blur="fillUserDetails()" k-placeholder="'Customer Name'" k-data-text-field="'key'" k-data-value-field="'id'" k-filter="'contains'" k-auto-bind="false" k-min-length="1" k-data-source="possibleUserList" style="width:100%">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="uk-grid">
                                 <div class="uk-width-medium-1-2 parsley-row">
                                     <div class="uk-input-group">
                                         <span class="uk-input-group-addon">
                                             <a href="#"><i class="material-icons">&#xE0CD;</i></a>
                                         </span>
                                         <label for="wizard_phone">Phone Number&nbsp;<span class="req uk-text-danger">*</span></label>
-                                        <input ng-disabled="operationMode == 'edit'" type="text" class="md-input" ng-blur="fillUserDetails()" name="wizard_phone" id="wizard_phone" required md-input ng-model="user.mobile" />
+                                        <input ng-disabled="operationMode == 'edit'" type="text" class="md-input" name="wizard_phone" id="wizard_phone" required md-input ng-model="user.mobile" />
                                     </div>
                                 </div>
                                 <div class="uk-width-medium-1-2 parsley-row">
@@ -26,12 +33,12 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="uk-grid">
+                            <!--<div class="uk-grid">
                                 <div class="uk-width-medium-1-1 parsley-row">
                                     <label for="wizard_fullname">Full Name</label>
                                     <input ng-disabled="operationMode == 'edit'" type="text" name="wizard_fullname" id="wizard_fullname" class="md-input" md-input ng-model="user.name" />
                                 </div>
-                            </div>
+                            </div>-->
                             <div class="uk-clearfix uk-margin-large-top">
                                 <button class="md-btn md-btn-primary uk-float-right" id="button_customer_details_forward" type="submit" wz-next>Continue</button>
                             </div>
@@ -40,7 +47,8 @@
                             <div class="uk-grid">
                                 <div class="uk-width-medium-1-1 parsley-row">
                                     <label class="uk-form-label" for="kUI_dropdown_basic_select">Choose from existing:</label>
-                                    <select ng-disabled="operationMode == 'edit'" kendo-drop-down-list id="currentVehicle" k-data-text-field="'name'" k-data-value-field="'name'" k-data-source="possibleVehicleList" style="width: 100%" id="kUI_dropdown_basic_select" ng-model="currentVehicle" ng-change="fillVehicleDetails()">
+                                    <select ng-disabled="operationMode == 'edit'" kendo-drop-down-list id="currentVehicle" k-data-text-field="'name'" k-data-value-field="'name'" k-data-source="possibleVehicleList" style="width: 100%" id="kUI_dropdown_basic_select" ng-model="currentVehicle"
+                                        ng-change="fillVehicleDetails()">
                                     </select>
                                 </div>
                             </div>
