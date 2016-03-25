@@ -9,32 +9,125 @@ angular
             //  datatable options
             $scope.dtOptions = DTOptionsBuilder
                 .newOptions()
-                .withDisplayLength(10)
-                .withOption('initComplete', function() {
-                    //  additional options as features to table (Copy, CSV, Excel, PDF, Print)
-                    $timeout(function() {
-                        var $dt_tableTools = $scope.dtInstance.dataTable;
-                        dt_tabletTools = $scope.dtInstance.DataTable;
-
-                        var tt = new $.fn.dataTable.TableTools(dt_tabletTools, {
-                            "sSwfPath": "bower_components/datatables-tabletools/swf/copy_csv_xls_pdf.swf"
-                        });
-                        $(tt.fnContainer()).insertBefore($dt_tableTools.closest('.dt-uikit').find('.dt-uikit-header'));
-
-                        $('body').on('click', function(e) {
-                            if ($('body').hasClass('DTTT_Print')) {
-                                if (!$(e.target).closest(".DTTT").length && !$(e.target).closest(".uk-table").length) {
-                                    var esc = $.Event("keydown", {
-                                        keyCode: 27
-                                    });
-                                    $('body').trigger(esc);
+                .withDisplayLength(10);
+                
+            //  filter datatable based on month and year
+            //  param filterMonth- total months to be traversed (if query is for last 6 months, then 6 is to be passed)
+            //  param filterYear- total years to be traversed (if query is for last 2 years, then 2 is to be passed)
+            var setDatatableValues = function (filterMonth, filterYear) {
+                var today = new Date();
+                var currentDate = today.getDate();
+                var currentMonth = today.getMonth();
+                var currentYear = today.getFullYear();
+                
+                var filteredMonth = currentMonth - filterMonth;
+                if (filteredMonth < 1) {
+                    filteredMonth += 12;
+                    currentYear--;
+                }
+                var filteredYear = currentYear - filterYear;
+                var queryDate = new Date(filteredYear, filteredMonth, currentDate);
+                
+                $pouchDBUser.db().query(function (doc, emit) {
+                    var boolServiceFound = false;
+                    var vo = {};
+                    Object.keys(doc.user.vehicles).forEach(function (vehicleKey) {
+                        var vehicle = doc.user.vehicles[vehicleKey];
+                        var so = {}
+                        Object.keys(vehicle.services).forEach(function (serviceKey) {
+                            var service = vehicle.services[serviceKey];
+                            var splitDate = service.date.split("/");
+                            var sDate = new Date(parseInt(splitDate[2]), parseInt(splitDate[1]) - 1, parseInt(splitDate[0]));
+                            if ((sDate > queryDate) || (filterMonth == 0 && filterYear == 0)) {    
+                                var s = {
+                                    cost: service.cost,
+                                    date: service.date,
                                 }
+                                so[serviceKey] = s;
+                                boolServiceFound = true;
                             }
                         });
-                        // compile and commit table option tools to UI
-                        $compile($('.dt-uikit .md-input'))($scope);
-                    })
+                        var v = {
+                            reg: vehicle.reg,
+                            manuf: vehicle.manuf,
+                            model: vehicle.model,
+                            services: so
+                        }
+                        vo[vehicleKey] = v;
+                    });
+                    var u = {
+                        name: doc.user.name,
+                        email: doc.user.email,
+                        mobile: doc.user.mobile,
+                        vehicles: vo
+                    }
+                    if (boolServiceFound) {
+                        emit(u);
+                    }
+                }).then(function (res) {
+                    var services = [];
+                    for (var i = 0; i < res.rows.length; i++) {
+                        var user = res.rows[i].key;
+                        var vehicleKeys = Object.keys(user.vehicles);
+                        vehicleKeys.forEach(function(vId) {
+                            var vehicle = user.vehicles[vId];
+                            var serviceKeys = Object.keys(vehicle.services);
+                            serviceKeys.forEach(function(sId) {
+                                var service = vehicle.services[sId];
+                                var dateSplit = service.date.split("/");
+                                var targetDate = dateSplit[2] + "-" + dateSplit[1] + "-" + dateSplit[0];
+                                var s = {
+                                    id: sId,
+                                    userId: res.rows[i].id,
+                                    mobile: user.mobile,
+                                    name: user.name,
+                                    vehicleId: vId,
+                                    reg: vehicle.reg,
+                                    manufacturer: vehicle.manuf,
+                                    model: vehicle.model,
+                                    date: targetDate,
+                                    cost: service.cost
+                                };
+                                services.push(s);
+                            }, this);
+                        }, this);
+                    }
+                    vm.services = services;
+                    $scope.$apply();
+                }).catch(function (err) {
+                    console.log(err);
                 });
+            }
+            //  array of date filters possible for datatable
+            $scope.possibleDateFilters = [
+                '1 Month',
+                '6 Months',
+                '1 Year',
+                'Everything'
+            ]
+            
+            //  set default filter to first date filter
+            $scope.dateQuery = $scope.possibleDateFilters[0];
+            setDatatableValues(1, 0);
+            
+            //  proccess according to different date filters
+            $scope.filterDatatable = function (index) {
+                $scope.dateQuery = $scope.possibleDateFilters[index];
+                switch ($scope.dateQuery) {
+                    case $scope.possibleDateFilters[0]:
+                        setDatatableValues(1, 0);
+                        break;
+                    case $scope.possibleDateFilters[1]:
+                        setDatatableValues(6, 0);
+                        break;
+                    case $scope.possibleDateFilters[2]:
+                        setDatatableValues(0, 1);
+                        break;
+                    case $scope.possibleDateFilters[3]:
+                        setDatatableValues(0, 0);
+                        break;
+                }
+            }
 
             //  callback for edit service button
             $scope.editService = function($e, service) {
@@ -49,43 +142,6 @@ angular
             $scope.addService = function() {
                 $state.go('restricted.services.add');
             };
-
-            //  get Data from pouchDB
-            $pouchDBUser.getAll().then(function(res) {
-                var services = [];
-                for (var i = 0; i < res.rows.length; i++) {
-                    var user = res.rows[i].doc.user;
-                    var vehicleKeys = Object.keys(user.vehicles);
-                    vehicleKeys.forEach(function(element) {
-                        var vehicle = user.vehicles[element];
-                        var vId = element;
-                        var serviceKeys = Object.keys(vehicle.services);
-                        serviceKeys.forEach(function(element) {
-                            var service = vehicle.services[element];
-                            var s = {
-                                id: element,
-                                userId: res.rows[i].doc._id,
-                                mobile: user.mobile,
-                                name: user.name,
-                                vehicleId: vId,
-                                reg: vehicle.reg,
-                                manufacturer: vehicle.manuf,
-                                model: vehicle.model,
-                                date: service.date,
-                                odo: service.odo,
-                                cost: service.cost,
-                                details: service.details
-                            };
-                            services.push(s);
-                        }, this);
-                    }, this);
-                }
-                vm.services = services;
-                $scope.$apply();
-            }, function(err) {
-                //  if no content found, do nothing but logging an error
-                console.log(err);
-            });
         })
     .controller('servicesAddCtrl', [
         '$scope',
@@ -115,10 +171,10 @@ angular
 
             //  temporary objects for tracking current date
             var currentDateObject = new Date();
-            var currentMonthValue = currentDateObject.getUTCMonth() + 1;
+            var currentMonthValue = currentDateObject.getMonth() + 1;
             //  keep track of service details from UI
             $scope.service = {
-                date: currentDateObject.getUTCDate() + "/" + (currentMonthValue < 10 ? "0" + currentMonthValue : currentMonthValue) + "/" + currentDateObject.getUTCFullYear(),
+                date: currentDateObject.getDate() + "/" + (currentMonthValue < 10 ? "0" + currentMonthValue : currentMonthValue) + "/" + currentDateObject.getFullYear(),
                 odo: 0,
                 cost: 0,
                 details: '',
