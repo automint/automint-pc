@@ -165,6 +165,21 @@ angular
                             link: 'restricted.services.add'
                         }
                     ]
+                },
+                {
+                    id: 1,
+                    title: 'Customers',
+                    icon: '&#xE871',
+                    submenu: [
+                        {
+                            title: 'View All',
+                            link: 'restricted.customers.all'
+                        },
+                        {
+                            title: 'Add Customer',
+                            link: 'restricted.customers.add'
+                        }
+                    ]
                 }
             ]
 

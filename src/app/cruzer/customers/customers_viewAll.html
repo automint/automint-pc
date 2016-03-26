@@ -1,0 +1,35 @@
+<div id="page_content">
+    <div id="page_content_inner">
+        <h3 class="heading_b uk-margin-bottom">Customers</h3>
+        <div class="md-card uk-margin-medium-bottom">
+            <div class="md-card-content">
+                <table datatable="ng" dt-instance="dtInstance" dt-options="dtOptions" dt-columns="dtColumn" class="uk-table" cellspacing="0" width="100%">
+                    <tfoot>
+                        <thead>
+                            <tr>
+                                <th class="uk-width-2-10">Name</th>
+                                <th class="uk-width-2-10">Mobile</th>
+                                <th class="uk-width-2-10">Email</th>
+                                <th class="uk-width-3-10">Vehicle</th>
+                                <th class="uk-width-1-10">&nbsp;</th>
+                            </tr>
+                        </thead>
+                    </tfoot>
+                    <tr ng-repeat="customer in customerData.customers">
+                        <td>{{ customer.name }}</td>
+                        <td>{{ customer.mobile }}</td>
+                        <td>{{ customer.email }}</td>
+                        <td>{{ customer.manufacturer }} {{ customer.model }}&nbsp;<span ng-if="customer.reg">({{ customer.reg }})</span></td>
+                        <td class="edit-col" style="text-align: center">
+                            <a class="btn btn-primary" ng-click="editCustomer($event, customer)">edit</a>&nbsp;|&nbsp;
+                            <a ng-click="deleteCustomer($event, customer)" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="md-fab-wrapper">
+            <a class="md-fab md-fab-primary md-fab-wave-light" ng-click="addCustomer()" data-uk-tooltip="{pos: 'right'}" title="Add a Customer"><i class="material-icons">&#xE145;</i></a>
+        </div>
+    </div>
+</div>

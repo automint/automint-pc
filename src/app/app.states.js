@@ -184,5 +184,71 @@ altairApp
                         pageTitle: 'Edit Service'
                     }
                 })
+                .state('restricted.customers', {
+                    url: '/customers',
+                    template: '<div ui-view autoscroll="false" />',
+                    abstract: true,
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'app/cruzer/customers/customersController.js'
+                            ])
+                        }]
+                    }
+                })
+                .state('restricted.customers.all', {
+                    url: '/all',
+                    templateUrl: 'app/cruzer/customers/customers_viewAll.html',
+                    controller: 'customersViewAllCtrl',
+                    controllerAs: 'customerData',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'bower_components/angular-resource/angular-resource.min.js',
+                                'lazy_datatables'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'All Customers'
+                    }
+                })
+                .state('restricted.customers.add', {
+                    url: '/add',
+                    templateUrl: 'app/cruzer/customers/customers_add.html',
+                    controller: 'customersAddCtrl',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'lazy_wizard',
+                                'lazy_KendoUI'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'Add a Customer'
+                    }
+                })
+                .state('restricted.customers.edit', {
+                    url: '/edit',
+                    params: {
+                        id: undefined,
+                        vehicleId: undefined,
+                        userId: undefined
+                    },
+                    templateUrl: 'app/cruzer/customers/customers_add.html',
+                    controller: 'customersEditCtrl',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'lazy_wizard',
+                                'lazy_KendoUI'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'Edit Customer'
+                    }
+                })
         }
     ]);
