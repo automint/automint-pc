@@ -37,7 +37,7 @@
                                 <button class="md-btn md-btn-flat md-btn-flat-primary uk-float-right" id="button_customer_details_forward" type="submit" wz-next>Continue</button>
                             </div>
                         </wz-step>
-                        <wz-step wz-title="Vehicle information" template="app/templates/wizard.step.tpl.html">
+                        <wz-step wz-title="Vehicle information" template="app/templates/wizard.step.tpl.html" canenter="validateCustomer">
                             <div class="uk-grid">
                                 <div class="uk-width-medium-1-1 parsley-row">
                                     <label class="uk-form-label" for="kUI_dropdown_basic_select">Choose from existing:</label>
@@ -65,7 +65,7 @@
                                 <button class="md-btn md-btn-flat md-btn-flat-primary uk-float-right" id="button_vehicle_details_forward" type="submit" wz-next>Continue</button>
                             </div>
                         </wz-step>
-                        <wz-step wz-title="Service information" template="app/templates/wizard.step.tpl.html">
+                        <wz-step wz-title="Service information" template="app/templates/wizard.step.tpl.html" canenter="validateVehicle">
                             <div class="uk-grid" data-uk-grid-margin>
                                 <div class="uk-width-medium-2-6 parsley-row">
                                     <label for="wizard_date" class="uk-form-label">Date</label>

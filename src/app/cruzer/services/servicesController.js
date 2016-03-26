@@ -38,14 +38,13 @@ angular
                             var service = vehicle.services[serviceKey];
                             var splitDate = service.date.split("/");
                             var sDate = new Date(parseInt(splitDate[2]), parseInt(splitDate[1]) - 1, parseInt(splitDate[0]));
-                            if (((sDate > queryDate) || (filterMonth == 0 && filterYear == 0)) && !service._deleted) {    
+                            boolServiceFound = !service._deleted;
+                            if (((sDate > queryDate) || (filterMonth == 0 && filterYear == 0)) && boolServiceFound) {    
                                 var s = {
-                                    deleted: service._deleted,
                                     cost: service.cost,
                                     date: service.date,
                                 }
                                 so[serviceKey] = s;
-                                boolServiceFound = true;
                             }
                         });
                         var v = {
@@ -61,8 +60,8 @@ angular
                         email: doc.user.email,
                         mobile: doc.user.mobile,
                         vehicles: vo
-                    }
-                    if (boolServiceFound) {
+                    } 
+                    if (boolServiceFound && !doc.user._deleted) {
                         emit(u);
                     }
                 }).then(function (res) {
@@ -166,7 +165,8 @@ angular
         'utils',
         '$pouchDBUser',
         '$state',
-        function($scope, $rootScope, utils, $pouchDBUser, $state) {
+        'WizardHandler',
+        function($scope, $rootScope, utils, $pouchDBUser, $state, WizardHandler) {
             //  define operation mode to disbable particular fields in different modes
             $scope.operationMode = "add";
             
@@ -185,6 +185,35 @@ angular
                 manuf: '',
                 model: ''
             }
+            
+            //  FORM VALIDATIONS [BEGIN]
+            $scope.validateCustomer = function () {
+                var checkPoint1 = $scope.user.name == null ? $("#wizard_customer_name").val() : $scope.user.name;
+                if (checkPoint1 == '' || checkPoint1 == undefined) {
+                    UIkit.notify("Please Enter Customer Name", {
+                        status: 'danger',
+                        timeout: 3000
+                    });
+                    return false;
+                }
+                return true;
+            }
+            $scope.validateVehicle = function () {
+                var checkPoint1 = $scope.validateCustomer();
+                if (checkPoint1) {
+                    var checkPoint2 = ($scope.vehicle.reg == '' || $scope.vehicle.reg == undefined) && ($scope.vehicle.manuf == '' || $scope.vehicle.manuf == undefined) && ($scope.vehicle.model == '' || $scope.vehicle.model == undefined);
+                    if (checkPoint2) {
+                        UIkit.notify("Please Enter At Least One Vehicle Detail", {
+                            status: 'danger',
+                            timeout: 3000
+                        });
+                        WizardHandler.wizard().goTo(1);
+                        return false;
+                    }
+                }
+                return checkPoint1;
+            }
+            //  FORM VALIDATIONS [END]
 
             //  temporary objects for tracking current date
             var currentDateObject = new Date();
@@ -220,12 +249,14 @@ angular
                         $scope.user.mobile = res.user.mobile;
                         $scope.user.name = res.user.name;
                         $scope.user.email = res.user.email;
-                        Object.keys(res.user.vehicles).forEach(function (element) {
-                            var vehicle = res.user.vehicles[element];
-                            vehicle.id = element;
-                            vehicle.name = vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg);
-                            pvl.push(vehicle);
-                        });
+                        if (res.user.vehicles) {
+                            Object.keys(res.user.vehicles).forEach(function (element) {
+                                var vehicle = res.user.vehicles[element];
+                                vehicle.id = element;
+                                vehicle.name = vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg);
+                                pvl.push(vehicle);
+                            });
+                        }
                         pvl.push({
                             id: undefined,
                             name: 'New Vehicle'
