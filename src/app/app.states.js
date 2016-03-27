@@ -250,5 +250,67 @@ altairApp
                         pageTitle: 'Edit Customer'
                     }
                 })
+                .state('restricted.inventories', {
+                    url: '/inventories',
+                    template: '<div ui-view autoscroll="false" />',
+                    abstract: true,
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'app/cruzer/inventories/inventoriesController.js'
+                            ])
+                        }]
+                    }
+                })
+                .state('restricted.inventories.all', {
+                    url: '/all',
+                    templateUrl: 'app/cruzer/inventories/inventories_viewAll.html',
+                    controller: 'inventoriesViewAllCtrl',
+                    controllerAs: 'inventoryData',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'bower_components/angular-resource/angular-resource.min.js',
+                                'lazy_datatables'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'All Treatments'
+                    }
+                })
+                .state('restricted.inventories.add', {
+                    url: '/add',
+                    templateUrl: 'app/cruzer/inventories/inventories_add.html',
+                    controller: 'inventoriesAddCtrl',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'lazy_KendoUI'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'Add a Treatment'
+                    }
+                })
+                .state('restricted.inventories.edit', {
+                    url: '/edit',
+                    templateUrl: 'app/cruzer/inventories/inventories_add.html',
+                    params: {
+                        name: undefined
+                    },
+                    controller: 'inventoriesEditCtrl',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'lazy_KendoUI'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'Edit Treatment'
+                    }
+                })
         }
     ]);

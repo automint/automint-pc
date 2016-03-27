@@ -180,6 +180,21 @@ angular
                             link: 'restricted.customers.add'
                         }
                     ]
+                },
+                {
+                    id: 2,
+                    title: 'Treatments',
+                    icon: '&#xE871',
+                    submenu: [
+                        {
+                            title: 'List',
+                            link: 'restricted.inventories.all'
+                        },
+                        {
+                            title: 'Add Treatment',
+                            link: 'restricted.inventories.add'
+                        }
+                    ]
                 }
             ]
 
