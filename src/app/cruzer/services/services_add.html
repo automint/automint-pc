@@ -7,9 +7,14 @@
                     <wizard on-finish="finishedWizard()" template="app/templates/wizard.tpl.html">
                         <wz-step wz-title="Customer Information" template="app/templates/wizard.step.tpl.html">
                             <div class="uk-grid">
-                                <div class="uk-width-medium-1-1 parsley-row">
-                                    <label for="wizard_customer_name" class="uk-form-label">Customer Name</label>
-                                    <select ng-disabled="operationMode == 'edit'" kendo-combo-box ng-model="user.name" id="wizard_customer_name" ng-blur="fillUserDetails()" k-placeholder="'Customer Name'" k-data-text-field="'key'" k-data-value-field="'id'" k-filter="'contains'" k-auto-bind="false" k-min-length="1" k-data-source="possibleUserList" style="width:100%">
+                                <div class="uk-width-medium-1-1 parsley-row" ng-if="operationMode == 'add'">
+                                    <label for="wizard_customer_name" class="uk-form-label">Customer Name&nbsp;<span class="req uk-text-danger">*</span></label>
+                                    <select ng-disabled="operationMode == 'edit'" kendo-combo-box k-ng-model="user.name" id="wizard_customer_name" ng-blur="fillUserDetails()" k-placeholder="'Customer Name'" k-data-text-field="'key'" k-data-value-field="'id'" k-filter="'contains'" k-auto-bind="false" k-min-length="1" k-data-source="possibleUserList" style="width:100%">
+                                    </select>
+                                </div>
+                                <div class="uk-width-medium-1-1 parsley-row" ng-if="operationMode == 'edit'">
+                                    <label for="wizard_customer_name" class="uk-form-label">Customer Name&nbsp;<span class="req uk-text-danger">*</span></label>
+                                    <select disabled kendo-combo-box ng-model="user.name" id="wizard_customer_name" ng-blur="fillUserDetails()" k-placeholder="'Customer Name'" k-data-text-field="'key'" k-data-value-field="'id'" k-filter="'contains'" k-auto-bind="false" k-min-length="1" k-data-source="possibleUserList" style="width:100%">
                                     </select>
                                 </div>
                             </div>
@@ -19,8 +24,8 @@
                                         <span class="uk-input-group-addon">
                                             <a href="#"><i class="material-icons">&#xE0CD;</i></a>
                                         </span>
-                                        <label for="wizard_phone">Phone Number&nbsp;<span class="req uk-text-danger">*</span></label>
-                                        <input ng-disabled="operationMode == 'edit'" type="text" class="md-input" name="wizard_phone" id="wizard_phone" required md-input ng-model="user.mobile" />
+                                        <label for="wizard_phone">Phone Number</label>
+                                        <input ng-disabled="operationMode == 'edit' || user.id != ''" type="text" class="md-input" name="wizard_phone" id="wizard_phone" required md-input ng-model="user.mobile" />
                                     </div>
                                 </div>
                                 <div class="uk-width-medium-1-2 parsley-row">
@@ -29,7 +34,7 @@
                                             <a href="#"><i class="material-icons">&#xE0BE;</i></a>
                                         </span>
                                         <label for="wizard_email">Email</label>
-                                        <input ng-disabled="operationMode == 'edit'" type="text" class="md-input" name="wizard_email" id="wizard_email" md-input ng-model="user.email" />
+                                        <input ng-disabled="operationMode == 'edit' || user.id != ''" type="text" class="md-input" name="wizard_email" id="wizard_email" md-input ng-model="user.email" />
                                     </div>
                                 </div>
                             </div>
@@ -49,15 +54,15 @@
                             <div class="uk-grid">
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label">Choose manufacturer:</label>
-                                    <input ng-disabled="operationMode == 'edit'" kendo-auto-complete name="wizard_manufacturer" ng-model="vehicle.manuf" k-data-source="countryNames" k-placeholder='"Select manufacturer ..."' class="uk-width-1-1" style="min-width: 100%" />
+                                    <input ng-disabled="operationMode == 'edit' || vehicle.id" kendo-auto-complete name="wizard_manufacturer" ng-model="vehicle.manuf" k-data-source="countryNames" k-placeholder='"Select manufacturer ..."' class="uk-width-1-1" style="min-width: 100%" />
                                 </div>
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label">Choose model:</label>
-                                    <input ng-disabled="operationMode == 'edit'" kendo-auto-complete name="wizard_model" ng-model="vehicle.model" k-data-source="countryNames" k-placeholder='"Select model ..."' class="uk-width-1-1" style="min-width: 100%" />
+                                    <input ng-disabled="operationMode == 'edit' || vehicle.id" kendo-auto-complete name="wizard_model" ng-model="vehicle.model" k-data-source="countryNames" k-placeholder='"Select model ..."' class="uk-width-1-1" style="min-width: 100%" />
                                 </div>
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label" for="wizard_registration">Vehicle Registration&nbsp;<span class="req uk-text-danger">*</span></label>
-                                    <input ng-disabled="operationMode == 'edit'" kendo-auto-complete k-placeholder='"e.g. GJ01AB9999"' name="wizard_registration" id="wizard_registration" ng-model="vehicle.reg" style="min-width: 100%; letter-spacing: 1px;" data-uk-tooltip="{pos: 'bottom-left', animation: 'true'}"
+                                    <input ng-disabled="operationMode == 'edit' || vehicle.id" kendo-auto-complete k-placeholder='"e.g. GJ01AB9999"' name="wizard_registration" id="wizard_registration" ng-model="vehicle.reg" style="min-width: 100%; letter-spacing: 1px;" data-uk-tooltip="{pos: 'bottom-left', animation: 'true'}"
                                         title="Example: GJ01AB9999" />
                                 </div>
                             </div>
@@ -80,24 +85,17 @@
                             <div class="uk-grid">&nbsp;</div>
                             <div class="uk-grid">
                                 <div class="uk-width-medium-1-2 parsley-row">
-                                    <h2 class="heading_a" style="margin-left: 2rem;">
+                                    <h2 class="heading_a">
                                         Services Done
                                     </h2>
                                 </div>
                             </div>
                             <hr class="md-hr" />
                             <div class="uk-grid" style="margin-top: 2rem;" ng-repeat="problem in service.problems" data-uk-grid-margin>
-                                <div class="uk-width-medium-3-10 parsley-row">
-                                    <label for="wizard_problem_issue">Product / Service</label>
-                                    <input ng-attr-id="{{ 'pDetails' + problem.focusIndex }}" type="text" name="wizard_problem_issue" class="md-input" md-input ng-model="problem.details" />
+                                <div class="uk-width-medium-4-10 parsley-row">
+                                    <input kendo-auto-complete ng-attr-id="{{ 'pDetails' + problem.focusIndex }}" ng-blur="updateTreatmenDetails($index, problem.focusIndex)" k-data-text-field="'name'" k-data-value-field="'name'" ng-model="problem.details" k-data-source="treatments" k-placeholder='"Treatment ..."' style="min-width: 100%" />
                                 </div>
-                                <div class="uk-width-medium-1-6 parsley-row">
-                                    <select kendo-drop-down-list ng-model="problem.type" name="wizard_problem_type" style="width: 100%;">
-                                        <option>Labour</option>
-                                        <option>Part</option>
-                                    </select>
-                                </div>
-                                <div class="uk-width-medium-1-6 parsley-row">
+                                <div class="uk-width-medium-2-10 parsley-row">
                                     <label for="wizard_problem_rate">Rate</label>
                                     <input type="number" name="wizard_problem_rate" ng-change="updateCost()" class="md-input" md-input ng-model="problem.rate" />
                                 </div>
@@ -105,12 +103,12 @@
                                     <label for="wizard_quatity">Quantity</label>
                                     <input type="number" name="wizard_quatity" ng-change="updateCost()" class="md-input" md-input ng-model="problem.qty" />
                                 </div>
-                                <div class="uk-width-medium-1-6 parsley-row">
+                                <div class="uk-width-medium-2-10 parsley-row">
                                     <label for="wizard_problem_cost">Cost</label>
                                     <input type="number" name="wizard_problem_cost" disabled class="md-input" value="{{ problem.rate * problem.qty }}" md-input /></span>
                                 </div>
                                 <div class="uk-width-medium-1-10 parsley-row">
-                                    <a class="md-btn md-btn-danger md-btn-wave-light" style="margin-top: 0.3rem;" ng-click="service.problems.splice($index,1)" href="javascript:void(0)"><i class="material-icons" style="color: #FFF">delete</i></a>
+                                    <a class="md-btn md-btn-danger md-btn-wave-light" style="margin-top: 0.3rem;" ng-click="service.problems.splice($index,1); updateCost()" href="javascript:void(0)"><i class="material-icons" style="color: #FFF">delete</i></a>
                                 </div>
                             </div>
                             <div class="uk-grid">

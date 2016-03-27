@@ -95,7 +95,8 @@ angular
                     vm.services = services;
                     $scope.$apply();
                 }).catch(function (err) {
-                    console.log(err);
+                    vm.service = [];
+                    $scope.$apply();
                 });
             }
             //  array of date filters possible for datatable
@@ -149,7 +150,10 @@ angular
                         });
                         setDatatableValues(1, 0);
                     }, function(err) {
-                        console.log(err);
+                        UIkit.notify("Service can not be deleted at moment. Please Try Again!", {
+                            status: 'danger',
+                            timeout: 3000
+                        });
                     });
                 });
             }
@@ -166,7 +170,9 @@ angular
         '$pouchDBUser',
         '$state',
         'WizardHandler',
-        function($scope, $rootScope, utils, $pouchDBUser, $state, WizardHandler) {
+        '$pouchDBDefault',
+        '$filter',
+        function($scope, $rootScope, utils, $pouchDBUser, $state, WizardHandler, $pouchDBDefault, $filter) {
             //  define operation mode to disbable particular fields in different modes
             $scope.operationMode = "add";
             
@@ -236,8 +242,42 @@ angular
                     $scope.possibleUserList = result.rows;
                 })
             }).catch(function (err) {
-                console.log(err);
+                //  no user found
             });
+            
+            //  populate treatments list
+            $pouchDBDefault.get('inventory').then(function (res) {
+                var treatments = [];
+                if (res.regular) {
+                    Object.keys(res.regular).forEach(function (details) {
+                        if (!details.match(/^(_id|_rev)$/) && !res.regular[details]._deleted) {
+                            treatments.push({
+                                name: details,
+                                rate: res.regular[details].rate
+                            });
+                        }
+                    });
+                }
+                $scope.treatments = treatments;
+                $scope.$apply();
+            }, function (err) {
+                $scope.treatments = [];
+            });
+            
+            //  update treatment details
+            $scope.updateTreatmenDetails = function (index, fIndex) {
+                var divId = 'pDetails' + fIndex;
+                var currentDetails = $("#" + divId).val();
+                var found = $filter('filter')($scope.treatments, { name:  currentDetails}, true);
+                if (found.length > 0) {
+                    $scope.service.problems[index].rate = found[0].rate;
+                    if ($scope.service.problems[index].qty < 1)
+                        $scope.service.problems[index].qty = 1;
+                } else {
+                    $scope.service.problems[index].rate = 0;
+                }
+                $scope.updateCost();
+            }
             
             //  auto fill user details based on customer name given from UI
             $scope.fillUserDetails = function() {
@@ -276,7 +316,6 @@ angular
                             name: 'New Vehicle'
                         }];
                     });
-                    console.log(err);
                 });
             };
             
@@ -322,7 +361,8 @@ angular
                 details: '',
                 rate: 0,
                 type: 'Part',
-                qty: 0
+                qty: 0,
+                focusIndex: 0
             });
 
             //  manually insert a problem
@@ -352,7 +392,10 @@ angular
                         });
                         $state.go("restricted.services.all");
                     }, function(err) {
-                        console.log(err);
+                        UIkit.notify("Service can not be added at moment. Please Try Again!", {
+                            status: 'danger',
+                            timeout: 3000
+                        });
                     });
                 }
 
@@ -458,7 +501,10 @@ angular
         'utils',
         '$pouchDBUser',
         '$state',
-        function($scope, $rootScope, utils, $pouchDBUser, $state) {
+        '$pouchDBDefault',
+        '$filter',
+        'WizardHandler',
+        function($scope, $rootScope, utils, $pouchDBUser, $state, $pouchDBDefault, $filter, WizardHandler) {
             //  define operation mode to disbable particular fields in different modes
             $scope.operationMode = "edit";
 
@@ -551,12 +597,14 @@ angular
                             var keysProblems = Object.keys(service.problems);
                             keysProblems.forEach(function(element) {
                                 var queryProblem = service.problems[element];
+                                var fIndex = $scope.service.problems.length;
                                 var probObject = {
                                     details: element,
                                     type: queryProblem.type,
                                     rate: queryProblem.rate,
                                     cost: queryProblem.cost,
-                                    qty: queryProblem.qty
+                                    qty: queryProblem.qty,
+                                    focusIndex: fIndex
                                 }
                                 $scope.service.problems.push(probObject);
                             });
@@ -572,16 +620,50 @@ angular
                     });
                     $scope.possibleVehicleList = pvl;
                 }
+                WizardHandler.wizard().goTo(2);
                 $scope.$apply();
             }, function(err) {
                 //  if no match found in database, exit the page notifying user about the error
-                console.log(err);
                 UIkit.notify("Something went wrong! Please Try Again!", {
                     status: 'danger',
                     timeout: 3000
                 });
                 $state.go('restricted.services.all');
             });
+            
+            //  populate treatments list
+            $pouchDBDefault.get('inventory').then(function (res) {
+                var treatments = [];
+                if (res.regular) {
+                    Object.keys(res.regular).forEach(function (details) {
+                        if (!details.match(/^(_id|_rev)$/) && !res.regular[details]._deleted) {
+                            treatments.push({
+                                name: details,
+                                rate: res.regular[details].rate
+                            });
+                        }
+                    });
+                }
+                $scope.treatments = treatments;
+                $scope.$apply();
+            }, function (err) {
+                $scope.treatments = [];
+            });
+            
+            //  update treatment details
+            $scope.updateTreatmenDetails = function (index, fIndex) {
+                var divId = 'pDetails' + fIndex;
+                var currentDetails = $("#" + divId).val();
+                var found = $filter('filter')($scope.treatments, { name:  currentDetails}, true);
+                if (found.length > 0) {
+                    $scope.service.problems[index].rate = found[0].rate;
+                    if ($scope.service.problems[index].qty < 1)
+                        $scope.service.problems[index].qty = 1;
+                } else {
+                    $scope.service.problems[index].rate = 0;
+                }
+                $scope.updateCost();
+            }
 
             //  save data to pouchDB instance
             $scope.save = function() {
@@ -594,7 +676,10 @@ angular
                         });
                         $state.go("restricted.services.all");
                     }, function(err) {
-                        console.log(err);
+                        UIkit.notify("Service can not be updated at moment. Please Try Again!", {
+                            status: 'info',
+                            timeout: 3000
+                        });
                     });
                 }
 
