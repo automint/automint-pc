@@ -385,6 +385,25 @@ angular
             $scope.save = function() {
                 //  store in pouch data
                 var saveDataInDB = function(document) {
+                    //  free up possibly long global object
+                    delete $scope.treatments;
+                    //  open inventory doc and check for mismatch from existing problem details
+                    $pouchDBDefault.get('inventory').then(function (res) {
+                        var mismatchFound = false;
+                        $scope.service.problems.forEach(function(element) {
+                            if (!res.regular[element.details]) {
+                                res.regular[element.details] = {
+                                    rate: element.rate
+                                }
+                                mismatchFound = true;
+                            }
+                        });
+                        
+                        //  update inventory document if mismatch found
+                        if (mismatchFound)
+                            $pouchDBDefault.save(res);
+                    });
+                    //  save user document
                     $pouchDBUser.save(document).then(function(res) {
                         UIkit.notify("Service has been added.", {
                             status: 'info',
@@ -669,6 +688,25 @@ angular
             $scope.save = function() {
                 //  store in pouch data
                 var saveDataInDB = function(document) {
+                    //  free up possibly long global object
+                    delete $scope.treatments;
+                    //  open inventory doc and check for mismatch from existing problem details
+                    $pouchDBDefault.get('inventory').then(function (res) {
+                        var mismatchFound = false;
+                        $scope.service.problems.forEach(function(element) {
+                            if (!res.regular[element.details]) {
+                                res.regular[element.details] = {
+                                    rate: element.rate
+                                }
+                                mismatchFound = true;
+                            }
+                        });
+                        
+                        //  update inventory document if mismatch found
+                        if (mismatchFound)
+                            $pouchDBDefault.save(res);
+                    });
+                    //  save user document
                     $pouchDBUser.save(document).then(function(res) {
                         UIkit.notify("Service has been updated.", {
                             status: 'info',

@@ -42,7 +42,7 @@ angular.module('altairApp')
             //  callback for delete service button
             $scope.deleteInventory = function($e, inventory) {
                 $pouchDBDefault.get('inventory').then(function(res) {
-                    res[inventory.name]._deleted = true;
+                    res.regular[inventory.name]._deleted = true;
                     $pouchDBDefault.save(res).then(function(res) {
                         UIkit.notify("Treatment has been deleted.", {
                             status: 'danger',
