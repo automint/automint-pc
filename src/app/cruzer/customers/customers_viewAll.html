@@ -21,7 +21,7 @@
                         <td>{{ customer.email }}</td>
                         <td>{{ customer.manufacturer }} {{ customer.model }}&nbsp;<span ng-if="customer.reg">({{ customer.reg }})</span></td>
                         <td class="edit-col" style="text-align: center">
-                            <a class="btn btn-primary" ng-click="editCustomer($event, customer)">edit</a>&nbsp;|&nbsp;
+                            <a class="btn btn-primary" ng-click="editCustomer($event, customer)">Edit</a>&nbsp;|&nbsp;
                             <a ng-click="deleteCustomer($event, customer)" class="btn btn-danger">Delete</a>
                         </td>
                     </tr>

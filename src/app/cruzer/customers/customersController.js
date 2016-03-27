@@ -57,7 +57,7 @@ angular.module('altairApp')
                     vm.customers = customers;
                     $scope.$apply();
                 }).catch(function(err) {
-                    console.log(err);
+                    vm.customers = [];
                 });
             }
             
@@ -81,7 +81,10 @@ angular.module('altairApp')
                         });
                         refresh();
                     }, function(err) {
-                        console.log(err);
+                        UIkit.notify("Customer can not be deleted at moment. Please Try Again!", {
+                            status: 'danger',
+                            timeout: 3000
+                        });
                     });
                 });
             }
@@ -156,7 +159,10 @@ angular.module('altairApp')
                         });
                         $state.go("restricted.customers.all");
                     }, function(err) {
-                        console.log(err);
+                        UIkit.notify("Customer can not be added. Please Try Again!", {
+                            status: 'info',
+                            timeout: 3000
+                        });
                     });
                 }
 
@@ -264,7 +270,6 @@ angular.module('altairApp')
             
             //  pre fill data
             $pouchDBUser.get(paramId).then(function (res) {
-                console.log(res);
                 userDbInstance = res;
                 var customers = [];
                 var u = res.user;
@@ -293,7 +298,6 @@ angular.module('altairApp')
                 }
                 $scope.$apply();
             }, function (err) {
-                console.log(err);
                 UIkit.notify("Something went wrong! Please Try Again!", {
                     status: 'danger',
                     timeout: 3000
@@ -326,7 +330,10 @@ angular.module('altairApp')
                         });
                         $state.go("restricted.customers.all");
                     }, function(err) {
-                        console.log(err);
+                        UIkit.notify("Customer can not be updated. Please Try Again!", {
+                            status: 'info',
+                            timeout: 3000
+                        });
                     });
                 }
 

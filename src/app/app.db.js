@@ -15,7 +15,7 @@ angular.module('altairApp')
                 live: true,
                 include_docs: true
             }).on("change", function(change) {
-                console.log(change);
+                //  do something
             });
         }
 
@@ -83,7 +83,7 @@ angular.module('altairApp')
                 live: true,
                 include_docs: true
             }).on("change", function(change) {
-                console.log(change);
+                //  do something
             });
         }
 
@@ -157,7 +157,7 @@ angular.module('altairApp')
                 live: true,
                 include_docs: true
             }).on("change", function(change) {
-                console.log(change);
+                //  do something
             });
         }
 
