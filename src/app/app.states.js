@@ -191,7 +191,7 @@ altairApp
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/customers/customersController.js'
+                                'app/cruzer/customers/customers.factory.js'
                             ])
                         }]
                     }
@@ -200,10 +200,11 @@ altairApp
                     url: '/all',
                     templateUrl: 'app/cruzer/customers/customers_viewAll.html',
                     controller: 'customersViewAllCtrl',
-                    controllerAs: 'customerData',
+                    controllerAs: 'customerVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
+                                'app/cruzer/customers/controllers/customers-viewall.controller.js',
                                 'bower_components/angular-resource/angular-resource.min.js',
                                 'lazy_datatables'
                             ])
@@ -217,9 +218,11 @@ altairApp
                     url: '/add',
                     templateUrl: 'app/cruzer/customers/customers_add.html',
                     controller: 'customersAddCtrl',
+                    controllerAs: 'customerFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
+                                'app/cruzer/customers/controllers/customers-add.controller.js',
                                 'lazy_wizard',
                                 'lazy_KendoUI'
                             ])
@@ -238,9 +241,11 @@ altairApp
                     },
                     templateUrl: 'app/cruzer/customers/customers_add.html',
                     controller: 'customersEditCtrl',
+                    controllerAs: 'customerFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
+                                'app/cruzer/customers/controllers/customers-edit.controller.js',
                                 'lazy_wizard',
                                 'lazy_KendoUI'
                             ])
@@ -310,6 +315,26 @@ altairApp
                     },
                     data: {
                         pageTitle: 'Edit Treatment'
+                    }
+                })
+                .state('restricted.amc', {
+                    url: '/amc',
+                    template: '<div ui-view autoscroll="false" />',
+                    abstract: true
+                })
+                .state('restricted.amc.all', {
+                    url: '/all',
+                    templateUrl: 'app/cruzer/amc/amc_all.html',
+                    controller: 'amcViewAllCtrl',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'app/cruzer/amc/controllers/amcViewAllController.js'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'All Packages'
                     }
                 })
         }
