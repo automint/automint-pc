@@ -1,10 +1,10 @@
 {
-  "name": "Altair_Admin_AngularJS",
-  "version": "2.4.0",
-  "description": "Material Design Premium Admin Template",
-  "main": "index.html",
+  "name": "Automint",
+  "version": "0.0.1",
+  "description": "CRM Software by Automint",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "electron main.js"
   },
   "keywords": [
     "admin",
@@ -36,6 +36,7 @@
     "gulp-wrapper": "^1.0.0",
     "merge-stream": "^1.0.0",
     "os-utils": "0.0.14",
-    "run-sequence": "^1.1.5"
+    "run-sequence": "^1.1.5",
+    "electron-prebuilt": "^0.36.0"
   }
 }
