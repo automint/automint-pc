@@ -155,49 +155,32 @@ angular
                     id: 0,
                     title: 'Services',
                     icon: '&#xE871;',
-                    submenu: [
-                        {
-                            title: 'View All',
-                            link: 'restricted.services.all'
-                        },
-                        {
-                            title: 'Add Service',
-                            link: 'restricted.services.add'
-                        }
-                    ]
+                    link: 'restricted.services.all'
                 },
                 {
                     id: 1,
                     title: 'Customers',
                     icon: '&#xE871',
-                    submenu: [
-                        {
-                            title: 'View All',
-                            link: 'restricted.customers.all'
-                        },
-                        {
-                            title: 'Add Customer',
-                            link: 'restricted.customers.add'
-                        }
-                    ]
+                    link: 'restricted.customers.all'
                 },
                 {
                     id: 2,
                     title: 'Treatments',
                     icon: '&#xE871',
-                    submenu: [
+                    link: 'restricted.inventories.all'
+                },
+                {
+                    id: 3,
+                    title: 'nd Zone',
+                    icon: '&#xE86F',
+                    submenu : [
                         {
-                            title: 'List',
-                            link: 'restricted.inventories.all'
-                        },
-                        {
-                            title: 'Add Treatment',
-                            link: 'restricted.inventories.add'
+                            title: 'Clean Db',
+                            link: 'restricted.nd.cleandb'
                         }
                     ]
                 }
             ]
-
         }
     ])
 ;
