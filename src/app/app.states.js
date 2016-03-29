@@ -125,7 +125,7 @@ altairApp
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/services/servicesController.js'
+                                'app/cruzer/services/services.factory.js'
                             ])
                         }]
                     }
@@ -134,10 +134,11 @@ altairApp
                     url: '/all',
                     templateUrl: 'app/cruzer/services/services_viewAll.html',
                     controller: 'servicesViewAllCtrl',
-                    controllerAs: 'serviceData',
+                    controllerAs: 'serviceVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
+                                'app/cruzer/services/controllers/services-viewall.controller.js',
                                 'bower_components/angular-resource/angular-resource.min.js',
                                 'lazy_datatables'
                             ])
@@ -151,9 +152,11 @@ altairApp
                     url: '/add',
                     templateUrl: 'app/cruzer/services/services_add.html',
                     controller: 'servicesAddCtrl',
+                    controllerAs: 'serviceFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
+                                'app/cruzer/services/controllers/services-add.controller.js',
                                 'lazy_wizard',
                                 'lazy_KendoUI'
                             ])
@@ -166,15 +169,17 @@ altairApp
                 .state('restricted.services.edit', {
                     url: '/edit',
                     params: {
-                        id: undefined,
+                        serviceId: undefined,
                         vehicleId: undefined,
                         userId: undefined
                     },
                     templateUrl: 'app/cruzer/services/services_add.html',
                     controller: 'servicesEditCtrl',
+                    controllerAs: 'serviceFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
+                                'app/cruzer/services/controllers/services-edit.controller.js',
                                 'lazy_wizard',
                                 'lazy_KendoUI'
                             ])
