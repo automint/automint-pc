@@ -209,14 +209,14 @@
         function saveService(newUser, newVehicle, newService) {
             var differed = $q.defer();
             var newServiceId = (newService.id == undefined || newService.id == '') ? generateUUID('srvc') : newService.id;
-            console.log(newService.id);
             saveInventory(newService.problems);
             var finalService = $.extend(true, {}, newService);
             finalService.problems = {};
             newService.problems.forEach(function(problem) {
                 var tempDetails = problem.details;
-                delete problem.details;
-                delete problem.focusIndex;
+                var finalProblem = $.extend({}, problem);
+                delete finalProblem.details;
+                delete finalProblem.focusIndex;
                 finalService.problems[tempDetails] = problem;
             })
             var finalVehicle = $.extend(true, {}, newVehicle);

@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .controller('customersEditCtrl', CustomersEdit);
 
-    CustomersEdit.$inject = ['$state', 'CustomerData'];
+    CustomersEdit.$inject = ['$state', 'CustomerFactory'];
 
-    function CustomersEdit($state, CustomerData) {
+    function CustomersEdit($state, CustomerFactory) {
         var vm = this;
         //  declare and map functions
         vm.validateCustomerInformation = validateCustomerInformation;
@@ -38,7 +38,7 @@
       
         //  default execution steps
         //  pre-fill customer and vehicle data
-        CustomerData.customer(paramId).then(function(res) {
+        CustomerFactory.customer(paramId).then(function(res) {
             userDbInstance = res;
             var customers = [];
             var u = res.user;
@@ -147,7 +147,7 @@
             }
 
             if (vm.user.id) {
-                CustomerData.saveCustomer(userDbInstance).then(function(res) {
+                CustomerFactory.saveCustomer(userDbInstance).then(function(res) {
                     UIkit.notify("Customer has been updated.", {
                         status: 'info',
                         timeout: 3000

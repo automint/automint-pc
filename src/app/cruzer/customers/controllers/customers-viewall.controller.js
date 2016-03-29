@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .controller('customersViewAllCtrl', CustomersViewAll);
 
-    CustomersViewAll.$inject = ['$state', '$scope', 'DTOptionsBuilder', 'CustomerData']
+    CustomersViewAll.$inject = ['$state', '$scope', 'DTOptionsBuilder', 'CustomerFactory']
 
-    function CustomersViewAll($state, $scope, DTOptionsBuilder, CustomerData) {
+    function CustomersViewAll($state, $scope, DTOptionsBuilder, CustomerFactory) {
         var vm = this;
         //  declarations and mappings
         vm.editCustomer = editCustomer;
@@ -26,7 +26,7 @@
 
         //  refreshes data from data factory (pouchDB)
         function refresh() {
-            CustomerData.forDatatable().then(function(res) {
+            CustomerFactory.forDatatable().then(function(res) {
                 vm.customers = res;
             });
         }
@@ -40,7 +40,7 @@
 
         //  callback for delete customer button
         function deleteCustomer($e, customer) {
-            CustomerData.deleteCustomer(customer).then(function(res) {
+            CustomerFactory.deleteCustomer(customer).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Customer has been deleted.", {
                         status: 'danger',

@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .controller('customersAddCtrl', CustomerAdd);
         
-    CustomerAdd.$inject = ['$state', 'CustomerData'];
+    CustomerAdd.$inject = ['$state', 'CustomerFactory'];
 
-    function CustomerAdd($state, CustomerData) {
+    function CustomerAdd($state, CustomerFactory) {
         var vm = this;
         //  declare and map functions
         vm.validateCustomerInformation = validateCustomerInformation;
@@ -75,7 +75,7 @@
                 u.vehicles = propVehicle;
             }
             
-            CustomerData.addNewCustomer(u).then(function(res) {
+            CustomerFactory.addNewCustomer(u).then(function(res) {
                 UIkit.notify("Customer has been added.", {
                     status: 'info',
                     timeout: 3000

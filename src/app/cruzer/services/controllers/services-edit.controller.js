@@ -43,6 +43,7 @@
         vm.treatments = [];
         
         //  default execution steps
+        populateTreatmentList();
         //  if any parameter is missing, then return to View All Services
         if (userId == undefined || vehicleId == undefined || serviceId == undefined) {
             UIkit.notify("Something went wrong! Please Try Again!", {
@@ -69,7 +70,16 @@
                 vm.service.id = serviceId;
                 WizardHandler.wizard().goTo(2);
             }, function(err) {
-                console.log(err);
+                //  no user data found
+            });
+        }
+        
+        //  populate treatment list
+        function populateTreatmentList() {
+            ServiceFactory.populateRegularTreatments().then(function(res) {
+                vm.treatments = res;
+            }, function(err) {
+                vm.treatments = [];
             });
         }
 

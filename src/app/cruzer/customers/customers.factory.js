@@ -1,11 +1,11 @@
 (function() {
     angular.module('altairApp')
-        .factory('CustomerData', CustomerData);
+        .factory('CustomerFactory', CustomerFactory);
 
-    CustomerData.$inject = ['$pouchDBUser', '$q'];
+    CustomerFactory.$inject = ['$pouchDBUser', '$q'];
 
-    function CustomerData($pouchDBUser, $q) {
-        var customerDataFactory = {
+    function CustomerFactory($pouchDBUser, $q) {
+        var factory = {
             forDatatable: forDatatable,
             deleteCustomer: deleteCustomer,
             addNewCustomer: addNewCustomer,
@@ -119,6 +119,6 @@
             return $pouchDBUser.get(customerId);
         }
 
-        return customerDataFactory;
+        return factory;
     }
 })();

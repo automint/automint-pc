@@ -10,15 +10,15 @@
                 <div class="uk-grid" data-uk-grid-margin>
                     <div class="uk-width-medium-8-10 parsley-row">
                         <label for="wizard_problem_issue">Product / Service</label>
-                        <input ng-disabled="operationMode == 'edit'" type="text" name="wizard_problem_issue" class="md-input" md-input ng-model="inventory.details" />
+                        <input ng-disabled="inventoriesFormVm.operationMode == 'edit'" type="text" name="wizard_problem_issue" class="md-input" md-input ng-model="inventoriesFormVm.inventory.details" />
                     </div>
                     <div class="uk-width-medium-2-10 parsley-row">
                         <label for="wizard_problem_rate">Rate</label>
-                        <input type="number" name="wizard_problem_rate" class="md-input" md-input ng-model="inventory.rate" />
+                        <input type="number" name="wizard_problem_rate" class="md-input" md-input ng-model="inventoriesFormVm.inventory.rate" />
                     </div>
                 </div>
                 <div class="uk-clearfix uk-margin-large-top" style="margin-right: 2rem; margin-bottom: 1rem;">
-                    <button class="md-btn md-btn-flat md-btn-flat-primary uk-float-right" ng-click="save()">Save</button>
+                    <button class="md-btn md-btn-flat md-btn-flat-primary uk-float-right" ng-click="inventoriesFormVm.save()">Save</button>
                 </div>
             </div>
         </div>

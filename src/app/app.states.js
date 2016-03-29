@@ -267,7 +267,7 @@ altairApp
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/inventories/inventoriesController.js'
+                                'app/cruzer/inventories/inventories.factory.js'
                             ])
                         }]
                     }
@@ -276,10 +276,11 @@ altairApp
                     url: '/all',
                     templateUrl: 'app/cruzer/inventories/inventories_viewAll.html',
                     controller: 'inventoriesViewAllCtrl',
-                    controllerAs: 'inventoryData',
+                    controllerAs: 'inventoryVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
+                                'app/cruzer/inventories/controllers/inventories-viewall.controller.js',
                                 'bower_components/angular-resource/angular-resource.min.js',
                                 'lazy_datatables'
                             ])
@@ -293,9 +294,11 @@ altairApp
                     url: '/add',
                     templateUrl: 'app/cruzer/inventories/inventories_add.html',
                     controller: 'inventoriesAddCtrl',
+                    controllerAs: 'inventoriesFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
+                                'app/cruzer/inventories/controllers/inventories-add.controller.js',
                                 'lazy_KendoUI'
                             ])
                         }]
@@ -311,9 +314,11 @@ altairApp
                         name: undefined
                     },
                     controller: 'inventoriesEditCtrl',
+                    controllerAs: 'inventoriesFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
+                                'app/cruzer/inventories/controllers/inventories-edit.controller.js',
                                 'lazy_KendoUI'
                             ])
                         }]
