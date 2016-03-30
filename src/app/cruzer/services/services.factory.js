@@ -12,7 +12,8 @@
             autoFillUser: autoFillUser,
             saveService: saveService,
             customerDetails: customerDetails,
-            deleteService: deleteService
+            deleteService: deleteService,
+            inventorySettings: inventorySettings
         }
 
         //  return filtered services to controller
@@ -65,6 +66,17 @@
                 differed.resolve(res.rows);
             }).catch(function(err) {
                 differed.reject(res);
+            });
+            return differed.promise;
+        }
+        
+        //  return current display settings
+        function inventorySettings() {
+            var differed = $q.defer();
+            $pouchDBDefault.get('inventory').then(function(res) {
+                differed.resolve(res.settings);
+            }, function(err) {
+                differed.reject(err);
             });
             return differed.promise;
         }

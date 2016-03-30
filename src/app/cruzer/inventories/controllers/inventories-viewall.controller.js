@@ -10,6 +10,7 @@
         vm.addInventory = addInventory;
         vm.editInventory = editInventory;
         vm.deleteInventory = deleteInventory;
+        vm.changeDisplayAs = changeDisplayAs;
         //  datatable instance
         vm.dtInstance = {};
         //  datatable options
@@ -18,16 +19,46 @@
             .withDisplayLength(10);
         //  inventories array for datatable
         vm.inventories = [];
+        //  checkbox for display format
+        vm.displayAsList = false;
 
         //  default execution steps
         refresh();
 
         //  refresh datatable from database
         function refresh() {
+            InventoryFactory.currentInventorySettings().then(function(res) {
+                if (res)
+                    vm.displayAsList = res.displayAsList;
+            });
             InventoryFactory.inventoriesAsArray().then(function(res) {
                 vm.inventories = res;
             }, function(err) {
                 vm.inventories = [];
+            });
+        }
+
+        //  checkbox listener for display format
+        function changeDisplayAs() {
+            InventoryFactory.changeDisplayAs(vm.displayAsList).then(function(res) {
+                if (res.ok) {
+                    UIkit.notify("Settings Saved!", {
+                        status: 'success',
+                        timeout: 3000
+                    });
+                } else {
+                    vm.displayAsList = !vm.displayAsList;
+                    UIkit.notify("Could not save settings at moment.", {
+                        status: 'warning',
+                        timeout: 3000
+                    });
+                }
+            }, function(err) {
+                vm.displayAsList = !vm.displayAsList;
+                UIkit.notify("Could not save settings at moment.", {
+                    status: 'warning',
+                    timeout: 3000
+                });
             });
         }
 

@@ -8,3 +8,16 @@
     text-align: center;
     margin-top: 1rem;
 }
+.cruzer-problem-delete-button {
+    border-radius: 0.6rem;
+    padding-top: 0.3rem;
+    padding-left: 0.6rem;
+    padding-right: 0.6rem;
+    padding-bottom: 0.3rem;
+    margin-left: 0.4rem;
+    margin-right: 0.4rem;
+}
+.cruzer-problem-checkbox {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}

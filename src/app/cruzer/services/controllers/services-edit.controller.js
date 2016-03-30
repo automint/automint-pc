@@ -19,7 +19,12 @@
         vm.save = save;
         //  define operation mode to disable particular fields in different modes
         vm.operationMode = 'edit';
-        //  keep track of data from UI and set their default values
+        //  define numeric box options
+        vm.qtyoptions = {
+                format: '#',
+                decimals: 0
+            }
+            //  keep track of data from UI and set their default values
         vm.user = {
             id: '',
             mobile: '',
@@ -41,8 +46,11 @@
             problems: []
         }
         vm.treatments = [];
-        
+        //  default inventory settings
+        vm.displayInventoryAsList = false;
+
         //  default execution steps
+        getInventoryDisplayFormat();
         populateTreatmentList();
         //  if any parameter is missing, then return to View All Services
         if (userId == undefined || vehicleId == undefined || serviceId == undefined) {
@@ -55,6 +63,14 @@
         }
         loadData();
         
+        //  get inventory settings
+        function getInventoryDisplayFormat() {
+            ServiceFactory.inventorySettings().then(function(res) {
+                if (res)
+                    vm.displayInventoryAsList = res.displayAsList;
+            });
+        }
+
         //  load customer service data from database
         function loadData() {
             ServiceFactory.customerDetails(userId, vehicleId, serviceId).then(function(res) {
@@ -66,18 +82,52 @@
                 vm.vehicle.reg = res.vehicle.reg;
                 vm.vehicle.manuf = res.vehicle.manuf;
                 vm.vehicle.model = res.vehicle.model;
-                vm.service = res.vehicle.service;
+                if (vm.displayInventoryAsList) {
+                    vm.service.date = res.vehicle.service.date;
+                    vm.service.odo = res.vehicle.service.odo;
+                    vm.service.cost = res.vehicle.service.cost;
+                    vm.service.details = res.vehicle.service.details;
+                    res.vehicle.service.problems.forEach(function(problem) {
+                        var found = $filter('filter')(vm.service.problems, {
+                            details: problem.details
+                        }, true);
+                        if (found.length > 0) {
+                            found[0].checked = true;
+                            found[0].qty = problem.qty;
+                        }
+                    });
+                } else {
+                    vm.service = res.vehicle.service;
+                    vm.service.problems.forEach(function(problem) {
+                        problem.checked = true;
+                        problem.populateType= 'manual';
+                    });
+                }
                 vm.service.id = serviceId;
                 WizardHandler.wizard().goTo(2);
             }, function(err) {
                 //  no user data found
             });
         }
-        
+
         //  populate treatment list
         function populateTreatmentList() {
             ServiceFactory.populateRegularTreatments().then(function(res) {
                 vm.treatments = res;
+                if (vm.displayInventoryAsList) {
+                    res.forEach(function(treatment) {
+                        var focusIndex = vm.service.problems.length;
+                        var problem = {
+                            populateType: 'treatments',
+                            checked: false,
+                            details: treatment.name,
+                            rate: treatment.rate,
+                            qty: 0,
+                            focusIndex: focusIndex
+                        }
+                        vm.service.problems.push(problem);
+                    });
+                }
             }, function(err) {
                 vm.treatments = [];
             });
@@ -122,8 +172,8 @@
             }, true);
             if (found.length > 0) {
                 vm.service.problems[index].rate = found[0].rate;
-                if (vm.service.problems[index].qty < 1)
-                    vm.service.problems[index].qty = 1;
+                var qty = vm.service.problems[index].qty;
+                vm.service.problems[index].qty = vm.service.problems[index].checked ? (qty < 1 ? 1 : qty) : 0;
             } else {
                 vm.service.problems[index].rate = 0;
             }
@@ -145,18 +195,22 @@
         }
 
         //  add black problem record manually
-        function addProblemRow() {
+        function addProblemRow(focus) {
             var fIndex = vm.service.problems.length;
             vm.service.problems.push({
+                populateType: 'manual',
+                checked: true,
                 details: '',
                 rate: 0,
                 qty: 0,
                 focusIndex: fIndex
             });
-            var focusField = '#pDetails' + fIndex;
-            setTimeout(function() {
-                $(focusField).focus();
-            }, 500);
+            if (focus) {
+                var focusField = '#pDetails' + fIndex;
+                setTimeout(function() {
+                    $(focusField).focus();
+                }, 500);
+            }
         }
 
         //  update total cost referecing indevidual problem's cost
@@ -170,6 +224,14 @@
 
         //  save service to database
         function save() {
+            for (var i = 0; i < vm.service.problems.length; i++) {
+                var problem = vm.service.problems[i];
+                if (problem.checked) {
+                    delete problem.checked;
+                    delete problem.populateType;
+                } else
+                    vm.service.problems.splice(i--, 1);
+            }
             ServiceFactory.saveService(vm.user, vm.vehicle, vm.service).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Service has been updated.", {

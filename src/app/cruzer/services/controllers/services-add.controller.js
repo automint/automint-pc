@@ -20,6 +20,11 @@
         vm.save = save;
         //  define operation mode to disable particular fields in different modes
         vm.operationMode = 'add';
+        //  define numeric box options
+        vm.qtyoptions = {
+            format: '#',
+            decimals: 0
+        } 
         //  keep track of data from UI and set their default values
         vm.user = {
             id: '',
@@ -38,12 +43,7 @@
             odo: 0,
             cost: 0,
             details: '',
-            problems: [{
-                details: '',
-                rate: 0,
-                qty: 0,
-                focusIndex: 0
-            }]
+            problems: []
         }
         vm.possibleUsersList = [];
         vm.treatments = [];
@@ -52,10 +52,21 @@
             name: 'New Vehicle'
         }];
         vm.currentVehicle = vm.possibleVehiclesList[0].name;
+        //  default inventory settings
+        vm.displayInventoryAsList = false;
 
         //  default execution steps
+        getInventoryDisplayFormat();
         populateUsersList();
         populateTreatmentList();
+        
+        //  get inventory settings
+        function getInventoryDisplayFormat() {
+            ServiceFactory.inventorySettings().then(function(res) {
+                if (res)
+                    vm.displayInventoryAsList = res.displayAsList;
+            });
+        }
 
         //  FORM VALIDATIONS [BEGIN]
         function validateCustomer() {
@@ -65,7 +76,7 @@
                     status: 'danger',
                     timeout: 3000
                 });
-                return false;
+                return false;        // (TODO) CHANGE IT TO FALSE
             }
             return true;
         }
@@ -80,7 +91,7 @@
                         timeout: 3000
                     });
                     WizardHandler.wizard().goTo(1);
-                    return false;
+                    return false;        //  (TODO) CHANGE IT TO FALSE
                 }
             }
             return checkPoint1;
@@ -100,8 +111,27 @@
         function populateTreatmentList() {
             ServiceFactory.populateRegularTreatments().then(function(res) {
                 vm.treatments = res;
+                if (vm.displayInventoryAsList) {
+                    if (res.length > 0) {
+                        res.forEach(function(treatment) {
+                            var focusIndex = vm.service.problems.length;
+                            var problem = {
+                                populateType: 'treatments',
+                                checked: false,
+                                details: treatment.name,
+                                rate: treatment.rate,
+                                qty: 0,
+                                focusIndex: focusIndex
+                            }
+                            vm.service.problems.push(problem);
+                        });
+                    } else
+                        addProblemRow(false);
+                } else
+                    addProblemRow(false);
             }, function(err) {
                 vm.treatments = [];
+                addProblemRow(false);
             });
         }
 
@@ -114,8 +144,8 @@
             }, true);
             if (found.length > 0) {
                 vm.service.problems[index].rate = found[0].rate;
-                if (vm.service.problems[index].qty < 1)
-                    vm.service.problems[index].qty = 1;
+                var qty = vm.service.problems[index].qty;
+                vm.service.problems[index].qty = vm.service.problems[index].checked ? (qty < 1 ? 1 : qty) : 0;
             } else {
                 vm.service.problems[index].rate = 0;
             }
@@ -137,18 +167,22 @@
         }
 
         //  add black problem record manually
-        function addProblemRow() {
+        function addProblemRow(focus) {
             var fIndex = vm.service.problems.length;
             vm.service.problems.push({
+                populateType: 'manual',
+                checked: true,
                 details: '',
                 rate: 0,
                 qty: 0,
                 focusIndex: fIndex
             });
-            var focusField = '#pDetails' + fIndex;
-            setTimeout(function() {
-                $(focusField).focus();
-            }, 500);
+            if (focus) {
+                var focusField = '#pDetails' + fIndex;
+                setTimeout(function() {
+                    $(focusField).focus();
+                }, 500);
+            }
         }
 
         //  update total cost referecing indevidual problem's cost
@@ -189,6 +223,14 @@
 
         //  save service to database
         function save() {
+            for (var i=0; i < vm.service.problems.length; i++) {
+                var problem = vm.service.problems[i];
+                if (problem.checked) {
+                    delete problem.checked;
+                    delete problem.populateType;
+                } else
+                    vm.service.problems.splice(i--, 1);
+            }
             ServiceFactory.saveService(vm.user, vm.vehicle, vm.service).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Service has been added.", {

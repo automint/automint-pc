@@ -327,25 +327,5 @@ altairApp
                         pageTitle: 'Edit Treatment'
                     }
                 })
-                .state('restricted.amc', {
-                    url: '/amc',
-                    template: '<div ui-view autoscroll="false" />',
-                    abstract: true
-                })
-                .state('restricted.amc.all', {
-                    url: '/all',
-                    templateUrl: 'app/cruzer/amc/amc_all.html',
-                    controller: 'amcViewAllCtrl',
-                    resolve: {
-                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
-                            return $ocLazyLoad.load([
-                                'app/cruzer/amc/controllers/amcViewAllController.js'
-                            ])
-                        }]
-                    },
-                    data: {
-                        pageTitle: 'All Packages'
-                    }
-                })
         }
     ]);

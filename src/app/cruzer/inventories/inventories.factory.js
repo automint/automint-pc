@@ -9,7 +9,9 @@
             inventoriesAsArray: inventoriesAsArray,
             inventoryDetails: inventoryDetails,
             saveInventory: saveInventory,
-            deleteInventory: deleteInventory
+            deleteInventory: deleteInventory,
+            changeDisplayAs: changeDisplayAs,
+            currentInventorySettings: currentInventorySettings
         }
 
         //  return inventories list in form of an array
@@ -91,6 +93,42 @@
                     differed.resolve(success);
                 }, function(error) {
                     differed.reject(error);
+                });
+            });
+            return differed.promise;
+        }
+        
+        function currentInventorySettings() {
+            var differed = $q.defer();
+            $pouchDBDefault.get('inventory').then(function(res) {
+                differed.resolve(res.settings);
+            }, function(err) {
+                differed.reject(err);
+            });
+            return differed.promise;
+        }
+        
+        //  change display format setting of inventories
+        function changeDisplayAs(displayAsList) {
+            var differed = $q.defer();
+            $pouchDBDefault.get('inventory').then(function(res) {
+                if (!res.settings)
+                    res.settings = {};
+                res.settings['displayAsList'] = displayAsList;
+                $pouchDBDefault.save(res).then(function(status) {
+                    differed.resolve(status);
+                }, function(fail) {
+                    differed.reject(fail);
+                });
+            }, function(err) {
+                var doc = {};
+                doc['_id'] = 'inventory';
+                doc.settings = {};
+                doc.settings['displayAsList'] = displayAsList;
+                $pouchDBDefault.save(doc).then(function(status) {
+                    differed.resolve(status);
+                }, function(fail) {
+                    differed.reject(fail);
                 });
             });
             return differed.promise;
