@@ -49,3 +49,6 @@ Temporary Items
 # Node Files and Directories
 node_modules/
 npm-debug.log
+
+# Dev Files and Directories from @ndkcha
+src/app/cruzer/nd/

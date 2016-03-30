@@ -176,6 +176,7 @@
                 if (mismatchFound)
                     $pouchDBDefault.save(res);
             }, function(err) {
+                var doc = {};
                 doc['_id'] = 'inventory';
                 doc.regular = {};
                 problems.forEach(function(problem) {

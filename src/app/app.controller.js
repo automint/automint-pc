@@ -168,17 +168,6 @@ angular
                     title: 'Treatments',
                     icon: '&#xE871',
                     link: 'restricted.inventories.all'
-                },
-                {
-                    id: 3,
-                    title: 'nd Zone',
-                    icon: '&#xE86F',
-                    submenu : [
-                        {
-                            title: 'Clean Db',
-                            link: 'restricted.nd.cleandb'
-                        }
-                    ]
                 }
             ]
         }
