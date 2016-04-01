@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .factory('ServiceFactory', ServiceFactory);
 
-    ServiceFactory.$inject = ['$pouchDBUser', '$q', '$pouchDBDefault'];
+    ServiceFactory.$inject = ['pdbCustomer', '$q', 'pdbConfig', '$cruzerService', 'utils'];
 
-    function ServiceFactory($pouchDBUser, $q, $pouchDBDefault) {
+    function ServiceFactory(pdbCustomer, $q, pdbConfig, $cruzerService, utils) {
         var factory = {
             filteredServices: filteredServices,
             populateUsersList: populateUsersList,
@@ -13,7 +13,7 @@
             saveService: saveService,
             customerDetails: customerDetails,
             deleteService: deleteService,
-            inventorySettings: inventorySettings
+            treatmentSettings: treatmentSettings
         }
 
         //  return filtered services to controller
@@ -21,7 +21,7 @@
         //  param filterYear- total years to be traversed (if query is for last 2 years, then 2 is to be passed)
         function filteredServices(queryDate, filterMonth, filterYear) {
             var differed = $q.defer();
-            $pouchDBUser.db().query(function(doc, emit) {
+            pdbCustomer.db().query(function(doc, emit) {
                 if (!doc.user._deleted) {
                     if (doc.user.vehicles) {
                         Object.keys(doc.user.vehicles).forEach(function(vId) {
@@ -59,7 +59,7 @@
         //  return current users list based on particular field
         function populateUsersList(filterName) {
             var differed = $q.defer();
-            $pouchDBUser.db().query(function(doc, emit) {
+            pdbCustomer.db().query(function(doc, emit) {
                 if (!doc.user._deleted)
                     emit(doc.user[filterName]);
             }).then(function(res) {
@@ -69,14 +69,18 @@
             });
             return differed.promise;
         }
-        
+
         //  return current display settings
-        function inventorySettings() {
+        function treatmentSettings() {
             var differed = $q.defer();
-            $pouchDBDefault.get('inventory').then(function(res) {
-                differed.resolve(res.settings);
-            }, function(err) {
-                differed.reject(err);
+            $cruzerService.checkSettingsId().then(function(configRes) {
+                pdbConfig.get($cruzerService.currentConfig.settings).then(function(res) {
+                    differed.resolve(res.settings);
+                }, function(err) {
+                    differed.reject(err);
+                });
+            }, function(configErr) {
+                differed.reject(configErr);
             });
             return differed.promise;
         }
@@ -84,21 +88,25 @@
         //  return current regular treatment list
         function populateRegularTreatments() {
             var differed = $q.defer();
-            $pouchDBDefault.get('inventory').then(function(res) {
-                var treatments = [];
-                if (res.regular) {
-                    Object.keys(res.regular).forEach(function(details) {
-                        if (!res.regular[details]._deleted) {
-                            treatments.push({
-                                name: details,
-                                rate: res.regular[details].rate
-                            });
-                        }
-                    });
-                }
-                differed.resolve(treatments);
-            }, function(err) {
-                differed.reject(err);
+            $cruzerService.checkTreatmentId().then(function(configRes) {
+                pdbConfig.get($cruzerService.currentConfig.treatment).then(function(res) {
+                    var treatments = [];
+                    if (res.regular) {
+                        Object.keys(res.regular).forEach(function(details) {
+                            if (!res.regular[details]._deleted) {
+                                treatments.push({
+                                    name: details,
+                                    rate: res.regular[details].rate
+                                });
+                            }
+                        });
+                    }
+                    differed.resolve(treatments);
+                }, function(err) {
+                    differed.reject(err);
+                });
+            }, function(configErr) {
+                differed.reject(configErr);
             });
             return differed.promise;
         }
@@ -106,7 +114,7 @@
         //  return particular user with their vehicles
         function autoFillUser(userId) {
             var differed = $q.defer();
-            $pouchDBUser.get(userId).then(function(res) {
+            pdbCustomer.get(userId).then(function(res) {
                 if (res.user) {
                     var pvl = [];
                     var user = $.extend(true, {}, res.user);
@@ -136,11 +144,11 @@
             });
             return differed.promise;
         }
-        
+
         //  return particular user information
         function customerDetails(userId, vehicleId, serviceId) {
             var differed = $q.defer();
-            $pouchDBUser.get(userId).then(function(res) {
+            pdbCustomer.get(userId).then(function(res) {
                 if (res.user && res.user.vehicles && res.user.vehicles[vehicleId] && res.user.vehicles[vehicleId].services[serviceId]) {
                     var user = $.extend({}, res.user);
                     var vehicle = $.extend({}, user.vehicles[vehicleId]);
@@ -155,7 +163,7 @@
                             delete sourceProblem;
                         })
                     }
-                    service.problems = problemArray; 
+                    service.problems = problemArray;
                     delete vehicle.services;
                     vehicle.service = service;
                     delete user.vehicles;
@@ -168,46 +176,13 @@
             });
             return differed.promise;
         }
-        
-        //  save new inventory details from problems [for adaptive inventort listing]
-        function saveInventory(problems) {
-            $pouchDBDefault.get('inventory').then(function(res) {
-                var mismatchFound = false;
-                if (!res.regular)
-                    res.regular = {};
-                problems.forEach(function(problem) {
-                    if (problem.details != undefined || problem.details != '') {
-                        if (!res.regular[problem.details]) {
-                            res.regular[problem.details] = {
-                                rate: problem.rate
-                            }
-                            mismatchFound = true;
-                        }
-                    }
-                });
-                if (mismatchFound)
-                    $pouchDBDefault.save(res);
-            }, function(err) {
-                var doc = {};
-                doc['_id'] = 'inventory';
-                doc.regular = {};
-                problems.forEach(function(problem) {
-                    if (problem.details != undefined || problem.details != '') {
-                        doc.regular[problem.details] = {
-                            rate: problem.rate
-                        }
-                    }
-                });
-                $pouchDBDefault.save(doc);
-            });
-        }
-        
+
         //  delete a service from customer database
         function deleteService(userId, vehicleId, serviceId) {
             var differed = $q.defer();
-            $pouchDBUser.get(userId).then(function(res) {
+            pdbCustomer.get(userId).then(function(res) {
                 res.user.vehicles[vehicleId].services[serviceId]._deleted = true;
-                $pouchDBUser.save(res).then(function(status) {
+                pdbCustomer.save(res).then(function(status) {
                     differed.resolve(status);
                 }, function(fail) {
                     differed.reject(fail);
@@ -221,8 +196,7 @@
         //  store service to customer database
         function saveService(newUser, newVehicle, newService) {
             var differed = $q.defer();
-            var newServiceId = (newService.id == undefined || newService.id == '') ? generateUUID('srvc') : newService.id;
-            saveInventory(newService.problems);
+            var newServiceId = (newService.id == undefined || newService.id == '') ? utils.generateUUID('srvc') : newService.id;
             var finalService = $.extend(true, {}, newService);
             finalService.problems = {};
             newService.problems.forEach(function(problem) {
@@ -230,8 +204,11 @@
                 var finalProblem = $.extend({}, problem);
                 delete finalProblem.details;
                 delete finalProblem.focusIndex;
-                finalService.problems[tempDetails] = problem;
-            })
+                delete finalProblem['$$hashKey'];
+                finalService.problems[tempDetails] = finalProblem;
+            });
+            if (finalService.id)
+                delete finalService.id;
             var finalVehicle = $.extend(true, {}, newVehicle);
             if (finalVehicle.name)
                 delete finalVehicle.name;
@@ -240,31 +217,34 @@
             finalVehicle.services[newServiceId] = finalService;
             var finalUser = $.extend(true, {}, newUser);
             delete finalUser.id;
-            $pouchDBUser.get(newUser.id).then(function(res) {
+            pdbCustomer.get(newUser.id).then(function(res) {
                 if (!res.user)
                     res.user = finalUser;
                 if (!res.user.vehicles)
                     res.user.vehicles = {};
                 var intermediateVehicle = res.user.vehicles[newVehicle.id];
                 if (intermediateVehicle) {
+                    intermediateVehicle['vehicletype'] = finalVehicle.vehicletype;
+                    console.log(intermediateVehicle);
                     if (!intermediateVehicle.services)
                         intermediateVehicle.services = {};
                     intermediateVehicle.services[newServiceId] = finalService;
                 } else
-                    res.user.vehicles[generateUUID('vhcl')] = finalVehicle;
-                $pouchDBUser.save(res).then(function(status) {
+                    res.user.vehicles[utils.generateUUID('vhcl')] = finalVehicle;
+                pdbCustomer.save(res).then(function(status) {
                     differed.resolve(status);
                 }, function(conflict) {
                     differed.reject(conflict);
                 })
             }, function(err) {
                 finalUser.vehicles = {};
-                finalUser.vehicles[generateUUID('vhcl')] = finalVehicle;
+                finalUser.vehicles[utils.generateUUID('vhcl')] = finalVehicle;
                 var doc = {
-                    _id: generateUUID('user'),
+                    _id: utils.generateUUID('user'),
+                    creator: $cruzerService.username,
                     user: finalUser
                 }
-                $pouchDBUser.save(doc).then(function(status) {
+                pdbCustomer.save(doc).then(function(status) {
                     differed.resolve(status);
                 }, function(conflict) {
                     differed.reject(conflict);
@@ -272,20 +252,6 @@
             });
             return differed.promise;
         }
-
-        //  generate uuid for unique keys
-        var generateUUID = function(type) {
-            var d = new Date().getTime();
-            var raw = type + '-xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-
-            var uuId = raw.replace(/[xy]/g, function(c) {
-                var r = (d + Math.random() * 16) % 16 | 0;
-                d = Math.floor(d / 16);
-                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-            });
-
-            return uuId;
-        };
 
         return factory;
     }

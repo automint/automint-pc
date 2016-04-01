@@ -14,17 +14,6 @@ var altairApp = angular.module('altairApp', [
     'ConsoleLogger'
 ]);
 
-altairApp.constant('variables', {
-    api_url: "http://localhost:8081",
-    api_version: "0.3",
-    db_url: "http://{bucket}.cruzer.io:4984/",
-    db_commons: "cruzer-test-common",
-    localKeys: {
-        login: "loginFlag",
-        bucket: "bucketName"
-    }
-});
-
 
 altairApp.config(function($sceDelegateProvider) {
     $sceDelegateProvider.resourceUrlWhitelist([
@@ -52,15 +41,13 @@ altairApp
         '$window',
         '$timeout',
         'preloaders',
-        'cruzerService',
-        'variables',
-        '$pouchDB',
-        function($rootScope, $state, $stateParams, $http, $window, $timeout, preloaders, cruzerService, variables, $pouchDB) {
+        '$cruzerService',
+        function($rootScope, $state, $stateParams, $http, $window, $timeout, preloaders, $cruzerService) {
 
             $rootScope.$state = $state;
             $rootScope.$stateParams = $stateParams;
 
-            cruzerService.syncDB();
+            $cruzerService.initDb();
             $rootScope.$on('$stateChangeSuccess', function() {
                 // scroll view to top
                 $("html, body").animate({

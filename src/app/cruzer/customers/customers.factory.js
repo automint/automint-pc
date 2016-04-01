@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .factory('CustomerFactory', CustomerFactory);
 
-    CustomerFactory.$inject = ['$pouchDBUser', '$q'];
+    CustomerFactory.$inject = ['pdbCustomer', '$q', '$cruzerService', 'utils'];
 
-    function CustomerFactory($pouchDBUser, $q) {
+    function CustomerFactory(pdbCustomer, $q, $cruzerService, utils) {
         var factory = {
             forDatatable: forDatatable,
             deleteCustomer: deleteCustomer,
@@ -12,26 +12,12 @@
             saveCustomer: saveCustomer,
             customer: customer
         }
-        
-        //  generate uuid for unique keys
-        var generateUUID = function(type) {
-            var d = new Date().getTime();
-            var raw = type + '-xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-
-            var uuId = raw.replace(/[xy]/g, function(c) {
-                var r = (d + Math.random() * 16) % 16 | 0;
-                d = Math.floor(d / 16);
-                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-            });
-
-            return uuId;
-        };
 
         //   retrieve data to display into datatables
         function forDatatable() {
             var differed = $q.defer();
             var customers = [];
-            $pouchDBUser.db().query(function(doc, emit) {
+            pdbCustomer.db().query(function(doc, emit) {
                 var vo = {};
                 var u = {
                     name: doc.user.name,
@@ -61,14 +47,14 @@
                         email: user.email,
                         name: user.name
                     };
+                    c.vehicles = [];
                     if (user.vehicles) {
                         var vehicleKeys = Object.keys(user.vehicles);
                         vehicleKeys.forEach(function(vId) {
-                            var vehicle = user.vehicles[vId];
-                            c.vehicleId = vId;
-                            c.reg = vehicle.reg;
-                            c.manufacturer = vehicle.manuf;
-                            c.model = vehicle.model;
+                            var vehicle = $.extend({}, user.vehicles[vId]);
+                            if (vehicle.services)
+                                delete vehicle.services;
+                            c.vehicles.push(vehicle);
                         }, this);
                     }
                     customers.push(c);
@@ -81,9 +67,9 @@
         //  delete a customer from database
         function deleteCustomer(customer) {
             var differed = $q.defer();
-            $pouchDBUser.get(customer.id).then(function(res) {
+            pdbCustomer.get(customer.id).then(function(res) {
                 res.user._deleted = true;
-                $pouchDBUser.save(res).then(function(res) {
+                pdbCustomer.save(res).then(function(res) {
                     differed.resolve(res)
                 }, function(err) {
                     differed.reject(res);
@@ -95,7 +81,7 @@
         //  save a document to pouchDB
         function saveCustomer(u) {
             var differed = $q.defer();
-            $pouchDBUser.save(u).then(function(res) {
+            pdbCustomer.save(u).then(function(res) {
                 differed.resolve(res);
             }, function(err) {
                 differed.reject(err);
@@ -107,7 +93,8 @@
         function addNewCustomer(u) {
             //  make fresh document
             var doc = {
-                _id: generateUUID("user"),
+                _id: utils.generateUUID("user"),
+                creator: $cruzerService.username,
                 user: u
             };
             // saveDataInDB(doc);
@@ -116,7 +103,7 @@
         
         //  get customer from database
         function customer(customerId) {
-            return $pouchDBUser.get(customerId);
+            return pdbCustomer.get(customerId);
         }
 
         return factory;

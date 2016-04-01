@@ -1,16 +1,36 @@
-angular.module('altairApp')
-    .service("$pouchDB", ["$rootScope", "$q", function($rootScope, $q) {
+(function() {
+    angular.module('altairApp')
+        .service('$pouchDb', PouchDbService)
+        .factory('pdbCustomer', PouchCustomer)
+        .factory('pdbConfig', PouchConfig);
+        
+    PouchDbService.$inject = ['$rootScope', '$q'];
+    PouchCustomer.$inject = ['$pouchDb', '$q'];
+    PouchConfig.$inject = ['$pouchDb', '$q'];
+    
+    function PouchDbService($rootScope, $q) {
+        //  temporary assignments
         var database;
         var changeListener;
 
-        this.remoteDatabase;
-
-        this.setDatabase = function(databaseName, remote) {
+        // function mapping and declarations
+        this.setDatabase = setDatabase;
+        this.startListening = startListening;
+        this.stopListening = stopListening;
+        this.sync = sync;
+        this.save = save;
+        this.delete = deleteDocument;
+        this.get = get;
+        this.getAll = getAll;
+        this.destroy = destroy;
+        
+        //  set local database
+        function setDatabase(databaseName) {
             database = new PouchDB(databaseName);
-            remoteDatabase = remote;
         }
 
-        this.startListening = function() {
+        //  start listening to changes in local database
+        function startListening() {
             changeListener = database.changes({
                 live: true,
                 include_docs: true
@@ -19,18 +39,21 @@ angular.module('altairApp')
             });
         }
 
-        this.stopListening = function() {
+        //  stop listening to changes in local database
+        function stopListening() {
             changeListener.cancel();
         }
 
-        this.sync = function() {
+        //  sync database with remote server
+        function sync(remoteDatabase) {
             database.sync(remoteDatabase, {
                 live: true,
                 retry: true
             });
         }
 
-        this.save = function(jsonDocument) {
+        //  save document in database (auto-detect for new or updated document)
+        function save(jsonDocument) {
             var deferred = $q.defer();
             if (!jsonDocument._id) {
                 database.post(jsonDocument).then(function(response) {
@@ -48,37 +71,56 @@ angular.module('altairApp')
             return deferred.promise;
         }
 
-        this.delete = function(documentId, documentRevision) {
+        //  delete document based on document id and revision
+        function deleteDocument(documentId, documentRevision) {
             return database.remove(documentId, documentRevision);
         }
 
-        this.get = function(documentId) {
+        //  get document based on its id
+        function get(documentId) {
             return database.get(documentId);
         }
 
-        this.getAll = function() {
+        //  get all documents from database
+        function getAll() {
             debugger;
             return database.allDocs({
                 include_docs: true
             });
         }
 
-        this.destroy = function() {
+        //  drop database from local storage
+        function destroy() {
             database.destroy();
         }
-    }]).factory("$pouchDBDefault", ["$pouchDB", '$q', function($pouchDB, $q) {
+    }
+    
+    function PouchConfig($pouchDb, $q) {
+        //  temporary assignments
         var database;
         var changeListener;
 
-        var _this = {};
-        _this.remoteDatabase;
+        //  initialized blank factory
+        var factory = {};
+        
+        //  function declarations and mapping
+        factory.setDatabase = setDatabase;
+        factory.startListening = startListening;
+        factory.stopListening = stopListening;
+        factory.sync = sync;
+        factory.save = save;
+        factory.delete = deleteDocument;
+        factory.get = get;
+        factory.getAll = getAll;
+        factory.destroy = destroy;
 
-        _this.setDatabase = function(databaseName, remote) {
+        //  set local database
+        function setDatabase(databaseName) {
             database = new PouchDB(databaseName);
-            remoteDatabase = remote;
         }
 
-        _this.startListening = function() {
+        //  start listening to changes in local database
+        function startListening() {
             changeListener = database.changes({
                 live: true,
                 include_docs: true
@@ -87,18 +129,21 @@ angular.module('altairApp')
             });
         }
 
-        _this.stopListening = function() {
+        //  stop listening to changes in local database
+        function stopListening() {
             changeListener.cancel();
         }
 
-        _this.sync = function() {
+        //  sync database with remote server
+        function sync(remoteDatabase) {
             return database.sync(remoteDatabase, {
                 live: true,
                 retry: true
             });
         }
 
-        _this.save = function(jsonDocument) {
+        //  save document to database
+        function save(jsonDocument) {
             var deferred = $q.defer();
             if (!jsonDocument._id) {
                 database.post(jsonDocument).then(function(response) {
@@ -116,43 +161,63 @@ angular.module('altairApp')
             return deferred.promise;
         }
 
-        _this.delete = function(documentId, documentRevision) {
+        //  delete document from database based on document id and revision
+        function deleteDocument(documentId, documentRevision) {
             return database.remove(documentId, documentRevision);
         }
 
-        _this.get = function(documentId) {
+        //  get document based on document id
+        function get(documentId) {
             return database.get(documentId);
         }
 
-        _this.getAll = function() {
+        //  get all documents from database
+        function getAll() {
             return database.allDocs({
                 include_docs: true
             });
         }
 
-        _this.destroy = function() {
+        //  drop database
+        function destroy() {
             database.destroy();
         }
 
-        return _this;
-
-    }]).factory("$pouchDBUser", ["$pouchDB", '$q', function($pouchDB, $q) {
+        return factory;
+    }
+    
+    function PouchCustomer($pouchDb, $q) {
+        //  temporary assignments
         var database;
         var changeListener;
 
-        var _this = {};
-        _this.remoteDatabase;
+        //  initialized blank factory
+        var factory = {};
 
-        _this.setDatabase = function(databaseName, remote) {
+        //  function declarations and mapping
+        factory.setDatabase = setDatabase;
+        factory.db = db;
+        factory.startListening = startListening;
+        factory.stopListening = stopListening;
+        factory.sync = sync;
+        factory.save = save;
+        factory.delete = deleteDocument;
+        factory.get = get;
+        factory.getAll = getAll;
+        factory.destroy = destroy;
+        
+        //  set local database
+        function setDatabase(databaseName) {
             database = new PouchDB(databaseName);
-            remoteDatabase = remote;
         }
         
-        _this.db = function () {
+        //  get local database instance
+        function db() {
             return database;
         }
 
-        _this.startListening = function() {
+        //  start listening to changes in local database
+        function startListening() {
             changeListener = database.changes({
                 live: true,
                 include_docs: true
@@ -161,18 +226,21 @@ angular.module('altairApp')
             });
         }
 
-        _this.stopListening = function() {
+        //  stop listening to changes in local dataabse
+        function stopListening() {
             changeListener.cancel();
         }
 
-        _this.sync = function() {
+        //  sync database with remote server
+        function sync(remoteDatabase) {
             return database.sync(remoteDatabase, {
                 live: true,
                 retry: true
             });
         }
 
-        _this.save = function(jsonDocument) {
+        //  save document to database
+        function save(jsonDocument) {
             var deferred = $q.defer();
             if (!jsonDocument._id) {
                 database.post(jsonDocument).then(function(response) {
@@ -189,7 +257,9 @@ angular.module('altairApp')
             }
             return deferred.promise;
         }
-        _this.delete = function(documentId, documentRevision) {
+        
+        //  delete document from database based on document id and revision
+        function deleteDocument(documentId, documentRevision) {
             if (documentRevision) {
                 return database.remove(documentId, documentRevision);
             } else {
@@ -197,17 +267,22 @@ angular.module('altairApp')
             }
         }
 
-        _this.get = function(documentId) {
+        //  get document based on document id
+        function get(documentId) {
             return database.get(documentId);
         }
 
-        _this.getAll = function() {
+        //  get all documents from database
+        function getAll() {
             return database.allDocs({
                 include_docs: true
             });
         }
-        _this.destroy = function() {
+        
+        //  drop database
+        function destroy() {
             database.destroy();
         }
-        return _this;
-    }]);
+        return factory;
+    }
+})();

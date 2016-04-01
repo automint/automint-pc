@@ -1,151 +1,217 @@
-angular.module('altairApp').service("cruzerService", [
-    'apiCall', 'variables', '$pouchDBUser', '$pouchDBDefault',
-    function(apiCall, variables, $pouchDBUser, $pouchDBDefault) {
-        
-        this.nd = "helo";
-        
-        this.syncDB = function(bucket) {
-            var dbURL = variables.db_url.replace("{bucket}", bucket);
-            $pouchDBUser.setDatabase('cruzer-workshop', dbURL + bucket);
-            $pouchDBUser.sync().on('change', function(info) {
-                console.log("DB(Sync) change");
-            }).on('paused', function(err) {
-                console.log("DB(Sync) paused");
-            }).on('active', function() {
-                console.log("DB(Sync) active");
-            }).on('denied', function(err) {
-                console.log("DB(Sync) Denied");
-            }).on('complete', function(info) {
-                console.log("DB(Sync) Complete");
-                deffLogin.resolve({
-                    msg: "Sync Done."
-                });
-            }).on('error', function(err) {
-                deffLogin.reject({
-                    msg: "error while sync"
-                });
-            });
+(function() {
+    angular.module('altairApp')
+        .service('$cruzerService', CruzerService)
+        .factory('backupRestore', BackupRestore);
 
-            dbURL = variables.db_url.replace("{bucket}", variables.db_commons);
-            $pouchDBDefault.setDatabase(variables.db_commons, dbURL + variables.db_commons);
-            $pouchDBDefault.sync().on('change', function(info) {
-                console.log("DB(Sync-Default) change");
-            }).on('paused', function(err) {
-                console.log("DB(Sync-Default) paused");
-            }).on('active', function() {
-                console.log("DB(Sync-Default) active");
-            }).on('denied', function(err) {
-                console.log("DB(Sync-Default) Denied");
-            }).on('complete', function(info) {
-                console.log("DB(Sync-Default) Complete");
-                deffLogin.resolve({
-                    msg: "Sync Done."
-                });
-            }).on('error', function(err) {
-                deffLogin.reject({
-                    msg: "error while sync"
-                });
-            });
-        }
-        this.runDB = function() {
-            var deffDB = $.Deferred();
+    CruzerService.$inject = ['constants', 'pdbCustomer', 'pdbConfig', 'cruzerFactory', '$q'];
+    BackupRestore.$inject = ['pdbConfig', 'pdbCustomer', 'constants', '$q'];
 
-            chrome.storage.local.get(variables.localKeys.bucket, function(data) {
-                console.log("locl bucket name = " + data[variables.localKeys.bucket]);
-                if (!data[variables.localKeys.bucket]) {
-                    deffDB.reject();
-                    console.log("Local bucket undefined");
-                } else {
-                    deffDB.resolve();
-                    syncDB(data[variables.localKeys.bucket]);
-                }
+    function CruzerService(constants, pdbCustomer, pdbConfig, cruzerFactory, $q) {
+        var sVm = this;
+        //  keep track of current user name
+        sVm.currentConfig = {};
+        sVm.username = '';
+        //  function declaration and mapping
+        sVm.initDb = initDb;
+        sVm.syncDb = syncDb;
+        sVm.updateConfigReferences = updateConfigReferences;
+        sVm.checkTreatmentId = checkTreatmentId;
+        sVm.checkWorkshopId = checkWorkshopId;
+        sVm.checkSettingsId = checkSettingsId;
 
-            });
+        //  create and set up database with remote
+        function initDb() {
+            //  set local database and blank database url indicating no remote configured
+            pdbConfig.setDatabase(constants.pdb_w_config);
+            pdbCustomer.setDatabase(constants.pdb_w_customers);
 
-            return deffDB;
+            //  call sync
+            syncDb();
         }
 
-        this.isLogin = function() {
-            console.log("is login");
-            var deffIsLogin = $.Deferred();
-
-            chrome.storage.local.get(variables.localKeys.login, function(data) {
-                console.log("Local login data get = " + data);
-                console.log(data);
-                zxcvb = data;
-                deffIsLogin.resolve(data[variables.localKeys.login]);
+        //  update currentConfig content
+        function updateConfigReferences() {
+            var differed = $q.defer();
+            pdbConfig.getAll().then(function(res) {
+                res.rows.forEach(function(element) {
+                    if (element.id.match(/treatment-/i))
+                        sVm.currentConfig.treatment = element.id;
+                    if (element.id.match(/workshop-/i))
+                        sVm.currentConfig.workshop = element.id;
+                    if (element.id.match(/settings-/i))
+                        sVm.currentConfig.settings = element.id;
+                });
+                differed.resolve({
+                    success: true
+                })
+            }, function(err) {
+                differed.reject({
+                    success: false
+                })
             });
-
-            return deffIsLogin;
+            return differed.promise;
         }
-        this.doLoing = function(loginData) {
-            var deffLogin = $.Deferred();
-            apiCall.custom({
-                url: '/authenticate',
-                method: 'POST',
-                requestType: 'json',
-                data: loginData,
-            }).then(function(res) {
-                if (!res.data.success) {
-                    deffLogin.reject({
-                        msg: "Login failed, User name/mobile or password is wrong."
+
+        //  check if database is syncable to remote
+        function checkSyncable() {
+            var differed = $q.defer();
+            checkWorkshopId().then(function(configRes) {
+                pdbConfig.get(sVm.currentConfig.workshop).then(function(res) {
+                    if (res.user) {
+                        differed.resolve({
+                            success: true,
+                            username: res.user.username,
+                            password: res.user.password
+                        });
+                    } else {
+                        differed.reject({
+                            success: false
+                        });
+                    }
+                }, function(err) {
+                    differed.reject({
+                        success: false
                     });
-                    return;
-                }
+                });
+            }, function(configErr) {
+                differed.reject({
+                    success: false
+                })
+            });
+            return differed.promise;
+        }
 
-                var bucket = res.data.workshops_info[0].bucket;
-                if (bucket && bucket === "" || bucket === null) {
-                    console.log("app did not get bucket name in auth request...!!!");
-                    deffLogin.reject({
-                        msg: "Internal issue, Please contact us."
+        //  set up sync
+        function syncDb() {
+            checkSyncable().then(function(res) {
+                if (res.success) {
+                    sVm.username = res.username;
+                    //  construct database url for workshop configurations
+                    dbConfigUrl = cruzerFactory.generateDbUrl(res.username, res.password, constants.sgw_w_config);
+                    //  construct database url for workshop's customers db
+                    dbCustomerUrl = cruzerFactory.generateDbUrl(res.username, res.password, constants.sgw_w_customers);
+
+                    //  sync database
+                    pdbConfig.sync(dbConfigUrl).on('change', function(info) {
+                        //  listen to on change event
+                    }).on('paused', function(err) {
+                        //  listen to on pause event
+                    }).on('active', function() {
+                        //  listen to on active event
+                    }).on('denied', function(err) {
+                        //  listen to on denied event
+                    }).on('complete', function(info) {
+                        //  listen to on complete event
+                        updateConfigReferences();
+                    }).on('error', function(err) {
+                        //  listen to on error event
                     });
-                    return;
+                    pdbCustomer.sync(dbCustomerUrl).on('change', function(info) {
+                        //  listen to on change event
+                    }).on('paused', function(err) {
+                        //  listen to on pause event
+                    }).on('active', function() {
+                        //  listen to on active event
+                    }).on('denied', function(err) {
+                        //  listen to on denied event
+                    }).on('complete', function(info) {
+                        //  listen to on complete event
+                    }).on('error', function(err) {
+                        //  listen to on error event
+                    });
                 }
+            }, function(err) {
+                //  no doc found
+            });
+        }
 
-                //Sync db on success login
-                syncDB(bucket);
-                debugger;
-                //Store Flag and bucket name
-                var json1 = {};
-                json1[variables.localKeys.login] = true;
-                chrome.storage.local.set(json1, function() {
-                    console.log("Login flag changes to true");
-                });
-                var json2 = {};
-                json2[variables.localKeys.bucket] = bucket;
-                chrome.storage.local.set(json2, function() {
-                    console.log("Bucket name saved in db");
-                });
+        //  check if treatment id is loaded to currentConfig
+        function checkTreatmentId() {
+            return checkId('treatment');
+        }
 
-                // Request resolve for login page
-                deffLogin.resolve({
-                    msg: "Sync Done."
+        //  check if workshop id is loaded to currentConfig
+        function checkWorkshopId() {
+            return checkId('workshop');
+        }
+        
+        //  check if settings id is loaded to currentConfig
+        function checkSettingsId() {
+            return checkId('settings');
+        } 
+
+        function checkId(query) {
+            var differed = $q.defer();
+            if (sVm.currentConfig[query] == '' || sVm.currentConfig[query] == undefined) {
+                sVm.updateConfigReferences().then(function(res) {
+                    differed.resolve({
+                        success: true
+                    });
+                }, function(err) {
+                    differed.reject({
+                        success: false
+                    })
+                })
+            } else {
+                differed.resolve({
+                    success: true
+                })
+            }
+            return differed.promise;
+        }
+    }
+
+    function BackupRestore(pdbConfig, pdbCustomer, constants, $q) {
+        var factory = {
+            backup: backup
+        }
+
+        function backup() {
+            var differed = $.Deferred();
+            var backupDocument = {
+                backAppVersion: constants.automint_version,
+                backupTime: Date.now()
+            }
+
+            $q.all([
+                pdbCustomer.getAll(),
+                pdbConfig.getAll()
+            ]).then(function(data) {
+                backupDocument.customers = {}
+                backupDocument.customers.doc = [];
+                backupDocument.config = {};
+                backupDocument.config.doc = [];
+                data[0].rows.forEach(function(intr_customer) {
+                    backupDocument.customers.doc.push(intr_customer.doc);
+                });
+                data[1].rows.forEach(function(intr_config) {
+                    backupDocument.config.doc.push(intr_config.doc);
+                });
+                //  content dispostion
+                var docText = JSON.stringify(backupDocument);
+                var date = new Date();
+                //  download content
+                var a = document.createElement('a');
+                var file = new Blob([docText], {
+                    type: 'text/plain'
+                });
+                a.href = URL.createObjectURL(file);
+                a.download = 'cruzer-' + date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + '-' + date.getMinutes() + '.cruzer.bck';
+                a.click();
+                differed.resolve({
+                    status: 1,
+                    message: 'Backup File has been created.'
                 });
             }, function(err) {
-                debugger;
+                differed.reject({
+                    status: 0,
+                    message: 'Failed to create backup.'
+                });
             });
 
-            return deffLogin;
+            return differed;
         }
 
+        return factory;
     }
-]).factory('apiCall', function($http, variables) {
-    return {
-        custom: function(config) {
-            config.url = variables.api_url + '/api/' + variables.api_version + config.url + "/";
-            return $http(config);
-        }
-    };
-}).factory('localStoreService', function() {
-    return {
-        set: function(key, value) {
-
-        },
-        get: function(key) {
-
-        },
-        remove: function(key) {
-
-        }
-    };
-});
+})();
