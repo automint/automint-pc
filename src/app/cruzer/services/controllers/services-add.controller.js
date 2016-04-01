@@ -9,6 +9,7 @@
         //  temporary assignments
         var currentDateObject = new Date();
         var currentMonthValue = currentDateObject.getMonth() + 1;
+        var currentDateValue = currentDateObject.getDate();
         //  declarations and mappings
         vm.validateCustomer = validateCustomer;
         vm.validateVehicle = validateVehicle;
@@ -18,13 +19,26 @@
         vm.fillUserDetails = fillUserDetails;
         vm.fillVehicleDetails = fillVehicleDetails;
         vm.save = save;
+        vm.changeVehicleType = changeVehicleType;
         //  define operation mode to disable particular fields in different modes
         vm.operationMode = 'add';
-        //  define numeric box options
-        vm.qtyoptions = {
-            format: '#',
-            decimals: 0
-        } 
+        //  handle vehicle types
+        vm.possibleVehicleTypes = [{
+            id: 'smallcar',
+            name: 'Small Car'
+        }, {
+            id: 'mediumcar',
+            name: 'Medium Car'
+        }, {
+            id: 'largecar',
+            name: 'Large Car'
+        }, {
+            id: 'xlargecar',
+            name: 'x-Large Car'
+        }, {
+            id: 'default',
+            name: 'Default'
+        }]
         //  keep track of data from UI and set their default values
         vm.user = {
             id: '',
@@ -36,10 +50,11 @@
             id: '',
             reg: '',
             manuf: '',
-            model: ''
+            model: '',
+            vehicletype: vm.possibleVehicleTypes[0].id
         }
         vm.service = {
-            date: currentDateObject.getDate() + "/" + (currentMonthValue < 10 ? "0" + currentMonthValue : currentMonthValue) + "/" + currentDateObject.getFullYear(),
+            date: (currentDateValue < 10 ? "0" + currentDateValue : currentDateValue) + "/" + (currentMonthValue < 10 ? "0" + currentMonthValue : currentMonthValue) + "/" + currentDateObject.getFullYear(),
             odo: 0,
             cost: 0,
             details: '',
@@ -52,19 +67,19 @@
             name: 'New Vehicle'
         }];
         vm.currentVehicle = vm.possibleVehiclesList[0].name;
-        //  default inventory settings
-        vm.displayInventoryAsList = false;
+        //  default treatment settings
+        vm.displayTreatmentAsList = false;
 
         //  default execution steps
-        getInventoryDisplayFormat();
+        getTreatmentDisplayFormat();
         populateUsersList();
         populateTreatmentList();
-        
-        //  get inventory settings
-        function getInventoryDisplayFormat() {
-            ServiceFactory.inventorySettings().then(function(res) {
+
+        //  get treatment settings
+        function getTreatmentDisplayFormat() {
+            ServiceFactory.treatmentSettings().then(function(res) {
                 if (res)
-                    vm.displayInventoryAsList = res.displayAsList;
+                    vm.displayTreatmentAsList = res.displayAsList;
             });
         }
 
@@ -76,7 +91,7 @@
                     status: 'danger',
                     timeout: 3000
                 });
-                return false;        // (TODO) CHANGE IT TO FALSE
+                return false; // (TODO) CHANGE IT TO FALSE
             }
             return true;
         }
@@ -91,7 +106,7 @@
                         timeout: 3000
                     });
                     WizardHandler.wizard().goTo(1);
-                    return false;        //  (TODO) CHANGE IT TO FALSE
+                    return false; //  (TODO) CHANGE IT TO FALSE
                 }
             }
             return checkPoint1;
@@ -111,7 +126,7 @@
         function populateTreatmentList() {
             ServiceFactory.populateRegularTreatments().then(function(res) {
                 vm.treatments = res;
-                if (vm.displayInventoryAsList) {
+                if (vm.displayTreatmentAsList) {
                     if (res.length > 0) {
                         res.forEach(function(treatment) {
                             var focusIndex = vm.service.problems.length;
@@ -119,8 +134,7 @@
                                 populateType: 'treatments',
                                 checked: false,
                                 details: treatment.name,
-                                rate: treatment.rate,
-                                qty: 0,
+                                rate: treatment.rate[vm.vehicle.vehicletype],
                                 focusIndex: focusIndex
                             }
                             vm.service.problems.push(problem);
@@ -143,27 +157,27 @@
                 name: currentDetails
             }, true);
             if (found.length > 0) {
-                vm.service.problems[index].rate = found[0].rate;
-                var qty = vm.service.problems[index].qty;
-                vm.service.problems[index].qty = vm.service.problems[index].checked ? (qty < 1 ? 1 : qty) : 0;
+                var rate = found[0].rate[vm.vehicle.vehicletype];
+                vm.service.problems[index].rate = (rate == '' ? 0 : rate);
             } else {
                 vm.service.problems[index].rate = 0;
             }
             updateCost();
         }
-
-        //  generate uuid for unique keys
-        var generateUUID = function(type) {
-            var d = new Date().getTime();
-            var raw = type + '-xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-
-            var uuId = raw.replace(/[xy]/g, function(c) {
-                var r = (d + Math.random() * 16) % 16 | 0;
-                d = Math.floor(d / 16);
-                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        
+        //  update treatment details when vehicle type changes
+        function changeVehicleType() {
+            vm.service.problems.forEach(function(problem) {
+                var found = $filter('filter')(vm.treatments, {
+                    name: problem.details
+                });
+                if (found.length > 0) {
+                    var rate = found[0].rate[vm.vehicle.vehicletype];
+                    var defaultRate = found[0].rate['default'];
+                    problem.rate = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                }
             });
-
-            return uuId;
+            updateCost();
         }
 
         //  add black problem record manually
@@ -174,7 +188,6 @@
                 checked: true,
                 details: '',
                 rate: 0,
-                qty: 0,
                 focusIndex: fIndex
             });
             if (focus) {
@@ -189,7 +202,7 @@
         function updateCost() {
             var totalCost = 0;
             vm.service.problems.forEach(function(element) {
-                totalCost += element.rate * element.qty;
+                totalCost += element.rate * (element.checked ? 1 : 0);
             })
             vm.service.cost = totalCost;
         }
@@ -216,14 +229,17 @@
         function fillVehicleDetails() {
             for (var i = 0; i < vm.possibleVehiclesList.length; i++) {
                 var vehicle = vm.possibleVehiclesList[i];
-                if (vehicle.name == vm.currentVehicle)
+                if (vehicle.name == vm.currentVehicle) {
                     vm.vehicle = vehicle;
+                    vm.vehicle.vehicletype = (!vm.vehicle.vehicletype) ? vm.possibleVehicleTypes[0].id : vm.vehicle.vehicletype; 
+                    changeVehicleType();
+                }
             }
         }
 
         //  save service to database
         function save() {
-            for (var i=0; i < vm.service.problems.length; i++) {
+            for (var i = 0; i < vm.service.problems.length; i++) {
                 var problem = vm.service.problems[i];
                 if (problem.checked) {
                     delete problem.checked;

@@ -65,12 +65,21 @@
                         </wz-step>
                         <wz-step wz-title="Service information" template="app/templates/wizard.step.tpl.html" canenter="serviceFormVm.validateVehicle">
                             <div class="uk-grid">
-                                <div class="uk-width-medium-7-10 parsley-row">
+                                <div class="uk-width-medium-4-10 parsley-row">
                                     <h2 class="heading_a" style="margin-top: 1rem;">
                                         Services Done
                                     </h2>
                                 </div>
-                                <div class="uk-width-medium-3-10 parsley-row">
+                                <div class="uk-width-medium-2-10 parsley-row">
+                                    <label class="uk-form-label" for="kUI_dropdown_basic_select">Vehicle Type:</label>
+                                    <select kendo-drop-down-list k-data-text-field="'name'" k-data-value-field="'id'" k-data-source="serviceFormVm.possibleVehicleTypes" style="width: 100%" id="kUI_dropdown_basic_select" ng-model="serviceFormVm.vehicle.vehicletype" ng-change="serviceFormVm.changeVehicleType()">
+                                    </select>
+                                </div>
+                                <div class="uk-width-medium-2-10 parsley-row">
+                                    <label for="wizard_odometer" class="uk-form-label">Odometer Reading</label>
+                                    <input kendo-masked-text-box type="number" name="wizard_odometer" id="wizard_odometer" ng-model="serviceFormVm.service.odo" style="width: 100%" />
+                                </div>
+                                <div class="uk-width-medium-2-10 parsley-row">
                                     <label for="wizard_date" class="uk-form-label">Date</label>
                                     <input kendo-masked-text-box ng-model="serviceFormVm.service.date" data-uk-datepicker="{format:'DD/MM/YYYY'}" k-mask="'00/00/0000'" style="width: 100%;" id="wizard_date" name="wizard_date" data-uk-tooltip="{pos: 'top-right', animation: 'true'}" title="Format: DD/MM/YYYY" />
                                 </div>
@@ -79,12 +88,11 @@
                                 <thead>
                                     <th>Product / Issue</th>
                                     <th class="uk-text-center">Rate</th>
-                                    <th class="uk-text-center">Qty</th>
                                     <th class="uk-text-center">Cost</th>
                                 </thead>
                                 <tbody>
                                     <tr ng-repeat="problem in serviceFormVm.service.problems">
-                                        <td class="uk-width-medium-5-10 uk-text-center" style="border: 0px">
+                                        <td class="uk-width-medium-6-10 uk-text-center" style="border: 0px">
                                             <span ng-if="problem.populateType == 'treatments'" class="cruzer-problem-checkbox"><input type="checkbox" icheck ng-model="problem.checked" ng-change="serviceFormVm.updateTreatmentDetails($index, problem.focusIndex)" /></span>
                                             <span ng-if="problem.populateType == 'manual'"><a class="md-btn-flat md-btn-flat-danger cruzer-problem-delete-button" style="margin-top: 0.3rem;" ng-click="serviceFormVm.service.problems.splice($index,1); serviceFormVm.updateCost()" href="javascript:void(0)"><i class="material-icons uk-text-danger" style="color: #FFF">delete</i></a></span>
                                             <input kendo-auto-complete ng-attr-id="{{ 'pDetails' + problem.focusIndex }}" ng-blur="serviceFormVm.updateTreatmentDetails($index, problem.focusIndex)" k-data-text-field="'name'" k-data-value-field="'name'" ng-model="problem.details" k-data-source="serviceFormVm.treatments" k-placeholder='"Treatment ..."' style="width: 88%" />
@@ -92,34 +100,21 @@
                                         <td class="uk-width-medium-2-10 uk-text-center" style="border: 0px">
                                             <input kendo-masked-text-box type="number" name="wizard_problem_rate" ng-change="serviceFormVm.updateCost()" ng-model="problem.rate" />
                                         </td>
-                                        <td class="uk-width-medium-1-10 uk-text-center" style="border: 0px">
-                                            <input kendo-numeric-text-box k-options="serviceFormVm.qtyoptions" style="width: 100%" type="number" name="wizard_quatity" ng-change="serviceFormVm.updateCost()" ng-model="problem.qty" />
-                                        </td>
                                         <td class="uk-width-medium-2-10 uk-text-center" style="border: 0px">
-                                            <div style="padding-top: 0.6rem;">{{ problem.rate * problem.qty }}</div>
+                                            <div style="padding-top: 0.6rem;">{{ problem.rate * (problem.checked ? 1 : 0) }}</div>
                                         </td>
                                     </tr>
                                 </tbody>
                             </table>
                             <div class="uk-grid">
                                 <div class="uk-width-medium-5-10 parsley-row">
-                                    <button class="md-btn" ng-click="serviceFormVm.addProblemRow(true)"><i class="material-icons">add</i>&nbsp;Add Detail</button>
+                                    <button class="md-btn" ng-click="serviceFormVm.addProblemRow(true)"><i class="material-icons">add</i>&nbsp;Add More</button>
                                 </div>
                                 <div class="uk-width-medium-2-10 parsley-row"></div>
                                 <div class="uk-width-medium-1-10 parsley-row"></div>
                                 <div class="uk-width-medium-2-10 parsley-row">
                                     <label for="wizard_cost">Total Cost&nbsp;<span class="req uk-text-danger">*</span></label>
                                     <input type="number" name="wizard_cost" id="wizard_cost" required class="md-input" md-input ng-model="serviceFormVm.service.cost" />
-                                </div>
-                            </div>
-                            <div class="uk-grid">
-                                <div class="uk-width-medium-1-2 parsley-row">
-                                    <label for="wizard_details">Service Description</label>
-                                    <textarea class="md-input" ng-model="serviceFormVm.service.details" name="wizard_details" id="wizard_details" md-input textarea-autosize></textarea>
-                                </div>
-                                <div class="uk-width-medium-1-3 parsley-row">
-                                    <label for="wizard_odometer" class="uk-form-label">Odometer Reading</label>
-                                    <input kendo-masked-text-box type="number" name="wizard_odometer" id="wizard_odometer" ng-model="serviceFormVm.service.odo" style="width: 100%" />
                                 </div>
                             </div>
                             <div class="uk-clearfix uk-margin-large-top">

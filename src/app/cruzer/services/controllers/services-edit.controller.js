@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .controller('servicesEditCtrl', ServicesEdit);
 
-    ServicesEdit.$inject = ['ServiceFactory', '$state', 'WizardHandler', '$filter'];
+    ServicesEdit.$inject = ['ServiceFactory', '$state', 'WizardHandler', '$filter', '$q'];
 
-    function ServicesEdit(ServiceFactory, $state, WizardHandler, $filter) {
+    function ServicesEdit(ServiceFactory, $state, WizardHandler, $filter, $q) {
         var vm = this;
         //  temporary assignments
         var userId = $state.params.userId;
@@ -17,14 +17,10 @@
         vm.updateTreatmentDetails = updateTreatmentDetails;
         vm.updateCost = updateCost;
         vm.save = save;
+        vm.changeVehicleType = changeVehicleType;
         //  define operation mode to disable particular fields in different modes
         vm.operationMode = 'edit';
-        //  define numeric box options
-        vm.qtyoptions = {
-                format: '#',
-                decimals: 0
-            }
-            //  keep track of data from UI and set their default values
+        //  keep track of data from UI and set their default values
         vm.user = {
             id: '',
             mobile: '',
@@ -35,23 +31,38 @@
             id: '',
             reg: '',
             manuf: '',
-            model: ''
+            model: '',
+            vehicletype: ''
         }
         vm.service = {
             id: '',
             date: '',
             odo: 0,
             cost: 0,
-            details: '',
             problems: []
         }
         vm.treatments = [];
-        //  default inventory settings
-        vm.displayInventoryAsList = false;
+        //  default treatment settings
+        vm.displayTreatmentAsList = false;
+        //  handle vehicle types
+        vm.possibleVehicleTypes = [{
+            id: 'smallcar',
+            name: 'Small Car'
+        }, {
+            id: 'mediumcar',
+            name: 'Medium Car'
+        }, {
+            id: 'largecar',
+            name: 'Large Car'
+        }, {
+            id: 'xlargecar',
+            name: 'x-Large Car'
+        }, {
+            id: 'default',
+            name: 'Default'
+        }];
 
         //  default execution steps
-        getInventoryDisplayFormat();
-        populateTreatmentList();
         //  if any parameter is missing, then return to View All Services
         if (userId == undefined || vehicleId == undefined || serviceId == undefined) {
             UIkit.notify("Something went wrong! Please Try Again!", {
@@ -61,48 +72,84 @@
             $state.go('restricted.services.all');
             return;
         }
-        loadData();
-        
-        //  get inventory settings
-        function getInventoryDisplayFormat() {
-            ServiceFactory.inventorySettings().then(function(res) {
+        //  resolve all dependent promises and then load data
+        $q.all([
+            getTreatmentDisplayFormat(),
+            populateTreatmentList()
+        ]).then(function(res) {
+            console.log(res);
+            loadData();
+        }, function(err) {
+            console.log(err);
+        });
+
+        //  get treatment settings
+        function getTreatmentDisplayFormat() {
+            var differed = $q.defer();
+            ServiceFactory.treatmentSettings().then(function(res) {
                 if (res)
-                    vm.displayInventoryAsList = res.displayAsList;
+                    vm.displayTreatmentAsList = res.displayAsList;
+                differed.resolve({
+                    success: true
+                });
+            }, function(err) {
+                differed.reject({
+                    success: false
+                })
             });
+            return differed.promise;
         }
 
         //  load customer service data from database
         function loadData() {
             ServiceFactory.customerDetails(userId, vehicleId, serviceId).then(function(res) {
-                vm.user.id = userId;
-                vm.vehicle.id = vehicleId;
-                vm.user.mobile = res.mobile;
-                vm.user.email = res.email;
-                vm.user.name = res.name;
-                vm.vehicle.reg = res.vehicle.reg;
-                vm.vehicle.manuf = res.vehicle.manuf;
-                vm.vehicle.model = res.vehicle.model;
-                if (vm.displayInventoryAsList) {
+                var u = $.extend({}, res);
+                delete u.vehicle;
+                vm.user = u;
+                delete u;
+                
+                var v = $.extend({}, res.vehicle);
+                delete v.service;
+                vm.vehicle = v;
+                delete v;
+
+                console.log(vm.vehicle);
+                console.log(vm.displayTreatmentAsList);
+                console.log(vm.service.problems);
+                 console.log(vm.treatments);
+                if (vm.displayTreatmentAsList) {
                     vm.service.date = res.vehicle.service.date;
                     vm.service.odo = res.vehicle.service.odo;
                     vm.service.cost = res.vehicle.service.cost;
-                    vm.service.details = res.vehicle.service.details;
                     res.vehicle.service.problems.forEach(function(problem) {
                         var found = $filter('filter')(vm.service.problems, {
                             details: problem.details
                         }, true);
                         if (found.length > 0) {
                             found[0].checked = true;
-                            found[0].qty = problem.qty;
+                            found[0].rate = found[0].rate[vm.vehicle.vehicletype];
+                        } else {
+                            var focusIndex = vm.service.problems.length;
+                            var problem = {
+                                populateType: 'manual',
+                                checked: true,
+                                details: problem.details,
+                                rate: problem.rate,
+                                focusIndex: focusIndex
+                            }
+                            vm.service.problems.push(problem);
                         }
                     });
                 } else {
                     vm.service = res.vehicle.service;
                     vm.service.problems.forEach(function(problem) {
                         problem.checked = true;
-                        problem.populateType= 'manual';
+                        problem.populateType = 'manual';
                     });
                 }
+                changeVehicleType();
+                vm.user.id = userId;
+                vm.vehicle.id = vehicleId;
                 vm.service.id = serviceId;
                 WizardHandler.wizard().goTo(2);
             }, function(err) {
@@ -112,25 +159,32 @@
 
         //  populate treatment list
         function populateTreatmentList() {
+            var differed = $q.defer();
             ServiceFactory.populateRegularTreatments().then(function(res) {
                 vm.treatments = res;
-                if (vm.displayInventoryAsList) {
+                if (vm.displayTreatmentAsList) {
                     res.forEach(function(treatment) {
                         var focusIndex = vm.service.problems.length;
                         var problem = {
                             populateType: 'treatments',
                             checked: false,
-                            details: treatment.name,
                             rate: treatment.rate,
-                            qty: 0,
+                            details: treatment.name,
                             focusIndex: focusIndex
                         }
                         vm.service.problems.push(problem);
                     });
                 }
+                differed.resolve({
+                    success: true
+                })
             }, function(err) {
                 vm.treatments = [];
+                differed.reject({
+                    success: false
+                })
             });
+            return differed.promise;
         }
 
         //  FORM VALIDATIONS [BEGIN]
@@ -171,27 +225,27 @@
                 name: currentDetails
             }, true);
             if (found.length > 0) {
-                vm.service.problems[index].rate = found[0].rate;
-                var qty = vm.service.problems[index].qty;
-                vm.service.problems[index].qty = vm.service.problems[index].checked ? (qty < 1 ? 1 : qty) : 0;
+                var rate = found[0].rate[vm.vehicle.vehicletype];
+                vm.service.problems[index].rate = (rate == '' ? 0 : rate);
             } else {
                 vm.service.problems[index].rate = 0;
             }
             updateCost();
         }
 
-        //  generate uuid for unique keys
-        var generateUUID = function(type) {
-            var d = new Date().getTime();
-            var raw = type + '-xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-
-            var uuId = raw.replace(/[xy]/g, function(c) {
-                var r = (d + Math.random() * 16) % 16 | 0;
-                d = Math.floor(d / 16);
-                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+        //  update treatment details when vehicle type changes
+        function changeVehicleType() {
+            vm.service.problems.forEach(function(problem) {
+                var found = $filter('filter')(vm.treatments, {
+                    name: problem.details
+                });
+                if (found.length > 0) {
+                    var rate = found[0].rate[vm.vehicle.vehicletype];
+                    var defaultRate = found[0].rate['default'];
+                    problem.rate = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                }
             });
-
-            return uuId;
+            updateCost();
         }
 
         //  add black problem record manually
@@ -202,7 +256,6 @@
                 checked: true,
                 details: '',
                 rate: 0,
-                qty: 0,
                 focusIndex: fIndex
             });
             if (focus) {
@@ -217,7 +270,7 @@
         function updateCost() {
             var totalCost = 0;
             vm.service.problems.forEach(function(element) {
-                totalCost += element.rate * element.qty;
+                totalCost += element.rate * (element.checked ? 1 : 0);
             })
             vm.service.cost = totalCost;
         }

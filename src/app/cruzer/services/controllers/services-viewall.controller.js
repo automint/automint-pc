@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .controller('servicesViewAllCtrl', ServiceViewAll);
 
-    ServiceViewAll.$inject = ['$state', 'DTOptionsBuilder', 'ServiceFactory'];
+    ServiceViewAll.$inject = ['$state', 'DTOptionsBuilder', 'ServiceFactory', '$cruzerService'];
 
-    function ServiceViewAll($state, DTOptionsBuilder, ServiceFactory) {
+    function ServiceViewAll($state, DTOptionsBuilder, ServiceFactory, $cruzerService) {
         var vm = this;
         //  declarations and mappings
         vm.filterDatatable = filterDatatable;
@@ -17,7 +17,7 @@
         vm.dtOptions = DTOptionsBuilder
             .newOptions()
             .withDisplayLength(10);
-
+            
         //  array of date filters possible for datatable
         vm.possibleDateFilters = [
             '1 Month',
