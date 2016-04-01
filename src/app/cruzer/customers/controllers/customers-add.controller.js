@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .controller('customersAddCtrl', CustomerAdd);
         
-    CustomerAdd.$inject = ['$state', 'CustomerFactory'];
+    CustomerAdd.$inject = ['$state', 'CustomerFactory', 'utils'];
 
-    function CustomerAdd($state, CustomerFactory) {
+    function CustomerAdd($state, CustomerFactory, utils) {
         var vm = this;
         //  declare and map functions
         vm.validateCustomerInformation = validateCustomerInformation;
@@ -24,20 +24,6 @@
             manuf: '',
             model: ''
         }
-
-        //  generate uuid for unique keys
-        var generateUUID = function(type) {
-            var d = new Date().getTime();
-            var raw = type + '-xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-
-            var uuId = raw.replace(/[xy]/g, function(c) {
-                var r = (d + Math.random() * 16) % 16 | 0;
-                d = Math.floor(d / 16);
-                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-            });
-
-            return uuId;
-        };
 
         //  FORM VALIDATIONS [BEGIN]
         function validateCustomerInformation() {
@@ -64,7 +50,7 @@
             };
 
             var propVehicle = {};
-            propVehicle[generateUUID("vhcl")] = objVehicle;
+            propVehicle[utils.generateUUID("vhcl")] = objVehicle;
             var u = {
                 mobile: vm.user.mobile,
                 name: (vm.user.name == null ? $("#wizard_customer_name").val() : vm.user.name),

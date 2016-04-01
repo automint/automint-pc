@@ -51,4 +51,4 @@ node_modules/
 npm-debug.log
 
 # Dev Files and Directories from @ndkcha
-src/app/cruzer/nd/
+src/app/cruzer.js

@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .controller('customersEditCtrl', CustomersEdit);
 
-    CustomersEdit.$inject = ['$state', 'CustomerFactory'];
+    CustomersEdit.$inject = ['$state', 'CustomerFactory', 'utils'];
 
-    function CustomersEdit($state, CustomerFactory) {
+    function CustomersEdit($state, CustomerFactory, utils) {
         var vm = this;
         //  declare and map functions
         vm.validateCustomerInformation = validateCustomerInformation;
@@ -87,20 +87,6 @@
         }
         //  FORM VALIDATIONS [END]
 
-        //  generate uuid for unique keys
-        var generateUUID = function(type) {
-            var d = new Date().getTime();
-            var raw = type + '-xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
-
-            var uuId = raw.replace(/[xy]/g, function(c) {
-                var r = (d + Math.random() * 16) % 16 | 0;
-                d = Math.floor(d / 16);
-                return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-            });
-
-            return uuId;
-        };
-
         //  auto fill vehicle details
         function fillVehicleDetails() {
             var cv = $("#currentVehicle").val();
@@ -125,7 +111,7 @@
             };
 
             var propVehicle = {};
-            propVehicle[generateUUID("vhcl")] = objVehicle;
+            propVehicle[utils.generateUUID("vhcl")] = objVehicle;
 
             userDbInstance.user.mobile = vm.user.mobile;
             userDbInstance.user.name = (vm.user.name == null ? $("#wizard_customer_name").val() : vm.user.name);
@@ -139,7 +125,7 @@
                         vehicleDbInstance.manuf = vm.vehicle.manuf;
                         vehicleDbInstance.model = vm.vehicle.model;
                     } else {
-                        userDbInstance.user.vehicles[generateUUID("vhcl")] = objVehicle;
+                        userDbInstance.user.vehicles[utils.generateUUID("vhcl")] = objVehicle;
                     }
                 } else {
                     userDbInstance.user.vehicles = propVehicle;

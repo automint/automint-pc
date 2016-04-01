@@ -12,14 +12,14 @@ altairApp
             }
         }
     ])
-    .factory('variables', function () {
+    .factory('variables', function() {
         return {
             header__main_height: 48,
-            easing_swiftOut: [ 0.4,0,0.2,1 ],
-            bez_easing_swiftOut: $.bez([ 0.4,0,0.2,1 ])
+            easing_swiftOut: [0.4, 0, 0.2, 1],
+            bez_easing_swiftOut: $.bez([0.4, 0, 0.2, 1])
         }
     })
-    .factory('utils', function () {
+    .factory('utils', function() {
         return {
             // Util for finding an object by its 'id' property among an array
             findByItemId: function findById(a, id) {
@@ -59,36 +59,48 @@ altairApp
                     localStorage.setItem(test, test);
                     localStorage.removeItem(test);
                     return true;
-                } catch(e) {
+                } catch (e) {
                     return false;
                 }
             },
             // show/hide card
-            card_show_hide: function(card,begin_callback,complete_callback,callback_element) {
+            card_show_hide: function(card, begin_callback, complete_callback, callback_element) {
                 $(card).velocity({
                         scale: 0,
                         opacity: 0.2
                     }, {
                         duration: 400,
-                        easing: [ 0.4,0,0.2,1 ],
+                        easing: [0.4, 0, 0.2, 1],
                         // on begin callback
-                        begin: function () {
+                        begin: function() {
                             if (typeof begin_callback !== 'undefined') {
                                 begin_callback(callback_element);
                             }
                         },
                         // on complete callback
-                        complete: function () {
+                        complete: function() {
                             if (typeof complete_callback !== 'undefined') {
                                 complete_callback(callback_element);
                             }
                         }
                     })
                     .velocity('reverse');
+            },
+            //  generate uuid for unique keys
+            generateUUID: function(type) {
+                var d = new Date().getTime();
+                var raw = type + '-xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+
+                var uuId = raw.replace(/[xy]/g, function(c) {
+                    var r = (d + Math.random() * 16) % 16 | 0;
+                    d = Math.floor(d / 16);
+                    return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+                });
+
+                return uuId;
             }
         };
-    })
-;
+    });
 
 angular
     .module("ConsoleLogger", [])
@@ -96,9 +108,13 @@ angular
     // app.js (run section "PrintToConsole")
     .factory("PrintToConsole", [
         "$rootScope",
-        function ($rootScope) {
-            var handler = { active: false };
-            handler.toggle = function () { handler.active = !handler.active; };
+        function($rootScope) {
+            var handler = {
+                active: false
+            };
+            handler.toggle = function() {
+                handler.active = !handler.active;
+            };
 
             if (handler.active) {
                 console.log($state + ' = ' + $state.current.name);
@@ -106,27 +122,27 @@ angular
                 console.log($state_full_url + '=' + $state.$current.url.source);
                 console.log(Card_fullscreen + '=' + card_fullscreen);
 
-                $rootScope.$on('$stateChangeStart', function (event, toState, toParams, fromState, fromParams) {
+                $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
                     console.log("$stateChangeStart --- event, toState, toParams, fromState, fromParams");
                     console.log(arguments);
                 });
-                $rootScope.$on('$stateChangeError', function (event, toState, toParams, fromState, fromParams, error) {
+                $rootScope.$on('$stateChangeError', function(event, toState, toParams, fromState, fromParams, error) {
                     console.log("$stateChangeError --- event, toState, toParams, fromState, fromParams, error");
                     console.log(arguments);
                 });
-                $rootScope.$on('$stateChangeSuccess', function (event, toState, toParams, fromState, fromParams) {
+                $rootScope.$on('$stateChangeSuccess', function(event, toState, toParams, fromState, fromParams) {
                     console.log("$stateChangeSuccess --- event, toState, toParams, fromState, fromParams");
                     console.log(arguments);
                 });
-                $rootScope.$on('$viewContentLoading', function (event, viewConfig) {
+                $rootScope.$on('$viewContentLoading', function(event, viewConfig) {
                     console.log("$viewContentLoading --- event, viewConfig");
                     console.log(arguments);
                 });
-                $rootScope.$on('$viewContentLoaded', function (event) {
+                $rootScope.$on('$viewContentLoaded', function(event) {
                     console.log("$viewContentLoaded --- event");
                     console.log(arguments);
                 });
-                $rootScope.$on('$stateNotFound', function (event, unfoundState, fromState, fromParams) {
+                $rootScope.$on('$stateNotFound', function(event, unfoundState, fromState, fromParams) {
                     console.log("$stateNotFound --- event, unfoundState, fromState, fromParams");
                     console.log(arguments);
                 });
@@ -134,5 +150,4 @@ angular
 
             return handler;
         }
-    ])
-;
+    ]);
