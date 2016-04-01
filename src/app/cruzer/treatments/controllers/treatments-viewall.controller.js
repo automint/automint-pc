@@ -1,15 +1,15 @@
 (function() {
     angular.module('altairApp')
-        .controller('inventoriesViewAllCtrl', InventoriesViewAll);
+        .controller('treatmentsViewAllCtrl', TreatmentsViewAll);
 
-    InventoriesViewAll.$inject = ['$state', 'DTOptionsBuilder', 'InventoryFactory'];
+    TreatmentsViewAll.$inject = ['$state', 'DTOptionsBuilder', 'treatmentFactory'];
 
-    function InventoriesViewAll($state, DTOptionsBuilder, InventoryFactory) {
+    function TreatmentsViewAll($state, DTOptionsBuilder, treatmentFactory) {
         var vm = this;
         //  declarations and mappings
-        vm.addInventory = addInventory;
-        vm.editInventory = editInventory;
-        vm.deleteInventory = deleteInventory;
+        vm.addTreatment = addTreatment;
+        vm.editTreatment = editTreatment;
+        vm.deleteTreatment = deleteTreatment;
         vm.changeDisplayAs = changeDisplayAs;
         //  datatable instance
         vm.dtInstance = {};
@@ -17,8 +17,8 @@
         vm.dtOptions = DTOptionsBuilder
             .newOptions()
             .withDisplayLength(10);
-        //  inventories array for datatable
-        vm.inventories = [];
+        //  treatments array for datatable
+        vm.treatments = [];
         //  checkbox for display format
         vm.displayAsList = false;
 
@@ -27,20 +27,20 @@
 
         //  refresh datatable from database
         function refresh() {
-            InventoryFactory.currentInventorySettings().then(function(res) {
+            treatmentFactory.currentTreatmentSettings().then(function(res) {
                 if (res)
                     vm.displayAsList = res.displayAsList;
             });
-            InventoryFactory.inventoriesAsArray().then(function(res) {
-                vm.inventories = res;
+            treatmentFactory.treatmentsAsArray().then(function(res) {
+                vm.treatments = res;
             }, function(err) {
-                vm.inventories = [];
+                vm.treatments = [];
             });
         }
 
         //  checkbox listener for display format
         function changeDisplayAs() {
-            InventoryFactory.changeDisplayAs(vm.displayAsList).then(function(res) {
+            treatmentFactory.changeDisplayAs(vm.displayAsList).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Settings Saved!", {
                         status: 'success',
@@ -63,15 +63,15 @@
         }
 
         //  callback for edit service button
-        function editInventory($e, inventory) {
-            $state.go('restricted.inventories.edit', {
-                name: inventory.name,
+        function editTreatment($e, treatment) {
+            $state.go('restricted.treatments.edit', {
+                name: treatment.name,
             });
         };
 
         //  callback for delete service button
-        function deleteInventory($e, inventory) {
-            InventoryFactory.deleteInventory(inventory.name).then(function(res) {
+        function deleteTreatment($e, treatment) {
+            treatmentFactory.deleteTreatment(treatment.name).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Treatment has been deleted.", {
                         status: 'danger',
@@ -93,8 +93,8 @@
         }
 
         //  callback for add service button
-        function addInventory() {
-            $state.go('restricted.inventories.add');
+        function addTreatment() {
+            $state.go('restricted.treatments.add');
         };
     }
 })();

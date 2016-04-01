@@ -165,18 +165,23 @@ angular
             $scope.sections = [{
                 id: 0,
                 title: 'Services',
-                icon: '&#xE871;',
+                icon: 'build',
                 link: 'restricted.services.all'
             }, {
                 id: 1,
                 title: 'Customers',
-                icon: '&#xE871',
+                icon: 'group',
                 link: 'restricted.customers.all'
             }, {
                 id: 2,
                 title: 'Treatments',
-                icon: '&#xE871',
-                link: 'restricted.inventories.all'
+                icon: 'local_car_wash',
+                link: 'restricted.treatments.all'
+            }, {
+                id: 3,
+                title: 'Settings',
+                icon: 'settings',
+                link: 'restricted.settings'
             }]
         }
     ]);

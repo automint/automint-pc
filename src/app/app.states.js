@@ -260,27 +260,27 @@ altairApp
                         pageTitle: 'Edit Customer'
                     }
                 })
-                .state('restricted.inventories', {
-                    url: '/inventories',
+                .state('restricted.treatments', {
+                    url: '/treatments',
                     template: '<div ui-view autoscroll="false" />',
                     abstract: true,
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/inventories/inventories.factory.js'
+                                'app/cruzer/treatments/treatments.factory.js'
                             ])
                         }]
                     }
                 })
-                .state('restricted.inventories.all', {
+                .state('restricted.treatments.all', {
                     url: '/all',
-                    templateUrl: 'app/cruzer/inventories/inventories_viewAll.html',
-                    controller: 'inventoriesViewAllCtrl',
-                    controllerAs: 'inventoryVm',
+                    templateUrl: 'app/cruzer/treatments/treatments_viewAll.html',
+                    controller: 'treatmentsViewAllCtrl',
+                    controllerAs: 'treatmentsVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/inventories/controllers/inventories-viewall.controller.js',
+                                'app/cruzer/treatments/controllers/treatments-viewall.controller.js',
                                 'bower_components/angular-resource/angular-resource.min.js',
                                 'lazy_datatables'
                             ])
@@ -290,15 +290,15 @@ altairApp
                         pageTitle: 'All Treatments'
                     }
                 })
-                .state('restricted.inventories.add', {
+                .state('restricted.treatments.add', {
                     url: '/add',
-                    templateUrl: 'app/cruzer/inventories/inventories_add.html',
-                    controller: 'inventoriesAddCtrl',
-                    controllerAs: 'inventoriesFormVm',
+                    templateUrl: 'app/cruzer/treatments/treatments_add.html',
+                    controller: 'treatmentsAddCtrl',
+                    controllerAs: 'treatmentsFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/inventories/controllers/inventories-add.controller.js',
+                                'app/cruzer/treatments/controllers/treatments-add.controller.js',
                                 'lazy_KendoUI'
                             ])
                         }]
@@ -307,24 +307,41 @@ altairApp
                         pageTitle: 'Add a Treatment'
                     }
                 })
-                .state('restricted.inventories.edit', {
+                .state('restricted.treatments.edit', {
                     url: '/edit',
-                    templateUrl: 'app/cruzer/inventories/inventories_add.html',
+                    templateUrl: 'app/cruzer/treatments/treatments_add.html',
                     params: {
                         name: undefined
                     },
-                    controller: 'inventoriesEditCtrl',
-                    controllerAs: 'inventoriesFormVm',
+                    controller: 'treatmentsEditCtrl',
+                    controllerAs: 'treatmentsFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/inventories/controllers/inventories-edit.controller.js',
+                                'app/cruzer/treatments/controllers/treatments-edit.controller.js',
                                 'lazy_KendoUI'
                             ])
                         }]
                     },
                     data: {
                         pageTitle: 'Edit Treatment'
+                    }
+                })
+                .state('restricted.settings', {
+                    url: '/settings',
+                    templateUrl: 'app/cruzer/settings/settings.html',
+                    controller: 'settingsCtrl',
+                    controllerAs: 'settingsVm',
+                    resolve: {
+                        deps: ['$ocLazyLoad', function ($ocLazyLoad) {
+                            return $ocLazyLoad.load([
+                                'app/cruzer/settings/settings.factory.js',
+                                'app/cruzer/settings/settings.controller.js'
+                            ])
+                        }]
+                    },
+                    data: {
+                        pageTitle: 'Settings'
                     }
                 })
         }

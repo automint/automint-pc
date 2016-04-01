@@ -1,30 +1,36 @@
 (function() {
     angular.module('altairApp')
-        .controller('inventoriesAddCtrl', InventoriesAdd);
+        .controller('treatmentsAddCtrl', TreatmentsAdd);
 
-    InventoriesAdd.$inject = ['$state', 'InventoryFactory'];
+    TreatmentsAdd.$inject = ['$state', 'treatmentFactory'];
 
-    function InventoriesAdd($state, InventoryFactory) {
+    function TreatmentsAdd($state, treatmentFactory) {
         var vm = this;
         //  declarations and mappings
         vm.save = save;
         //  define operation mode to disbable particular fields in different modes
         vm.operationMode = "add";
-        //  define object to track inventory details
-        vm.inventory = {
+        //  define object to track treatment details
+        vm.treatment = {
             details: '',
-            rate: ''
+            rate: {
+                smallcar: '',
+                mediumcar: '',
+                largecar: '',
+                xlargecar: '',
+                default: ''
+            }
         }
 
         //  save data to pouchDB instance
         function save() {
-            InventoryFactory.saveInventory(vm.inventory, vm.operationMode).then(function(res) {
+            treatmentFactory.saveTreatment(vm.treatment, vm.operationMode).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Treatment has been added.", {
                         status: 'info',
                         timeout: 3000
                     });
-                    $state.go("restricted.inventories.all");
+                    $state.go("restricted.treatments.all");
                 } else {
                     UIkit.notify("Treatment can not be added at moment. Please Try Again!", {
                         status: 'info',
