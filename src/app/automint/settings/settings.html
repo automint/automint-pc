@@ -1,20 +1,7 @@
 <div id="page_content">
     <div id="page_content_inner">
-        <div class="uk-grid">
-            <div class="uk-width-medium-4-10">
-                <div class="md-card">
-                    <div class="md-card-content">
-                        <h3 class="heading_a">
-                            Backup
-                            <span class="sub-heading">Backup your data.</span>
-                        </h3>
-                        <p>
-                            <button class="md-btn" ng-click="settingsVm.backup()"><i class="material-icons" style="margin-right: 0.4rem;">file_download</i>&nbsp;Download Backup</button>
-                        </p>
-                    </div>
-                </div>
-            </div>
-            <div class="uk-width-medium-6-10">
+        <div class="uk-margin-large-bottom hierarchical_show" data-uk-grid="{gutter: 20}" hierarchical-show>
+            <div class="uk-width-medium-1-2">
                 <div class="md-card">
                     <div class="md-card-content">
                         <h3 class="heading_a">
@@ -39,6 +26,41 @@
                         </div>
                         <p class="uk-text-center" style="margin-top: 2rem;" ng-if="!settingsVm.isLoggedIn">
                             <button class="md-btn" ng-click="settingsVm.login()" style="padding-left: 2rem; padding-right: 1.8rem;">Login<i class="material-icons" style="margin-left: 1rem;">send</i></button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-width-medium-1-2">
+                <div class="md-card">
+                    <div class="md-card-content">
+                        <h3 class="heading_a">
+                            Import
+                            <span class="sub-heading">Add customers and their vehicle data <i style="font-size: x-small; font-weight: 700; letter-spacing: 1px">(in CSV format).</i></span>
+                        </h3>
+                        <div class="uk-grid">
+                            <div class="uk-width-1-1">
+                                <div id="file_upload-drop" class="uk-file-upload">
+                                    <p class="uk-text">Drop CSV file to upload</p>
+                                    <p class="uk-text-muted uk-text-small uk-margin-small-bottom">or</p>
+                                    <span class="uk-form-file md-btn">choose file<input id="file_upload-select" type="file" ng-model="file_upload.input_1"></span>
+                                </div>
+                                <div id="file_upload-progressbar" class="uk-progress uk-hidden">
+                                    <div class="uk-progress-bar" style="width:0">0%</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="uk-width-medium-4-10">
+                <div class="md-card">
+                    <div class="md-card-content">
+                        <h3 class="heading_a">
+                            Backup
+                            <span class="sub-heading">Backup your data.</span>
+                        </h3>
+                        <p>
+                            <button class="md-btn" ng-click="settingsVm.backup()"><i class="material-icons" style="margin-right: 0.4rem;">file_download</i>&nbsp;Download Backup</button>
                         </p>
                     </div>
                 </div>

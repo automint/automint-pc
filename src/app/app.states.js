@@ -1,3 +1,5 @@
+/// <reference path="../typings/main.d.ts" />
+
 altairApp
     .config([
         '$stateProvider',
@@ -336,7 +338,9 @@ altairApp
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
                                 'app/automint/settings/settings.factory.js',
-                                'app/automint/settings/settings.controller.js'
+                                'app/automint/settings/settings.controller.js',
+                                'app/automint/settings/settings-importdata.service.js',
+                                'assets/js/jquery.csv.min.js'
                             ])
                         }]
                     },
