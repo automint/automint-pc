@@ -125,20 +125,20 @@ altairApp
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/services/services.factory.js'
+                                'app/automint/services/services.factory.js'
                             ])
                         }]
                     }
                 })
                 .state('restricted.services.all', {
                     url: '/all',
-                    templateUrl: 'app/cruzer/services/services_viewAll.html',
+                    templateUrl: 'app/automint/services/services_viewAll.html',
                     controller: 'servicesViewAllCtrl',
                     controllerAs: 'serviceVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/services/controllers/services-viewall.controller.js',
+                                'app/automint/services/controllers/services-viewall.controller.js',
                                 'bower_components/angular-resource/angular-resource.min.js',
                                 'lazy_datatables'
                             ])
@@ -150,13 +150,13 @@ altairApp
                 })
                 .state('restricted.services.add', {
                     url: '/add',
-                    templateUrl: 'app/cruzer/services/services_add.html',
+                    templateUrl: 'app/automint/services/services_add.html',
                     controller: 'servicesAddCtrl',
                     controllerAs: 'serviceFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/services/controllers/services-add.controller.js',
+                                'app/automint/services/controllers/services-add.controller.js',
                                 'lazy_wizard',
                                 'lazy_KendoUI'
                             ])
@@ -173,13 +173,13 @@ altairApp
                         vehicleId: undefined,
                         userId: undefined
                     },
-                    templateUrl: 'app/cruzer/services/services_add.html',
+                    templateUrl: 'app/automint/services/services_add.html',
                     controller: 'servicesEditCtrl',
                     controllerAs: 'serviceFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/services/controllers/services-edit.controller.js',
+                                'app/automint/services/controllers/services-edit.controller.js',
                                 'lazy_wizard',
                                 'lazy_KendoUI'
                             ])
@@ -196,20 +196,20 @@ altairApp
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/customers/customers.factory.js'
+                                'app/automint/customers/customers.factory.js'
                             ])
                         }]
                     }
                 })
                 .state('restricted.customers.all', {
                     url: '/all',
-                    templateUrl: 'app/cruzer/customers/customers_viewAll.html',
+                    templateUrl: 'app/automint/customers/customers_viewAll.html',
                     controller: 'customersViewAllCtrl',
                     controllerAs: 'customerVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/customers/controllers/customers-viewall.controller.js',
+                                'app/automint/customers/controllers/customers-viewall.controller.js',
                                 'bower_components/angular-resource/angular-resource.min.js',
                                 'lazy_datatables'
                             ])
@@ -221,13 +221,13 @@ altairApp
                 })
                 .state('restricted.customers.add', {
                     url: '/add',
-                    templateUrl: 'app/cruzer/customers/customers_add.html',
+                    templateUrl: 'app/automint/customers/customers_add.html',
                     controller: 'customersAddCtrl',
                     controllerAs: 'customerFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/customers/controllers/customers-add.controller.js',
+                                'app/automint/customers/controllers/customers-add.controller.js',
                                 'lazy_wizard',
                                 'lazy_KendoUI'
                             ])
@@ -244,13 +244,13 @@ altairApp
                         vehicleId: undefined,
                         userId: undefined
                     },
-                    templateUrl: 'app/cruzer/customers/customers_add.html',
+                    templateUrl: 'app/automint/customers/customers_add.html',
                     controller: 'customersEditCtrl',
                     controllerAs: 'customerFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/customers/controllers/customers-edit.controller.js',
+                                'app/automint/customers/controllers/customers-edit.controller.js',
                                 'lazy_wizard',
                                 'lazy_KendoUI'
                             ])
@@ -267,20 +267,20 @@ altairApp
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/treatments/treatments.factory.js'
+                                'app/automint/treatments/treatments.factory.js'
                             ])
                         }]
                     }
                 })
                 .state('restricted.treatments.all', {
                     url: '/all',
-                    templateUrl: 'app/cruzer/treatments/treatments_viewAll.html',
+                    templateUrl: 'app/automint/treatments/treatments_viewAll.html',
                     controller: 'treatmentsViewAllCtrl',
                     controllerAs: 'treatmentsVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/treatments/controllers/treatments-viewall.controller.js',
+                                'app/automint/treatments/controllers/treatments-viewall.controller.js',
                                 'bower_components/angular-resource/angular-resource.min.js',
                                 'lazy_datatables'
                             ])
@@ -292,13 +292,13 @@ altairApp
                 })
                 .state('restricted.treatments.add', {
                     url: '/add',
-                    templateUrl: 'app/cruzer/treatments/treatments_add.html',
+                    templateUrl: 'app/automint/treatments/treatments_add.html',
                     controller: 'treatmentsAddCtrl',
                     controllerAs: 'treatmentsFormVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/treatments/controllers/treatments-add.controller.js',
+                                'app/automint/treatments/controllers/treatments-add.controller.js',
                                 'lazy_KendoUI'
                             ])
                         }]
@@ -309,7 +309,7 @@ altairApp
                 })
                 .state('restricted.treatments.edit', {
                     url: '/edit',
-                    templateUrl: 'app/cruzer/treatments/treatments_add.html',
+                    templateUrl: 'app/automint/treatments/treatments_add.html',
                     params: {
                         name: undefined
                     },
@@ -318,7 +318,7 @@ altairApp
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/treatments/controllers/treatments-edit.controller.js',
+                                'app/automint/treatments/controllers/treatments-edit.controller.js',
                                 'lazy_KendoUI'
                             ])
                         }]
@@ -329,14 +329,14 @@ altairApp
                 })
                 .state('restricted.settings', {
                     url: '/settings',
-                    templateUrl: 'app/cruzer/settings/settings.html',
+                    templateUrl: 'app/automint/settings/settings.html',
                     controller: 'settingsCtrl',
                     controllerAs: 'settingsVm',
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
-                                'app/cruzer/settings/settings.factory.js',
-                                'app/cruzer/settings/settings.controller.js'
+                                'app/automint/settings/settings.factory.js',
+                                'app/automint/settings/settings.controller.js'
                             ])
                         }]
                     },

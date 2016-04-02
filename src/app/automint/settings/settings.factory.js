@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .factory('settingsFactory', SettingsFactory);
 
-    SettingsFactory.$inject = ['pdbConfig', '$q', 'pdbCustomer', '$cruzerService', 'utils'];
+    SettingsFactory.$inject = ['pdbConfig', '$q', 'pdbCustomer', '$automintService', 'utils'];
 
-    function SettingsFactory(pdbConfig, $q, pdbCustomer, $cruzerService, utils) {
+    function SettingsFactory(pdbConfig, $q, pdbCustomer, $automintService, utils) {
         var factory = {
             login: login,
             loginDetails: loginDetails
@@ -14,8 +14,8 @@
         function loginDetails() {
             var differed = $q.defer();
 
-            $cruzerService.checkWorkshopId().then(function(configRes) {
-                pdbConfig.get($cruzerService.currentConfig.workshop).then(function(res) {
+            $automintService.checkWorkshopId().then(function(configRes) {
+                pdbConfig.get($automintService.currentConfig.workshop).then(function(res) {
                     if (res.user && res.user.username && res.user.password) {
                         differed.resolve({
                             success: true,
@@ -42,8 +42,8 @@
         //  store login details to database
         function login(username, password) {
             var differed = $q.defer();
-            $cruzerService.checkWorkshopId().then(function(configRes) {
-                pdbConfig.get($cruzerService.currentConfig.workshop).then(function(res) {
+            $automintService.checkWorkshopId().then(function(configRes) {
+                pdbConfig.get($automintService.currentConfig.workshop).then(function(res) {
                     if (!res.user)
                         res.user = {};
                     res.user['username'] = username;

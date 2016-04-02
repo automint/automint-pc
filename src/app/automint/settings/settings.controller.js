@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .controller('settingsCtrl', SettingsCtrl);
         
-    SettingsCtrl.$inject = ['backupRestore', 'settingsFactory', '$cruzerService'];
+    SettingsCtrl.$inject = ['backupRestore', 'settingsFactory', '$automintService'];
     
-    function SettingsCtrl(backupRestore, settingsFactory, $cruzerService) {
+    function SettingsCtrl(backupRestore, settingsFactory, $automintService) {
         var vm = this;
         //  keep track of UI variables
         vm.loginTitle = 'Sign In';
@@ -48,7 +48,7 @@
         function login() {
             settingsFactory.login(vm.username, vm.password).then(function(res) {
                 if (res.ok) {
-                    $cruzerService.syncDb();
+                    $automintService.syncDb();
                     vm.isLoggedIn = true;
                     UIkit.notify("You have successfully logged in!", {
                         status: 'success',

@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .factory('CustomerFactory', CustomerFactory);
 
-    CustomerFactory.$inject = ['pdbCustomer', '$q', '$cruzerService', 'utils'];
+    CustomerFactory.$inject = ['pdbCustomer', '$q', '$automintService', 'utils'];
 
-    function CustomerFactory(pdbCustomer, $q, $cruzerService, utils) {
+    function CustomerFactory(pdbCustomer, $q, $automintService, utils) {
         var factory = {
             forDatatable: forDatatable,
             deleteCustomer: deleteCustomer,
@@ -94,7 +94,7 @@
             //  make fresh document
             var doc = {
                 _id: utils.generateUUID("user"),
-                creator: $cruzerService.username,
+                creator: $automintService.username,
                 user: u
             };
             // saveDataInDB(doc);

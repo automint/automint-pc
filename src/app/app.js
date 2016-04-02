@@ -41,13 +41,13 @@ altairApp
         '$window',
         '$timeout',
         'preloaders',
-        '$cruzerService',
-        function($rootScope, $state, $stateParams, $http, $window, $timeout, preloaders, $cruzerService) {
+        '$automintService',
+        function($rootScope, $state, $stateParams, $http, $window, $timeout, preloaders, $automintService) {
 
             $rootScope.$state = $state;
             $rootScope.$stateParams = $stateParams;
 
-            $cruzerService.initDb();
+            $automintService.initDb();
             $rootScope.$on('$stateChangeSuccess', function() {
                 // scroll view to top
                 $("html, body").animate({

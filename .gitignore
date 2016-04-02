@@ -50,5 +50,8 @@ Temporary Items
 node_modules/
 npm-debug.log
 
+# TypeScript Dependencies
+src/typings/
+
 # Dev Files and Directories from @ndkcha
-src/app/cruzer.js
+src/app/automint.js

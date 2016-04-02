@@ -279,13 +279,13 @@ altairApp
                     {
                         name: 'lazy_gantt_chart',
                         files: [
-                            <!-- jquery ui -->
+                            // <!-- jquery ui -->
                             'bower_components/jquery-ui/ui/minified/core.min.js',
                             'bower_components/jquery-ui/ui/minified/widget.min.js',
                             'bower_components/jquery-ui/ui/minified/mouse.min.js',
                             'bower_components/jquery-ui/ui/minified/resizable.min.js',
                             'bower_components/jquery-ui/ui/minified/draggable.min.js',
-                            <!-- gantt chart -->
+                            // <!-- gantt chart -->
                             'assets/js/custom/gantt_chart.min.js'
                         ],
                         serie: true

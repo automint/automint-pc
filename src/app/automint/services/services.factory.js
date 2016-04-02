@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .factory('ServiceFactory', ServiceFactory);
 
-    ServiceFactory.$inject = ['pdbCustomer', '$q', 'pdbConfig', '$cruzerService', 'utils'];
+    ServiceFactory.$inject = ['pdbCustomer', '$q', 'pdbConfig', '$automintService', 'utils'];
 
-    function ServiceFactory(pdbCustomer, $q, pdbConfig, $cruzerService, utils) {
+    function ServiceFactory(pdbCustomer, $q, pdbConfig, $automintService, utils) {
         var factory = {
             filteredServices: filteredServices,
             populateUsersList: populateUsersList,
@@ -73,8 +73,8 @@
         //  return current display settings
         function treatmentSettings() {
             var differed = $q.defer();
-            $cruzerService.checkSettingsId().then(function(configRes) {
-                pdbConfig.get($cruzerService.currentConfig.settings).then(function(res) {
+            $automintService.checkSettingsId().then(function(configRes) {
+                pdbConfig.get($automintService.currentConfig.settings).then(function(res) {
                     differed.resolve(res.settings);
                 }, function(err) {
                     differed.reject(err);
@@ -88,8 +88,8 @@
         //  return current regular treatment list
         function populateRegularTreatments() {
             var differed = $q.defer();
-            $cruzerService.checkTreatmentId().then(function(configRes) {
-                pdbConfig.get($cruzerService.currentConfig.treatment).then(function(res) {
+            $automintService.checkTreatmentId().then(function(configRes) {
+                pdbConfig.get($automintService.currentConfig.treatment).then(function(res) {
                     var treatments = [];
                     if (res.regular) {
                         Object.keys(res.regular).forEach(function(details) {
@@ -241,7 +241,7 @@
                 finalUser.vehicles[utils.generateUUID('vhcl')] = finalVehicle;
                 var doc = {
                     _id: utils.generateUUID('user'),
-                    creator: $cruzerService.username,
+                    creator: $automintService.username,
                     user: finalUser
                 }
                 pdbCustomer.save(doc).then(function(status) {

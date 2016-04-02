@@ -1,14 +1,14 @@
-.cruzer-hide {
+.automint-hide {
     display: none;
 }
-.cruzer-section-title {
+.automint-section-title {
     color: rgb(255,255,255);
     letter-spacing: 1px;
     font-weight: 100;
     text-align: center;
     margin-top: 1rem;
 }
-.cruzer-problem-delete-button {
+.automint-problem-delete-button {
     border-radius: 0.6rem;
     padding-top: 0.3rem;
     padding-left: 0.6rem;
@@ -17,7 +17,7 @@
     margin-left: 0.4rem;
     margin-right: 0.4rem;
 }
-.cruzer-problem-checkbox {
+.automint-problem-checkbox {
     margin-left: 1rem;
     margin-right: 1rem;
 }

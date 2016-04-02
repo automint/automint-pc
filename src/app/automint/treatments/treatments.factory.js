@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .factory('treatmentFactory', TreatmentFactory);
 
-    TreatmentFactory.$inject = ['pdbConfig', '$q', '$cruzerService', 'utils'];
+    TreatmentFactory.$inject = ['pdbConfig', '$q', '$automintService', 'utils'];
 
-    function TreatmentFactory(pdbConfig, $q, $cruzerService, utils) {
+    function TreatmentFactory(pdbConfig, $q, $automintService, utils) {
         var factory = {
             treatmentsAsArray: treatmentsAsArray,
             treatmentDetails: treatmentDetails,
@@ -17,8 +17,8 @@
         //  return treatments list in form of an array
         function treatmentsAsArray() {
             var differed = $q.defer();
-            $cruzerService.checkTreatmentId().then(function(configRes) {
-                pdbConfig.get($cruzerService.currentConfig.treatment).then(function(res) {
+            $automintService.checkTreatmentId().then(function(configRes) {
+                pdbConfig.get($automintService.currentConfig.treatment).then(function(res) {
                     var treatments = [];
                     if (res.regular) {
                         Object.keys(res.regular).forEach(function(details) {
@@ -43,8 +43,8 @@
         //  return particular treatment
         function treatmentDetails(treatmentName) {
             var differed = $q.defer();
-            $cruzerService.checkTreatmentId().then(function(configRes) {
-                pdbConfig.get($cruzerService.currentConfig.treatment).then(function(res) {
+            $automintService.checkTreatmentId().then(function(configRes) {
+                pdbConfig.get($automintService.currentConfig.treatment).then(function(res) {
                     var treatment = {
                         details: treatmentName,
                         rate: res.regular[treatmentName].rate
@@ -62,8 +62,8 @@
         //  delete treatment from database
         function deleteTreatment(treatmentName) {
             var differed = $q.defer();
-            $cruzerService.checkTreatmentId().then(function(configRes) {
-                pdbConfig.get($cruzerService.currentConfig.treatment).then(function(res) {
+            $automintService.checkTreatmentId().then(function(configRes) {
+                pdbConfig.get($automintService.currentConfig.treatment).then(function(res) {
                     res.regular[treatmentName]._deleted = true;
                     pdbConfig.save(res).then(function(success) {
                         differed.resolve(success);
@@ -85,8 +85,8 @@
             var i = {
                 rate: treatment.rate
             }
-            $cruzerService.checkTreatmentId().then(function(configRes) {
-                pdbConfig.get($cruzerService.currentConfig.treatment).then(function(res) {
+            $automintService.checkTreatmentId().then(function(configRes) {
+                pdbConfig.get($automintService.currentConfig.treatment).then(function(res) {
                     if (!res.regular)
                         res.regular = {};
                     if (!(res.regular[treatment.details] && method == 'add')) {
@@ -100,12 +100,12 @@
                 }, function(err) {
                     var doc = {};
                     doc['_id'] = utils.generateUUID('treatment');
-                    doc['creator'] = $cruzerService.username;
+                    doc['creator'] = $automintService.username;
                     doc.regular = {};
                     doc.regular[treatment.details] = i;
                     pdbConfig.save(doc).then(function(success) {
                         differed.resolve(success);
-                        $cruzerService.updateConfigReferences();
+                        $automintService.updateConfigReferences();
                     }, function(error) {
                         differed.reject(error);
                     });
@@ -118,8 +118,8 @@
 
         function currentTreatmentSettings() {
             var differed = $q.defer();
-            $cruzerService.checkSettingsId().then(function(configRes) {
-                pdbConfig.get($cruzerService.currentConfig.settings).then(function(res) {
+            $automintService.checkSettingsId().then(function(configRes) {
+                pdbConfig.get($automintService.currentConfig.settings).then(function(res) {
                     differed.resolve(res.settings);
                 }, function(err) {
                     differed.reject(err);
@@ -133,8 +133,8 @@
         //  change display format setting of treatments
         function changeDisplayAs(displayAsList) {
             var differed = $q.defer();
-            $cruzerService.checkSettingsId().then(function(configRes) {
-                pdbConfig.get($cruzerService.currentConfig.settings).then(function(res) {
+            $automintService.checkSettingsId().then(function(configRes) {
+                pdbConfig.get($automintService.currentConfig.settings).then(function(res) {
                     if (!res.settings)
                         res.settings = {};
                     res.settings['displayAsList'] = displayAsList;
@@ -146,12 +146,12 @@
                 }, function(err) {
                     var doc = {};
                     doc['_id'] = utils.generateUUID('settings');
-                    doc['creator'] = $cruzerService.username;
+                    doc['creator'] = $automintService.username;
                     doc.settings = {};
                     doc.settings['displayAsList'] = displayAsList;
                     pdbConfig.save(doc).then(function(status) {
                         differed.resolve(status);
-                        $cruzerService.updateConfigReferences();
+                        $automintService.updateConfigReferences();
                     }, function(fail) {
                         differed.reject(fail);
                     });

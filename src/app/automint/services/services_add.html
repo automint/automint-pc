@@ -93,8 +93,8 @@
                                 <tbody>
                                     <tr ng-repeat="problem in serviceFormVm.service.problems">
                                         <td class="uk-width-medium-6-10 uk-text-center" style="border: 0px">
-                                            <span ng-if="problem.populateType == 'treatments'" class="cruzer-problem-checkbox"><input type="checkbox" icheck ng-model="problem.checked" ng-change="serviceFormVm.updateTreatmentDetails($index, problem.focusIndex)" /></span>
-                                            <span ng-if="problem.populateType == 'manual'"><a class="md-btn-flat md-btn-flat-danger cruzer-problem-delete-button" style="margin-top: 0.3rem;" ng-click="serviceFormVm.service.problems.splice($index,1); serviceFormVm.updateCost()" href="javascript:void(0)"><i class="material-icons uk-text-danger" style="color: #FFF">delete</i></a></span>
+                                            <span ng-if="problem.populateType == 'treatments'" class="automint-problem-checkbox"><input type="checkbox" icheck ng-model="problem.checked" ng-change="serviceFormVm.updateTreatmentDetails($index, problem.focusIndex)" /></span>
+                                            <span ng-if="problem.populateType == 'manual'"><a class="md-btn-flat md-btn-flat-danger automint-problem-delete-button" style="margin-top: 0.3rem;" ng-click="serviceFormVm.service.problems.splice($index,1); serviceFormVm.updateCost()" href="javascript:void(0)"><i class="material-icons uk-text-danger" style="color: #FFF">delete</i></a></span>
                                             <input kendo-auto-complete ng-attr-id="{{ 'pDetails' + problem.focusIndex }}" ng-blur="serviceFormVm.updateTreatmentDetails($index, problem.focusIndex)" k-data-text-field="'name'" k-data-value-field="'name'" ng-model="problem.details" k-data-source="serviceFormVm.treatments" k-placeholder='"Treatment ..."' style="width: 88%" />
                                         </td>
                                         <td class="uk-width-medium-2-10 uk-text-center" style="border: 0px">

@@ -1,12 +1,12 @@
 (function() {
     angular.module('altairApp')
-        .service('$cruzerService', CruzerService)
+        .service('$automintService', AutomintService)
         .factory('backupRestore', BackupRestore);
 
-    CruzerService.$inject = ['constants', 'pdbCustomer', 'pdbConfig', 'cruzerFactory', '$q'];
+    AutomintService.$inject = ['constants', 'pdbCustomer', 'pdbConfig', 'automintFactory', '$q'];
     BackupRestore.$inject = ['pdbConfig', 'pdbCustomer', 'constants', '$q'];
 
-    function CruzerService(constants, pdbCustomer, pdbConfig, cruzerFactory, $q) {
+    function AutomintService(constants, pdbCustomer, pdbConfig, automintFactory, $q) {
         var sVm = this;
         //  keep track of current user name
         sVm.currentConfig = {};
@@ -87,9 +87,9 @@
                 if (res.success) {
                     sVm.username = res.username;
                     //  construct database url for workshop configurations
-                    dbConfigUrl = cruzerFactory.generateDbUrl(res.username, res.password, constants.sgw_w_config);
+                    dbConfigUrl = automintFactory.generateDbUrl(res.username, res.password, constants.sgw_w_config);
                     //  construct database url for workshop's customers db
-                    dbCustomerUrl = cruzerFactory.generateDbUrl(res.username, res.password, constants.sgw_w_customers);
+                    dbCustomerUrl = automintFactory.generateDbUrl(res.username, res.password, constants.sgw_w_customers);
 
                     //  sync database
                     pdbConfig.sync(dbConfigUrl).on('change', function(info) {
@@ -196,7 +196,7 @@
                     type: 'text/plain'
                 });
                 a.href = URL.createObjectURL(file);
-                a.download = 'cruzer-' + date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + '-' + date.getMinutes() + '.cruzer.bck';
+                a.download = 'automint-' + date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + '-' + date.getMinutes() + '.automintFactory.bck';
                 a.click();
                 differed.resolve({
                     status: 1,
