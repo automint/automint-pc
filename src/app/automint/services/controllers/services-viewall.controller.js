@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .controller('servicesViewAllCtrl', ServiceViewAll);
 
-    ServiceViewAll.$inject = ['$state', 'DTOptionsBuilder', 'ServiceFactory'];
+    ServiceViewAll.$inject = ['$state', 'DTOptionsBuilder', 'ServiceFactory', 'pdbCommon'];
 
-    function ServiceViewAll($state, DTOptionsBuilder, ServiceFactory) {
+    function ServiceViewAll($state, DTOptionsBuilder, ServiceFactory, pdbCommon) {
         var vm = this;
         //  declarations and mappings
         vm.filterDatatable = filterDatatable;

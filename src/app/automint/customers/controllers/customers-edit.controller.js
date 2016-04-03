@@ -9,10 +9,9 @@
         //  declare and map functions
         vm.validateCustomerInformation = validateCustomerInformation;
         vm.convertNameToTitleCase = convertNameToTitleCase;
-        vm.autoCapitalizeManuf = autoCapitalizeManuf;
-        vm.autoCapitalizeModel = autoCapitalizeModel;
         vm.convertRegToUpperCase = convertRegToUpperCase;
         vm.fillVehicleDetails = fillVehicleDetails;
+        vm.populateModels = populateModels;
         vm.save = save;
         //  define operation mode to disable particular fields in different mode
         vm.operationMode = "edit";
@@ -29,69 +28,94 @@
             manuf: '',
             model: ''
         }
+        //  keep track of manufacturers and models
+        vm.manufacturers = [];
+        vm.models = [];
+        vm.modelsOptions = {
+            select: function(e) {
+                var dataItem = this.dataItem(e.item.index());
+                vm.vehicle.model = dataItem;
+            }
+        }
         
         //  fetch parameters of the state to keep track of current user
         var paramId = $state.params.id;
       
         //  default execution steps
+        loadData();
+        populateManufacturers();
         //  pre-fill customer and vehicle data
-        CustomerFactory.customer(paramId).then(function(res) {
-            userDbInstance = res;
-            var customers = [];
-            var u = res.user;
-            var pvl = [];
-            vm.user.id = res._id;
-            vm.user.mobile = u.mobile;
-            vm.user.email = u.email;
-            vm.user.name = u.name;
-            if (u.vehicles) {
-                var vehicleKeys = Object.keys(u.vehicles);
-                vehicleKeys.forEach(function(vId) {
-                    var vehicle = u.vehicles[vId];
+        function loadData() {
+            CustomerFactory.customer(paramId).then(function(res) {
+                userDbInstance = res;
+                var customers = [];
+                var u = res.user;
+                var pvl = [];
+                vm.user.id = res._id;
+                vm.user.mobile = u.mobile;
+                vm.user.email = u.email;
+                vm.user.name = u.name;
+                if (u.vehicles) {
+                    var vehicleKeys = Object.keys(u.vehicles);
+                    vehicleKeys.forEach(function(vId) {
+                        var vehicle = u.vehicles[vId];
+                        pvl.push({
+                            id: vId,
+                            reg: vehicle.reg,
+                            manuf: vehicle.manuf,
+                            model: vehicle.model,
+                            name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg)
+                        });
+                    }, this);
                     pvl.push({
-                        id: vId,
-                        reg: vehicle.reg,
-                        manuf: vehicle.manuf,
-                        model: vehicle.model,
-                        name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg)
-                    });
-                }, this);
-                pvl.push({
-                    id: undefined,
-                    name: 'New Vehicle'
-                })
-                vm.possibleVehicleList = pvl;
-            } else {
-                pvl.push({
-                    id: undefined,
-                    name: 'New Vehicle'
-                })
-                vm.possibleVehicleList = pvl;
-            }
-            vm.currentVehicle = vm.possibleVehicleList[0].name;
-            fillVehicleDetails();
-        }, function(err) {
-            UIkit.notify("Something went wrong! Please Try Again!", {
-                pos: 'bottom-right',
-                status: 'danger',
-                timeout: 3000
+                        id: undefined,
+                        name: 'New Vehicle'
+                    })
+                    vm.possibleVehicleList = pvl;
+                } else {
+                    pvl.push({
+                        id: undefined,
+                        name: 'New Vehicle'
+                    })
+                    vm.possibleVehicleList = pvl;
+                }
+                vm.currentVehicle = vm.possibleVehicleList[0].name;
+                fillVehicleDetails();
+            }, function(err) {
+                UIkit.notify("Something went wrong! Please Try Again!", {
+                    pos: 'bottom-right',
+                    status: 'danger',
+                    timeout: 3000
+                });
+                $state.go('restricted.customers.all');
             });
-            $state.go('restricted.customers.all');
-        });
+        }
+        //  get manufacturers from database
+        function populateManufacturers() {
+            CustomerFactory.getManufacturers().then(function(res) {
+                vm.manufacturers = res;
+            }, function(err) {
+                vm.manufacturers = res;
+            });
+        }
+        
+        //  get models based on manufacturer from database
+        function populateModels() {
+            if (vm.vehicle.manuf == '') {
+                vm.vehicle.model = '';
+                vm.models = [];
+                return;
+            }
+            CustomerFactory.getModels(vm.vehicle.manuf).then(function(res) {
+                vm.models = res;
+            }, function(err) {
+                vm.models = err;
+            });
+        }
         
         //  convert to title case
         function convertNameToTitleCase() {
             vm.user.name = utils.convertToTitleCase(vm.user.name);
-        }
-        
-        //  convert manufacturer to title case
-        function autoCapitalizeManuf() {
-            vm.vehicle.manuf = utils.autoCapitalize(vm.vehicle.manuf);
-        }
-        
-        //  convert model to title case
-        function autoCapitalizeModel() {
-            vm.vehicle.model = utils.autoCapitalize(vm.vehicle.model);
         }
         
         //  convert to upper case
@@ -126,6 +150,7 @@
                     vm.vehicle.model = vehicle.model;
                 }
             }
+            populateModels();
         }
 
         //  save data to database instance

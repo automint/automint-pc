@@ -15,8 +15,6 @@
         vm.validateCustomer = validateCustomer;
         vm.validateVehicle = validateVehicle;
         vm.convertNameToTitleCase = convertNameToTitleCase;
-        vm.autoCapitalizeManuf = autoCapitalizeManuf;
-        vm.autoCapitalizeModel = autoCapitalizeModel;
         vm.convertRegToUpperCase = convertRegToUpperCase;
         vm.addProblemRow = addProblemRow;
         vm.updateTreatmentDetails = updateTreatmentDetails;
@@ -25,6 +23,7 @@
         vm.fillVehicleDetails = fillVehicleDetails;
         vm.save = save;
         vm.changeVehicleType = changeVehicleType;
+        vm.populateModels = populateModels;
         //  define operation mode to disable particular fields in different modes
         vm.operationMode = 'add';
         //  handle vehicle types
@@ -81,11 +80,44 @@
         }
         //  keep track of service status [TEMP]
         vm.servicestatus = true;
+        //  keep track of manufacturers and models
+        vm.manufacturers = [];
+        vm.models = [];
+        vm.modelsOptions = {
+            select: function(e) {
+                var dataItem = this.dataItem(e.item.index());
+                vm.vehicle.model = dataItem;
+            }
+        }
 
         //  default execution steps
         getTreatmentDisplayFormat();
         populateUsersList();
         populateTreatmentList();
+        populateManufacturers();
+        
+        //  get manufacturers from database
+        function populateManufacturers() {
+            ServiceFactory.getManufacturers().then(function(res) {
+                vm.manufacturers = res;
+            }, function(err) {
+                vm.manufacturers = res;
+            });
+        }
+        
+        //  get models based on manufacturer from database
+        function populateModels() {
+            if (vm.vehicle.manuf == '') {
+                vm.vehicle.model = '';
+                vm.models = [];
+                return;
+            }
+            ServiceFactory.getModels(vm.vehicle.manuf).then(function(res) {
+                vm.models = res;
+            }, function(err) {
+                vm.models = err;
+            });
+        }
 
         //  get treatment settings
         function getTreatmentDisplayFormat() {
@@ -100,16 +132,6 @@
             vm.user.name = utils.convertToTitleCase(vm.user.name);
             if (autocompletedUser != vm.user.name)
                 vm.user.id = '';
-        }
-        
-        //  convert manufacturer to title case
-        function autoCapitalizeManuf() {
-            vm.vehicle.manuf = utils.autoCapitalize(vm.vehicle.manuf);
-        }
-        
-        //  convert model to title case
-        function autoCapitalizeModel() {
-            vm.vehicle.model = utils.autoCapitalize(vm.vehicle.model);
         }
 
         //  convert to upper case

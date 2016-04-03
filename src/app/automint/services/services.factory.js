@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .factory('ServiceFactory', ServiceFactory);
 
-    ServiceFactory.$inject = ['pdbCustomer', '$q', 'pdbConfig', '$automintService', 'utils'];
+    ServiceFactory.$inject = ['pdbCustomer', '$q', 'pdbConfig', '$automintService', 'utils', 'pdbCommon'];
 
-    function ServiceFactory(pdbCustomer, $q, pdbConfig, $automintService, utils) {
+    function ServiceFactory(pdbCustomer, $q, pdbConfig, $automintService, utils, pdbCommon) {
         var factory = {
             filteredServices: filteredServices,
             populateUsersList: populateUsersList,
@@ -13,7 +13,41 @@
             saveService: saveService,
             customerDetails: customerDetails,
             deleteService: deleteService,
-            treatmentSettings: treatmentSettings
+            treatmentSettings: treatmentSettings,
+            getManufacturers : getManufacturers,
+            getModels: getModels
+        }
+        
+        //  fetch manufacturers from database
+        function getManufacturers() {
+            var differed = $q.defer();
+            var manufacturers = [];
+            pdbCommon.get('manuf-models').then(function(res) {
+                Object.keys(res).forEach(function(manuf) {
+                    if (!manuf.match(/\b_id|\b_rev/i))
+                        manufacturers.push(manuf);
+                });
+                
+                differed.resolve(manufacturers);
+            }, function(err) {
+                differed.reject(manufacturers);
+            });
+            return differed.promise;
+        }
+        
+        //  fetch models based on manufacturer from database
+        function getModels(manufacturer) {
+            var differed = $q.defer();
+            var models = [];
+            pdbCommon.get('manuf-models').then(function(res) {
+                if (res[manufacturer] && res[manufacturer].models)
+                    differed.resolve(Object.keys(res[manufacturer].models));
+                else
+                    differed.reject(models);
+            }, function(err) {
+                differed.reject(models);
+            });
+            return differed.promise;
         }
 
         //  return filtered services to controller

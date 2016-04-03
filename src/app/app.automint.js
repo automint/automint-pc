@@ -3,10 +3,10 @@
         .service('$automintService', AutomintService)
         .factory('backupRestore', BackupRestore);
 
-    AutomintService.$inject = ['constants', 'pdbCustomer', 'pdbConfig', 'automintFactory', '$q'];
+    AutomintService.$inject = ['constants', 'pdbCustomer', 'pdbConfig', 'automintFactory', '$q', 'pdbCommon'];
     BackupRestore.$inject = ['pdbConfig', 'pdbCustomer', 'constants', '$q'];
 
-    function AutomintService(constants, pdbCustomer, pdbConfig, automintFactory, $q) {
+    function AutomintService(constants, pdbCustomer, pdbConfig, automintFactory, $q, pdbCommon) {
         var sVm = this;
         //  keep track of current user name
         sVm.currentConfig = {};
@@ -24,8 +24,10 @@
             //  set local database and blank database url indicating no remote configured
             pdbConfig.setDatabase(constants.pdb_w_config);
             pdbCustomer.setDatabase(constants.pdb_w_customers);
+            pdbCommon.setDatabase(constants.pdb_common);
 
             //  call sync
+            remoteToLocalSync();
             syncDb();
         }
 
@@ -124,6 +126,24 @@
                 //  no doc found
             });
         }
+        
+        //  set up remote to local sync
+        function remoteToLocalSync() {
+            //  set up common database sync
+            pdbCommon.replicate(constants.db_url + constants.sgw_common).on('change', function(info) {
+                //  listen to on change event
+            }).on('paused', function(err) {
+                //  listen to on pause event
+            }).on('active', function() {
+                //  listen to on active event
+            }).on('denied', function(err) {
+                //  listen to on denied event
+            }).on('complete', function(info) {
+                //  listen to on complete event
+            }).on('error', function(err) {
+                //  listen to on error event
+            });
+        }
 
         //  check if treatment id is loaded to currentConfig
         function checkTreatmentId() {
@@ -134,11 +154,11 @@
         function checkWorkshopId() {
             return checkId('workshop');
         }
-        
+
         //  check if settings id is loaded to currentConfig
         function checkSettingsId() {
             return checkId('settings');
-        } 
+        }
 
         function checkId(query) {
             var differed = $q.defer();

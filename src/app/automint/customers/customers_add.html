@@ -53,11 +53,11 @@
                             <div class="uk-grid">
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label">Choose manufacturer:</label>
-                                    <input kendo-auto-complete name="wizard_manufacturer" ng-change="customerFormVm.autoCapitalizeManuf()" ng-model="customerFormVm.vehicle.manuf" k-data-source="customerFormVm.countryNames" k-placeholder='"Select manufacturer ..."' class="uk-width-1-1" style="min-width: 100%" />
+                                    <input kendo-auto-complete name="wizard_manufacturer" ng-blur="customerFormVm.populateModels()" ng-model="customerFormVm.vehicle.manuf" k-data-source="customerFormVm.manufacturers" k-placeholder='"Select manufacturer ..."' class="uk-width-1-1" style="min-width: 100%" />
                                 </div>
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label">Choose model:</label>
-                                    <input kendo-auto-complete name="wizard_model" ng-change="customerFormVm.autoCapitalizeModel()" ng-model="customerFormVm.vehicle.model" k-data-source="customerFormVm.countryNames" k-placeholder='"Select model ..."' class="uk-width-1-1" style="min-width: 100%" />
+                                    <input kendo-auto-complete name="wizard_model" k-options="customerFormVm.modelsOptions" ng-model="customerFormVm.vehicle.model" k-data-source="customerFormVm.models" k-placeholder='"Select model ..."' class="uk-width-1-1" style="min-width: 100%" />
                                 </div>
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label" for="wizard_registration">Vehicle Registration:</label>

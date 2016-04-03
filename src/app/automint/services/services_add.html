@@ -47,11 +47,11 @@
                             <div class="uk-grid">
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label">Choose manufacturer:</label>
-                                    <input ng-disabled="serviceFormVm.operationMode == 'edit' || serviceFormVm.vehicle.id" ng-change="serviceFormVm.autoCapitalizeManuf()" kendo-auto-complete name="wizard_manufacturer" ng-model="serviceFormVm.vehicle.manuf" k-data-source="serviceFormVm.countryNames" k-placeholder='"Select manufacturer ..."' class="uk-width-1-1" style="min-width: 100%" />
+                                    <input ng-disabled="serviceFormVm.operationMode == 'edit' || serviceFormVm.vehicle.id" ng-blur="serviceFormVm.populateModels()" kendo-auto-complete name="wizard_manufacturer" ng-model="serviceFormVm.vehicle.manuf" k-data-source="serviceFormVm.manufacturers" k-placeholder='"Select manufacturer ..."' class="uk-width-1-1" style="min-width: 100%" />
                                 </div>
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label">Choose model:</label>
-                                    <input ng-disabled="serviceFormVm.operationMode == 'edit' || serviceFormVm.vehicle.id" ng-change="serviceFormVm.autoCapitalizeModel()" kendo-auto-complete name="wizard_model" ng-model="serviceFormVm.vehicle.model" k-data-source="serviceFormVm.countryNames" k-placeholder='"Select model ..."' class="uk-width-1-1" style="min-width: 100%" />
+                                    <input ng-disabled="serviceFormVm.operationMode == 'edit' || serviceFormVm.vehicle.id" kendo-auto-complete name="wizard_model" ng-model="serviceFormVm.vehicle.model" k-data-source="serviceFormVm.models" k-placeholder='"Select model ..."' k-options="serviceFormVm.modelsOptions" class="uk-width-1-1" style="min-width: 100%" />
                                 </div>
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label" for="wizard_registration">Vehicle Registration:</label>

@@ -2,15 +2,51 @@
     angular.module('altairApp')
         .factory('CustomerFactory', CustomerFactory);
 
-    CustomerFactory.$inject = ['pdbCustomer', '$q', '$automintService', 'utils'];
+    CustomerFactory.$inject = ['pdbCustomer', '$q', '$automintService', 'utils', 'pdbCommon'];
 
-    function CustomerFactory(pdbCustomer, $q, $automintService, utils) {
+    function CustomerFactory(pdbCustomer, $q, $automintService, utils, pdbCommon) {
         var factory = {
             forDatatable: forDatatable,
             deleteCustomer: deleteCustomer,
             addNewCustomer: addNewCustomer,
             saveCustomer: saveCustomer,
-            customer: customer
+            customer: customer,
+            getManufacturers: getManufacturers,
+            getModels: getModels
+        }
+        
+        //  fetch manufacturers from database
+        function getManufacturers() {
+            var differed = $q.defer();
+            var manufacturers = [];
+            pdbCommon.get('manuf-models').then(function(res) {
+                Object.keys(res).forEach(function(manuf) {
+                    if (!manuf.match(/\b_id|\b_rev/i))
+                        manufacturers.push(manuf);
+                });
+                
+                differed.resolve(manufacturers);
+            }, function(err) {
+                differed.reject(manufacturers);
+            });
+            return differed.promise;
+        }
+        
+        //  fetch models based on manufacturer from database
+        function getModels(manufacturer) {
+            var differed = $q.defer();
+            var models = [];
+            pdbCommon.get('manuf-models').then(function(res) {
+                console.log(res);
+                console.log(res[manufacturer] && res[manufacturer].models);
+                if (res[manufacturer] && res[manufacturer].models)
+                    differed.resolve(Object.keys(res[manufacturer].models));
+                else
+                    differed.reject(models);
+            }, function(err) {
+                differed.reject(models);
+            });
+            return differed.promise;
         }
 
         //   retrieve data to display into datatables

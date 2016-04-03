@@ -9,9 +9,8 @@
         //  declare and map functions
         vm.validateCustomerInformation = validateCustomerInformation;
         vm.convertNameToTitleCase = convertNameToTitleCase;
-        vm.autoCapitalizeManuf = autoCapitalizeManuf;
-        vm.autoCapitalizeModel = autoCapitalizeModel;
         vm.convertRegToUpperCase = convertRegToUpperCase;
+        vm.populateModels = populateModels;
         vm.save = save;
         //  define operation mode to disbable particular fields in different modes
         vm.operationMode = "add";
@@ -28,20 +27,45 @@
             manuf: '',
             model: ''
         }
+        //  keep track of manufacturers and models
+        vm.manufacturers = [];
+        vm.models = [];
+        vm.modelsOptions = {
+            select: function(e) {
+                var dataItem = this.dataItem(e.item.index());
+                vm.vehicle.model = dataItem;
+            }
+        }
+        
+        //  default execution steps
+        populateManufacturers();
+        
+        //  get manufacturers from database
+        function populateManufacturers() {
+            CustomerFactory.getManufacturers().then(function(res) {
+                vm.manufacturers = res;
+            }, function(err) {
+                vm.manufacturers = res;
+            });
+        }
+        
+        //  get models based on manufacturer from database
+        function populateModels() {
+            if (vm.vehicle.manuf == '') {
+                vm.vehicle.model = '';
+                vm.models = [];
+                return;
+            }
+            CustomerFactory.getModels(vm.vehicle.manuf).then(function(res) {
+                vm.models = res;
+            }, function(err) {
+                vm.models = err;
+            });
+        }
         
         //  convert to title case
         function convertNameToTitleCase() {
             vm.user.name = utils.convertToTitleCase(vm.user.name);
-        }
-        
-        //  convert manufacturer to title case
-        function autoCapitalizeManuf() {
-            vm.vehicle.manuf = utils.autoCapitalize(vm.vehicle.manuf);
-        }
-        
-        //  convert model to title case
-        function autoCapitalizeModel() {
-            vm.vehicle.model = utils.autoCapitalize(vm.vehicle.model);
         }
         
         //  convert to upper case
