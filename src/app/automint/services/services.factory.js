@@ -34,7 +34,8 @@
                                         var so = {};
                                         so[sId] = {
                                             date: service.date,
-                                            cost: service.cost
+                                            cost: service.cost,
+                                            status: service.status
                                         };
                                         var vehicle = $.extend(true, {}, doc.user.vehicles[vId]);
                                         vehicle.services = so;
@@ -225,7 +226,6 @@
                 var intermediateVehicle = res.user.vehicles[newVehicle.id];
                 if (intermediateVehicle) {
                     intermediateVehicle['vehicletype'] = finalVehicle.vehicletype;
-                    console.log(intermediateVehicle);
                     if (!intermediateVehicle.services)
                         intermediateVehicle.services = {};
                     intermediateVehicle.services[newServiceId] = finalService;

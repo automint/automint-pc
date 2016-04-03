@@ -24,8 +24,9 @@
                             <tr>
                                 <th class="uk-width-2-10">Customer</th>
                                 <th class="uk-width-3-10">Vehicle</th>
-                                <th class="uk-width-2-10">Date</th>
+                                <th class="uk-width-1-10">Date</th>
                                 <th class="uk-width-2-10">Cost</th>
+                                <th class="uk-width-1-10">Payment</th>
                                 <th class="uk-width-1-10">&nbsp;</th>
                             </tr>
                         </thead>
@@ -35,6 +36,7 @@
                         <td>{{ service.manufacturer }} {{ service.model }}&nbsp;<span ng-if="service.reg">({{ service.reg }})</span></td>
                         <td>{{ service.date }}</td>
                         <td>{{ service.cost }}</td>
+                        <td>{{ service.status }}</td>
                         <td class="edit-col" style="text-align: center">
                             <a class="btn btn-primary" ng-click="serviceVm.editService($event, service)">Edit</a>&nbsp;|&nbsp;
                             <a ng-click="serviceVm.deleteService($event, service)" class="btn btn-danger">Delete</a>

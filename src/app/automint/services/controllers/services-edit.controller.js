@@ -39,6 +39,7 @@
             date: '',
             odo: 0,
             cost: 0,
+            status: '',
             problems: []
         }
         vm.treatments = [];
@@ -61,11 +62,23 @@
             id: 'default',
             name: 'Default'
         }];
+        //  auto complete user name options
+        vm.autoUserOptions = {
+            dataTextField: "key",
+            dataValueField: "id",
+            select: function(e) {
+                var dataItem = this.dataItem(e.item.index());
+                vm.user.id = dataItem.id;
+            }
+        }
+        //  keep track of service status [TEMP]
+        vm.servicestatus = true;
 
         //  default execution steps
         //  if any parameter is missing, then return to View All Services
         if (userId == undefined || vehicleId == undefined || serviceId == undefined) {
             UIkit.notify("Something went wrong! Please Try Again!", {
+                pos: 'bottom-right',
                 status: 'danger',
                 timeout: 3000
             });
@@ -77,10 +90,9 @@
             getTreatmentDisplayFormat(),
             populateTreatmentList()
         ]).then(function(res) {
-            console.log(res);
             loadData();
         }, function(err) {
-            console.log(err);
+            loadData();
         });
 
         //  get treatment settings
@@ -113,14 +125,11 @@
                 vm.vehicle = v;
                 delete v;
 
-                console.log(vm.vehicle);
-                console.log(vm.displayTreatmentAsList);
-                console.log(vm.service.problems);
-                 console.log(vm.treatments);
                 if (vm.displayTreatmentAsList) {
                     vm.service.date = res.vehicle.service.date;
                     vm.service.odo = res.vehicle.service.odo;
                     vm.service.cost = res.vehicle.service.cost;
+                    vm.service.paymentstatus = res.vehicle.service.paymentstatus;
                     res.vehicle.service.problems.forEach(function(problem) {
                         var found = $filter('filter')(vm.service.problems, {
                             details: problem.details
@@ -151,6 +160,7 @@
                 vm.user.id = userId;
                 vm.vehicle.id = vehicleId;
                 vm.service.id = serviceId;
+                vm.servicestatus = (vm.service.status == 'Paid');
                 WizardHandler.wizard().goTo(2);
             }, function(err) {
                 //  no user data found
@@ -192,6 +202,7 @@
             var checkPoint1 = vm.user.name;
             if (checkPoint1 == '' || checkPoint1 == undefined) {
                 UIkit.notify('Please Enter Customer Name', {
+                    pos: 'bottom-right',
                     status: 'danger',
                     timeout: 3000
                 });
@@ -206,6 +217,7 @@
                 var checkPoint2 = (vm.vehicle.reg == '' || vm.vehicle.reg == undefined) && (vm.vehicle.manuf == '' || vm.vehicle.manuf == undefined) && (vm.vehicle.model == '' || vm.vehicle.model == undefined);
                 if (checkPoint2) {
                     UIkit.notify('Please Enter At Least One Vehicle Detail', {
+                        pos: 'bottom-right',
                         status: 'danger',
                         timeout: 3000
                     });
@@ -285,21 +297,25 @@
                 } else
                     vm.service.problems.splice(i--, 1);
             }
+            vm.service.status = vm.servicestatus ? 'Paid' : 'Billed';
             ServiceFactory.saveService(vm.user, vm.vehicle, vm.service).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Service has been updated.", {
+                        pos: 'bottom-right',
                         status: 'info',
                         timeout: 3000
                     });
                     $state.go("restricted.services.all");
                 } else {
                     UIkit.notify("Service can not be updated at moment. Please Try Again!", {
+                        pos: 'bottom-right',
                         status: 'danger',
                         timeout: 3000
                     });
                 }
             }, function(err) {
                 UIkit.notify("Service can not be updated at moment. Please Try Again!", {
+                    pos: 'bottom-right',
                     status: 'danger',
                     timeout: 3000
                 });

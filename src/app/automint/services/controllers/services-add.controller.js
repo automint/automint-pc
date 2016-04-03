@@ -2,17 +2,22 @@
     angular.module('altairApp')
         .controller('servicesAddCtrl', ServicesAdd);
 
-    ServicesAdd.$inject = ['ServiceFactory', '$filter', 'WizardHandler', '$state'];
+    ServicesAdd.$inject = ['ServiceFactory', '$filter', 'WizardHandler', '$state', 'utils'];
 
-    function ServicesAdd(ServiceFactory, $filter, WizardHandler, $state) {
+    function ServicesAdd(ServiceFactory, $filter, WizardHandler, $state, utils) {
         var vm = this;
         //  temporary assignments
         var currentDateObject = new Date();
         var currentMonthValue = currentDateObject.getMonth() + 1;
         var currentDateValue = currentDateObject.getDate();
+        var autocompletedUser = '';
         //  declarations and mappings
         vm.validateCustomer = validateCustomer;
         vm.validateVehicle = validateVehicle;
+        vm.convertNameToTitleCase = convertNameToTitleCase;
+        vm.autoCapitalizeManuf = autoCapitalizeManuf;
+        vm.autoCapitalizeModel = autoCapitalizeModel;
+        vm.convertRegToUpperCase = convertRegToUpperCase;
         vm.addProblemRow = addProblemRow;
         vm.updateTreatmentDetails = updateTreatmentDetails;
         vm.updateCost = updateCost;
@@ -24,22 +29,22 @@
         vm.operationMode = 'add';
         //  handle vehicle types
         vm.possibleVehicleTypes = [{
-            id: 'smallcar',
-            name: 'Small Car'
-        }, {
-            id: 'mediumcar',
-            name: 'Medium Car'
-        }, {
-            id: 'largecar',
-            name: 'Large Car'
-        }, {
-            id: 'xlargecar',
-            name: 'x-Large Car'
-        }, {
-            id: 'default',
-            name: 'Default'
-        }]
-        //  keep track of data from UI and set their default values
+                id: 'smallcar',
+                name: 'Small Car'
+            }, {
+                id: 'mediumcar',
+                name: 'Medium Car'
+            }, {
+                id: 'largecar',
+                name: 'Large Car'
+            }, {
+                id: 'xlargecar',
+                name: 'x-Large Car'
+            }, {
+                id: 'default',
+                name: 'Default'
+            }]
+            //  keep track of data from UI and set their default values
         vm.user = {
             id: '',
             mobile: '',
@@ -57,18 +62,25 @@
             date: (currentDateValue < 10 ? "0" + currentDateValue : currentDateValue) + "/" + (currentMonthValue < 10 ? "0" + currentMonthValue : currentMonthValue) + "/" + currentDateObject.getFullYear(),
             odo: 0,
             cost: 0,
-            details: '',
+            status: '',
             problems: []
         }
         vm.possibleUsersList = [];
         vm.treatments = [];
-        vm.possibleVehiclesList = [{
-            id: undefined,
-            name: 'New Vehicle'
-        }];
-        vm.currentVehicle = vm.possibleVehiclesList[0].name;
         //  default treatment settings
         vm.displayTreatmentAsList = false;
+        //  auto complete user name options
+        vm.autoUserOptions = {
+            dataTextField: "key",
+            dataValueField: "id",
+            select: function(e) {
+                var dataItem = this.dataItem(e.item.index());
+                vm.user.id = dataItem.id;
+                autocompletedUser = dataItem.key;
+            }
+        }
+        //  keep track of service status [TEMP]
+        vm.servicestatus = true;
 
         //  default execution steps
         getTreatmentDisplayFormat();
@@ -82,12 +94,35 @@
                     vm.displayTreatmentAsList = res.displayAsList;
             });
         }
+        
+        //  convert to title case
+        function convertNameToTitleCase() {
+            vm.user.name = utils.convertToTitleCase(vm.user.name);
+            if (autocompletedUser != vm.user.name)
+                vm.user.id = '';
+        }
+        
+        //  convert manufacturer to title case
+        function autoCapitalizeManuf() {
+            vm.vehicle.manuf = utils.autoCapitalize(vm.vehicle.manuf);
+        }
+        
+        //  convert model to title case
+        function autoCapitalizeModel() {
+            vm.vehicle.model = utils.autoCapitalize(vm.vehicle.model);
+        }
+
+        //  convert to upper case
+        function convertRegToUpperCase() {
+            vm.vehicle.reg = vm.vehicle.reg.toUpperCase();
+        }
 
         //  FORM VALIDATIONS [BEGIN]
         function validateCustomer() {
             var checkPoint1 = vm.user.name;
             if (checkPoint1 == '' || checkPoint1 == undefined) {
                 UIkit.notify('Please Enter Customer Name', {
+                    pos: 'bottom-right',
                     status: 'danger',
                     timeout: 3000
                 });
@@ -102,6 +137,7 @@
                 var checkPoint2 = (vm.vehicle.reg == '' || vm.vehicle.reg == undefined) && (vm.vehicle.manuf == '' || vm.vehicle.manuf == undefined) && (vm.vehicle.model == '' || vm.vehicle.model == undefined);
                 if (checkPoint2) {
                     UIkit.notify('Please Enter At Least One Vehicle Detail', {
+                        pos: 'bottom-right',
                         status: 'danger',
                         timeout: 3000
                     });
@@ -164,7 +200,7 @@
             }
             updateCost();
         }
-        
+
         //  update treatment details when vehicle type changes
         function changeVehicleType() {
             vm.service.problems.forEach(function(problem) {
@@ -209,19 +245,23 @@
 
         //  auto fill user details based on name provided in input box
         function fillUserDetails() {
-            ServiceFactory.autoFillUser(vm.user.name).then(function(res) {
+            ServiceFactory.autoFillUser(vm.user.id).then(function(res) {
                 vm.user.id = res.id;
                 vm.user.email = res.email;
                 vm.user.mobile = res.mobile;
                 vm.possibleVehiclesList = res.vehicles;
+                vm.currentVehicle = vm.possibleVehiclesList[0].name;
+                fillVehicleDetails();
             }, function(err) {
                 vm.user.id = '';
+                vm.user.name = utils.convertToTitleCase(vm.user.name);
                 vm.user.email = '';
                 vm.user.mobile = '';
                 vm.possibleVehiclesList = [{
                     id: undefined,
                     name: 'New Vehicle'
                 }];
+                vm.currentVehicle = vm.possibleVehiclesList[0].name;
             });
         }
 
@@ -231,7 +271,7 @@
                 var vehicle = vm.possibleVehiclesList[i];
                 if (vehicle.name == vm.currentVehicle) {
                     vm.vehicle = vehicle;
-                    vm.vehicle.vehicletype = (!vm.vehicle.vehicletype) ? vm.possibleVehicleTypes[0].id : vm.vehicle.vehicletype; 
+                    vm.vehicle.vehicletype = (!vm.vehicle.vehicletype) ? vm.possibleVehicleTypes[0].id : vm.vehicle.vehicletype;
                     changeVehicleType();
                 }
             }
@@ -247,21 +287,25 @@
                 } else
                     vm.service.problems.splice(i--, 1);
             }
+            vm.service.status = vm.servicestatus ? 'Paid' : 'Billed';
             ServiceFactory.saveService(vm.user, vm.vehicle, vm.service).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Service has been added.", {
+                        pos: 'bottom-right',
                         status: 'info',
                         timeout: 3000
                     });
                     $state.go("restricted.services.all");
                 } else {
                     UIkit.notify("Service can not be added at moment. Please Try Again!", {
+                        pos: 'bottom-right',
                         status: 'danger',
                         timeout: 3000
                     });
                 }
             }, function(err) {
                 UIkit.notify("Service can not be added at moment. Please Try Again!", {
+                    pos: 'bottom-right',
                     status: 'danger',
                     timeout: 3000
                 });

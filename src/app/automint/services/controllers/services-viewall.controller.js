@@ -68,7 +68,8 @@
                                 manufacturer: vehicle.manuf,
                                 model: vehicle.model,
                                 date: targetDate,
-                                cost: service.cost
+                                cost: service.cost,
+                                status: (service.status == 'Paid' ? 'Paid' : 'Due')
                             };
                             services.push(s);
                         }, this);
@@ -112,12 +113,14 @@
         function deleteService($e, service) {
             ServiceFactory.deleteService(service.userId, service.vehicleId, service.id).then(function(res) {
                 UIkit.notify("Service has been deleted.", {
+                    pos: 'bottom-right',
                     status: 'danger',
                     timeout: 3000
                 });
                 setDatatableValues(1, 0);
             }, function(err) {
                 UIkit.notify("Service can not be deleted at moment. Please Try Again!", {
+                    pos: 'bottom-right',
                     status: 'danger',
                     timeout: 3000
                 });
