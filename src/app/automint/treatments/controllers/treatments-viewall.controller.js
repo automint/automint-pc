@@ -43,12 +43,14 @@
             treatmentFactory.changeDisplayAs(vm.displayAsList).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Settings Saved!", {
+                        pos: 'bottom-right',
                         status: 'success',
                         timeout: 3000
                     });
                 } else {
                     vm.displayAsList = !vm.displayAsList;
                     UIkit.notify("Could not save settings at moment.", {
+                        pos: 'bottom-right',
                         status: 'warning',
                         timeout: 3000
                     });
@@ -56,6 +58,7 @@
             }, function(err) {
                 vm.displayAsList = !vm.displayAsList;
                 UIkit.notify("Could not save settings at moment.", {
+                    pos: 'bottom-right',
                     status: 'warning',
                     timeout: 3000
                 });
@@ -74,18 +77,21 @@
             treatmentFactory.deleteTreatment(treatment.name).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Treatment has been deleted.", {
+                        pos: 'bottom-right',
                         status: 'danger',
                         timeout: 3000
                     });
                     refresh();
                 } else {
                     UIkit.notify("Treatment can not be deleted at moment. Please Try Again!", {
+                        pos: 'bottom-right',
                         status: 'danger',
                         timeout: 3000
                     });
                 }
             }, function(err) {
                 UIkit.notify("Treatment can not be deleted at moment. Please Try Again!", {
+                    pos: 'bottom-right',
                     status: 'danger',
                     timeout: 3000
                 });

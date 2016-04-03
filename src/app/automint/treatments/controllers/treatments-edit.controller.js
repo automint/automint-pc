@@ -27,6 +27,7 @@
         //  default execution steps
         if (treatmentName == '' || treatmentName == undefined) {
             UIkit.notify("Something went wrong! Please Try Again!", {
+                pos: 'bottom-right',
                 status: 'danger',
                 timeout: 3000
             });
@@ -47,18 +48,21 @@
             treatmentFactory.saveTreatment(vm.treatment, vm.operationMode).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Treatment has been updated.", {
+                        pos: 'bottom-right',
                         status: 'info',
                         timeout: 3000
                     });
                     $state.go("restricted.treatments.all");
                 } else {
                     UIkit.notify("Treatment can not be updated at moment. Please Try Again!", {
+                        pos: 'bottom-right',
                         status: 'info',
                         timeout: 3000
                     });
                 }
             }, function(err) {
                 UIkit.notify("Treatment can not be updated at moment. Please Try Again!", {
+                    pos: 'bottom-right',
                     status: 'info',
                     timeout: 3000
                 });

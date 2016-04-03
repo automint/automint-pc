@@ -4,10 +4,7 @@
             <div class="uk-width-medium-1-2">
                 <div class="md-card">
                     <div class="md-card-content">
-                        <h3 class="heading_a">
-                            {{ settingsVm.loginTitle }}
-                            <span class="sub-heading">Sync your data centrally.</span>
-                        </h3>
+                        
                         <div class="uk-grid">
                             <div class="uk-width-large-1-2">
                                 <div class="uk-input-group">
@@ -16,17 +13,25 @@
                                     <input ng-disabled="settingsVm.isLoggedIn" type="text" class="md-input" ng-model="settingsVm.username" md-input />
                                 </div>
                             </div>
-                            <div class="uk-width-large-1-2" ng-if="!settingsVm.isLoggedIn">
+                            <div class="uk-width-large-1-2 uk-text-center">
+                                <h3 class="heading_a">
+                                    {{ settingsVm.loginTitle }}
+                                    <span class="sub-heading">to backup your data on cloud.</span>
+                                </h3>
+                            </div>
+                        </div>
+                        <div class="uk-grid" ng-if="!settingsVm.isLoggedIn">
+                            <div class="uk-width-large-1-2">
                                 <div class="uk-input-group">
                                     <span class="uk-input-group-addon"><i class="material-icons">vpn_key</i></span>
                                     <label>Password</label>
                                     <input type="password" class="md-input" ng-model="settingsVm.password" md-input />
                                 </div>
                             </div>
+                            <div class="uk-width-large-1-2 uk-text-center">
+                                <button class="md-btn" ng-click="settingsVm.login()" style="padding-left: 2rem; padding-right: 1.8rem;">Login<i class="material-icons" style="margin-left: 1rem;">send</i></button>
+                            </div>
                         </div>
-                        <p class="uk-text-center" style="margin-top: 2rem;" ng-if="!settingsVm.isLoggedIn">
-                            <button class="md-btn" ng-click="settingsVm.login()" style="padding-left: 2rem; padding-right: 1.8rem;">Login<i class="material-icons" style="margin-left: 1rem;">send</i></button>
-                        </p>
                     </div>
                 </div>
             </div>
@@ -52,16 +57,17 @@
                     </div>
                 </div>
             </div>
-            <div class="uk-width-medium-4-10">
+            <div class="uk-width-medium-1-2 uk-text-center">
                 <div class="md-card">
                     <div class="md-card-content">
-                        <h3 class="heading_a">
-                            Backup
-                            <span class="sub-heading">Backup your data.</span>
-                        </h3>
-                        <p>
-                            <button class="md-btn" ng-click="settingsVm.backup()"><i class="material-icons" style="margin-right: 0.4rem;">file_download</i>&nbsp;Download Backup</button>
-                        </p>
+                        <div class="uk-grid">
+                            <div class="uk-width-medium-1-2" style="margin-top: 0.4rem;">
+                                <h3 class="heading_a">Backup your data</h3>
+                            </div>
+                            <div class="uk-width-medium-1-2">
+                                <button class="md-btn" ng-click="settingsVm.backup()"><i class="material-icons" style="margin-right: 0.4rem;">file_download</i>&nbsp;Download</button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

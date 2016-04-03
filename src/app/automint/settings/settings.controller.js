@@ -54,7 +54,7 @@
             settingsFactory.loginDetails().then(function(res) {
                 if (res.success) {
                     vm.isLoggedIn = true;
-                    vm.loginTitle = 'You have already signed in';
+                    vm.loginTitle = 'You are signed in';
                     vm.username = res.username;
                 } else {
                     vm.isLoggedIn = false;
@@ -72,7 +72,9 @@
                 if (res.ok) {
                     $automintService.syncDb();
                     vm.isLoggedIn = true;
+                    vm.loginTitle = 'You are signed in';
                     UIkit.notify("You have successfully logged in!", {
+                        pos: 'bottom-right',
                         status: 'success',
                         timeout: 3000
                     });
@@ -103,6 +105,7 @@
                 progressbar.addClass('uk-hidden')
             }
             UIkit.notify("File has been uploaded!", {
+                pos: 'bottom-right',
                 status: 'success',
                 timeout: 3000
             });

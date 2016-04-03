@@ -43,6 +43,7 @@
             CustomerFactory.deleteCustomer(customer).then(function(res) {
                 if (res.ok) {
                     UIkit.notify("Customer has been deleted.", {
+                        pos: 'bottom-right',
                         status: 'danger',
                         timeout: 3000
                     });

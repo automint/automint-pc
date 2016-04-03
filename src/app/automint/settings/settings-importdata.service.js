@@ -178,18 +178,21 @@
                         }, function(saveFailure) {
                             //  lagi gai
                             UIkit.notify("Error adding " + targetUser.user.name + '!', {
+                                pos: 'bottom-right',
                                 status: 'danger',
                                 timeout: 1500
                             });
                         });
                     });
                     UIkit.notify(addedCustomerCount + " customer(s) added!", {
+                        pos: 'bottom-right',
                         status: 'info',
                         timeout: 3000
                     });
                 }, function(err) {
                     console.log(err);
-                    UIkit.notify("Error access database! Please Try Again!", {
+                    UIkit.notify("Error while accessing database! Please Try Again!", {
+                        pos: 'bottom-right',
                         status: 'danger',
                         timeout: 3000
                     });

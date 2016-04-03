@@ -8,6 +8,10 @@
         var vm = this;
         //  declare and map functions
         vm.validateCustomerInformation = validateCustomerInformation;
+        vm.convertNameToTitleCase = convertNameToTitleCase;
+        vm.autoCapitalizeManuf = autoCapitalizeManuf;
+        vm.autoCapitalizeModel = autoCapitalizeModel;
+        vm.convertRegToUpperCase = convertRegToUpperCase;
         vm.save = save;
         //  define operation mode to disbable particular fields in different modes
         vm.operationMode = "add";
@@ -24,12 +28,33 @@
             manuf: '',
             model: ''
         }
+        
+        //  convert to title case
+        function convertNameToTitleCase() {
+            vm.user.name = utils.convertToTitleCase(vm.user.name);
+        }
+        
+        //  convert manufacturer to title case
+        function autoCapitalizeManuf() {
+            vm.vehicle.manuf = utils.autoCapitalize(vm.vehicle.manuf);
+        }
+        
+        //  convert model to title case
+        function autoCapitalizeModel() {
+            vm.vehicle.model = utils.autoCapitalize(vm.vehicle.model);
+        }
+        
+        //  convert to upper case
+        function convertRegToUpperCase() {
+            vm.vehicle.reg = vm.vehicle.reg.toUpperCase();
+        }
 
         //  FORM VALIDATIONS [BEGIN]
         function validateCustomerInformation() {
             var checkPoint1 = vm.user.name;
             if (checkPoint1 == '') {
                 UIkit.notify("Please Enter Customer Name", {
+                    pos: 'bottom-right',
                     status: 'danger',
                     timeout: 3000
                 });
@@ -63,6 +88,7 @@
             
             CustomerFactory.addNewCustomer(u).then(function(res) {
                 UIkit.notify("Customer has been added.", {
+                    pos: 'bottom-right',
                     status: 'info',
                     timeout: 3000
                 });

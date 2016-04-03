@@ -7,23 +7,21 @@
         </div>
         <div class="md-card uk-margin-medium-bottom">
             <div class="md-card-content">
-                <table datatable="ng" dt-instance="customerVm.dtInstance" dt-options="customerVm.dtOptions" class="uk-table" cellspacing="0" width="100%">
-                    <tfoot>
-                        <thead>
-                            <tr>
-                                <th class="uk-width-2-10">Name</th>
-                                <th class="uk-width-2-10">Mobile</th>
-                                <th class="uk-width-2-10">Email</th>
-                                <th class="uk-width-3-10">Vehicle</th>
-                                <th class="uk-width-1-10">&nbsp;</th>
-                            </tr>
-                        </thead>
-                    </tfoot>
+                <table class="uk-table" style="table-layout: fixed" datatable="ng" dt-instance="customerVm.dtInstance" dt-options="customerVm.dtOptions" cellspacing="0" width="100%">
+                    <thead>
+                        <tr>
+                            <th class="uk-width-2-10">Name</th>
+                            <th class="uk-width-1-10">Mobile</th>
+                            <th class="uk-width-2-10">Email</th>
+                            <th class="uk-width-3-10">Vehicle</th>
+                            <th class="uk-width-1-10">&nbsp;</th>
+                        </tr>
+                    </thead>
                     <tr ng-repeat="customer in customerVm.customers">
-                        <td>{{ customer.name }}</td>
-                        <td>{{ customer.mobile }}</td>
-                        <td>{{ customer.email }}</td>
-                        <td><span ng-repeat="vehicle in customer.vehicles"><span ng-if="$index > 0">, </span>{{ vehicle.manuf }} {{ vehicle.model }}&nbsp;<span ng-if="vehicle.reg">({{ vehicle.reg }})</span></span></td>
+                        <td><span style="white-space: normal;">{{ customer.name }}</span></td>
+                        <td><span style="white-space: normal;">{{ customer.mobile }}</span></td>
+                        <td><span style="white-space: normal; word-wrap: break-word;">{{ customer.email }}</span></td>
+                        <td><span style="white-space: normal;" ng-repeat="vehicle in customer.vehicles"><span ng-if="$index > 0">, </span>{{ vehicle.manuf }} {{ vehicle.model }} <span ng-if="vehicle.reg">({{ vehicle.reg }})</span></span></td>
                         <td class="edit-col" style="text-align: center">
                             <a class="btn btn-primary" ng-click="customerVm.editCustomer($event, customer)">Edit</a>&nbsp;|&nbsp;
                             <a ng-click="customerVm.deleteCustomer($event, customer)" class="btn btn-danger">Delete</a>
