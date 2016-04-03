@@ -37,8 +37,6 @@
             var differed = $q.defer();
             var models = [];
             pdbCommon.get('manuf-models').then(function(res) {
-                console.log(res);
-                console.log(res[manufacturer] && res[manufacturer].models);
                 if (res[manufacturer] && res[manufacturer].models)
                     differed.resolve(Object.keys(res[manufacturer].models));
                 else

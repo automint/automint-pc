@@ -12,6 +12,7 @@
         vm.convertRegToUpperCase = convertRegToUpperCase;
         vm.fillVehicleDetails = fillVehicleDetails;
         vm.populateModels = populateModels;
+        vm.manufacturerChange = manufacturerChange;
         vm.save = save;
         //  define operation mode to disable particular fields in different mode
         vm.operationMode = "edit";
@@ -111,6 +112,11 @@
             }, function(err) {
                 vm.models = err;
             });
+        }
+        
+        //  clear model name by changing manufacturer name
+        function manufacturerChange() {
+            vm.vehicle.model = '';
         }
         
         //  convert to title case

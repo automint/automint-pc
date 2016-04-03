@@ -53,11 +53,17 @@
                             <div class="uk-grid">
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label">Choose manufacturer:</label>
-                                    <input kendo-auto-complete name="wizard_manufacturer" ng-blur="customerFormVm.populateModels()" ng-model="customerFormVm.vehicle.manuf" k-data-source="customerFormVm.manufacturers" k-placeholder='"Select manufacturer ..."' class="uk-width-1-1" style="min-width: 100%" />
+                                    <!--<input kendo-auto-complete name="wizard_manufacturer" ng-blur="customerFormVm.populateModels()" ng-model="customerFormVm.vehicle.manuf" k-data-source="customerFormVm.manufacturers" k-placeholder='"Select manufacturer ..."' class="uk-width-1-1" style="min-width: 100%" />-->
+                                    <select kendo-combo-box ng-blur="customerFormVm.populateModels()" k-placeholder="'Manufacturer'" k-filter="'contains'" k-auto-bind="false" k-min-length="1" k-data-source="customerFormVm.manufacturers" ng-change="customerFormVm.manufacturerChange()"
+                                        ng-model="customerFormVm.vehicle.manuf" style="width:100%">
+                                    </select>
                                 </div>
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label">Choose model:</label>
-                                    <input kendo-auto-complete name="wizard_model" k-options="customerFormVm.modelsOptions" ng-model="customerFormVm.vehicle.model" k-data-source="customerFormVm.models" k-placeholder='"Select model ..."' class="uk-width-1-1" style="min-width: 100%" />
+                                    <!--<input kendo-auto-complete name="wizard_model" k-options="customerFormVm.modelsOptions" ng-model="customerFormVm.vehicle.model" k-data-source="customerFormVm.models" k-placeholder='"Select model ..."' class="uk-width-1-1" style="min-width: 100%" />-->
+                                    <select kendo-combo-box k-placeholder="'Model'" k-filter="'contains'" k-auto-bind="false" k-min-length="1" k-data-source="customerFormVm.models" k-options="customerFormVm.modelsOptions"
+                                        ng-model="customerFormVm.vehicle.model" style="width:100%">
+                                    </select>
                                 </div>
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label" for="wizard_registration">Vehicle Registration:</label>

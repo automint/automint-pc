@@ -24,26 +24,28 @@
         vm.save = save;
         vm.changeVehicleType = changeVehicleType;
         vm.populateModels = populateModels;
+        vm.treatmentDetailsListener = treatmentDetailsListener;
+        vm.manufacturerChange = manufacturerChange;
         //  define operation mode to disable particular fields in different modes
         vm.operationMode = 'add';
         //  handle vehicle types
         vm.possibleVehicleTypes = [{
-                id: 'smallcar',
-                name: 'Small Car'
-            }, {
-                id: 'mediumcar',
-                name: 'Medium Car'
-            }, {
-                id: 'largecar',
-                name: 'Large Car'
-            }, {
-                id: 'xlargecar',
-                name: 'x-Large Car'
-            }, {
-                id: 'default',
-                name: 'Default'
-            }]
-            //  keep track of data from UI and set their default values
+            id: 'default',
+            name: 'Default'
+        }, {
+            id: 'smallcar',
+            name: 'Small Car'
+        }, {
+            id: 'mediumcar',
+            name: 'Medium Car'
+        }, {
+            id: 'largecar',
+            name: 'Large Car'
+        }, {
+            id: 'xlargecar',
+            name: 'x-Large Car'
+        }];
+        //  keep track of data from UI and set their default values
         vm.user = {
             id: '',
             mobile: '',
@@ -77,7 +79,7 @@
                 vm.user.id = dataItem.id;
                 autocompletedUser = dataItem.key;
             }
-        }
+        };
         //  keep track of service status [TEMP]
         vm.servicestatus = true;
         //  keep track of manufacturers and models
@@ -88,14 +90,14 @@
                 var dataItem = this.dataItem(e.item.index());
                 vm.vehicle.model = dataItem;
             }
-        }
+        };
 
         //  default execution steps
         getTreatmentDisplayFormat();
         populateUsersList();
         populateTreatmentList();
         populateManufacturers();
-        
+
         //  get manufacturers from database
         function populateManufacturers() {
             ServiceFactory.getManufacturers().then(function(res) {
@@ -104,7 +106,7 @@
                 vm.manufacturers = res;
             });
         }
-        
+
         //  get models based on manufacturer from database
         function populateModels() {
             if (vm.vehicle.manuf == '') {
@@ -127,6 +129,11 @@
             });
         }
         
+        //  clear model name by changing manufacturer name
+        function manufacturerChange() {
+            vm.vehicle.model = '';
+        }
+
         //  convert to title case
         function convertNameToTitleCase() {
             vm.user.name = utils.convertToTitleCase(vm.user.name);
@@ -223,13 +230,23 @@
             updateCost();
         }
 
+        //  listen to treatment details box
+        function treatmentDetailsListener(index) {
+            if (vm.service.problems[index].details == '') {
+                vm.service.problems[index].checked = false;
+                vm.service.problems[index].rate = 0;
+            } else {
+                vm.service.problems[index].checked = true;
+            }
+        }
+
         //  update treatment details when vehicle type changes
         function changeVehicleType() {
             vm.service.problems.forEach(function(problem) {
                 var found = $filter('filter')(vm.treatments, {
                     name: problem.details
                 });
-                if (found.length > 0) {
+                if (found.length > 0 && (problem.checked || vm.displayTreatmentAsList)) {
                     var rate = found[0].rate[vm.vehicle.vehicletype];
                     var defaultRate = found[0].rate['default'];
                     problem.rate = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
@@ -243,7 +260,7 @@
             var fIndex = vm.service.problems.length;
             vm.service.problems.push({
                 populateType: 'manual',
-                checked: true,
+                checked: false,
                 details: '',
                 rate: 0,
                 focusIndex: fIndex

@@ -73,6 +73,13 @@
         }
         //  keep track of service status [TEMP]
         vm.servicestatus = true;
+        //  keep track of model options
+        vm.modelsOptions = {
+            select: function(e) {
+                var dataItem = this.dataItem(e.item.index());
+                vm.vehicle.model = dataItem;
+            }
+        };
 
         //  default execution steps
         //  if any parameter is missing, then return to View All Services
@@ -129,7 +136,7 @@
                     vm.service.date = res.vehicle.service.date;
                     vm.service.odo = res.vehicle.service.odo;
                     vm.service.cost = res.vehicle.service.cost;
-                    vm.service.paymentstatus = res.vehicle.service.paymentstatus;
+                    vm.service.status = res.vehicle.service.status;
                     res.vehicle.service.problems.forEach(function(problem) {
                         var found = $filter('filter')(vm.service.problems, {
                             details: problem.details

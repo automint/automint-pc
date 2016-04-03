@@ -8,8 +8,15 @@
                         <wz-step wz-title="Customer Information" template="app/templates/wizard.step.tpl.html">
                             <div class="uk-grid">
                                 <div class="uk-width-medium-1-1 parsley-row">
-                                    <label for="wizard_customer_name" class="uk-form-label">Customer Name:&nbsp;<span class="req uk-text-danger">*</span></label>
-                                    <input ng-disabled="serviceFormVm.operationMode == 'edit'" kendo-auto-complete ng-model="serviceFormVm.user.name" k-data-source="serviceFormVm.possibleUsersList" k-options='serviceFormVm.autoUserOptions' k-placeholder='"Name ..."' style="width: 100%" id="wizard_customer_name" ng-change="serviceFormVm.convertNameToTitleCase()" ng-blur="serviceFormVm.fillUserDetails()" />
+                                    <div class="uk-input-group">
+                                        <span class="uk-input-group-addon">
+                                            <i class="material-icons">person_pin</i>
+                                        </span>
+                                        <label for="wizard_customer_name" class="uk-form-label">Customer Name:&nbsp;<span class="req uk-text-danger">*</span></label>
+                                        <input ng-disabled="serviceFormVm.operationMode == 'edit'" kendo-auto-complete ng-model="serviceFormVm.user.name" k-data-source="serviceFormVm.possibleUsersList" k-options='serviceFormVm.autoUserOptions' k-placeholder='"Name ..."' style="width: 100%"
+                                            id="wizard_customer_name" ng-change="serviceFormVm.convertNameToTitleCase()" ng-blur="serviceFormVm.fillUserDetails()" />
+                                    </div>
+
                                 </div>
                             </div>
                             <div class="uk-grid">
@@ -47,15 +54,20 @@
                             <div class="uk-grid">
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label">Choose manufacturer:</label>
-                                    <input ng-disabled="serviceFormVm.operationMode == 'edit' || serviceFormVm.vehicle.id" ng-blur="serviceFormVm.populateModels()" kendo-auto-complete name="wizard_manufacturer" ng-model="serviceFormVm.vehicle.manuf" k-data-source="serviceFormVm.manufacturers" k-placeholder='"Select manufacturer ..."' class="uk-width-1-1" style="min-width: 100%" />
+                                    <select kendo-combo-box ng-disabled="serviceFormVm.operationMode == 'edit' || serviceFormVm.vehicle.id" ng-blur="serviceFormVm.populateModels()" k-placeholder="'Manufacturer'" k-filter="'contains'" k-auto-bind="false" k-min-length="1" k-data-source="serviceFormVm.manufacturers" ng-change="serviceFormVm.manufacturerChange()"
+                                        ng-model="serviceFormVm.vehicle.manuf" style="width:100%">
+                                    </select>
                                 </div>
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label">Choose model:</label>
-                                    <input ng-disabled="serviceFormVm.operationMode == 'edit' || serviceFormVm.vehicle.id" kendo-auto-complete name="wizard_model" ng-model="serviceFormVm.vehicle.model" k-data-source="serviceFormVm.models" k-placeholder='"Select model ..."' k-options="serviceFormVm.modelsOptions" class="uk-width-1-1" style="min-width: 100%" />
+                                    <select kendo-combo-box ng-disabled="serviceFormVm.operationMode == 'edit' || serviceFormVm.vehicle.id" k-placeholder="'Model'" k-filter="'contains'" k-auto-bind="false" k-min-length="1" k-data-source="serviceFormVm.models" k-options="serviceFormVm.modelsOptions"
+                                        ng-model="serviceFormVm.vehicle.model" style="width:100%">
+                                    </select>
                                 </div>
                                 <div class="uk-width-medium-1-3 parsley-row">
                                     <label class="uk-form-label" for="wizard_registration">Vehicle Registration:</label>
-                                    <input ng-disabled="serviceFormVm.operationMode == 'edit' || serviceFormVm.vehicle.id" kendo-auto-complete ng-change="serviceFormVm.convertRegToUpperCase()" k-placeholder='"e.g. GJ01AB9999"' name="wizard_registration" id="wizard_registration" ng-model="serviceFormVm.vehicle.reg" style="min-width: 100%; letter-spacing: 1px;" data-uk-tooltip="{pos: 'bottom-left', animation: 'true'}" title="Example: GJ01AB9999" />
+                                    <input ng-disabled="serviceFormVm.operationMode == 'edit' || serviceFormVm.vehicle.id" kendo-auto-complete ng-change="serviceFormVm.convertRegToUpperCase()" k-placeholder='"e.g. GJ01AB9999"' name="wizard_registration" id="wizard_registration" ng-model="serviceFormVm.vehicle.reg"
+                                        style="min-width: 100%; letter-spacing: 1px;" data-uk-tooltip="{pos: 'bottom-left', animation: 'true'}" title="Example: GJ01AB9999" />
                                 </div>
                             </div>
                             <div class="uk-clearfix uk-margin-large-top">
@@ -76,7 +88,8 @@
                                 </div>
                                 <div class="uk-width-medium-2-10 parsley-row">
                                     <label for="wizard_date" class="uk-form-label">Date:</label>
-                                    <input kendo-masked-text-box ng-model="serviceFormVm.service.date" data-uk-datepicker="{format:'DD/MM/YYYY'}" k-mask="'00/00/0000'" style="width: 100%;" id="wizard_date" name="wizard_date" data-uk-tooltip="{pos: 'top-right', animation: 'true'}" title="Format: DD/MM/YYYY" />
+                                    <input kendo-masked-text-box ng-model="serviceFormVm.service.date" data-uk-datepicker="{format:'DD/MM/YYYY'}" k-mask="'00/00/0000'" style="width: 100%;" id="wizard_date" name="wizard_date" data-uk-tooltip="{pos: 'top-right', animation: 'true'}" title="Format: DD/MM/YYYY"
+                                    />
                                 </div>
                             </div>
                             <table class="uk-table">
@@ -90,7 +103,8 @@
                                         <td class="uk-width-medium-6-10 uk-text-center" style="border: 0px; padding-top: 0.1rem; padding-bottom: 0.1rem;">
                                             <span ng-if="problem.populateType == 'treatments'" class="automint-problem-checkbox"><input type="checkbox" icheck ng-model="problem.checked" ng-change="serviceFormVm.updateTreatmentDetails($index, problem.focusIndex)" /></span>
                                             <span ng-if="problem.populateType == 'manual'"><a class="md-btn-flat md-btn-flat-danger automint-problem-delete-button" style="margin-top: 0.3rem;" ng-click="serviceFormVm.service.problems.splice($index,1); serviceFormVm.updateCost()" href="javascript:void(0)"><i class="material-icons uk-text-danger" style="color: #FFF">delete</i></a></span>
-                                            <input kendo-auto-complete ng-attr-id="{{ 'pDetails' + problem.focusIndex }}" ng-blur="serviceFormVm.updateTreatmentDetails($index, problem.focusIndex)" k-data-text-field="'name'" k-data-value-field="'name'" ng-model="problem.details" k-data-source="serviceFormVm.treatments" k-placeholder='"Treatment ..."' style="width: 88%;" />
+                                            <input kendo-auto-complete ng-attr-id="{{ 'pDetails' + problem.focusIndex }}" ng-blur="serviceFormVm.updateTreatmentDetails($index, problem.focusIndex)" k-data-text-field="'name'" k-data-value-field="'name'" ng-model="problem.details" k-data-source="serviceFormVm.treatments"
+                                                ng-change="serviceFormVm.treatmentDetailsListener($index)" k-placeholder='"Treatment ..."' style="width: 88%;" />
                                         </td>
                                         <td class="uk-width-medium-2-10 uk-text-center" style="border: 0px; padding-top: 0.1rem; padding-bottom: 0.1rem;">
                                             <input kendo-masked-text-box type="number" name="wizard_problem_rate" ng-change="serviceFormVm.updateCost()" ng-model="problem.rate" />
@@ -113,9 +127,8 @@
                             <hr class="md-hr" />
                             <div class="uk-grid">
                                 <div class="uk-width-medium-5-10 parsley-row">
-                                    <label for="switch_paid" class="inline-label">Billed </label>
-                                    <input type="checkbox" ui-switch ng-model="serviceFormVm.servicestatus" id="switch_paid" />
-                                    <label for="switch_paid" class="inline-label"> Paid</label>
+                                    <label for="switch_paid" class="inline-label">Paid: </label>
+                                    <input type="checkbox" icheck ng-model="serviceFormVm.servicestatus" id="switch_paid" />
                                     <!--<span class="uk-form-help-block">Disable switch if bill is not paid</span>-->
                                 </div>
                                 <div class="uk-width-medium-2-10 parsley-row"></div>
