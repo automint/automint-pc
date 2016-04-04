@@ -216,7 +216,7 @@
                     type: 'text/plain'
                 });
                 a.href = URL.createObjectURL(file);
-                a.download = 'automint-' + date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + '-' + date.getMinutes() + '.automint.bck';
+                a.download = 'backup-' + date.getFullYear() + '-' + (date.getMonth() + 1) + '-' + date.getDate() + ' ' + date.getHours() + '-' + date.getMinutes() + '-auto.mint';
                 a.click();
                 differed.resolve({
                     status: 1,

@@ -120,7 +120,13 @@
             var differed = $q.defer();
             $automintService.checkSettingsId().then(function(configRes) {
                 pdbConfig.get($automintService.currentConfig.settings).then(function(res) {
-                    differed.resolve(res.settings);
+                    if (res.settings.treatments)
+                        differed.resolve(res.settings.treatments);
+                    else {
+                        differed.reject({
+                            success: false
+                        });
+                    }
                 }, function(err) {
                     differed.reject(err);
                 });
@@ -137,7 +143,9 @@
                 pdbConfig.get($automintService.currentConfig.settings).then(function(res) {
                     if (!res.settings)
                         res.settings = {};
-                    res.settings['displayAsList'] = displayAsList;
+                    if (!res.settings.treatments)
+                        res.settings.treatments = {};
+                    res.settings.treatments['displayAsList'] = displayAsList;
                     pdbConfig.save(res).then(function(status) {
                         differed.resolve(status);
                     }, function(fail) {
@@ -148,7 +156,8 @@
                     doc['_id'] = utils.generateUUID('settings');
                     doc['creator'] = $automintService.username;
                     doc.settings = {};
-                    doc.settings['displayAsList'] = displayAsList;
+                    doc.settings['treatments'] = {}
+                    doc.settings.treatments['displayAsList'] = displayAsList;
                     pdbConfig.save(doc).then(function(status) {
                         differed.resolve(status);
                         $automintService.updateConfigReferences();

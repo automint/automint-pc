@@ -120,7 +120,13 @@
             var differed = $q.defer();
             $automintService.checkSettingsId().then(function(configRes) {
                 pdbConfig.get($automintService.currentConfig.settings).then(function(res) {
-                    differed.resolve(res.settings);
+                    if (res.settings.treatments)
+                        differed.resolve(res.settings.treatments);
+                    else {
+                        differed.reject({
+                            success: false
+                        });
+                    }
                 }, function(err) {
                     differed.reject(err);
                 });
