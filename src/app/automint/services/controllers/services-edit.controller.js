@@ -47,6 +47,9 @@
         vm.displayTreatmentAsList = false;
         //  handle vehicle types
         vm.possibleVehicleTypes = [{
+            id: 'default',
+            name: 'Default'
+        }, {
             id: 'smallcar',
             name: 'Small Car'
         }, {
@@ -57,21 +60,18 @@
             name: 'Large Car'
         }, {
             id: 'xlargecar',
-            name: 'x-Large Car'
-        }, {
-            id: 'default',
-            name: 'Default'
+            name: 'XLarge Car'
         }];
         //  auto complete user name options
         vm.autoUserOptions = {
-            dataTextField: "key",
-            dataValueField: "id",
-            select: function(e) {
-                var dataItem = this.dataItem(e.item.index());
-                vm.user.id = dataItem.id;
+                dataTextField: "key",
+                dataValueField: "id",
+                select: function(e) {
+                    var dataItem = this.dataItem(e.item.index());
+                    vm.user.id = dataItem.id;
+                }
             }
-        }
-        //  keep track of service status [TEMP]
+            //  keep track of service status [TEMP]
         vm.servicestatus = true;
         //  keep track of model options
         vm.modelsOptions = {
@@ -126,14 +126,18 @@
                 delete u.vehicle;
                 vm.user = u;
                 delete u;
-                
+
                 var v = $.extend({}, res.vehicle);
                 delete v.service;
                 vm.vehicle = v;
                 delete v;
 
                 if (vm.displayTreatmentAsList) {
-                    vm.service.date = res.vehicle.service.date;
+                    var x = JSON.parse(res.vehicle.service.date);
+                    var y = new Date(x);
+                    var dd = y.getDate();
+                    var dm = y.getMonth() + 1;
+                    vm.service.date = (dd < 10 ? '0' + dd : dd) + '/' + (dm < 10 ? '0' + dm : dm) + '/' + y.getFullYear(); 
                     vm.service.odo = res.vehicle.service.odo;
                     vm.service.cost = res.vehicle.service.cost;
                     vm.service.status = res.vehicle.service.status;
@@ -158,6 +162,11 @@
                     });
                 } else {
                     vm.service = res.vehicle.service;
+                    var x = JSON.parse(res.vehicle.service.date);
+                    var y = new Date(x);
+                    var dd = y.getDate();
+                    var dm = y.getMonth() + 1;
+                    vm.service.date = (dd < 10 ? '0' + dd : dd) + '/' + (dm < 10 ? '0' + dm : dm) + '/' + y.getFullYear();
                     vm.service.problems.forEach(function(problem) {
                         problem.checked = true;
                         problem.populateType = 'manual';
@@ -296,6 +305,9 @@
 
         //  save service to database
         function save() {
+            var x = vm.service.date.split('/');
+            var y = new Date(parseInt(x[2]), parseInt(x[1]) - 1, parseInt(x[0]));
+            vm.service.date = JSON.stringify(y);
             for (var i = 0; i < vm.service.problems.length; i++) {
                 var problem = vm.service.problems[i];
                 if (problem.checked) {

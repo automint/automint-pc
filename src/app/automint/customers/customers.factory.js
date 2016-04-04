@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .factory('CustomerFactory', CustomerFactory);
 
-    CustomerFactory.$inject = ['pdbCustomer', '$q', '$automintService', 'utils', 'pdbCommon'];
+    CustomerFactory.$inject = ['pdbCustomer', '$q', '$automintService', 'utils', 'pdbCommon', '$http'];
 
-    function CustomerFactory(pdbCustomer, $q, $automintService, utils, pdbCommon) {
+    function CustomerFactory(pdbCustomer, $q, $automintService, utils, pdbCommon, $http) {
         var factory = {
             forDatatable: forDatatable,
             deleteCustomer: deleteCustomer,
@@ -14,7 +14,7 @@
             getManufacturers: getManufacturers,
             getModels: getModels
         }
-        
+
         //  fetch manufacturers from database
         function getManufacturers() {
             var differed = $q.defer();
@@ -24,14 +24,20 @@
                     if (!manuf.match(/\b_id|\b_rev/i))
                         manufacturers.push(manuf);
                 });
-                
+
                 differed.resolve(manufacturers);
             }, function(err) {
-                differed.reject(manufacturers);
+                $http.get('data/manuf_model.json').success(function(response) {
+                    Object.keys(response).forEach(function(manuf) {
+                        if (!manuf.match(/\b_id|\b_rev/i))
+                            manufacturers.push(manuf);
+                    });
+                    differed.reject(manufacturers);
+                });
             });
             return differed.promise;
         }
-        
+
         //  fetch models based on manufacturer from database
         function getModels(manufacturer) {
             var differed = $q.defer();
@@ -42,7 +48,12 @@
                 else
                     differed.reject(models);
             }, function(err) {
-                differed.reject(models);
+                $http.get('data/manuf_model.json').success(function(response) {
+                    if (response[manufacturer] && response[manufacturer].models)
+                        differed.resolve(Object.keys(response[manufacturer].models));
+                    else
+                        differed.reject(models);
+                });
             });
             return differed.promise;
         }
@@ -111,7 +122,7 @@
             });
             return differed.promise;
         }
-        
+
         //  save a document to pouchDB
         function saveCustomer(u) {
             var differed = $q.defer();
@@ -134,7 +145,7 @@
             // saveDataInDB(doc);
             return saveCustomer(doc);
         }
-        
+
         //  get customer from database
         function customer(customerId) {
             return pdbCustomer.get(customerId);

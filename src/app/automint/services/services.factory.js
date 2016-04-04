@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .factory('ServiceFactory', ServiceFactory);
 
-    ServiceFactory.$inject = ['pdbCustomer', '$q', 'pdbConfig', '$automintService', 'utils', 'pdbCommon'];
+    ServiceFactory.$inject = ['pdbCustomer', '$q', 'pdbConfig', '$automintService', 'utils', 'pdbCommon', '$http'];
 
-    function ServiceFactory(pdbCustomer, $q, pdbConfig, $automintService, utils, pdbCommon) {
+    function ServiceFactory(pdbCustomer, $q, pdbConfig, $automintService, utils, pdbCommon, $http) {
         var factory = {
             filteredServices: filteredServices,
             populateUsersList: populateUsersList,
@@ -30,7 +30,13 @@
                 
                 differed.resolve(manufacturers);
             }, function(err) {
-                differed.reject(manufacturers);
+                $http.get('data/manuf_model.json').success(function(response) {
+                    Object.keys(response).forEach(function(manuf) {
+                        if (!manuf.match(/\b_id|\b_rev/i))
+                            manufacturers.push(manuf);
+                    });
+                    differed.reject(manufacturers);
+                });
             });
             return differed.promise;
         }
@@ -45,7 +51,12 @@
                 else
                     differed.reject(models);
             }, function(err) {
-                differed.reject(models);
+                $http.get('data/manuf_model.json').success(function(response) {
+                    if (response[manufacturer] && response[manufacturer].models)
+                        differed.resolve(Object.keys(response[manufacturer].models));
+                    else
+                        differed.reject(models);
+                });
             });
             return differed.promise;
         }
@@ -62,8 +73,8 @@
                             if (doc.user.vehicles[vId].services) {
                                 Object.keys(doc.user.vehicles[vId].services).forEach(function(sId) {
                                     var service = doc.user.vehicles[vId].services[sId];
-                                    var dateSlice = service.date.split("/");
-                                    var sourceDate = new Date(parseInt(dateSlice[2]), parseInt(dateSlice[1]), parseInt(dateSlice[0]));
+                                    var x = JSON.parse(service.date);
+                                    var sourceDate = new Date(x);
                                     if ((sourceDate >= queryDate || (filterYear == 0 && filterMonth == 0)) && !service._deleted) {
                                         var so = {};
                                         so[sId] = {

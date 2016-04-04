@@ -17,22 +17,22 @@
                         <thead>
                             <tr>
                                 <th class="uk-width-4-10">Name</th>
+                                <th class="uk-width-1-10">Default</th>
                                 <th class="uk-width-1-10">Small Car</th>
                                 <th class="uk-width-1-10">Medium Car</th>
                                 <th class="uk-width-1-10">Large Car</th>
-                                <th class="uk-width-1-10">x-Large Car</th>
-                                <th class="uk-width-1-10">Default</th>
+                                <th class="uk-width-1-10">XLarge Car</th>
                                 <th class="uk-width-1-10">&nbsp;</th>
                             </tr>
                         </thead>
                     </tfoot>
                     <tr ng-repeat="treatment in treatmentsVm.treatments">
                         <td>{{ treatment.name }}</td>
+                        <td>{{ treatment.rate.default }}</td>
                         <td>{{ treatment.rate.smallcar }}</td>
                         <td>{{ treatment.rate.mediumcar }}</td>
                         <td>{{ treatment.rate.largecar }}</td>
                         <td>{{ treatment.rate.xlargecar }}</td>
-                        <td>{{ treatment.rate.default }}</td>
                         <td class="edit-col" style="text-align: center">
                             <a class="btn btn-primary" ng-click="treatmentsVm.editTreatment($event, treatment)">Edit</a>&nbsp;|&nbsp;
                             <a ng-click="treatmentsVm.deleteTreatment($event, treatment)" class="btn btn-danger">Delete</a>

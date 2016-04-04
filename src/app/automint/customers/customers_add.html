@@ -37,8 +37,10 @@
                                 </div>
                             </div>
                             <div class="uk-clearfix uk-margin-large-top">
-                                <button class="md-btn md-btn-flat md-btn-flat-success uk-float-right" ng-click="customerFormVm.save()" type="submit">Save</button>
-                                <button class="md-btn md-btn-flat md-btn-flat-primary uk-float-right" id="button_customer_details_forward" type="submit" wz-next>Continue</button>
+                                <div class="uk-float-right">
+                                    <button class="md-btn md-btn-flat md-btn-flat-success" ng-click="customerFormVm.save()" type="submit">Save</button>
+                                    <button class="md-btn md-btn-flat md-btn-flat-primary" id="button_customer_details_forward" type="submit" wz-next>Add Vehicle</button>
+                                </div>
                             </div>
                         </wz-step>
                         <wz-step wz-title="Vehicle information" template="app/templates/wizard.step.tpl.html">

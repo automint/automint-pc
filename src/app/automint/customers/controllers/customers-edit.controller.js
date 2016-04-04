@@ -96,7 +96,7 @@
             CustomerFactory.getManufacturers().then(function(res) {
                 vm.manufacturers = res;
             }, function(err) {
-                vm.manufacturers = res;
+                vm.manufacturers = err;
             });
         }
         

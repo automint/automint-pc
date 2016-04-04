@@ -43,7 +43,7 @@
             name: 'Large Car'
         }, {
             id: 'xlargecar',
-            name: 'x-Large Car'
+            name: 'XLarge Car'
         }];
         //  keep track of data from UI and set their default values
         vm.user = {
@@ -103,7 +103,7 @@
             ServiceFactory.getManufacturers().then(function(res) {
                 vm.manufacturers = res;
             }, function(err) {
-                vm.manufacturers = res;
+                vm.manufacturers = err;
             });
         }
 
@@ -318,6 +318,9 @@
 
         //  save service to database
         function save() {
+            var x = vm.service.date.split('/');
+            var y = new Date(parseInt(x[2]), parseInt(x[1]) - 1, parseInt(x[0]));
+            vm.service.date = JSON.stringify(y);
             for (var i = 0; i < vm.service.problems.length; i++) {
                 var problem = vm.service.problems[i];
                 if (problem.checked) {

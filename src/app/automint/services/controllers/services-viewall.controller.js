@@ -2,9 +2,9 @@
     angular.module('altairApp')
         .controller('servicesViewAllCtrl', ServiceViewAll);
 
-    ServiceViewAll.$inject = ['$state', 'DTOptionsBuilder', 'ServiceFactory', 'pdbCommon'];
+    ServiceViewAll.$inject = ['$state', 'DTOptionsBuilder', 'ServiceFactory', 'pdbCommon', '$http'];
 
-    function ServiceViewAll($state, DTOptionsBuilder, ServiceFactory, pdbCommon) {
+    function ServiceViewAll($state, DTOptionsBuilder, ServiceFactory, pdbCommon, $http) {
         var vm = this;
         //  declarations and mappings
         vm.filterDatatable = filterDatatable;
@@ -17,7 +17,7 @@
         vm.dtOptions = DTOptionsBuilder
             .newOptions()
             .withDisplayLength(10);
-            
+
         //  array of date filters possible for datatable
         vm.possibleDateFilters = [
             '1 Month',
@@ -56,8 +56,11 @@
                         var serviceKeys = Object.keys(vehicle.services);
                         serviceKeys.forEach(function(sId) {
                             var service = vehicle.services[sId];
-                            var dateSplit = service.date.split("/");
-                            var targetDate = dateSplit[2] + "-" + dateSplit[1] + "-" + dateSplit[0];
+                            var x = JSON.parse(service.date);
+                            var y = new Date(x);
+                            var dd = y.getDate();
+                            var dm = y.getMonth() + 1;
+                            var targetDate = y.getFullYear() + '-' + (dm < 10 ? '0' + dm : dm) + '-' + (dd < 10 ? '0' + dd : dd);
                             var s = {
                                 id: sId,
                                 userId: res.rows[i].id,
