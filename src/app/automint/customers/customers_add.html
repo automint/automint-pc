@@ -1,0 +1,87 @@
+<div id="page_content">
+    <div id="page_content_inner">
+        <div class="md-card uk-margin-large-bottom">
+            <div class="md-card-content">
+                <form class="uk-form-stacked" novalidate>
+                    <wizard on-finish="customerFormVm.save()" template="app/templates/wizard.tpl.html">
+                        <wz-step wz-title="Customer Information" template="app/templates/wizard.step.tpl.html" canexit="customerFormVm.validateCustomerInformation">
+                            <div class="uk-grid">
+                                <div class="uk-width-medium-1-1 parsley-row">
+                                    <div class="uk-input-group">
+                                        <span class="uk-input-group-addon">
+                                            <i class="material-icons">person_pin</i>
+                                        </span>
+                                        <label for="wizard_customer_name" class="uk-form-label">Name:&nbsp;<span class="req uk-text-danger">*</span></label>
+                                        <input type="text" name="wizard_customer_name" id="wizard_customer_name" required class="md-input" ng-change="customerFormVm.convertNameToTitleCase()" md-input ng-model="customerFormVm.user.name" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-grid">
+                                <div class="uk-width-medium-1-2 parsley-row">
+                                    <div class="uk-input-group">
+                                        <span class="uk-input-group-addon">
+                                            <i class="material-icons">phone</i>
+                                        </span>
+                                        <label for="wizard_phone" class="uk-form-label">Phone Number:</label>
+                                        <input type="text" class="md-input" name="wizard_phone" id="wizard_phone" required md-input ng-model="customerFormVm.user.mobile" />
+                                    </div>
+                                </div>
+                                <div class="uk-width-medium-1-2 parsley-row">
+                                    <div class="uk-input-group">
+                                        <span class="uk-input-group-addon">
+                                            <i class="material-icons">email</i>
+                                        </span>
+                                        <label for="wizard_email" class="uk-form-label">Email:</label>
+                                        <input type="text" class="md-input" name="wizard_email" id="wizard_email" md-input ng-model="customerFormVm.user.email" />
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="uk-clearfix uk-margin-large-top">
+                                <div class="uk-float-right">
+                                    <button class="md-btn md-btn-flat md-btn-flat-success" ng-click="customerFormVm.save()" type="submit">Save</button>
+                                    <button class="md-btn md-btn-flat md-btn-flat-primary" id="button_customer_details_forward" type="submit" wz-next>Add Vehicle</button>
+                                </div>
+                            </div>
+                        </wz-step>
+                        <wz-step wz-title="Vehicle information" template="app/templates/wizard.step.tpl.html">
+                            <div class="uk-grid" ng-if="customerFormVm.operationMode == 'edit'">
+                                <div class="uk-width-medium-1-1 parsley-row">
+                                    <label class="uk-form-label" for="kUI_dropdown_basic_select">Choose from existing:</label>
+                                    <select kendo-drop-down-list id="currentVehicle" k-data-text-field="'name'" k-data-value-field="'name'" k-data-source="customerFormVm.possibleVehicleList" style="width: 100%" id="kUI_dropdown_basic_select" ng-model="customerFormVm.currentVehicle"
+                                        ng-change="customerFormVm.fillVehicleDetails()">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="uk-grid">
+                                <div class="uk-width-medium-1-3 parsley-row">
+                                    <label class="uk-form-label">Choose manufacturer:</label>
+                                    <!--<input kendo-auto-complete name="wizard_manufacturer" ng-blur="customerFormVm.populateModels()" ng-model="customerFormVm.vehicle.manuf" k-data-source="customerFormVm.manufacturers" k-placeholder='"Select manufacturer ..."' class="uk-width-1-1" style="min-width: 100%" />-->
+                                    <select kendo-combo-box ng-blur="customerFormVm.populateModels()" k-placeholder="'Manufacturer'" k-filter="'contains'" k-auto-bind="false" k-min-length="1" k-data-source="customerFormVm.manufacturers" ng-change="customerFormVm.manufacturerChange()"
+                                        ng-model="customerFormVm.vehicle.manuf" style="width:100%">
+                                    </select>
+                                </div>
+                                <div class="uk-width-medium-1-3 parsley-row">
+                                    <label class="uk-form-label">Choose model:</label>
+                                    <!--<input kendo-auto-complete name="wizard_model" k-options="customerFormVm.modelsOptions" ng-model="customerFormVm.vehicle.model" k-data-source="customerFormVm.models" k-placeholder='"Select model ..."' class="uk-width-1-1" style="min-width: 100%" />-->
+                                    <select kendo-combo-box k-placeholder="'Model'" k-filter="'contains'" k-auto-bind="false" k-min-length="1" k-data-source="customerFormVm.models" k-options="customerFormVm.modelsOptions"
+                                        ng-model="customerFormVm.vehicle.model" style="width:100%">
+                                    </select>
+                                </div>
+                                <div class="uk-width-medium-1-3 parsley-row">
+                                    <label class="uk-form-label" for="wizard_registration">Vehicle Registration:</label>
+                                    <input kendo-auto-complete k-placeholder='"e.g. GJ01AB9999"' ng-change="customerFormVm.convertRegToUpperCase()" name="wizard_registration" id="wizard_registration" ng-model="customerFormVm.vehicle.reg" style="min-width: 100%; letter-spacing: 1px;" data-uk-tooltip="{pos: 'bottom-left', animation: 'true'}"
+                                        title="Example: GJ01AB9999" />
+                                </div>
+                            </div>
+                            <div class="uk-clearfix uk-margin-large-top">
+                                <button class="md-btn md-btn-flat md-btn-flat-primary uk-float-right" type="submit" wz-next>Save</button>
+                            </div>
+                        </wz-step>
+                    </wizard>
+
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>

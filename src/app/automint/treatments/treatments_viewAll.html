@@ -1,0 +1,45 @@
+<div id="page_content">
+    <div id="page_content_inner">
+        <div class="uk-grid">
+            <div class="uk-width-medium-7-10 parsley-row">
+                <span class="heading_b uk-margin-bottom">Treatments</span>
+                <button class="md-btn" ng-click="treatmentsVm.addTreatment()" style="margin-left: 2rem; padding-right: 1.5rem;"><i class="material-icons" style="margin-right: 0.4rem;">add</i>Add Treatment</button>
+            </div>
+            <div class="uk-width-medium-3-10 parsley-row">
+                <span>Display the list in billing ?&nbsp;</span>
+                <input type="checkbox" ng-change="treatmentsVm.changeDisplayAs()" icheck ng-model="treatmentsVm.displayAsList" />
+            </div>
+        </div>
+        <div class="md-card uk-margin-medium-bottom">
+            <div class="md-card-content">
+                <table datatable="ng" dt-instance="treatmentsVm.dtInstance" dt-options="treatmentsVm.dtOptions" class="uk-table" cellspacing="0" width="100%">
+                    <tfoot>
+                        <thead>
+                            <tr>
+                                <th class="uk-width-4-10">Name</th>
+                                <th class="uk-width-1-10">Default</th>
+                                <th class="uk-width-1-10">Small Car</th>
+                                <th class="uk-width-1-10">Medium Car</th>
+                                <th class="uk-width-1-10">Large Car</th>
+                                <th class="uk-width-1-10">XLarge Car</th>
+                                <th class="uk-width-1-10">&nbsp;</th>
+                            </tr>
+                        </thead>
+                    </tfoot>
+                    <tr ng-repeat="treatment in treatmentsVm.treatments">
+                        <td>{{ treatment.name }}</td>
+                        <td>{{ treatment.rate.default }}</td>
+                        <td>{{ treatment.rate.smallcar }}</td>
+                        <td>{{ treatment.rate.mediumcar }}</td>
+                        <td>{{ treatment.rate.largecar }}</td>
+                        <td>{{ treatment.rate.xlargecar }}</td>
+                        <td class="edit-col" style="text-align: center">
+                            <a class="btn btn-primary" ng-click="treatmentsVm.editTreatment($event, treatment)">Edit</a>&nbsp;|&nbsp;
+                            <a ng-click="treatmentsVm.deleteTreatment($event, treatment)" class="btn btn-danger">Delete</a>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
