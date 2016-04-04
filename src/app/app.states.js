@@ -158,6 +158,7 @@ altairApp
                     resolve: {
                         deps: ['$ocLazyLoad', function ($ocLazyLoad) {
                             return $ocLazyLoad.load([
+                                'bower_components/moment/moment.js',
                                 'app/automint/services/controllers/services-add.controller.js',
                                 'lazy_wizard',
                                 'lazy_KendoUI'
@@ -340,7 +341,8 @@ altairApp
                                 'app/automint/settings/settings.factory.js',
                                 'app/automint/settings/settings.controller.js',
                                 'app/automint/settings/settings-importdata.service.js',
-                                'assets/js/jquery.csv.min.js'
+                                'assets/js/jquery.csv.min.js',
+                                'lazy_KendoUI'
                             ])
                         }]
                     },

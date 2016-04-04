@@ -73,8 +73,7 @@
                             if (doc.user.vehicles[vId].services) {
                                 Object.keys(doc.user.vehicles[vId].services).forEach(function(sId) {
                                     var service = doc.user.vehicles[vId].services[sId];
-                                    var x = JSON.parse(service.date);
-                                    var sourceDate = new Date(x);
+                                    var sourceDate = new Date(service.date);
                                     if ((sourceDate >= queryDate || (filterYear == 0 && filterMonth == 0)) && !service._deleted) {
                                         var so = {};
                                         so[sId] = {

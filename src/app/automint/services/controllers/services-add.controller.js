@@ -1,8 +1,15 @@
+/// <reference path="../../../../typings/main.d.ts" />
+
 (function() {
     angular.module('altairApp')
         .controller('servicesAddCtrl', ServicesAdd);
 
     ServicesAdd.$inject = ['ServiceFactory', '$filter', 'WizardHandler', '$state', 'utils'];
+    
+    /*
+    ====== NOTE =======
+    > Do not create new method named moment() since it is used by moment.js
+    */
 
     function ServicesAdd(ServiceFactory, $filter, WizardHandler, $state, utils) {
         var vm = this;
@@ -318,9 +325,7 @@
 
         //  save service to database
         function save() {
-            var x = vm.service.date.split('/');
-            var y = new Date(parseInt(x[2]), parseInt(x[1]) - 1, parseInt(x[0]));
-            vm.service.date = JSON.stringify(y);
+            vm.service.date = moment(vm.service.date, 'DD/MM/YYYY').format();
             for (var i = 0; i < vm.service.problems.length; i++) {
                 var problem = vm.service.problems[i];
                 if (problem.checked) {

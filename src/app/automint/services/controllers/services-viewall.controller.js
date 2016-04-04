@@ -56,11 +56,7 @@
                         var serviceKeys = Object.keys(vehicle.services);
                         serviceKeys.forEach(function(sId) {
                             var service = vehicle.services[sId];
-                            var x = JSON.parse(service.date);
-                            var y = new Date(x);
-                            var dd = y.getDate();
-                            var dm = y.getMonth() + 1;
-                            var targetDate = y.getFullYear() + '-' + (dm < 10 ? '0' + dm : dm) + '-' + (dd < 10 ? '0' + dd : dd);
+                            var targetDate = moment(service.date).format('YYYY-MM-DD');
                             var s = {
                                 id: sId,
                                 userId: res.rows[i].id,

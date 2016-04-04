@@ -133,11 +133,7 @@
                 delete v;
 
                 if (vm.displayTreatmentAsList) {
-                    var x = JSON.parse(res.vehicle.service.date);
-                    var y = new Date(x);
-                    var dd = y.getDate();
-                    var dm = y.getMonth() + 1;
-                    vm.service.date = (dd < 10 ? '0' + dd : dd) + '/' + (dm < 10 ? '0' + dm : dm) + '/' + y.getFullYear(); 
+                    vm.service.date = moment(res.vehicle.service.date).format('DD/MM/YYYY'); 
                     vm.service.odo = res.vehicle.service.odo;
                     vm.service.cost = res.vehicle.service.cost;
                     vm.service.status = res.vehicle.service.status;
@@ -162,11 +158,7 @@
                     });
                 } else {
                     vm.service = res.vehicle.service;
-                    var x = JSON.parse(res.vehicle.service.date);
-                    var y = new Date(x);
-                    var dd = y.getDate();
-                    var dm = y.getMonth() + 1;
-                    vm.service.date = (dd < 10 ? '0' + dd : dd) + '/' + (dm < 10 ? '0' + dm : dm) + '/' + y.getFullYear();
+                    vm.service.date = moment(res.vehicle.service.date).format('DD/MM/YYYY');
                     vm.service.problems.forEach(function(problem) {
                         problem.checked = true;
                         problem.populateType = 'manual';
@@ -305,9 +297,7 @@
 
         //  save service to database
         function save() {
-            var x = vm.service.date.split('/');
-            var y = new Date(parseInt(x[2]), parseInt(x[1]) - 1, parseInt(x[0]));
-            vm.service.date = JSON.stringify(y);
+            vm.service.date = moment(vm.service.date, 'DD/MM/YYYY').format();
             for (var i = 0; i < vm.service.problems.length; i++) {
                 var problem = vm.service.problems[i];
                 if (problem.checked) {
