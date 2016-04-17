@@ -1,0 +1,45 @@
+.am-form-label {
+    font-weight: 500;
+    padding-bottom: 0.1rem;
+    font-size: small;
+    color: rgba(30, 30, 30, 0.7);
+    margin-bottom: 0.5rem;
+}
+.am-form-label.large {
+    font-weight: 500;
+    padding-bottom: 0.1rem;
+    font-size: medium;
+    color: rgba(30, 30, 30, 0.7);
+    margin-bottom: 0.1rem;
+}
+
+.am-vehicle-reg {
+    letter-spacing: 1px;
+}
+
+.am-icon-button-size {
+    font-size: medium;
+    text-align: center;
+}
+
+.am-table-input {
+    border: 0;
+    font-weight: 400;
+    padding: 0.6rem;
+    outline: none;
+    color: rgba(30, 30, 30, 0.7);
+    -webkit-transition: color 1s ease 0s;
+    -moz-transition: color 1s ease 0s;
+    transition: color 1s ease 0s;
+    box-shadow: 1px 1px 3px 1px rgba(30,30,30,0.1);
+}
+
+.am-table-input:focus {
+    color: rgba(30, 30, 30, 0.9);
+    box-shadow: 1px 1px 3px 1px rgba(30,30,30,0.2);
+}
+
+.am-checkbox .md-icon {
+    border-style: double;
+    border-width: 1px;
+}

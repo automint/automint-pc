@@ -1,0 +1,13 @@
+<div class="column">
+    <md-toolbar>
+        <h1>&nbsp;<br>&nbsp;<br>&nbsp;</h4>
+    </md-toolbar>
+    <md-list ng-cloak>
+        <md-list-item ng-repeat="item in sidebarVm.items" ng-click="sidebarVm.openState(item.state)">
+            <div layout="row" layout-align="center center">
+                <div layout-padding><md-icon>{{ item.icon }}</md-icon></div>
+                <div layout-padding><span class="md-body-1"> {{ item.name }} </span></div>
+            </div>
+        </md-list-item>
+    </md-list>
+</div>

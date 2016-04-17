@@ -1,0 +1,218 @@
+<md-content>
+    <md-tabs md-dynamic-height md-border-bottom>
+        <md-tab label="Customer Information">
+            <md-content layout-padding>
+                <div layout="column">
+                    <div layout="row" layout-align="start center" layout-wrap layout-margin>
+                        <md-icon class="md-accent">person_pin</md-icon>
+                        <md-autocomplete md-autofocus ng-disabled="!vm.isAddOperation()" flex md-no-cache md-selected-item="vm.currentUser" md-search-text-change="vm.convertNameToTitleCase()" md-search-text="vm.user.name" md-selected-item-change="vm.selectedUserChange()" md-items="user in vm.userQuerySearch()"
+                            md-item-text="user.name" md-min-length="0" placeholder="Pick a customer">
+                            <md-item-template>
+                                <span md-highlight-text="vm.user.name" md-highlight-flags="^i">{{user.name}}</span>
+                            </md-item-template>
+                        </md-autocomplete>
+                    </div>
+                    <div layout-gt-xs="row" layout-wrap layout-margin>
+                        <md-input-container class="md-block" flex-gt-xs>
+                            <md-icon class="md-accent">phone</md-icon>
+                            <label class="am-form-label" ng-class="{'large': vm.largeUserMobileLabel}">{{vm.label_userMobile}}</label>
+                            <input layout-padding type="text" ng-model="vm.user.mobile" ng-blur="vm.changeUserMobileLabel()" ng-focus="vm.changeUserMobileLabel(true)">
+                        </md-input-container>
+                        <md-input-container class="md-block" flex-gt-xs>
+                            <md-icon class="md-accent">email</md-icon>
+                            <label class="am-form-label" ng-class="{'large': vm.largeUserEmailLabel}">{{vm.label_userEmail}}</label>
+                            <input type="email" ng-model="vm.user.email" ng-blur="vm.changeUserEmailLabel()" ng-focus="vm.changeUserEmailLabel(true)">
+                        </md-input-container>
+                    </div>
+                </div>
+                <div layout="row" layout-align="end center">
+                    <md-button class="md-raised" ng-click="vm.changeVehicleTab(true)">
+                        <span layout-padding>Continue</span>
+                        <md-icon>navigate_next</md-icon>
+                    </md-button>
+                    <md-button class="md-primary" ng-click="vm.save()">
+                        <md-icon>done</md-icon>
+                        <span layout-padding>Save & Exit</span>
+                    </md-button>
+                </div>
+            </md-content>
+        </md-tab>
+        <md-tab label="Vehicle Information" md-active="vm.vehicleTab" md-on-deselect="vm.changeVehicleTab(false)">
+            <md-content layout-padding>
+                <div layout="column">
+                    <div layout-gt-xs="row" layout-wrap layout-margin ng-if="vm.isAddOperation()">
+                        <div layout="column" flex>
+                            <span class="am-form-label">Choose Vehicle:</span>
+                            <md-menu>
+                                <md-button aria-label="Choose from existing vehicles" class="md-raised md-primary" ng-click="vm.chooseVehicle($mdOpenMenu, $event)">
+                                    <span>{{vm.currentVehicle}}</span>
+                                </md-button>
+                                <md-menu-content width="6">
+                                    <md-menu-item ng-repeat="vehicle in vm.possibleVehicleList" ng-hide="vm.possibleVehicleList.length == 0">
+                                        <md-button ng-click="vm.changeVehicle(vehicle.id)">
+                                            <span>{{vehicle.name}}</span>
+                                        </md-button>
+                                    </md-menu-item>
+                                    <md-menu-divider ng-hide="vm.possibleVehicleList.length == 0"></md-menu-divider>
+                                    <md-menu-item>
+                                        <md-button ng-click="vm.changeVehicle()">
+                                            <span>New Vehicle</span>
+                                        </md-button>
+                                    </md-menu-item>
+                                </md-menu-content>
+                            </md-menu>
+                            <span class="am-form-label md-warn">(To add new vehicle, click on the button above and select new vehicle)</span>
+                        </div>
+                    </div>
+                    <div layout-gt-xs="row" layout-wrap layout-margin>
+                        <div layout="column" flex>
+                            <span class="am-form-label">Choose Manufacturer:</span>
+                            <md-autocomplete md-selected-item="vm.selectedManuf" md-search-text="vm.vehicle.manuf" md-items="manuf in vm.manufacturersQuerySearch()" md-item-text="manuf" placeholder="Type Manufacturer Name" md-search-text-change="vm.searchVehicleChange()">
+                                <md-item-template>
+                                    <span md-highlight-text="vm.vehicle.manuf">{{manuf}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                        </div>
+                        <div layout="column" flex>
+                            <span class="am-form-label">Choose Model:</span>
+                            <md-autocomplete md-selected-item="vm.selectedModel" md-search-text="vm.vehicle.model" md-items="model in vm.modelQuerySearch()" md-item-text="model" placeholder="Type Model Name" md-no-cache="true">
+                                <md-item-template>
+                                    <span md-highlight-text="vm.vehicle.model">{{model}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                        </div>
+                    </div>
+                    <div layout-gt-xs="row" layout-wrap layout-margin>
+                        <md-input-container class="md-block" flex-gt-xs="50">
+                            <label class="am-form-label" ng-class="{'large': vm.largeVehicleRegLabel}">{{vm.label_vehicleReg}}</label>
+                            <input type="text" class="am-vehicle-reg" ng-model="vm.vehicle.reg" ng-change="vm.convertRegToCaps()" ng-blur="vm.changeVehicleRegLabel()" ng-focus="vm.changeVehicleRegLabel(true)">
+                        </md-input-container>
+                    </div>
+                </div>
+                <div layout="row" layout-align="end center">
+                    <md-button class="md-raised" ng-click="vm.changeServiceTab(true)">
+                        <span layout-padding>Continue</span>
+                        <md-icon>navigate_next</md-icon>
+                    </md-button>
+                    <md-button class="md-primary" ng-click="vm.save()">
+                        <md-icon>done</md-icon>
+                        <span layout-padding>Save & Exit</span>
+                    </md-button>
+                </div>
+            </md-content>
+        </md-tab>
+        <md-tab label="Service Information" md-active="vm.serviceTab" md-on-deselect="vm.changeServiceTab(false)">
+            <md-content layout-padding>
+                <div layout="column">
+                    <div layout-gt-xs="row" layout-wrap layout-margin layout-align="end">
+                        <md-input-container flex-gt-xs="24">
+                            <center>
+                                <md-checkbox class="am-checkbox" ng-model="vm.displayTreatmentAsList" aria-label="Display Treatment As">
+                                    <span class="md-body-1">Show treatments list ?</span>
+                                </md-checkbox>
+                            </center>
+                        </md-input-container>
+                        <md-input-container flex-gt-xs="20">
+                            <label>Vehicle Type</label>
+                            <md-select ng-model="vm.vehicle.type" ng-change="vm.changeVehicleType()" flex>
+                                <md-option ng-value="type" ng-repeat="type in vm.vehicleTypeList" ng-selected="type == vm.vehicle.type">{{type}}</md-option>
+                            </md-select>
+                        </md-input-container>
+                        <md-input-container flex-gt-xs="20">
+                            <label class="am-form-label large">Odometer:</label>
+                            <input type="number" ng-model="vm.service.odo">
+                        </md-input-container>
+                        <md-datepicker flex-gt-xs="20" ng-model="vm.service.date" md-placeholder="Enter Date"></md-datepicker>
+                    </div>
+
+                    <md-table-container ng-if="!vm.displayTreatmentAsList">
+                        <table md-table md-progress="vm.problemPromise">
+                            <thead md-head>
+                                <tr md-row>
+                                    <th md-column><span>Product / Issue</span></th>
+                                    <th md-column><span>Rate</span></th>
+                                    <th md-column md-numeric><span>Cost</span></th>
+                                </tr>
+                            </thead>
+                            <tbody md-body>
+                                <tr md-row ng-repeat="problem in vm.selectedProblems" layout-align="center center">
+                                    <td md-cell ng-click="vm.editProblemDetails($event, problem)" ng-class="{'md-placeholder': !problem.details}">{{problem.details || 'Enter Details' }}</td>
+                                    <td md-cell ng-click="vm.editProblemRate($event, problem)" ng-class="{'md-placeholder' : !problem.rate}">{{problem.rate || 'Enter Rate'}}</td>
+                                    <td md-cell>{{(problem.rate ? problem.rate * (problem.checked ? 1 : 0) : 0)}}</td>
+                                </tr>
+                                <tr md-row>
+                                    <td md-cell>
+                                        <md-autocomplete id="new-problem-details" md-autofocus md-search-text="vm.problem.details" md-items="treatment in vm.treatments" md-item-text="treatment.name" placeholder="Type Product / Issue" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.updateTreatmentDetails()">
+                                            <md-item-template>
+                                                <span md-highlight-text="vm.problem.details">{{treatment.name}}</span>
+                                            </md-item-template>
+                                        </md-autocomplete>
+                                    </td>
+                                    <td md-cell>
+                                        <input type="number" ng-model="vm.problem.rate" ng-blur="vm.finalizeNewProblem()" placeholder="Enter Rate" class="am-table-input">
+                                    </td>
+                                    <td md-cell>
+                                        {{vm.problem.cost}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </md-table-container>
+
+                    <md-table-container ng-if="vm.displayTreatmentAsList">
+                        <table md-table md-row-select multiple ng-model="vm.selectedProblems" md-progress="vm.problemPromise">
+                            <thead md-head>
+                                <tr md-row>
+                                    <th md-column><span>Product / Issue</span></th>
+                                    <th md-column><span>Rate</span></th>
+                                    <th md-column md-numeric><span>Cost</span></th>
+                                </tr>
+                            </thead>
+                            <tbody md-body>
+                                <tr md-row md-select="problem" md-select-id="details" md-on-select="vm.onProblemSelected" md-on-deselect="vm.onProblemDeselected" md-auto-select ng-repeat="problem in vm.service.problems">
+                                    <td md-cell ng-click="vm.editProblemDetails($event, problem)" ng-class="{'md-placeholder': !problem.details}">{{problem.details || 'Enter Details' }}</td>
+                                    <td md-cell ng-click="vm.editProblemRate($event, problem)" ng-class="{'md-placeholder' : !problem.rate}">{{problem.rate || 'Enter Rate'}}</td>
+                                    <td md-cell>{{(problem.rate ? problem.rate * (problem.checked ? 1 : 0) : 0)}}</td>
+                                </tr>
+                                <tr md-row>
+                                    <td md-cell>
+                                        <md-autocomplete id="new-problem-details" md-autofocus md-search-text="vm.problem.details" md-items="treatment in vm.treatments" md-item-text="treatment.name" placeholder="Type Product / Issue" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.updateTreatmentDetails()">
+                                            <md-item-template>
+                                                <span md-highlight-text="vm.problem.details">{{treatment.name}}</span>
+                                            </md-item-template>
+                                        </md-autocomplete>
+                                    </td>
+                                    <td md-cell>
+                                        <input type="number" ng-model="vm.problem.rate" ng-blur="vm.finalizeNewProblem()" placeholder="Enter Rate" class="am-table-input">
+                                    </td>
+                                    <td md-cell>
+                                        {{vm.problem.cost}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </md-table-container>
+                    <div layout-gt-xs="row" layout-wrap layout-margin>
+                        <md-button class="md-raised" ng-click="vm.finalizeNewProblem(true)">
+                            <md-icon>add</md-icon>
+                            <span layout-padding>Add More</span>
+                        </md-button>
+                    </div>
+                    <md-divider></md-divider>
+                    <div layout-gt-xs="row" layout-wrap layout-margin>
+                        <md-checkbox aria-label="Paid?" ng-model="vm.servicestatus">Paid<br><span style="font-size: small">Is payment receieved ?</span></md-checkbox>
+                        <div layout-gt-xs="row" layout-wrap layout-align="end center" class="md-block" flex>
+                            <span><span class="am-form-label">Total Cost:&nbsp;</span>{{vm.service.cost}}</span>
+                        </div>
+                    </div>
+                </div>
+                <div layout="row" layout-align="end center">
+                    <md-button class="md-primary" ng-click="vm.save()">
+                        <md-icon>done</md-icon>
+                        <span layout-padding>Save</span>
+                    </md-button>
+                </div>
+            </md-content>
+        </md-tab>
+    </md-tabs>
+</md-content>
