@@ -150,16 +150,22 @@
             var tracker = $q.defer();
             queryOptions = {
                 limit: limit,
-                skip: --page * limit
+                skip: --page * limit,
+                descending: true,
+                group: true
             };
-            if (filterMonth != 0 || filterYear != 0) {
+            var queryDate = moment().subtract({
+                months: filterMonth,
+                years: filterYear
+            });
+            /*if (filterMonth != 0 || filterYear != 0) {
                 var queryDate = moment().subtract({
                     months: filterMonth,
                     years: filterYear
                 });
-                queryOptions.startkey = moment(queryDate).format();
-                queryOptions.endkey = moment().format();
-            }
+                queryOptions.endkey = moment(queryDate).format();
+                queryOptions.startkey = moment().format();
+            }*/
             pdbCustomers.query(mapFilteredServices, queryOptions).then(success).catch(failure);
             return tracker.promise;
 
@@ -174,16 +180,19 @@
 
                     function iterateService(sId) {
                         if (doc.user.vehicles[vId].services[sId] && !doc.user.vehicles[vId].services[sId]._deleted) {
-                            view.id = sId;
-                            view.vehicleId = vId;
-                            view.name = doc.user.name;
-                            view.reg = doc.user.vehicles[vId].reg;
-                            view.manuf = doc.user.vehicles[vId].manuf;
-                            view.model = doc.user.vehicles[vId].model;
-                            view.date = moment(doc.user.vehicles[vId].services[sId].date).format('DD MMM YYYY');
-                            view.cost = doc.user.vehicles[vId].services[sId].cost;
-                            view.status = utils.convertToTitleCase(doc.user.vehicles[vId].services[sId].status);
-                            emit(doc.user.vehicles[vId].services[sId].date, view);
+                            var date = doc.user.vehicles[vId].services[sId].date;
+                            if ((date <= moment().format && date >= moment(queryDate).format()) || (filterMonth == 0 && filterYear == 0)) {
+                                view.id = sId;
+                                view.vehicleId = vId;
+                                view.name = doc.user.name;
+                                view.reg = doc.user.vehicles[vId].reg;
+                                view.manuf = doc.user.vehicles[vId].manuf;
+                                view.model = doc.user.vehicles[vId].model;
+                                view.date = moment(date).format('DD MMM YYYY');
+                                view.cost = doc.user.vehicles[vId].services[sId].cost;
+                                view.status = utils.convertToTitleCase(doc.user.vehicles[vId].services[sId].status);
+                                emit(doc.user.vehicles[vId].services[sId].date, view);
+                            }
                         }
                     }
                 }
@@ -305,7 +314,7 @@
         function saveService(newUser, newVehicle, newService) {
             var tracker = $q.defer();
             var prefixVehicle = 'vehicle' + ((newVehicle.manuf && newVehicle.model) ? '-' + angular.lowercase(newVehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(newVehicle.model).replace(' ', '-') : '');
-            var prefixUser = prefixUser = 'user-' + angular.lowercase(newUser.name).replace(' ', '-');
+            var prefixUser = 'user-' + angular.lowercase(newUser.name).replace(' ', '-');
             var newServiceId = ((newService.id == undefined || newService.id == '') ? utils.generateUUID('srvc') : newService.id);
             var newVehicleId = ((newVehicle.id == undefined || newVehicle.id == '') ? utils.generateUUID(prefixVehicle) : newVehicle.id);
             var newUserId = ((newUser.id == undefined || newUser.id == '') ? utils.generateUUID(prefixUser) : newUser.id);

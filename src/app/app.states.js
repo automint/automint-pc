@@ -191,6 +191,18 @@
                     pageTitle: 'Edit Service'
                 }
             })
+            .state('restricted.settings', {
+                url: '/settings',
+                templateUrl: 'app/components/settings/settings.html',
+                controller: 'amCtrlSettings',
+                controllerAs: 'vm',
+                resolve: {
+                    deps: ['$ocLazyLoad', loadSettingsDeps]
+                },
+                data: {
+                    pageTitle: 'Settings'
+                }
+            })
 
         function loadDashboardDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
@@ -262,6 +274,15 @@
             return $ocLazyLoad.load([
                 'material-datatable',
                 'app/components/services/services-edit.controller.js'
+            ])
+        }
+        function loadSettingsDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'app/components/settings/settings.controller.js',
+                'app/components/settings/settings-backup.factory.js',
+                'app/components/settings/settings-login.factory.js',
+                'app/components/settings/settings-importdata.service.js',
+                'assets/js/jquery.csv.min.js'
             ])
         }
     }
