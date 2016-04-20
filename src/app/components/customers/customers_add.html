@@ -1,13 +1,13 @@
 <md-content>
     <md-tabs md-dynamic-height md-border-bottom>
-        <md-tab label="Customer Information">
+        <md-tab label="Customer Information" md-active="vm.userTab" md-on-deselect="vm.changeUserTab(false)">
             <md-content layout-padding>
                 <div layout="column">
                     <div layout-gt-xs="row" layout-wrap layout-margin>
                         <md-input-container class="md-block" flex-gt-xs="100">
                             <md-icon class="md-accent">person_pin</md-icon>
                             <label class="am-form-label" ng-class="{'large': vm.largeUserNameLabel}">{{vm.label_userName}}</label>
-                            <input autofocus type="text" ng-model="vm.user.name" ng-change="vm.convertNameToTitleCase()" ng-blur="vm.changeUserNameLabel()" ng-focus="vm.changeUserNameLabel(true)">
+                            <input autofocus id="ami-user-name" type="text" ng-model="vm.user.name" ng-change="vm.convertNameToTitleCase()" ng-blur="vm.changeUserNameLabel()" ng-focus="vm.changeUserNameLabel(true)">
                         </md-input-container>
                         <md-input-container class="md-block" flex-gt-xs>
                             <md-icon class="md-accent">phone</md-icon>
@@ -71,7 +71,7 @@
                         </div>
                         <div layout="column" flex>
                             <span class="am-form-label">Choose Model:</span>
-                            <md-autocomplete md-selected-item="vm.selectedModel" md-search-text="vm.vehicle.model" md-items="model in vm.modelQuerySearch()" md-item-text="model" placeholder="Type Model Name" md-no-cache="true">
+                            <md-autocomplete md-selected-item="vm.selectedModel" md-search-text="vm.vehicle.model" md-items="model in vm.modelQuerySearch()" md-item-text="model" placeholder="Type Model Name" md-no-cache="true" md-min-length="0">
                                 <md-item-template>
                                     <span md-highlight-text="vm.vehicle.model">{{model}}</span>
                                 </md-item-template>

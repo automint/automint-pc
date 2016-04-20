@@ -407,9 +407,22 @@
             vm.problem.cost = (vm.problem.rate == '') ? 0 : vm.problem.rate;
             updateCost();
         }
-
+        
+        function validate() {
+            var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
+            var isServiceBlank = (vm.service.problems.length == 0) && (vm.service.cost == undefined || vm.service.cost == 0) && (vm.service.odo == undefined || vm.service.odo == 0);
+            
+            if (!isServiceBlank && isVehicleBlank) {
+                changeVehicleTab(true);
+                utils.showSimpleToast('Please Enter At Least One Vehicle Detail');
+                return false;
+            }
+            return true;
+        }
+        
         //  save to database
         function save() {
+            if (!validate()) return;
             vm.service.date = moment(vm.service.date).format();
             vm.service.problems = vm.selectedProblems;
             vm.service.problems.forEach(iterateProblems);

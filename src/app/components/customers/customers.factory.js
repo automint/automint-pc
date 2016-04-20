@@ -185,7 +185,7 @@
                 prefixVehicle;
             
             if (vehicle) { 
-                prefixVehicle = 'vehicle' + ((vm.vehicle.manuf && vm.vehicle.model) ? '-' + angular.lowercase(vm.vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vm.vehicle.model).replace(' ', '-') : '');
+                prefixVehicle = 'vehicle' + ((vehicle.manuf && vehicle.model) ? '-' + angular.lowercase(vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vehicle.model).replace(' ', '-') : '');
                 customer.vehicles = {};
                 delete vehicle.id;
                 customer.vehicles[utils.generateUUID(prefixVehicle)] = vehicle;

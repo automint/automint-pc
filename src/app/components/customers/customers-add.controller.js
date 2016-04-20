@@ -50,6 +50,7 @@
         vm.changeUserEmailLabel = changeUserEmailLabel;
         vm.changeVehicleRegLabel = changeVehicleRegLabel;
         vm.changeVehicleTab = changeVehicleTab;
+        vm.changeUserTab = changeUserTab;
         vm.addOperationConfig = addOperationConfig;
         vm.save = save;
 
@@ -137,7 +138,12 @@
         }
         //  return boolean response to different configurations [END]
         
-        //  change vehicle table selector variable
+        //  change user tab selector variable
+        function changeUserTab(bool) {
+            vm.userTab = bool;
+        }
+        
+        //  change vehicle tab selector variable
         function changeVehicleTab(bool) {
             vm.vehicleTab = bool;
         }
@@ -160,9 +166,24 @@
             vm.label_vehicleReg = vm.largeVehicleRegLabel ? 'Registration:' : 'Enter Vehicle Reg Number';
         }
         //  listen to changes in input fields [END]
+        
+        function validate() {
+            if (vm.user.name == '') {
+                changeUserTab(true);
+                setTimeout(doFocus, 300);
+                utils.showSimpleToast('Please Enter Name');
+                
+                function doFocus() {
+                    $('#ami-user-name').focus();
+                }
+                return false;
+            }
+            return true;
+        }
 
         //  save to database
         function save() {
+            if (!validate()) return;
             if (!(vm.vehicle.reg == '' && vm.vehicle.manuf == '' && vm.vehicle.model == '')) {
                 vm.vehicle.reg = vm.vehicle.reg.replace(/\s/g, '');
                 amCustomers.addNewCustomer(vm.user, vm.vehicle).then(successfullSave).catch(failedSave);

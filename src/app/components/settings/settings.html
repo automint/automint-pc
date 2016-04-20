@@ -27,13 +27,15 @@
             </md-card-title>
             <md-card-content>
                 <div layout="column" id="csv-file-upload" class="am-file-uploader" layout-align="center center">
-                    <md-button class="md-raised">
-                        <span layout-padding>Click to upload <input type="file" id="csv-file-select" name="csv-file-select[]"></span>
+                    <md-button class="md-raised" ng-click="vm.onClickUploadCSV()">
+                        <span layout-padding>Click to upload</span>
                     </md-button>
+                    <input type="file" id="csv-file-select">
                     <span class="am-form-label">or</span>
                     <span class="am-form-label large">Drop CSV File</span>
                 </div>
-                <div layout="column">
+                <md-progress-linear md-mode="determinate" value="{{vm.currentCSVProgress}}" ng-show="vm.showCSVProgress"></md-progress-linear>
+                <div layout="column" layout-margin>
                     <span class="md-body-1">First row of the CSV file must be the header row, divided into fields for name, mobile, registration, manufacturer, model.</span>
                 </div>
             </md-card-content>

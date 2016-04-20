@@ -30,37 +30,50 @@
         vm.changePasswordLabel = changePasswordLabel;
         vm.doBackup = doBackup;
         vm.doLogin = doLogin;
+        vm.onClickUploadCSV = onClickUploadCSV;
 
         //  default execution steps
         checkLogin();
         initializeDropFiles();
 
         //  function definitions
-        
+
         function initializeDropFiles() {
             var xhr = new XMLHttpRequest();
             if (xhr.upload) {
                 var dropFile = document.getElementById('csv-file-upload');
                 var selectFile = document.getElementById('csv-file-select');
-                console.log(dropFile);
-                console.log(selectFile);
-                // selectFile.addEventListener('drop', handleUploadedFile, false);
+                selectFile.addEventListener('change', handleUploadedFile, false);
                 dropFile.addEventListener('drop', handleUploadedFile, false);
                 dropFile.addEventListener('dragover', handleDragHoverEvent, false);
                 dropFile.addEventListener('dragleave', handleDragHoverEvent, false);
             }
         }
-        
-        function onDOMContentLoaded() {
-            initializeDropFiles();
+
+        function onClickUploadCSV() {
+            angular.element(document.querySelector('#csv-file-select')).click();
         }
-        
+
         function handleUploadedFile(e) {
+            vm.currentCSVProgress = 0;
             handleDragHoverEvent(e);
             var files = e.target.files || e.dataTransfer.files;
-            amImportdata.compileCSVFile(files);
+            amImportdata.compileCSVFile(files).then(displayToastMessage).catch(displayToastMessage).finally(cleanUp, updates);
+
+            function displayToastMessage(res) {
+                utils.showSimpleToast(res.message);
+            }
+
+            function cleanUp(res) {
+                amImportdata.cleanUp();
+            }
+
+            function updates(res) {
+                vm.currentCSVProgress = (vm.total == 0) ? 0 : ((res.current * 100) / res.total);
+                vm.showCSVProgress = (vm.currentCSVProgress < 100);
+            }
         }
-        
+
         function handleDragHoverEvent(e) {
             e.stopPropagation();
             e.preventDefault();

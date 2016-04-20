@@ -15,13 +15,19 @@
 
     function ImportDataService(pdbCustomers, $filter, $q, utils, $amRoot, $log) {
         var sVm = this;
+        
+        //  temporary named mappings
+        var tracker;
+        
         //  function mappings
         sVm.compileCSVFile = compileCSVFile;
+        sVm.cleanUp = cleanUp;
 
         //  function declarations and definations
         function compileCSVFile(files) {
-            //  default execution steps
+            tracker = $q.defer();
             readFile(files[0], readerCallback);
+            return tracker.promise;
 
             //  declarations and definations
 
@@ -42,6 +48,10 @@
                 var customers = [];
                 var csvMap = {};
                 var csvFields = csvArray[0];
+                tracker.notify({
+                    current: 0,
+                    total: csvFields.length
+                });
                 for (var j = 0; j < csvFields.length; j++) {
                     var fieldName = csvFields[j].toLowerCase();
                     switch (fieldName) {
@@ -146,6 +156,10 @@
                 function matchAndUpdate(res) {
                     var addedCustomerCount = 0;
                     var customersToSave = [];
+                    tracker.notify({
+                        current: 0,
+                        total: customers.length
+                    });
                     customers.forEach(iterateCustomers);
 
                     function iterateCustomers(customer) {
@@ -196,12 +210,18 @@
                             } else
                                 delete targetUser.user.vehicles;
                             addedCustomerCount++;
-                            $log.info(addedCustomerCount);
                         }
+                        tracker.notify({
+                            current: addedCustomerCount,
+                            total: customers.length
+                        });
                         customersToSave.push(targetUser);
                     }
                     pdbCustomers.saveAll(customersToSave).then(saveSuccess).catch(failure);
-                    utils.showSimpleToast(addedCustomerCount + " customer(s) added!");
+                    tracker.resolve({
+                        success: true,
+                        message: addedCustomerCount + " customer(s) added!"
+                    });
                 }
 
                 function saveSuccess(res) {
@@ -209,9 +229,16 @@
                 }
 
                 function failure(error) {
-                    utils.showSimpleToast('Error while accessing database! Please Try Again!');
+                    tracker.reject({
+                        success: false,
+                        message: 'Error while accessing database! Please Try Again!'
+                    });
                 }
             }
+        }
+        
+        function cleanUp() {
+            tracker = undefined;
         }
     }
 })();

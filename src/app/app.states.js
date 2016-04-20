@@ -14,7 +14,7 @@
     StateConfigs.$inject = ['$stateProvider', '$urlRouterProvider'];
 
     function StateConfigs($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.when('/dashboard', '/').otherwise('/');
+        $urlRouterProvider.when('/dashboard', '/services/all').otherwise('/services/all');
 
         $stateProvider
             .state('restricted', {
