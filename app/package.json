@@ -2,7 +2,7 @@
   "name": "automint",
   "version": "0.1.0",
   "description": "CRM by Automint",
-  "main": "app/app.js",
+  "main": "src/app.js",
   "scripts": {
     "start": "electron main.js"
   },

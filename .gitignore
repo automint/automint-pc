@@ -51,7 +51,7 @@ node_modules/
 npm-debug.log
 
 # TypeScript Dependencies
-src/typings/
+app/typings/
 
 # Dev Dependencies from @ndkcha
-src/app/automint.js
+app/src/automint.js

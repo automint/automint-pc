@@ -22,24 +22,24 @@
                 url: '',
                 views: {
                     'header_bar': {
-                        templateUrl: 'app/appbar/headerView.html',
+                        templateUrl: 'src/appbar/headerView.html',
                         controller: 'appBarHeaderCtrl',
                         controllerAs: 'headerVm'
                     },
                     'side_bar': {
-                        templateUrl: 'app/appbar/sidebarView.html',
+                        templateUrl: 'src/appbar/sidebarView.html',
                         controller: 'appSideBarCtrl',
                         controllerAs: 'sidebarVm'
                     },
                     '': {
-                        templateUrl: 'app/views/restricted.html'
+                        templateUrl: 'src/views/restricted.html'
                     }
                 }
             })
             //  dashboard
             .state('restricted.dashboard', {
                 url: '/',
-                templateUrl: 'app/components/dashboard/dashboard.html',
+                templateUrl: 'src/components/dashboard/dashboard.html',
                 controller: 'dashboardCtrl',
                 resolve: {
                     deps: ['$ocLazyLoad', loadDashboardDeps]
@@ -58,7 +58,7 @@
             })
             .state('restricted.customers.all', {
                 url: '/all',
-                templateUrl: 'app/components/customers/customers_viewAll.html',
+                templateUrl: 'src/components/customers/customers_viewAll.html',
                 controller: 'amCtrlCuRA',
                 controllerAs: 'vm',
                 resolve: {
@@ -70,7 +70,7 @@
             })
             .state('restricted.customers.add', {
                 url: '/add',
-                templateUrl: 'app/components/customers/customers_add.html',
+                templateUrl: 'src/components/customers/customers_add.html',
                 controller: 'amCtrlCuCI',
                 controllerAs: 'vm',
                 resolve: {
@@ -82,7 +82,7 @@
             })
             .state('restricted.customers.edit', {
                 url: '/edit',
-                templateUrl:'app/components/customers/customers_add.html',
+                templateUrl:'src/components/customers/customers_add.html',
                 controller: 'amCtrlCuUI',
                 controllerAs: 'vm',
                 params: {
@@ -105,7 +105,7 @@
             })
             .state('restricted.treatments.all', {
                 url: '/all',
-                templateUrl: 'app/components/treatments/treatments_viewAll.html',
+                templateUrl: 'src/components/treatments/treatments_viewAll.html',
                 controller: 'amCtrlTrRA',
                 controllerAs: 'vm',
                 resolve: {
@@ -117,7 +117,7 @@
             })
             .state('restricted.treatments.add', {
                 url: '/add',
-                templateUrl: 'app/components/treatments/treatments_add.html',
+                templateUrl: 'src/components/treatments/treatments_add.html',
                 controller: 'amCtrlTrCI',
                 controllerAs: 'vm',
                 resolve: {
@@ -129,7 +129,7 @@
             })
             .state('restricted.treatments.edit', {
                 url: '/edit',
-                templateUrl: 'app/components/treatments/treatments_add.html',
+                templateUrl: 'src/components/treatments/treatments_add.html',
                 controller: 'amCtrlTrUI',
                 controllerAs: 'vm',
                 params: {
@@ -152,7 +152,7 @@
             })
             .state('restricted.services.all', {
                 url: '/all',
-                templateUrl: 'app/components/services/services_viewAll.html',
+                templateUrl: 'src/components/services/services_viewAll.html',
                 controller: 'amCtrlSeRA',
                 controllerAs: 'vm',
                 resolve: {
@@ -164,7 +164,7 @@
             })
             .state('restricted.services.add', {
                 url: '/add',
-                templateUrl: 'app/components/services/services_add.html',
+                templateUrl: 'src/components/services/services_add.html',
                 controller: 'amCtrlSeCI',
                 controllerAs: 'vm',
                 resolve: {
@@ -176,7 +176,7 @@
             })
             .state('restricted.services.edit', {
                 url: '/edit',
-                templateUrl: 'app/components/services/services_add.html',
+                templateUrl: 'src/components/services/services_add.html',
                 controller: 'amCtrlSeUI',
                 controllerAs: 'vm',
                 params: {
@@ -193,7 +193,7 @@
             })
             .state('restricted.settings', {
                 url: '/settings',
-                templateUrl: 'app/components/settings/settings.html',
+                templateUrl: 'src/components/settings/settings.html',
                 controller: 'amCtrlSettings',
                 controllerAs: 'vm',
                 resolve: {
@@ -206,82 +206,82 @@
 
         function loadDashboardDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/dashboard/dashboard.controller.js'
+                'src/components/dashboard/dashboard.controller.js'
             ]);
         }
         function loadCustomersDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/customers/customers.factory.js'
+                'src/components/customers/customers.factory.js'
             ])
         }
         function loadCuRADeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/customers/customers-viewall.controller.js'
+                'src/components/customers/customers-viewall.controller.js'
             ])
         }
         function loadCuCIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/customers/customers-add.controller.js'
+                'src/components/customers/customers-add.controller.js'
             ])
         }
         function loadCuUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/customers/customers-edit.controller.js'
+                'src/components/customers/customers-edit.controller.js'
             ])
         }
         function loadTreatmentDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/treatments/treatments.factory.js'
+                'src/components/treatments/treatments.factory.js'
             ])
         }
         function loadTrCIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/treatments/treatments-add.controller.js'
+                'src/components/treatments/treatments-add.controller.js'
             ])
         }
         function loadTrRADeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/treatments/treatments-viewall.controller.js'
+                'src/components/treatments/treatments-viewall.controller.js'
             ])
         }
         function loadTrUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/treatments/treatments-edit.controller.js'
+                'src/components/treatments/treatments-edit.controller.js'
             ])
         }
         function loadServicesDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/services/services.factory.js'
+                'src/components/services/services.factory.js'
             ])
         }
         function loadSeCIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/services/services-add.controller.js'
+                'src/components/services/services-add.controller.js'
             ])
         }
         function loadSeRADeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/services/services-viewall.controller.js'
+                'src/components/services/services-viewall.controller.js'
             ])
         }
         function loadSeUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/services/services-edit.controller.js'
+                'src/components/services/services-edit.controller.js'
             ])
         }
         function loadSettingsDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/settings/settings.controller.js',
-                'app/components/settings/settings-backup.factory.js',
-                'app/components/settings/settings-login.factory.js',
-                'app/components/settings/settings-importdata.service.js',
+                'src/components/settings/settings.controller.js',
+                'src/components/settings/settings-backup.factory.js',
+                'src/components/settings/settings-login.factory.js',
+                'src/components/settings/settings-importdata.service.js',
                 'assets/js/jquery.csv.min.js'
             ])
         }
