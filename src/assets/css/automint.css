@@ -39,6 +39,11 @@
     box-shadow: 1px 1px 3px 1px rgba(30,30,30,0.2);
 }
 
+.am-table-input.search-box {
+    font-size: small;
+    box-shadow: 1px 1px 3px 1px rgba(30,30,30,0.1);
+}
+
 .am-checkbox .md-icon {
     border-style: double;
     border-width: 1px;
