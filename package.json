@@ -16,8 +16,7 @@
         "iconUrl": "http://cruzer.io/automint.ico",
         "win": {
             "authors": "Automint Pvt. Ltd.",
-            "loadingGif": "build/installer.gif",
-            "noMsi": false
+            "loadingGif": "build/installer.gif"
         }
     },
     "devDependencies": {
