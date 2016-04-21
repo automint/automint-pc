@@ -1,8 +1,8 @@
 {
-  "name": "automint",
-  "version": "0.1.0",
+  "name": "Automint",
+  "version": "0.1.1",
   "description": "CRM by Automint",
-  "main": "src/app.js",
+  "main": "main.js",
   "scripts": {
     "start": "electron main.js"
   },
@@ -25,7 +25,6 @@
   "private": true,
   "homepage": "https://automint.in",
   "devDependencies": {
-    "electron-packager": "^6.0.0",
     "electron-prebuilt": "^0.37.5"
   }
 }

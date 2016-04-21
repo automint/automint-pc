@@ -17,8 +17,7 @@
         "win": {
             "authors": "Automint Pvt. Ltd.",
             "loadingGif": "build/installer.gif",
-            "noMsi": false,
-            "remoteReleases": "http://localhost/Cloud/Google%20Drive/Projects/Live/automint/updates/releases/win32/ia32/"
+            "noMsi": false
         }
     },
     "devDependencies": {
