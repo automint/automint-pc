@@ -1,8 +1,8 @@
 /*
  * Closure to create factories for handling databases
  * @author ndkcha
- * @since 0.1.0
- * @version 0.1.0
+ * @since 0.4.1
+ * @version 0.4.1
  */
 
 /// <reference path="../typings/main.d.ts" />
