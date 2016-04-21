@@ -6,25 +6,12 @@
   "scripts": {
     "start": "electron main.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/vrlkacha/workshop-apps.git"
-  },
-  "keywords": [
-    "crm",
-    "automobile",
-    "automint",
-    "admin",
-    "angularjs"
-  ],
-  "author": "ndkcha",
+  "productName": "Automint",
+  "author": "Automint",
   "license": "http://automint.in/licenses",
-  "bugs": {
-    "url": "https://github.com/vrlkacha/workshop-apps/issues"
-  },
-  "private": true,
   "homepage": "https://automint.in",
+  "private": true,
   "devDependencies": {
-    "electron-prebuilt": "^0.37.5"
+    "electron-squirrel-startup": "^0.1.4"
   }
 }
