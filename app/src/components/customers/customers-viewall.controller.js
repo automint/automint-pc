@@ -24,8 +24,9 @@
             page: 1,
             total: 0
         };
+        vm.displayItemPage = 1;
         vm.customers = [];
-        vm.customerSearch = '';
+        vm.customerQuery = '';
         vm.showPaginationBar = true;
         vm.isQueryMode = false;
         
@@ -34,7 +35,6 @@
         vm.getCustomers = getCustomers;
         vm.deleteCustomer = deleteCustomer;
         vm.editCustomer = editCustomer;
-        vm.queryCustomers = queryCustomers;
         vm.changeQueryMode = changeQueryMode;
         
         //  default execution steps
@@ -44,11 +44,11 @@
         
         function changeQueryMode(bool) {
             vm.isQueryMode = bool;
-            if (!vm.isQueryMode)
-                getCustomers();
-            else {
-                queryCustomers();
+            if (vm.isQueryMode)
                 setTimeout(focusOnSearchbox, 300);
+            else {
+                vm.customerQuery = '';
+                getCustomers();
             }
                 
             function focusOnSearchbox() {
@@ -56,37 +56,13 @@
             }
         }
         
-        //  fetch queried customers from database
-        function queryCustomers() {
-            if (vm.customerSearch == '')
-                getCustomers();
-            else
-                getQueriedCustomers();
-        }
-        
-        function getQueriedCustomers() {
-            vm.showPaginationBar = false;
-            vm.promise = amCustomers.queryUser;
-            vm.promise(vm.query.page, vm.query.limit, vm.customerSearch).then(success).catch(failure);
-            
-            function success(res) {
-                vm.customers = res.customers;
-                vm.query.total = res.total;
-            }
-            
-            function failure(err) {
-                vm.customers = [];
-                vm.query.total = 0
-            }
-        }
-        
         //  fetch relevant customers from database
         function getCustomers() {
-            vm.showPaginationBar = true;
-            vm.promise = amCustomers.getCustomers;
-            vm.promise(vm.query.page, vm.query.limit).then(success).catch(failure);
+            vm.showPaginationBar = (vm.customerQuery == '');
+            vm.promise = amCustomers.getCustomers(vm.query.page, vm.query.limit, vm.customerQuery).then(success).catch(failure);
             
             function success(res) {
+                vm.displayItemPage = 1;
                 vm.customers = res.customers;
                 vm.query.total = res.total;
             }

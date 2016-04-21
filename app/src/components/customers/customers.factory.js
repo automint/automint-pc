@@ -23,33 +23,75 @@
             addNewCustomer: addNewCustomer,
             deleteCustomer: deleteCustomer,
             getCustomer: getCustomer,
-            saveCustomer: saveCustomer,
-            queryUser: queryUser
+            saveCustomer: saveCustomer
         };
 
         return factory;
 
         //  function definitions
 
-        // test function
-        function queryUser(page, limit, query) {
+        //  get customers for datatable
+        function getCustomers(page, limit, query) {
             var tracker = $q.defer();
+            var customers = [];
+            if (query == '' || query == undefined) {
+                pdbCustomers.getAll({
+                    include_docs: true,
+                    limit: limit,
+                    skip: --page * limit
+                }).then(successBulk).catch(failure);
+            } else {
+                pdbCustomers.query({
+                    map: mapQuery,
+                    reduce: reduceQuery
+                }, {
+                    group: true,
+                    limit: limit,
+                    skip: --page * limit
+                }).then(successQuery).catch(failure);
+            }
 
-            pdbCustomers.query({
-                map: mapQuery,
-                reduce: reduceQuery
-            }, {
-                group: true,
-                limit: limit,
-                skip: --page * limit
-            }).then(success).catch(failure);
-            
             return tracker.promise;
 
-            function success(res) {
+
+            // map-reduce function for querying database [BEGIN]
+            function mapQuery(doc, emit) {
+                if (doc.user.vehicles)
+                    Object.keys(doc.user.vehicles).forEach(iterateVehicles);
+                doc.user._id = doc._id;
+                emit(query, doc.user);
+
+                function iterateVehicles(vehicle) {
+                    delete vehicle.services;
+                }
+            }
+
+            function reduceQuery(keys, values, rereduce) {
+                var result = [];
+                var q = angular.lowercase(keys[0][0]);
+                values.forEach(iterateValues);
+                return result;
+
+                function iterateValues(value) {
+                    var vehicleFound = false;
+                    if (value.vehicles)
+                        Object.keys(value.vehicles).forEach(iterateVehicles);
+                    if ((value.name && angular.lowercase(value.name).search(q) > -1) || (value.email && angular.lowercase(value.email).search(q) > -1) || (value.mobile && angular.lowercase(value.mobile).search(q) > -1) || vehicleFound) {
+                        result.push(value);
+                    }
+
+                    function iterateVehicles(vId) {
+                        if ((value.vehicles[vId].manuf && angular.lowercase(value.vehicles[vId].manuf).search(q) > -1) || (value.vehicles[vId].model && angular.lowercase(value.vehicles[vId].model).search(q) > -1) || (value.vehicles[vId].reg && angular.lowercase(value.vehicles[vId].reg).search(q) > -1))
+                            vehicleFound = true;
+                    }
+                }
+            }
+            // map-reduce function for querying database [END]
+
+            //  when map-reduce query successfully executes
+            function successQuery(res) {
                 var result = [];
                 res.rows.forEach(iterateRows);
-                console.log(result);
                 tracker.resolve({
                     total: result.length,
                     customers: result
@@ -88,67 +130,8 @@
                 }
             }
 
-            function failure(err) {
-                tracker.reject({
-                    total: 0,
-                    customers: []
-                });
-                console.log(err);
-            }
-
-            function mapQuery(doc, emit) {
-                if (doc.user.vehicles)
-                    Object.keys(doc.user.vehicles).forEach(iterateVehicles);
-                doc.user._id = doc._id;
-                emit(query, doc.user);
-
-                function iterateVehicles(vehicle) {
-                    delete vehicle.services;
-                }
-            }
-
-            function reduceQuery(keys, values, rereduce) {
-                var result = [];
-                var q = angular.lowercase(keys[0][0]);
-                values.forEach(iterateValues);
-                
-                function iterateValues(value) {
-                    var vehicleFound = false;
-                    if (value.vehicles)
-                        Object.keys(value.vehicles).forEach(iterateVehicles);
-                    if ((value.name && angular.lowercase(value.name).search(q) > -1)
-                        || (value.email && angular.lowercase(value.email).search(q) > -1) 
-                        || (value.mobile && angular.lowercase(value.mobile).search(q) > -1) 
-                        || vehicleFound) {
-                        result.push(value);
-                    }
-                    
-                    function iterateVehicles(vId) {
-                        if ((value.vehicles[vId].manuf && angular.lowercase(value.vehicles[vId].manuf).search(q) > -1) 
-                            || (value.vehicles[vId].model && angular.lowercase(value.vehicles[vId].model).search(q) > -1) 
-                            || (value.vehicles[vId].reg && angular.lowercase(value.vehicles[vId].reg).search(q) > -1))
-                            vehicleFound = true;
-                    }
-                }
-                return result;
-            }
-        }
-
-        //  get customers for datatable
-        function getCustomers(page, limit) {
-            var tracker = $q.defer();
-            var customers = [];
-            var skip = --page * limit;
-            var dbOptions = {
-                include_docs: true,
-                limit: limit,
-                skip: skip
-            }
-            pdbCustomers.getAll(dbOptions).then(success).catch(failure);
-            return tracker.promise;
-
             //  if documents are accisible in database
-            function success(res) {
+            function successBulk(res) {
                 if (res.rows.length > 0) {
                     res.rows.forEach(iterateRow);
 

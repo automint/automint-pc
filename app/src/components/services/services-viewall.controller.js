@@ -46,17 +46,19 @@
             year: 0
         }]
         vm.displayDataFor = vm.displayDataOptions[0].name;
+        vm.serviceQuery = '';
+        vm.isQueryMode = false;
+        vm.displayItemPage = 1;
 
         //  function maps
         vm.addService = addService;
         vm.getServices = getServices;
         vm.editService = editService;
         vm.deleteService = deleteService;
+        vm.changeQueryMode = changeQueryMode;
 
         //  default execution steps
-        getServices();
         $scope.$watch('vm.displayDataFor', watchDisplayDataFor);
-
 
         //  function definitions
         
@@ -72,9 +74,23 @@
             }
         }
         
+        function changeQueryMode(bool) {
+            vm.isQueryMode = bool;
+            if (vm.isQueryMode)
+                setTimeout(focusOnSearchbox, 300);
+            else {
+                vm.serviceQuery = '';
+                getServices();
+            }
+                
+            function focusOnSearchbox() {
+                $('#am-query-search').focus();
+            }
+        }
+        
         function getServices() {
-            vm.promise = amServices.getFilteredServices;
-            vm.promise(vm.query.page, vm.query.limit, vm.filter.month, vm.filter.year).then(success).catch(failure);
+            vm.showPaginationBar = (vm.serviceQuery == '');
+            vm.promise = amServices.getFilteredServices(vm.query.page, vm.query.limit, vm.filter.month, vm.filter.year, vm.serviceQuery).then(success).catch(failure);
 
             function success(res) {
                 vm.services = res.services;

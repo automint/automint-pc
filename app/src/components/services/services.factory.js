@@ -146,7 +146,7 @@
         }
 
         //  return filtered services
-        function getFilteredServices(page, limit, filterMonth, filterYear) {
+        function getFilteredServices(page, limit, filterMonth, filterYear, query) {
             var tracker = $q.defer();
             queryOptions = {
                 limit: limit,
@@ -158,15 +158,14 @@
                 months: filterMonth,
                 years: filterYear
             });
-            /*if (filterMonth != 0 || filterYear != 0) {
-                var queryDate = moment().subtract({
-                    months: filterMonth,
-                    years: filterYear
-                });
-                queryOptions.endkey = moment(queryDate).format();
-                queryOptions.startkey = moment().format();
-            }*/
-            pdbCustomers.query(mapFilteredServices, queryOptions).then(success).catch(failure);
+            if (query == '' || query == undefined) {
+                pdbCustomers.query(mapFilteredServices, queryOptions).then(success).catch(failure);
+            } else {
+                pdbCustomers.query({
+                    map: mapFilteredServices,
+                    reduce: reduceQuery
+                }, queryOptions).then(success).catch(failure);
+            }
             return tracker.promise;
 
             function mapFilteredServices(doc, emit) {
@@ -182,6 +181,8 @@
                         if (doc.user.vehicles[vId].services[sId] && !doc.user.vehicles[vId].services[sId]._deleted) {
                             var date = doc.user.vehicles[vId].services[sId].date;
                             if ((date <= moment().format && date >= moment(queryDate).format()) || (filterMonth == 0 && filterYear == 0)) {
+                                if (query != undefined)
+                                    view.query = query;
                                 view.id = sId;
                                 view.vehicleId = vId;
                                 view.name = doc.user.name;
@@ -198,10 +199,42 @@
                 }
             }
 
+            function reduceQuery(keys, values, rereduce) {
+                var result = [];
+                var q = angular.lowercase(values[0].query);
+                values.forEach(iterateValues);
+                return result;
+
+                function iterateValues(value) {
+                    if ((value.name && angular.lowercase(value.name).search(q) > -1) || (value.manuf && angular.lowercase(value.manuf).search(q) > -1) || (value.model && angular.lowercase(value.model).search(q) > -1) || (value.reg && angular.lowercase(value.reg).search(q) > -1) || (value.status && angular.lowercase(value.status).search(q) > -1) || (value.date && angular.lowercase(value.date).search(q) > -1) || (value.cost && value.cost.toString().search(q) > -1)) {
+                        result.push(value);
+                    }
+                }
+            }
+
             function success(res) {
+                var result = [],
+                    total = 0;
+                if (query == '' || query == undefined) {
+                    result = res.rows;
+                    total = res.total_rows;
+                } else {
+                    res.rows.forEach(iterateRows);
+                    total = result.length;
+
+                    function iterateRows(row) {
+                        row.value.forEach(iterateValues);
+                    }
+
+                    function iterateValues(value) {
+                        result.push({
+                            value: value
+                        });
+                    }
+                }
                 tracker.resolve({
-                    services: res.rows,
-                    total: res.total_rows
+                    services: result,
+                    total: total
                 });
             }
 
