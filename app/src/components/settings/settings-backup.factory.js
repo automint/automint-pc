@@ -39,7 +39,6 @@
         }
 
         function foundDocsToBackup(data) {
-            backupDocument.backAppVersion = constants.automint_version;
             backupDocument.backupTime = Date.now();
             backupDocument.customers = {}
             backupDocument.customers.doc = [];

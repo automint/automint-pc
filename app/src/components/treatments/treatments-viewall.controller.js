@@ -20,7 +20,7 @@
         //  named assignments for tracking UI elements
         vm.selectedTreatments = [];
         vm.query = {
-            limit: 5,
+            limit: 10,
             page: 1,
             total: 0
         };
@@ -104,12 +104,11 @@
         
         //  fetch relevant treatments from database
         function getTreatments() {
-            vm.promise = amTreatments.getTreatments;
-            vm.promise(vm.query.page, vm.query.limit).then(success).catch(failure);
+            vm.promise = amTreatments.getTreatments().then(success).catch(failure);
             
             function success(res) {
                 vm.treatments = res.treatments;
-                vm.query.total = res.total;
+                vm.query.total = res.treatments.length;
             }
             
             function failure(error) {

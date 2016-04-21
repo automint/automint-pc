@@ -19,7 +19,7 @@
 
         //  named assginments for tracking UI elements
         vm.query = {
-            limit: 5,
+            limit: 10,
             page: 1,
             total: 0
         };

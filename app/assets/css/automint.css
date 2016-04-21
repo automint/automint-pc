@@ -72,3 +72,9 @@
     border: 1px dashed #2196F3;
     background: rgba(100,100,100,0.2);
 }
+
+md-sidenav, md-sidenav.md-locked-open, md-sidenav.md-closed.md-locked-open-add-active {
+ min-width: 280px !important;
+ width: 50vw !important;
+ max-width: 280px !important;
+}

@@ -118,7 +118,7 @@
         }
         
         //  get treatments for datatable
-        function getTreatments(page, limit) {
+        function getTreatments() {
             var tracker = $q.defer();
             var response = {
                 treatments: [],
@@ -132,20 +132,16 @@
             }
             
             function treatmentDocFound(res) {
-                if (res.regular) {
-                    var keys = Object.keys(res.regular);
-                    var i = --page*limit;
-                    var j = i + limit;
-                    while (i < j && i < keys.length) {
-                        response.treatments.push({
-                            name: keys[i],
-                            rate: res.regular[keys[i]].rate
-                        });
-                        i++;
-                    }
-                    response.total = keys.length; 
-                }
+                if (res.regular)
+                    Object.keys(res.regular).forEach(iterateRegularTreatments);
                 tracker.resolve(response);
+                
+                function iterateRegularTreatments(treatment) {
+                    response.treatments.push({
+                        name: treatment,
+                        rate: res.regular[treatment].rate
+                    });
+                }
             }
             
             function failure(err) {
