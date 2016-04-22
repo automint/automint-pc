@@ -90,7 +90,7 @@
         vm.save = save;
 
         //  default execution steps
-        vm.serviceTab = true // testing purposes
+        // vm.serviceTab = true // testing purposes
         getTreatmentDisplayFormat();
         getVehicleTypes();
         getRegularTreatments();

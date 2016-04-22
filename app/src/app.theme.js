@@ -14,8 +14,15 @@
     AppTheme.$inject = ['$mdThemingProvider'];
 
     function AppTheme($mdThemingProvider) {
+        /*$mdThemingProvider.definePalette('automintCyan', {
+            '50': ''
+        })*/
         $mdThemingProvider.theme('default')
-            .primaryPalette('blue')
-            .accentPalette('orange');
+            .primaryPalette('grey', {
+                'default': '900'
+            })
+            .accentPalette('light-blue', {
+                'default': '700'
+            });
     }
 })();
