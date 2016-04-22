@@ -1,7 +1,4 @@
 <style>
-    .am-table-header {
-        font-size: medium;
-    }
 </style>
 
 <md-content layout-padding>
@@ -47,8 +44,8 @@
             <span class="md-caption" ng-if="!vm.isAddOperation()"><address>*&nbsp;Erase rate field of vehicle type to remove</address></span>
         </div>
         <div layout="column" layout-align="center end">
-            <md-button ng-click="vm.save()">
-                <md-icon class="md-success">done</md-icon>
+            <md-button ng-click="vm.save()" class="md-raised md-warn">
+                <md-icon>done</md-icon>
                 <span layout-padding>Save</span>
             </md-button>
         </div>

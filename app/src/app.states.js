@@ -159,7 +159,7 @@
                     deps: ['$ocLazyLoad', loadSeRADeps]
                 },
                 data: {
-                    pageTitle: 'View All Services'
+                    pageTitle: 'All Services'
                 }
             })
             .state('restricted.services.add', {

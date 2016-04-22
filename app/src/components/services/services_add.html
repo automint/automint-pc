@@ -5,7 +5,7 @@
                 <div layout="column">
                     <div layout="row" layout-align="start center" layout-wrap layout-margin>
                         <md-icon class="md-accent">person_pin</md-icon>
-                        <md-autocomplete md-autofocus ng-disabled="!vm.isAddOperation()" flex md-no-cache md-selected-item="vm.currentUser" md-search-text-change="vm.convertNameToTitleCase()" md-search-text="vm.user.name" md-selected-item-change="vm.selectedUserChange()" md-items="user in vm.userQuerySearch()" md-item-text="user.name" md-min-length="1" placeholder="Pick a customer" id="ami-user-name">
+                        <md-autocomplete md-autofocus ng-disabled="!vm.isAddOperation()" flex md-no-cache md-selected-item="vm.currentUser" md-search-text-change="vm.convertNameToTitleCase()" md-search-text="vm.user.name" md-selected-item-change="vm.selectedUserChange()" md-items="user in vm.userQuerySearch()" md-item-text="user.name" md-min-length="1" placeholder="Enter Full Name" id="ami-user-name">
                             <md-item-template>
                                 <span md-highlight-text="vm.user.name" md-highlight-flags="^i">{{user.name}}</span>
                             </md-item-template>
@@ -25,13 +25,9 @@
                     </div>
                 </div>
                 <div layout="row" layout-align="end center">
-                    <md-button class="md-raised" ng-click="vm.changeVehicleTab(true)">
+                    <md-button class="md-raised md-warn" ng-click="vm.changeVehicleTab(true)">
                         <span layout-padding>Continue</span>
                         <md-icon>navigate_next</md-icon>
-                    </md-button>
-                    <md-button class="md-primary" ng-click="vm.save()">
-                        <md-icon>done</md-icon>
-                        <span layout-padding>Save & Exit</span>
                     </md-button>
                 </div>
             </md-content>
@@ -43,7 +39,7 @@
                         <div layout="column" flex>
                             <span class="am-form-label">Choose Vehicle:</span>
                             <md-menu>
-                                <md-button aria-label="Choose from existing vehicles" class="md-raised md-primary" ng-click="vm.chooseVehicle($mdOpenMenu, $event)">
+                                <md-button aria-label="Choose from existing vehicles" class="md-raised md-accent" ng-click="vm.chooseVehicle($mdOpenMenu, $event)">
                                     <span>{{vm.currentVehicle}}</span>
                                 </md-button>
                                 <md-menu-content width="6">
@@ -85,17 +81,14 @@
                         <md-input-container class="md-block" flex-gt-xs="50">
                             <label class="am-form-label" ng-class="{'large': vm.largeVehicleRegLabel}">{{vm.label_vehicleReg}}</label>
                             <input type="text" class="am-vehicle-reg" ng-model="vm.vehicle.reg" ng-change="vm.convertRegToCaps()" ng-blur="vm.changeVehicleRegLabel()" ng-focus="vm.changeVehicleRegLabel(true)">
+                            <div class="am-hint">e.g. <span class="spacing-1p bold-500">GJ01AB9999</span></div>
                         </md-input-container>
                     </div>
                 </div>
                 <div layout="row" layout-align="end center">
-                    <md-button class="md-raised" ng-click="vm.changeServiceTab(true)">
+                    <md-button class="md-raised md-warn" ng-click="vm.changeServiceTab(true)">
                         <span layout-padding>Continue</span>
                         <md-icon>navigate_next</md-icon>
-                    </md-button>
-                    <md-button class="md-primary" ng-click="vm.save()">
-                        <md-icon>done</md-icon>
-                        <span layout-padding>Save & Exit</span>
                     </md-button>
                 </div>
             </md-content>
@@ -105,11 +98,9 @@
                 <div layout="column">
                     <div layout-gt-xs="row" layout-wrap layout-margin layout-align="end">
                         <md-input-container flex-gt-xs="24">
-                            <center>
-                                <md-checkbox class="am-checkbox" ng-model="vm.displayTreatmentAsList" aria-label="Display Treatment As">
-                                    <span class="md-body-1">Show treatments list ?</span>
-                                </md-checkbox>
-                            </center>
+                            <md-checkbox class="am-checkbox" ng-model="vm.displayTreatmentAsList" aria-label="Display Treatment As">
+                                <span class="md-body-1">Show Treatments</span>
+                            </md-checkbox>
                         </md-input-container>
                         <md-input-container flex-gt-xs="20">
                             <label>Vehicle Type</label>
@@ -118,7 +109,7 @@
                             </md-select>
                         </md-input-container>
                         <md-input-container flex-gt-xs="20">
-                            <label class="am-form-label large">Odometer:</label>
+                            <label class="am-form-label large">Odometer Reading:</label>
                             <input type="number" ng-model="vm.service.odo">
                         </md-input-container>
                         <md-datepicker flex-gt-xs="20" ng-model="vm.service.date" md-placeholder="Enter Date"></md-datepicker>
@@ -128,9 +119,9 @@
                         <table md-table md-progress="vm.problemPromise">
                             <thead md-head>
                                 <tr md-row>
-                                    <th md-column><span>Product / Issue</span></th>
-                                    <th md-column><span>Rate</span></th>
-                                    <th md-column md-numeric><span>Cost</span></th>
+                                    <th md-column><span class="am-table-header">Treatments</span></th>
+                                    <th md-column><span class="am-table-header">Rate</span></th>
+                                    <th md-column md-numeric><span class="am-table-header">Amount</span></th>
                                 </tr>
                             </thead>
                             <tbody md-body>
@@ -141,7 +132,7 @@
                                 </tr>
                                 <tr md-row>
                                     <td md-cell>
-                                        <md-autocomplete id="new-problem-details" md-autofocus md-search-text="vm.problem.details" md-items="treatment in vm.treatments" md-item-text="treatment.name" placeholder="Type Product / Issue" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.updateTreatmentDetails()">
+                                        <md-autocomplete id="new-problem-details" md-autofocus md-search-text="vm.problem.details" md-items="treatment in vm.treatments" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.updateTreatmentDetails()">
                                             <md-item-template>
                                                 <span md-highlight-text="vm.problem.details">{{treatment.name}}</span>
                                             </md-item-template>
@@ -162,9 +153,9 @@
                         <table md-table md-row-select multiple ng-model="vm.selectedProblems" md-progress="vm.problemPromise">
                             <thead md-head>
                                 <tr md-row>
-                                    <th md-column><span>Product / Issue</span></th>
-                                    <th md-column><span>Rate</span></th>
-                                    <th md-column md-numeric><span>Cost</span></th>
+                                    <th md-column><span class="am-table-header">Treatments</span></th>
+                                    <th md-column><span class="am-table-header">Rate</span></th>
+                                    <th md-column md-numeric><span class="am-table-header">Amount</span></th>
                                 </tr>
                             </thead>
                             <tbody md-body>
@@ -175,7 +166,7 @@
                                 </tr>
                                 <tr md-row>
                                     <td md-cell>
-                                        <md-autocomplete id="new-problem-details" md-autofocus md-search-text="vm.problem.details" md-items="treatment in vm.treatments" md-item-text="treatment.name" placeholder="Type Product / Issue" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.updateTreatmentDetails()">
+                                        <md-autocomplete id="new-problem-details" md-autofocus md-search-text="vm.problem.details" md-items="treatment in vm.treatments" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.updateTreatmentDetails()">
                                             <md-item-template>
                                                 <span md-highlight-text="vm.problem.details">{{treatment.name}}</span>
                                             </md-item-template>
@@ -199,14 +190,14 @@
                     </div>
                     <md-divider></md-divider>
                     <div layout-gt-xs="row" layout-wrap layout-margin>
-                        <md-checkbox aria-label="Paid?" ng-model="vm.servicestatus">Paid<br><span style="font-size: small">Is payment receieved ?</span></md-checkbox>
+                        <md-checkbox aria-label="Payment Receieved" ng-model="vm.servicestatus">Payment Received</md-checkbox>
                         <div layout-gt-xs="row" layout-wrap layout-align="end center" class="md-block" flex>
                             <span><span class="am-form-label">Total Cost:&nbsp;</span>{{vm.service.cost}}</span>
                         </div>
                     </div>
                 </div>
                 <div layout="row" layout-align="end center">
-                    <md-button class="md-primary" ng-click="vm.save()">
+                    <md-button class="md-raised md-warn" ng-click="vm.save()">
                         <md-icon>done</md-icon>
                         <span layout-padding>Save</span>
                     </md-button>
