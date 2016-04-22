@@ -24,17 +24,17 @@
     <table md-table ng-model="vm.selectedCustomers" md-progress="vm.promise">
         <thead md-head>
             <tr md-row>
-                <th md-column><span>Name</span></th>
-                <th md-column hide-xs><span>Mobile</span></th>
-                <th md-column hide-xs><span>Email</span></th>
-                <th md-column><span>Vehicles</span></th>
+                <th md-column><span class="am-table-header">Name</span></th>
+                <th md-column><span class="am-table-header">Mobile</span></th>
+                <th md-column><span class="am-table-header">Email</span></th>
+                <th md-column><span class="am-table-header">Vehicles</span></th>
             </tr>
         </thead>
         <tbody md-body>
             <tr md-row md-auto-select ng-repeat="customer in vm.customers | limitTo: vm.query.limit: (vm.displayItemPage-1)*(vm.query.limit)">
                 <td md-cell>{{customer.name}}</td>
-                <td md-cell hide-xs>{{customer.mobile}}</td>
-                <td md-cell hide-xs>{{customer.email}}</td>
+                <td md-cell>{{customer.mobile}}</td>
+                <td md-cell>{{customer.email}}</td>
                 <td md-cell><span ng-repeat="vehicle in customer.vehicles">{{vehicle.manuf + ' ' + vehicle.model}}<span ng-if="vehicle.reg">&nbsp;({{vehicle.reg}})</span><span ng-if="customer.vehicles.length > 1 && $index != customer.vehicles.length-1"></span><br></span></td>
                 <td md-cell>
                     <md-button class="md-icon-button" ng-click="vm.editCustomer(customer.id)">

@@ -19,10 +19,10 @@
         var vm = this;
 
         //  vm assignments to keep track of UI related elements
-        vm.label_userName = 'Enter Name Here'; 
-        vm.label_userMobile = 'Enter Mobile Here'; 
-        vm.label_userEmail = 'Enter Email Here'; 
-        vm.label_vehicleReg = 'Enter Vehicle Reg Number'; 
+        vm.label_userName = 'Enter Full Name'; 
+        vm.label_userMobile = 'Enter Mobile Number'; 
+        vm.label_userEmail = 'Enter Email Address'; 
+        vm.label_vehicleReg = 'Enter Vehicle Registration Number'; 
         vm.label_vehicleManuf = 'Manufacturer:'; 
         vm.label_vehicleModel = 'Model:';
         vm.user = {
@@ -151,19 +151,19 @@
         //  listen to changes in input fields [BEGIN]
         function changeUserNameLabel(force) {
             vm.largeUserNameLabel = (force != undefined || vm.user.name != '');
-            vm.label_userName = vm.largeUserNameLabel ? 'Name:' : 'Enter Name Here';
+            vm.label_userName = vm.largeUserNameLabel ? 'Name:' : 'Enter Full Name';
         }
         function changeUserMobileLabel(force) {
             vm.largeUserMobileLabel = (force != undefined || vm.user.mobile != ''); 
-            vm.label_userMobile = vm.largeUserMobileLabel ? 'Mobile:' : 'Enter Mobile Here';
+            vm.label_userMobile = vm.largeUserMobileLabel ? 'Mobile:' : 'Enter Mobile Number';
         }
         function changeUserEmailLabel(force) {
             vm.largeUserEmailLabel = (force != undefined || vm.user.email != ''); 
-            vm.label_userEmail = vm.largeUserEmailLabel ? 'Email:' : 'Enter Email Here';
+            vm.label_userEmail = vm.largeUserEmailLabel ? 'Email:' : 'Enter Email Add';
         }
         function changeVehicleRegLabel(force) {
             vm.largeVehicleRegLabel = (force != undefined || vm.vehicle.reg != ''); 
-            vm.label_vehicleReg = vm.largeVehicleRegLabel ? 'Registration:' : 'Enter Vehicle Reg Number';
+            vm.label_vehicleReg = vm.largeVehicleRegLabel ? 'Vehcile Registration Number:' : 'Enter Vehicle Registration Number';
         }
         //  listen to changes in input fields [END]
         
