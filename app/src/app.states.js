@@ -1,8 +1,8 @@
 /*
  * Closure for state definitions and mappings to template files
  * @author ndkcha
- * @since 0.1.0
- * @version 0.1.0
+ * @since 0.4.1
+ * @version 0.4.1
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -14,7 +14,7 @@
     StateConfigs.$inject = ['$stateProvider', '$urlRouterProvider'];
 
     function StateConfigs($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.when('/dashboard', '/services/all').otherwise('/services/all');
+        $urlRouterProvider.when('/', '/services/all').otherwise('/services/all');
 
         $stateProvider
             .state('restricted', {

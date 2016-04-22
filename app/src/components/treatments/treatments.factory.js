@@ -1,8 +1,8 @@
 /**
  * Factory that handles database interactions between treatments database and controller
  * @author ndkcha
- * @since 0.1.0
- * @version 0.1.0 
+ * @since 0.4.1
+ * @version 0.4.1 
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -118,7 +118,7 @@
         }
         
         //  get treatments for datatable
-        function getTreatments(page, limit) {
+        function getTreatments() {
             var tracker = $q.defer();
             var response = {
                 treatments: [],
@@ -132,20 +132,16 @@
             }
             
             function treatmentDocFound(res) {
-                if (res.regular) {
-                    var keys = Object.keys(res.regular);
-                    var i = --page*limit;
-                    var j = i + limit;
-                    while (i < j && i < keys.length) {
-                        response.treatments.push({
-                            name: keys[i],
-                            rate: res.regular[keys[i]].rate
-                        });
-                        i++;
-                    }
-                    response.total = keys.length; 
-                }
+                if (res.regular)
+                    Object.keys(res.regular).forEach(iterateRegularTreatments);
                 tracker.resolve(response);
+                
+                function iterateRegularTreatments(treatment) {
+                    response.treatments.push({
+                        name: treatment,
+                        rate: res.regular[treatment].rate
+                    });
+                }
             }
             
             function failure(err) {

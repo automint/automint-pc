@@ -1,8 +1,8 @@
 /*
  * Automint Application
  * @author ndkcha
- * @since 0.1.0
- * @version 0.1.0
+ * @since 0.4.1
+ * @version 0.4.1
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -10,6 +10,7 @@
 /*
  *  This closure contains initialization of angular application
  *  Do not update this file unless app level changes are required
+ *  When necessary, ask @ndkcha before updating
  */
 
 (function() {

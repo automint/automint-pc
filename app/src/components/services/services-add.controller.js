@@ -1,8 +1,8 @@
 /**
  * Controller for Add Service module
  * @author ndkcha
- * @since 0.1.0
- * @version 0.1.0
+ * @since 0.4.1
+ * @version 0.4.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -90,7 +90,7 @@
         vm.save = save;
 
         //  default execution steps
-        // vm.serviceTab = true // testing purposes
+        vm.serviceTab = true // testing purposes
         getTreatmentDisplayFormat();
         getVehicleTypes();
         getRegularTreatments();

@@ -1,8 +1,8 @@
 /**
  * Controller for View Services module
  * @author ndkcha
- * @since 0.1.0
- * @version 0.1.0
+ * @since 0.4.1
+ * @version 0.4.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -19,7 +19,7 @@
 
         //  named assginments for tracking UI elements
         vm.query = {
-            limit: 5,
+            limit: 10,
             page: 1,
             total: 0
         };

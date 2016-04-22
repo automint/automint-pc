@@ -1,8 +1,8 @@
 /**
  * Factory to backup pouchDb dump to local storage
  * @author ndkcha
- * @since 0.1.0
- * @version 0.1.0
+ * @since 0.4.1
+ * @version 0.4.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -39,7 +39,6 @@
         }
 
         function foundDocsToBackup(data) {
-            backupDocument.backAppVersion = constants.automint_version;
             backupDocument.backupTime = Date.now();
             backupDocument.customers = {}
             backupDocument.customers.doc = [];

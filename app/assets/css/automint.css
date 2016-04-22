@@ -1,3 +1,10 @@
+/**
+ * Customised style sheet for Automint App
+ * @author ndkcha
+ * @since 0.4.1
+ * @version 0.4.1 
+ */
+
 .am-form-label {
     font-weight: 500;
     padding-bottom: 0.1rem;
@@ -71,4 +78,10 @@
     border-radius: 2px;
     border: 1px dashed #2196F3;
     background: rgba(100,100,100,0.2);
+}
+
+md-sidenav, md-sidenav.md-locked-open, md-sidenav.md-closed.md-locked-open-add-active {
+ min-width: 280px !important;
+ width: 50vw !important;
+ max-width: 280px !important;
 }
