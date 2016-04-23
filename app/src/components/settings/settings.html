@@ -69,17 +69,16 @@
                 </div>
             </md-card-content>
         </md-card>
-        <md-card ng-hide="true">
-            <md-card-title>
+        <md-card>
+            <md-card-title layout-xs="column">
                 <md-card-title-text>
-                    <span class="md-title">Upload Cover</span>
+                    <span class="md-title">Cover Photo</span>
                 </md-card-title-text>
+                <md-button class="md-raised" ng-click="vm.onClickUploadCover()">
+                    <span layout-padding>Change</span>
+                </md-button>
+                <input type="file" id="am-upload-cover-pic" ng-hide="true">
             </md-card-title>
-            <md-card-content>
-                <input type="file" id="upload-cover-pic">
-                <br>
-                <img src="#" id="cover-pic">
-            </md-card-content>
         </md-card>
     </div>
 </md-content>

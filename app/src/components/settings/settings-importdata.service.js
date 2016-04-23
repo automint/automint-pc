@@ -186,14 +186,14 @@
                                             existingVehicleInDb = true;
                                     }
                                     if (!existingVehicleInDb) {
-                                        var prefixVehicle = 'vehicle' + ((vehicle.manuf && vehicle.model) ? '-' + angular.lowercase(vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vehicle.model).replace(' ', '-') : '');
+                                        var prefixVehicle = 'vhcl' + ((vehicle.manuf && vehicle.model) ? '-' + angular.lowercase(vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vehicle.model).replace(' ', '-') : '');
                                         dbUser.user.vehicles[utils.generateUUID('vhcl')] = vehicle;
                                     }
                                 }
                             }
                             targetUser = dbUser;
                         } else {
-                            var prefixUser = 'user-' + angular.lowercase(customer.name).replace(' ', '-');
+                            var prefixUser = 'usr-' + angular.lowercase(customer.name).replace(' ', '-');
                             targetUser = {
                                 _id: utils.generateUUID(prefixUser),
                                 creator: $amRoot.username
@@ -204,7 +204,7 @@
                                 customer.vehicles.forEach(iterateVehicles);
 
                                 function iterateVehicles(vehicle) {
-                                    var prefixVehicle = 'vehicle' + ((vehicle.manuf && vehicle.model) ? '-' + angular.lowercase(vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vehicle.model).replace(' ', '-') : '');
+                                    var prefixVehicle = 'vhcl' + ((vehicle.manuf && vehicle.model) ? '-' + angular.lowercase(vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vehicle.model).replace(' ', '-') : '');
                                     targetUser.user.vehicles[utils.generateUUID(prefixVehicle)] = vehicle;
                                 }
                             } else

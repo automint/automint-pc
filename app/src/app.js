@@ -48,14 +48,15 @@
         $rootScope.$state = $state;
         $rootScope.$stateParams = $stateParams;
         
+        $rootScope.setCoverPic = setCoverPic;
+        
         //  initialize database and default syncing mechanism with automint server
         $amRoot.initDb();
         
-        //  when state changes, scroll back to top
-        function onStateChangeSuccess() {
-            $("html, body").animate({
-                scrollTop: 0
-            }, 200);
+        //  set cover photo
+        function setCoverPic() {
+            var source = localStorage.getItem('cover-pic');
+            $('#am-cover-pic').attr('src', (source) ? source : 'assets/img/logo-250x125px.jpg').width(250).height(125);
         }
     }
 })();

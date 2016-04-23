@@ -12,14 +12,15 @@
         .controller('appBarHeaderCtrl', HeaderbarController)
         .controller('appSideBarCtrl', SidebarController);
 
-    HeaderbarController.$inject = ['$scope', '$timeout', '$mdSidenav'];
+    HeaderbarController.$inject = ['$rootScope', '$scope', '$timeout', '$mdSidenav'];
     SidebarController.$inject = ['$state', '$mdSidenav'];
 
-    function HeaderbarController($scope, $timeout, $mdSidenav) {
+    function HeaderbarController($rootScope, $scope, $timeout, $mdSidenav) {
         var vm = this;
         
         //  map functions to view model
         vm.toggleSideNavbar = buildDelayedToggler('main-nav-left');
+        $rootScope.setCoverPic();
         
         //  Supplies a function that will continue to operate until the time is up.
         function debounce(func, wait, context) {
