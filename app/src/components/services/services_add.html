@@ -15,13 +15,17 @@
                         <md-input-container class="md-block" flex-gt-xs>
                             <md-icon class="md-accent">phone</md-icon>
                             <label class="am-form-label" ng-class="{'large': vm.largeUserMobileLabel}">{{vm.label_userMobile}}</label>
-                            <input layout-padding type="text" ng-model="vm.user.mobile" ng-blur="vm.changeUserMobileLabel()" ng-focus="vm.changeUserMobileLabel(true)">
+                            <input layout-padding type="text" ng-model="vm.user.mobile" ng-blur="vm.changeUserMobileLabel(); vm.selectUserBasedOnMobile()" ng-focus="vm.changeUserMobileLabel(true)" ng-change="vm.changeUserMobile(true)">
                         </md-input-container>
                         <md-input-container class="md-block" flex-gt-xs>
                             <md-icon class="md-accent">email</md-icon>
                             <label class="am-form-label" ng-class="{'large': vm.largeUserEmailLabel}">{{vm.label_userEmail}}</label>
                             <input type="email" ng-model="vm.user.email" ng-blur="vm.changeUserEmailLabel()" ng-focus="vm.changeUserEmailLabel(true)">
                         </md-input-container>
+                    </div>
+                    <div layout="row" layout-align="center center" ng-show="vm.loadingBasedOnMobile">
+                        <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                        <span>Please wait</span>
                     </div>
                 </div>
                 <div layout="row" layout-align="end center">

@@ -26,7 +26,8 @@
             serviceTree: serviceTree,
             deleteService: deleteService,
             getVehicleTypes: getVehicleTypes,
-            getTreatmentSettings: getTreatmentSettings
+            getTreatmentSettings: getTreatmentSettings,
+            getCustomerByMobile: getCustomerByMobile
         }
 
         return factory;
@@ -338,6 +339,53 @@
                 }
             }
 
+            function failure(err) {
+                tracker.reject(undefined);
+            }
+        }
+        
+        //  return customer information based on their mobile number
+        function getCustomerByMobile(mobile) {
+            var tracker = $q.defer();
+            console.log('fire');
+            pdbCustomers.query(mapView, {
+                include_docs: true,
+                key: mobile
+            }).then(success).catch(failure);
+            return tracker.promise;
+            
+            function mapView(doc, emit) {
+                if (doc.user)
+                    emit(doc.user.mobile, doc.user);
+            }
+            
+            function success(res) {
+                var doc = res.rows[0].doc;
+                var response = {};
+                var pvl = [];
+                response.id = doc.id;
+                response.mobile = doc.user.mobile;
+                response.email = doc.user.email;
+                response.name = doc.user.name;
+                if (doc.user.vehicles)
+                    Object.keys(doc.user.vehicles).forEach(iterateVehicle);
+                response.possibleVehicleList = pvl;
+                tracker.resolve(response);
+                
+                delete doc;
+                    
+                function iterateVehicle(vId) {
+                    var vehicle = doc.user.vehicles[vId];
+                    pvl.push({
+                        id: vId,
+                        reg: vehicle.reg,
+                        manuf: vehicle.manuf,
+                        model: vehicle.model,
+                        name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' || vehicle.reg == undefined ? '' : ', ' + vehicle.reg),
+                        type: (vehicle.type) ? vehicle.type : ''
+                    });
+                }
+            }
             function failure(err) {
                 tracker.reject(undefined);
             }
