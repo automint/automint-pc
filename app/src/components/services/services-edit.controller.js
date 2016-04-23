@@ -80,6 +80,7 @@
 
         //  default execution steps
         getVehicleTypes();
+        changeServiceTab(true);
 
         //  function definitions
         
