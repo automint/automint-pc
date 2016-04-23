@@ -50,6 +50,9 @@ Temporary Items
 node_modules/
 npm-debug.log
 
+# Distributions
+dist
+
 # TypeScript Dependencies
 app/typings/
 

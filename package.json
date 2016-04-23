@@ -1,0 +1,27 @@
+{
+    "scripts": {
+        "postinstall": "install-app-deps",
+        "start": "electron ./app",
+        "clean": "rimraf dist",
+        "clean:win": "rimraf dist/win",
+        "compile": "rimraf src/out",
+        "pack": "npm run compile && build",
+        "dist": "npm run compile && build",
+        "release": "npm run compile && build",
+        "dist:win32-ia32": "./node_modules/.bin/build --platform win32 --arch ia32",
+        "dist:win32-x64": "./node_modules/.bin/build --platform win32 --arch x64",
+        "dist:win32": "./node_modules/.bin/build --platform win32 --arch all"
+    },
+    "build": {
+        "iconUrl": "http://cruzer.io/automint.ico",
+        "win": {
+            "authors": "Automint Pvt. Ltd.",
+            "loadingGif": "build/installer.gif"
+        }
+    },
+    "devDependencies": {
+        "electron-builder": "^3.3.1",
+        "electron-prebuilt": "^0.37.5",
+        "rimraf": "^2.5.2"
+    }
+}

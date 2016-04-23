@@ -13,6 +13,22 @@
     const app = electron.app;
     // Module to create native browser window.
     const BrowserWindow = electron.BrowserWindow;
+    
+    // Importing Eelctron Squirrel Startup 
+    if(require('electron-squirrel-startup')) return;
+    // Module to Auto Update app
+    var autoUpdater = require('auto-updater');  
+    var os = require('os');  
+    var feedURL = 'http://updates.automint.in/releases/' + (os.platform()) + '/' + (os.arch());
+    autoUpdater.addListener("error", function(error) {});
+    autoUpdater.setFeedURL(feedURL);
+    if (process.argv[1] == '--squirrel-firstrun') {
+        setTimeout(()=> {
+            autoUpdater.checkForUpdates();
+        }, 180000)
+    } else {
+        autoUpdater.checkForUpdates();
+    }
 
     // Keep a global reference of the window object, if you don't, the window will
     // be closed automatically when the JavaScript object is garbage collected.
