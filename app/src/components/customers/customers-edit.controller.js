@@ -276,7 +276,7 @@
                     vehicleDbInstance.manuf = vm.vehicle.manuf;
                     vehicleDbInstance.model = vm.vehicle.model;
                 } else {
-                    var prefixVehicle = 'vehicle' + ((vm.vehicle.manuf && vm.vehicle.model) ? '-' + angular.lowercase(vm.vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vm.vehicle.model).replace(' ', '-') : '');
+                    var prefixVehicle = 'vhcl' + ((vm.vehicle.manuf && vm.vehicle.model) ? '-' + angular.lowercase(vm.vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vm.vehicle.model).replace(' ', '-') : '');
                     userDbInstance.user.vehicles[utils.generateUUID(prefixVehicle)] = {
                         reg: (vm.vehicle.reg == undefined ? '' : vm.vehicle.reg),
                         manuf: (vm.vehicle.manuf == undefined ? '' : vm.vehicle.manuf),

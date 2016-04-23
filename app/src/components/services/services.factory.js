@@ -394,7 +394,7 @@
         //  save a service to database
         function saveService(newUser, newVehicle, newService) {
             var tracker = $q.defer();
-            var prefixVehicle = 'vehicle' + ((newVehicle.manuf && newVehicle.model) ? '-' + angular.lowercase(newVehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(newVehicle.model).replace(' ', '-') : '');
+            var prefixVehicle = 'vhcl' + ((newVehicle.manuf && newVehicle.model) ? '-' + angular.lowercase(newVehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(newVehicle.model).replace(' ', '-') : '');
             var prefixUser = 'user-' + angular.lowercase(newUser.name).replace(' ', '-');
             var newServiceId = ((newService.id == undefined || newService.id == '') ? utils.generateUUID('srvc') : newService.id);
             var newVehicleId = ((newVehicle.id == undefined || newVehicle.id == '') ? utils.generateUUID(prefixVehicle) : newVehicle.id);
