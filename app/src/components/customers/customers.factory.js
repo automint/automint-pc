@@ -268,7 +268,7 @@
 
         //  add new customer
         function addNewCustomer(customer, vehicle) {
-            var prefixUser = 'user-' + angular.lowercase(customer.name).replace(' ', '-'),
+            var prefixUser = 'usr-' + angular.lowercase(customer.name).replace(' ', '-'),
                 prefixVehicle;
 
             if (vehicle) {
