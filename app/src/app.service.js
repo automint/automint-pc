@@ -62,11 +62,11 @@
                 
                 //  iterate through documents to match id(s) of documents
                 function iterateDocuments(element) {
-                    if (element.id.match(/\btreatment-/i))
+                    if (element.id.match(/\btrtmnt-/i))
                         sVm.docIds.treatment = element.id;
-                    if (element.id.match(/\bworkshop-/i))
+                    if (element.id.match(/\bwrkshp-/i))
                         sVm.docIds.workshop = element.id;
-                    if (element.id.match(/\bsettings-/i))
+                    if (element.id.match(/\bsttngs-/i))
                         sVm.docIds.settings = element.id;
                 }
             }
@@ -157,17 +157,17 @@
         
         //  check if treatment's document id is loaded to current docId object
         function isTreatmentId() {
-            return isDocId('treatment');
+            return isDocId('trtmnt');
         }
         
         //  check if workshop's document id is loaded to current docId object
         function isWorkshopId() {
-            return isDocId('workshop');
+            return isDocId('wrkshp');
         }
         
         //  check if settings' document id is loaded to current docId object
         function isSettingsId() {
-            return isDocId('settings');
+            return isDocId('sttngs');
         }
         
         //  the check function

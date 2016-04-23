@@ -21,7 +21,7 @@
         var treatmentName = $state.params.name;
 
         //  named assignments to keep track of UI elements
-        vm.label_name = 'Enter Treatment Name';
+        vm.label_name = 'Enter Treatment Name:';
         vm.treatment = {
             name: ''
         };
@@ -114,7 +114,7 @@
         
         function changeNameLabel(force) {
             vm.largeNameLabel = force != undefined || vm.treatment.name != '';
-            vm.label_name = (vm.largeNameLabel) ? 'Name:' : 'Enter Treatment Name';
+            vm.label_name = (vm.largeNameLabel) ? 'Name:' : 'Enter Treatment Name:';
         }
         
         function generateRate() {

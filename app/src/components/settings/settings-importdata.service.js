@@ -193,7 +193,7 @@
                             }
                             targetUser = dbUser;
                         } else {
-                            var prefixUser = 'user-' + angular.lowercase(customer.name).replace(' ', '-');
+                            var prefixUser = 'usr-' + angular.lowercase(customer.name).replace(' ', '-');
                             targetUser = {
                                 _id: utils.generateUUID(prefixUser),
                                 creator: $amRoot.username

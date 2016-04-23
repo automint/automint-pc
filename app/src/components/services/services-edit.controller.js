@@ -26,9 +26,9 @@
         var autofillVehicle = false;
 
         //  vm assignments to keep track of UI related elements
-        vm.label_userMobile = 'Enter Mobile Number';
-        vm.label_userEmail = 'Enter Email Address';
-        vm.label_vehicleReg = 'Enter Vehicle Registration Number';
+        vm.label_userMobile = 'Enter Mobile Number:';
+        vm.label_userEmail = 'Enter Email Address:';
+        vm.label_vehicleReg = 'Enter Vehicle Registration Number:';
         vm.label_vehicleManuf = 'Manufacturer:';
         vm.label_vehicleModel = 'Model:';
         vm.vehicleTypeList = [];
@@ -254,15 +254,15 @@
         //  listen to changes in input fields [BEGIN]
         function changeUserMobileLabel(force) {
             vm.largeUserMobileLabel = (force != undefined || vm.user.mobile != ''); 
-            vm.label_userMobile = vm.largeUserMobileLabel ? 'Mobile:' : 'Enter Mobile Number';
+            vm.label_userMobile = vm.largeUserMobileLabel ? 'Mobile:' : 'Enter Mobile Number:';
         }
         function changeUserEmailLabel(force) {
             vm.largeUserEmailLabel = (force != undefined || vm.user.email != ''); 
-            vm.label_userEmail = vm.largeUserEmailLabel ? 'Email:' : 'Enter Email Address';
+            vm.label_userEmail = vm.largeUserEmailLabel ? 'Email:' : 'Enter Email Address:';
         }
         function changeVehicleRegLabel(force) {
             vm.largeVehicleRegLabel = (force != undefined || vm.vehicle.reg != ''); 
-            vm.label_vehicleReg = vm.largeVehicleRegLabel ? 'Vehicle Registration Number:' : 'Enter Vehicle Registration Number';
+            vm.label_vehicleReg = vm.largeVehicleRegLabel ? 'Vehicle Registration Number:' : 'Enter Vehicle Registration Number:';
         }
         //  listen to changes in input fields [END]
 
