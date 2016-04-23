@@ -35,6 +35,7 @@
         //  default execution steps
         checkLogin();
         initializeDropFiles();
+        initializeUploadCoverPic();
 
         //  function definitions
 
@@ -48,6 +49,31 @@
                 dropFile.addEventListener('dragover', handleDragHoverEvent, false);
                 dropFile.addEventListener('dragleave', handleDragHoverEvent, false);
             }
+        }
+        
+        function initializeUploadCoverPic() {
+            var xhr = new XMLHttpRequest();
+            if (xhr.upload) {
+                var selectFile = document.getElementById('upload-cover-pic');
+                selectFile.addEventListener('change', handleUploadedCoverPic, false);
+            }
+        }
+        
+        function handleUploadedCoverPic(e) {
+            var files = e.target.files;
+            if (!files[0].type.match(/image/g))
+                utils.showSimpleToast('Please upload photo');
+            if (files && files[0]) {
+                var reader = new FileReader();
+                
+                reader.onload = loadReader;
+                reader.readAsDataURL(files[0]);
+            }
+            
+            function loadReader(e) {
+                $('#cover-pic').attr('src', e.target.result).width(300).height(300);
+            }
+            console.log(files);
         }
 
         function onClickUploadCSV() {

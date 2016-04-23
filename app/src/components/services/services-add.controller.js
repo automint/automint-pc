@@ -23,7 +23,7 @@
         var vm = this;
 
         //  temporary named assignments
-        var autofillVehicle = false;
+        var autofillVehicle = false, flagGetUserBasedOnMobile = true;
 
         //  vm assignments to keep track of UI related elements
         vm.label_userMobile = 'Enter Mobile Number';
@@ -79,6 +79,8 @@
         vm.chooseVehicle = chooseVehicle;
         vm.userQuerySearch = userQuerySearch;
         vm.selectedUserChange = selectedUserChange;
+        vm.changeUserMobile = changeUserMobile;
+        vm.selectUserBasedOnMobile = selectUserBasedOnMobile;
         vm.changeVehicleType = changeVehicleType;
         vm.onProblemSelected = onProblemSelected;
         vm.onProblemDeselected = onProblemDeselected;
@@ -94,7 +96,7 @@
         getTreatmentDisplayFormat();
         getVehicleTypes();
         getRegularTreatments();
-
+        
         //  function definitions
 
         //  get treatment settings
@@ -176,6 +178,7 @@
                 changeUserMobileLabel();
                 changeUserEmailLabel();
                 vm.possibleVehicleList = res.possibleVehicleList;
+                vm.changeUserMobile(false);
                 changeVehicle(vm.possibleVehicleList.length > 0 ? vm.possibleVehicleList[0].id : undefined);
             }
 
@@ -184,6 +187,41 @@
                 vm.user.name = '';
                 vm.user.mobile = '';
                 vm.user.email = '';
+                changeUserMobileLabel();
+                changeUserEmailLabel();
+                vm.possibleVehicleList = [];
+                changeVehicle();
+            }
+        }
+        
+        //  change flagGetUserBasedOnMobile
+        function changeUserMobile(bool) {
+            flagGetUserBasedOnMobile = bool;
+        }
+        
+        //  change user based on mobile number
+        function selectUserBasedOnMobile() {
+            if (vm.user.mobile != '' && (vm.user.id == '' || flagGetUserBasedOnMobile)) {
+                vm.changeUserMobile(false);
+                vm.loadingBasedOnMobile = true;
+                amServices.getCustomerByMobile(vm.user.mobile).then(success).catch(failure);
+            }
+            
+            function success(res) {
+                vm.loadingBasedOnMobile = false;
+                vm.user.id = res.id;
+                vm.user.mobile = res.mobile;
+                vm.user.email = res.email;
+                vm.user.name = res.name;
+                changeUserMobileLabel();
+                changeUserEmailLabel();
+                vm.possibleVehicleList = res.possibleVehicleList;
+                changeVehicle(vm.possibleVehicleList.length > 0 ? vm.possibleVehicleList[0].id : undefined);
+            }
+
+            function failure(err) {
+                vm.loadingBasedOnMobile = false;
+                vm.user.id = '';
                 changeUserMobileLabel();
                 changeUserEmailLabel();
                 vm.possibleVehicleList = [];

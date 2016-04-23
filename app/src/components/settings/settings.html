@@ -8,17 +8,6 @@
 <md-content class="md-padding" layout-xs="column" layout="row">
     <div flex-xs flex-gt-xs="50" layout="column">
         <md-card>
-            <md-card-title layout-xs="column" layout-align="center center">
-                <md-card-title-text>
-                    <span class="md-title">Backup Your Data</span>
-                </md-card-title-text>
-                <md-button class="md-raised" ng-click="vm.doBackup()">
-                    <md-icon>file_download</md-icon>
-                    <span layout-padding>Download</span>
-                </md-button>
-            </md-card-title>
-        </md-card>
-        <md-card>
             <md-card-title>
                 <md-card-title-text>
                     <span class="md-title">Import</span>
@@ -43,6 +32,17 @@
     </div>
     <div flex-xs flex-gt-xs="50" layout="column">
         <md-card>
+            <md-card-title layout-xs="column" layout-align="center center">
+                <md-card-title-text>
+                    <span class="md-title">Backup Your Data</span>
+                </md-card-title-text>
+                <md-button class="md-raised" ng-click="vm.doBackup()">
+                    <md-icon>file_download</md-icon>
+                    <span layout-padding>Download</span>
+                </md-button>
+            </md-card-title>
+        </md-card>
+        <md-card ng-hide="true">
             <md-card-title>
                 <md-card-title-text>
                     <span class="md-title">{{vm.label_login}}<span ng-show="vm.isLoggedIn" class="am-logged-in-as"> as {{vm.user.username}}</span>
@@ -67,6 +67,18 @@
                         <span layout-padding>Login</span>
                     </md-button>
                 </div>
+            </md-card-content>
+        </md-card>
+        <md-card ng-hide="true">
+            <md-card-title>
+                <md-card-title-text>
+                    <span class="md-title">Upload Cover</span>
+                </md-card-title-text>
+            </md-card-title>
+            <md-card-content>
+                <input type="file" id="upload-cover-pic">
+                <br>
+                <img src="#" id="cover-pic">
             </md-card-content>
         </md-card>
     </div>
