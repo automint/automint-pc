@@ -31,6 +31,7 @@
         vm.doBackup = doBackup;
         vm.doLogin = doLogin;
         vm.onClickUploadCSV = onClickUploadCSV;
+        vm.onClickUploadCover = onClickUploadCover;
 
         //  default execution steps
         checkLogin();
@@ -50,34 +51,39 @@
                 dropFile.addEventListener('dragleave', handleDragHoverEvent, false);
             }
         }
-        
+
         function initializeUploadCoverPic() {
             var xhr = new XMLHttpRequest();
             if (xhr.upload) {
-                var selectFile = document.getElementById('upload-cover-pic');
+                var selectFile = document.getElementById('am-upload-cover-pic');
                 selectFile.addEventListener('change', handleUploadedCoverPic, false);
             }
         }
-        
+
         function handleUploadedCoverPic(e) {
             var files = e.target.files;
-            if (!files[0].type.match(/image/g))
+            if (!files[0].type.match(/image/g)) {
                 utils.showSimpleToast('Please upload photo');
+                return;
+            }
             if (files && files[0]) {
                 var reader = new FileReader();
-                
+
                 reader.onload = loadReader;
                 reader.readAsDataURL(files[0]);
             }
-            
-            function loadReader(e) {
-                $('#cover-pic').attr('src', e.target.result).width(300).height(300);
-            }
-            console.log(files);
-        }
 
-        function onClickUploadCSV() {
-            angular.element(document.querySelector('#csv-file-select')).click();
+            function loadReader(e) {
+                $('#am-cover-pic').attr('src', e.target.result).width(250).height(125);
+                var coverPicElem = document.getElementById('am-cover-pic');
+                var ic = document.createElement('canvas'),
+                    icontext = ic.getContext('2d');
+                ic.width = coverPicElem.width;
+                ic.height = coverPicElem.height;
+                icontext.drawImage(coverPicElem, 0, 0, coverPicElem.width, coverPicElem.height);
+                localStorage.setItem('cover-pic', ic.toDataURL(files[0].type));
+                $('#am-cover-pic').attr('src', localStorage.getItem('cover-pic')).width(250).height(125);
+            }
         }
 
         function handleUploadedFile(e) {
@@ -104,6 +110,14 @@
             e.stopPropagation();
             e.preventDefault();
             e.target.className = (e.type == "dragover" ? "am-file-uploader hover" : "am-file-uploader");
+        }
+
+        function onClickUploadCSV() {
+            angular.element(document.querySelector('#csv-file-select')).click();
+        }
+        
+        function onClickUploadCover() {
+            angular.element(document.querySelector('#am-upload-cover-pic')).click();
         }
 
         function doBackup() {
