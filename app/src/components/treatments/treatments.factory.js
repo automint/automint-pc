@@ -81,7 +81,7 @@
             
             function writeNewConfig(err) {
                 var doc = {};
-                doc['_id'] = utils.generateUUID('settings');
+                doc['_id'] = utils.generateUUID('sttngs');
                 doc['creator'] = $amRoot.username;
                 doc.vehicletypes = vehicleTypes;
                 pdbConfig.save(doc).then(success).catch(failure);
@@ -197,7 +197,7 @@
 
             function noTreatmentDoc(err) {
                 var doc = {};
-                doc['_id'] = utils.generateUUID('treatment');
+                doc['_id'] = utils.generateUUID('trtmnt');
                 doc['creator'] = $amRoot.username;
                 doc.regular = {};
                 doc.regular[treatment.name] = i;
@@ -256,7 +256,7 @@
             }
             function writeNewConfig(err) {
                 var doc = {};
-                doc['_id'] = utils.generateUUID('settings');
+                doc['_id'] = utils.generateUUID('sttngs');
                 doc['creator'] = $amRoot.username;
                 doc.settings = {};
                 doc.settings['treatments'] = {}

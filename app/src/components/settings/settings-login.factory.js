@@ -70,7 +70,7 @@
                 
                 function noDocFound(err) {
                     var doc = {};
-                    doc['_id'] = utils.generateUUID('workshop');
+                    doc['_id'] = utils.generateUUID('wrkshp');
                     doc.user = {
                         username: username,
                         password: password
