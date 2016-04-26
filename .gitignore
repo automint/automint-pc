@@ -58,3 +58,4 @@ app/typings/
 
 # Dev Dependencies from @ndkcha
 app/src/automint.js
+nd_tests/
