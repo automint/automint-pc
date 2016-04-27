@@ -17,11 +17,11 @@
 
     function HeaderbarController($rootScope, $scope, $timeout, $mdSidenav) {
         var vm = this;
-        
+
         //  map functions to view model
         vm.toggleSideNavbar = buildDelayedToggler('main-nav-left');
         $rootScope.setCoverPic();
-        
+
         //  Supplies a function that will continue to operate until the time is up.
         function debounce(func, wait, context) {
             var timer;
@@ -35,7 +35,7 @@
                 }, wait || 10);
             };
         }
-        
+
         //  Build handler to open/close a SideNav; when animation finishes report completion in console
         function buildDelayedToggler(navID) {
             return debounce(function() {
@@ -46,34 +46,29 @@
 
     function SidebarController($state, $mdSidenav) {
         var vm = this;
-        
+
         //  map functions to view model
         vm.openState = openState;
-        
+
         //  objects passed to view model
-        vm.items = [
-            {
-                name: 'Services',
-                icon: 'build',
-                state: 'restricted.services.all'
-            },
-            {
-                name: 'Customers',
-                icon: 'group',
-                state: 'restricted.customers.all'
-            },
-            {
-                name: 'Treatments',
-                icon: 'local_car_wash',
-                state: 'restricted.treatments.all'
-            },
-            {
-                name: 'Settings',
-                icon: 'settings',
-                state: 'restricted.settings'
-            }
-        ];
-        
+        vm.items = [{
+            name: 'Services',
+            icon: 'build',
+            state: 'restricted.services.all'
+        }, {
+            name: 'Customers',
+            icon: 'group',
+            state: 'restricted.customers.all'
+        }, {
+            name: 'Treatments',
+            icon: 'local_car_wash',
+            state: 'restricted.treatments.all'
+        }, {
+            name: 'Settings',
+            icon: 'settings',
+            state: 'restricted.settings'
+        }];
+
         function openState(state) {
             $mdSidenav('main-nav-left').close()
             $state.go(state);
