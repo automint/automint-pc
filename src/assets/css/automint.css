@@ -1,23 +1,132 @@
-.automint-hide {
-    display: none;
+/**
+ * Customised style sheet for Automint App
+ * @author ndkcha
+ * @since 0.4.1
+ * @version 0.4.1 
+ */
+
+.am-form-label {
+    font-weight: 500;
+    padding-bottom: 0.1rem;
+    font-size: small;
+    color: rgba(30, 30, 30, 0.7);
+    margin-bottom: 0.5rem;
 }
-.automint-section-title {
-    color: rgb(255,255,255);
+
+.am-form-label.large {
+    font-weight: 500;
+    padding-bottom: 0.1rem;
+    font-size: medium;
+    color: rgba(30, 30, 30, 0.7);
+    margin-bottom: 0.1rem;
+}
+
+.am-vehicle-reg {
     letter-spacing: 1px;
-    font-weight: 100;
+}
+
+.am-icon-button-size {
+    font-size: medium;
     text-align: center;
-    margin-top: 1rem;
 }
-.automint-problem-delete-button {
-    border-radius: 0.6rem;
-    padding-top: 0.3rem;
-    padding-left: 0.6rem;
-    padding-right: 0.6rem;
-    padding-bottom: 0.3rem;
-    margin-left: 0.4rem;
-    margin-right: 0.4rem;
+
+.am-table-input {
+    border: 0;
+    font-weight: 400;
+    padding: 0.6rem;
+    outline: none;
+    color: rgba(30, 30, 30, 0.7);
+    -webkit-transition: color 1s ease 0s;
+    -moz-transition: color 1s ease 0s;
+    transition: color 1s ease 0s;
+    box-shadow: 1px 1px 3px 1px rgba(30, 30, 30, 0.1);
 }
-.automint-problem-checkbox {
-    margin-left: 1rem;
-    margin-right: 1rem;
+
+.am-table-input:focus {
+    color: rgba(30, 30, 30, 0.9);
+    box-shadow: 1px 1px 3px 1px rgba(30, 30, 30, 0.2);
+}
+
+.am-table-input.search-box {
+    font-size: small;
+    box-shadow: 1px 1px 3px 1px rgba(30, 30, 30, 0.1);
+}
+
+.am-checkbox .md-icon {
+    border-style: double;
+    border-width: 1px;
+}
+
+.am-file-uploader {
+    padding: 1rem 0;
+    background: rgba(100, 100, 100, 0.1);
+    border-radius: 2px;
+    border: 1px dashed rgba(30, 30, 30, 0.1);
+}
+
+.am-file-uploader input[type="file"] {
+    opacity: 0;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1;
+    cursor: pointer;
+}
+
+.am-file-uploader.hover {
+    padding: 1rem 0;
+    border-radius: 2px;
+    border: 1px dashed #2196F3;
+    background: rgba(100, 100, 100, 0.2);
+}
+
+md-sidenav,
+md-sidenav.md-locked-open,
+md-sidenav.md-closed.md-locked-open-add-active {
+    min-width: 250px !important;
+    width: 50vw !important;
+    max-width: 250px !important;
+}
+
+.am-message {
+    font-size: small;
+    padding-top: 1rem;
+}
+
+.am-hint {
+    position: absolute;
+    left: 2px;
+    right: auto;
+    bottom: 7px;
+    /* Copy styles from ng-messages */
+    font-size: 12px;
+    line-height: 14px;
+    transition: all 0.3s cubic-bezier(0.55, 0, 0.55, 0.2);
+    /* Set our own color */
+    color: #9E9E9E;
+}
+
+.am-hint .spacing-1p {
+    letter-spacing: 1px;
+}
+
+.am-hint .bold-500 {
+    font-weight: 500;
+}
+
+.am-side-nav {
+    background: #263238;
+}
+
+.am-side-nav .item-color {
+    color: #ECEFF1;
+}
+
+.am-side-nav .strong {
+    font-weight: 500;
+}
+
+.am-table-header {
+    font-size: medium;
 }

@@ -1,144 +1,62 @@
 /*
- *  Altair Admin AngularJS
+ * Automint Application
+ * @author ndkcha
+ * @since 0.4.1
+ * @version 0.4.1
  */
-;
-"use strict";
 
-var altairApp = angular.module('altairApp', [
-    'ui.router',
-    'oc.lazyLoad',
-    'ngSanitize',
-    'ngAnimate',
-    'ngRetina',
-    'ncy-angular-breadcrumb',
-    'ConsoleLogger'
-]);
+/// <reference path="../typings/main.d.ts" />
 
+/*
+ *  This closure contains initialization of angular application
+ *  Do not update this file unless app level changes are required
+ *  When necessary, ask @ndkcha before updating
+ */
 
-altairApp.config(function($sceDelegateProvider) {
-    $sceDelegateProvider.resourceUrlWhitelist([
-        'self',
-        'https://www.youtube.com/**',
-        'https://w.soundcloud.com/**'
-    ]);
-});
-
-// breadcrumbs
-altairApp.config(function($breadcrumbProvider) {
-    $breadcrumbProvider.setOptions({
-        prefixStateName: 'restricted.dashboard',
-        templateUrl: 'app/templates/breadcrumbs.tpl.html'
-    });
-});
-
-/* Run Block */
-altairApp
-    .run([
-        '$rootScope',
-        '$state',
-        '$stateParams',
-        '$http',
-        '$window',
-        '$timeout',
-        'preloaders',
-        '$automintService',
-        function($rootScope, $state, $stateParams, $http, $window, $timeout, preloaders, $automintService) {
-
-            $rootScope.$state = $state;
-            $rootScope.$stateParams = $stateParams;
-
-            $automintService.initDb();
-            $rootScope.$on('$stateChangeSuccess', function() {
-                // scroll view to top
-                $("html, body").animate({
-                    scrollTop: 0
-                }, 200);
-
-                $("body").resize(function() {
-                    $("#main_view").height(($("body").height()));
-                });
-
-                $timeout(function() {
-                    $rootScope.pageLoading = false;
-                    $($window).resize();
-                }, 300);
-
-                $timeout(function() {
-                    $rootScope.pageLoaded = true;
-                    $rootScope.appInitialized = true;
-                    // wave effects
-                    $window.Waves.attach('.md-btn-wave,.md-fab-wave', ['waves-button']);
-                    $window.Waves.attach('.md-btn-wave-light,.md-fab-wave-light', ['waves-button', 'waves-light']);
-                }, 600);
-
-            });
-
-            $rootScope.$on('$stateChangeStart', function(event, toState, toParams, fromState, fromParams) {
-                // main search
-                $rootScope.mainSearchActive = false;
-                // single card
-                $rootScope.headerDoubleHeightActive = false;
-                // top bar
-                $rootScope.toBarActive = false;
-                // page heading
-                $rootScope.pageHeadingActive = false;
-                // top menu
-                $rootScope.topMenuActive = false;
-                // full header
-                $rootScope.fullHeaderActive = false;
-                // full height
-                $rootScope.page_full_height = false;
-                // secondary sidebar
-                $rootScope.sidebar_secondary = false;
-                $rootScope.secondarySidebarHiddenLarge = false;
-                // footer
-                $rootScope.footerActive = false;
-
-                if ($($window).width() < 1220) {
-                    // hide primary sidebar
-                    $rootScope.primarySidebarActive = false;
-                    $rootScope.hide_content_sidebar = false;
-                }
-                if (!toParams.hasOwnProperty('hidePreloader')) {
-                    $rootScope.pageLoading = true;
-                    $rootScope.pageLoaded = false;
-                }
-
-            });
-
-            // fastclick (eliminate the 300ms delay between a physical tap and the firing of a click event on mobile browsers)
-            // FastClick.attach(document.body);
-
-            // get version from package.json
-            $http.get('./package.json').success(function(response) {
-                $rootScope.appVer = response.version;
-            });
-
-            // modernizr
-            $rootScope.Modernizr = Modernizr;
-
-            // get window width
-            var w = angular.element($window);
-            $rootScope.largeScreen = w.width() >= 1220;
-
-            w.on('resize', function() {
-                return $rootScope.largeScreen = w.width() >= 1220;
-            });
-
-            // show/hide main menu on page load
-            $rootScope.primarySidebarOpen = ($rootScope.largeScreen) ? true : false;
-
-            $rootScope.pageLoading = true;
-
-            // wave effects
-            $window.Waves.init();
-
+(function() {
+    angular.module('automintApp', ['ui.router', 'oc.lazyLoad', 'ngSanitize', 'ngAnimate', 'ngMaterial'])
+        .config(sceConfig)
+        .config(DateFormatConfig)
+        .run(RunMainBlock);
+    
+    sceConfig.$inject = ['$sceDelegateProvider'];
+    DateFormatConfig.$inject = ['$mdDateLocaleProvider'];
+    RunMainBlock.$inject = ['$rootScope', '$state', '$stateParams', '$window', '$amRoot'];
+    
+    //  configure rules for strict contextual escpaing
+    function sceConfig($sceDelegateProvider) {
+        $sceDelegateProvider.resourceUrlWhitelist([
+            'self'
+        ]);
+    }
+    
+    //  configure date formats for the application
+    function DateFormatConfig($mdDateLocaleProvider) {
+        $mdDateLocaleProvider.formatDate = formatDate;
+        
+        function parseDate(dateString) {
+            return moment(dateString).format('DD/MM/YYYY');
         }
-    ])
-    .run([
-        'PrintToConsole',
-        function(PrintToConsole) {
-            // app debug
-            PrintToConsole.active = false;
+        
+        function formatDate(date) {
+            return moment(date).format('DD/MM/YYYY');
         }
-    ]);
+    }
+    
+    //  it's called when all the modules are loaded
+    function RunMainBlock($rootScope, $state, $stateParams, $window, $amRoot) {
+        $rootScope.$state = $state;
+        $rootScope.$stateParams = $stateParams;
+        
+        $rootScope.setCoverPic = setCoverPic;
+        
+        //  initialize database and default syncing mechanism with automint server
+        $amRoot.initDb();
+        
+        //  set cover photo
+        function setCoverPic() {
+            var source = localStorage.getItem('cover-pic');
+            $('#am-cover-pic').attr('src', (source) ? source : 'assets/img/logo-250x125px.jpg').width(250).height(125);
+        }
+    }
+})();

@@ -1,0 +1,13 @@
+<div class="column">
+    <md-toolbar>
+        <img src="assets/img/logo-250x125px.jpg" id="am-cover-pic">
+    </md-toolbar>
+    <md-list ng-cloak class="am-side-nav">
+        <md-list-item ng-repeat="item in sidebarVm.items" ng-click="sidebarVm.openState(item.state)">
+            <div layout="row" layout-align="center center">
+                <div layout-padding><md-icon class="item-color">{{ item.icon }}</md-icon></div>
+                <div layout-padding><span class="md-body-1 item-color strong"> {{ item.name }} </span></div>
+            </div>
+        </md-list-item>
+    </md-list>
+</div>

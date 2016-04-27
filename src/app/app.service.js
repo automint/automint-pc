@@ -1,60 +1,218 @@
-altairApp
-    .service('detectBrowser', [
-        '$window',
-        function($window) {
-            // http://stackoverflow.com/questions/22947535/how-to-detect-browser-using-angular
-            return function() {
-                var userAgent = $window.navigator.userAgent,
-                    browsers  = {
-                        chrome  : /chrome/i,
-                        safari  : /safari/i,
-                        firefox : /firefox/i,
-                        ie      : /internet explorer/i
-                    };
+/*
+ * Closure for root level service
+ * @author ndkcha
+ * @since 0.4.1
+ * @version 0.4.1
+ */
 
-                for ( var key in browsers ) {
-                    if ( browsers[key].test(userAgent) ) {
-                        return key;
-                    }
+/// <reference path="../typings/main.d.ts" />
+
+(function () {
+    angular.module('automintApp')
+        .service('$amRoot', AutomintService);
+    
+    AutomintService.$inject = ['$q', '$log', 'constants', 'pdbCustomers', 'pdbConfig', 'pdbCommon', 'amFactory'];
+    
+    // function AutomintService($q:angular.IQService, $log:angular.ILogService,constants, pdbCustomers, pdbConfig, pdbCommon, amFactory) {
+    function AutomintService($q, $log, constants, pdbCustomers, pdbConfig, pdbCommon, amFactory) {
+        //  set up service object
+        var sVm = this;
+        
+        //  keep track of current configuration of application
+        sVm.docIds = {};
+        sVm.username = '';
+        
+        //  map functions
+        sVm.initDb = initDb;
+        sVm.syncDb = syncDb;
+        sVm.isWorkshopId = isWorkshopId;
+        sVm.isTreatmentId = isTreatmentId;
+        sVm.isSettingsId = isSettingsId;
+        sVm.updateConfigReferences = updateConfigReferences;
+        
+        //  named assignments
+        var successResponse = {
+            success: true
+        }
+        var failureResponse = {
+            success: false
+        }
+        
+        //  initialize databases
+        function initDb() {
+            //  setup local databases
+            pdbConfig.setDatabase(constants.pdb_w_config);
+            pdbCustomers.setDatabase(constants.pdb_w_customers);
+            pdbCommon.setDatabase(constants.pdb_common);
+            
+            //  setup server iteraction
+            // oneWayReplication();
+            // syncDb();
+        }
+        
+        function updateConfigReferences() {
+            var tracker = $q.defer();
+            pdbConfig.getAll().then(successQuery).catch(failedQuery);
+            return tracker.promise;
+            
+            //  if promise returns with all documents, update configurations
+            function successQuery(res) {
+                res.rows.forEach(iterateDocuments);
+                tracker.resolve(successResponse);
+                
+                //  iterate through documents to match id(s) of documents
+                function iterateDocuments(element) {
+                    if (element.id.match(/\btrtmnt-/i))
+                        sVm.docIds.treatment = element.id;
+                    if (element.id.match(/\bwrkshp-/i))
+                        sVm.docIds.workshop = element.id;
+                    if (element.id.match(/\bsttngs-/i))
+                        sVm.docIds.settings = element.id;
                 }
-                return 'unknown';
+            }
+            
+            //  if promise returns with error
+            function failedQuery(err) {
+                tracker.reject(failureResponse);
             }
         }
-    ])
-    .service('preloaders', [
-        '$rootScope',
-        '$timeout',
-        'utils',
-        function($rootScope,$timeout,utils) {
-            $rootScope.content_preloader_show = function(style,container) {
-                var $body = $('body');
-                if(!$body.find('.content-preloader').length) {
-                    var image_density = utils.isHighDensity() ? '@2x' : '' ;
-
-                    var preloader_content = (typeof style !== 'undefined' && style == 'regular')
-                        ? '<img src="assets/img/spinners/spinner' + image_density + '.gif" alt="" width="32" height="32">'
-                        : '<div class="md-preloader"><svg xmlns="http://www.w3.org/2000/svg" version="1.1" height="32" width="32" viewbox="0 0 75 75"><circle cx="37.5" cy="37.5" r="33.5" stroke-width="8"/></svg></div>';
-
-                    var thisContainer = (typeof container !== 'undefined') ? container : $body;
-
-                    thisContainer.append('<div class="content-preloader">' + preloader_content + '</div>');
-                    $timeout(function() {
-                        $('.content-preloader').addClass('preloader-active');
-                    });
+        
+        //  check if database is syncable to remote
+        function isSyncable() {
+            var tracker = $q.defer();
+            var workshopUser = $.extend({}, successResponse);
+            
+            isWorkshopId().then(setCredentials).catch(noWorkshopUser);
+            return tracker.promise;
+            
+            //  if workshop document is tracker, look for username and password inside document
+            function setCredentials(res) {
+                pdbConfig.get(sVm.docIds.workshop).then(setWorkshopUser).catch(noWorkshopUser);
+                
+                //  if workshop users existing, return with username and password
+                function setWorkshopUser(res) {
+                    if (res.user) {
+                        workshopUser.username = res.user.username;
+                        workshopUser.password = res.user.password;
+                        tracker.resolve(workshopUser);
+                    } else
+                        noWorkshopUser();
                 }
-            };
-            $rootScope.content_preloader_hide = function() {
-                var $body = $('body');
-                if($body.find('.content-preloader').length) {
-                    // hide preloader
-                    $('.content-preloader').removeClass('preloader-active');
-                    // remove preloader
-                    $timeout(function() {
-                        $('.content-preloader').remove();
-                    }, 500);
-                }
-            };
-
+            }
+            
+            //  if no workshop, return with failed response bool    
+            function noWorkshopUser(error) {
+                tracker.reject(failureResponse);
+            }
         }
-    ])
-;
+        
+        //  setup sync (bidirectional replication)
+        function syncDb() {
+            isSyncable().then().catch();
+            
+            //  if sync details found
+            function runSync(res) {
+                if (res.success) {
+                    sVm.username = res.username;
+                    //  construct database url for workshop configuration and customers' db
+                    dbConfigUrl = amFactory.generateDbUrl(res.username, res.password, constants.sgw_w_config);
+                    dbCustomersUrl = amFactory.generateDbUrl(res.username, res.password, constants.sgw_w_customers);
+                    
+                    //  sync database
+                    pdbConfig.sync(dbConfigUrl)
+                        .on('change', onChangedDb)
+                        .on('paused', onPausedDb)
+                        .on('active', onActiveDb)
+                        .on('denied', onDeniedDb)
+                        .on('complete', onCompleteDb)
+                        .on('error', onErrorDb);
+
+                    pdbCustomers.sync(dbCustomersUrl)
+                        .on('change', onChangedDb)
+                        .on('paused', onPausedDb)
+                        .on('active', onActiveDb)
+                        .on('denied', onDeniedDb)
+                        .on('complete', onCompleteDb)
+                        .on('error', onErrorDb);
+                }
+            }
+            
+            //  no sync details found
+            function noSync(error) {
+                $log.debug('cannot sync at moment! no sync details found');
+            }
+        }
+        
+        //  setup one-way replication
+        function oneWayReplication() {
+            //  setup common database replication
+            pdbCommon.replicate(constants.db_url + constants.sgw_common)
+                .on('change', onChangedDb)
+                .on('paused', onPausedDb)
+                .on('active', onActiveDb)
+                .on('denied', onDeniedDb)
+                .on('complete', onCompleteDb)
+                .on('error', onErrorDb);
+        }
+        
+        //  check if treatment's document id is loaded to current docId object
+        function isTreatmentId() {
+            return isDocId('trtmnt');
+        }
+        
+        //  check if workshop's document id is loaded to current docId object
+        function isWorkshopId() {
+            return isDocId('wrkshp');
+        }
+        
+        //  check if settings' document id is loaded to current docId object
+        function isSettingsId() {
+            return isDocId('sttngs');
+        }
+        
+        //  the check function
+        function isDocId(query) {
+            var tracker = $q.defer();
+            if (sVm.docIds[query] == '' || sVm.docIds[query] == undefined)
+                sVm.updateConfigReferences().then(configUpdated).catch(updateFailed);
+            else
+                updateFailed();
+            return tracker.promise;
+                
+            function configUpdated(res) {
+                tracker.resolve(successResponse);
+            }
+            
+            function updateFailed(err) {
+                tracker.resolve(failureResponse);
+            }
+        }
+        
+        //  database listeners
+
+        function onChangedDb(info) {
+            //  listen to on change event
+        }
+
+        function onPausedDb(err) {
+            //  listen to on pause event
+        }
+
+        function onActiveDb() {
+            //  listen to on active event
+        }
+
+        function onDeniedDb(err) {
+            //  listen to on denied event
+        }
+
+        function onCompleteDb(info) {
+            //  listen to on complete event
+            updateConfigReferences();
+        }
+
+        function onErrorDb(err) {
+            //  listen to on error event
+        }
+    }
+})();

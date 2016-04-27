@@ -46,12 +46,18 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-# Node Files and Directories
-node_modules/
+# Node & Bower Dependencies
+node_modules
 npm-debug.log
+bower_components
+
+# Distributions
+pkg/dist
+pkg/app
 
 # TypeScript Dependencies
 src/typings/
 
-# Dev Files and Directories from @ndkcha
+# Dev Dependencies from @ndkcha
 src/app/automint.js
+nd_tests/

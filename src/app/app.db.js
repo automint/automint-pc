@@ -1,394 +1,313 @@
+/*
+ * Closure to create factories for handling databases
+ * @author ndkcha
+ * @since 0.4.1
+ * @version 0.4.1
+ */
+
 /// <reference path="../typings/main.d.ts" />
 
 (function() {
-    angular.module('altairApp')
-        .service('$pouchDb', PouchDbService)
-        .factory('pdbCustomer', PouchCustomer)
-        .factory('pdbConfig', PouchConfig)
-        .factory('pdbCommon', PouchCommon);
-        
-    PouchDbService.$inject = ['$rootScope', '$q'];
-    PouchCustomer.$inject = ['$pouchDb', '$q'];
-    PouchConfig.$inject = ['$pouchDb', '$q'];
-    PouchCommon.$inject = ['$pouchDb', '$q'];
-    
-    function PouchDbService($rootScope, $q) {
-        //  temporary assignments
-        var database;
-        var changeListener;
+    angular.module('automintApp')
+        .factory('pdbCustomers', PouchDbCustomers)
+        .factory('pdbConfig', PouchDbConfig)
+        .factory('pdbCommon', PouchDbCommon);
 
-        // function mapping and declarations
-        this.setDatabase = setDatabase;
-        this.startListening = startListening;
-        this.stopListening = stopListening;
-        this.sync = sync;
-        this.save = save;
-        this.delete = deleteDocument;
-        this.get = get;
-        this.getAll = getAll;
-        this.destroy = destroy;
-        
-        //  set local database
-        function setDatabase(databaseName) {
-            database = new PouchDB(databaseName);
-        }
+    PouchDbCustomers.$inject = ['$q'];
+    PouchDbConfig.$inject = ['$q'];
+    PouchDbCommon.$inject = ['$q'];
 
-        //  start listening to changes in local database
-        function startListening() {
-            changeListener = database.changes({
-                live: true,
-                include_docs: true
-            }).on("change", function(change) {
-                //  do something
-            });
-        }
+    //  factory function for customers' database
+    function PouchDbCustomers($q) {
+        //  named assignments
+        //  refs { dga: defaultGetAll }
+        var database, dbOptions, syncOptions, noIdError, dgaOptions;
 
-        //  stop listening to changes in local database
-        function stopListening() {
-            changeListener.cancel();
-        }
-
-        //  sync database with remote server
-        function sync(remoteDatabase) {
-            database.sync(remoteDatabase, {
-                live: true,
-                retry: true
-            });
-        }
-
-        //  save document in database (auto-detect for new or updated document)
-        function save(jsonDocument) {
-            var deferred = $q.defer();
-            if (!jsonDocument._id) {
-                database.post(jsonDocument).then(function(response) {
-                    deferred.resolve(response);
-                }).catch(function(error) {
-                    deferred.reject(error);
-                });
-            } else {
-                database.put(jsonDocument).then(function(response) {
-                    deferred.resolve(response);
-                }).catch(function(error) {
-                    deferred.reject(error);
-                });
-            }
-            return deferred.promise;
-        }
-
-        //  delete document based on document id and revision
-        function deleteDocument(documentId, documentRevision) {
-            return database.remove(documentId, documentRevision);
-        }
-
-        //  get document based on its id
-        function get(documentId) {
-            return database.get(documentId);
-        }
-
-        //  get all documents from database
-        function getAll() {
-            debugger;
-            return database.allDocs({
-                include_docs: true
-            });
-        }
-
-        //  drop database from local storage
-        function destroy() {
-            database.destroy();
-        }
-    }
-    
-    function PouchConfig($pouchDb, $q) {
-        //  temporary assignments
-        var database;
-        var changeListener;
-
-        //  initialized blank factory
-        var factory = {};
-        
-        //  function declarations and mapping
-        factory.setDatabase = setDatabase;
-        factory.startListening = startListening;
-        factory.stopListening = stopListening;
-        factory.sync = sync;
-        factory.save = save;
-        factory.delete = deleteDocument;
-        factory.get = get;
-        factory.getAll = getAll;
-        factory.destroy = destroy;
-
-        //  set local database
-        function setDatabase(databaseName) {
-            database = new PouchDB(databaseName);
-        }
-
-        //  start listening to changes in local database
-        function startListening() {
-            changeListener = database.changes({
-                live: true,
-                include_docs: true
-            }).on("change", function(change) {
-                //  do something
-            });
-        }
-
-        //  stop listening to changes in local database
-        function stopListening() {
-            changeListener.cancel();
-        }
-
-        //  sync database with remote server
-        function sync(remoteDatabase) {
-            return database.sync(remoteDatabase, {
-                live: true,
-                retry: true
-            });
-        }
-
-        //  save document to database
-        function save(jsonDocument) {
-            var deferred = $q.defer();
-            if (!jsonDocument._id) {
-                database.post(jsonDocument).then(function(response) {
-                    deferred.resolve(response);
-                }).catch(function(error) {
-                    deferred.reject(error);
-                });
-            } else {
-                database.put(jsonDocument).then(function(response) {
-                    deferred.resolve(response);
-                }).catch(function(error) {
-                    deferred.reject(error);
-                });
-            }
-            return deferred.promise;
-        }
-
-        //  delete document from database based on document id and revision
-        function deleteDocument(documentId, documentRevision) {
-            return database.remove(documentId, documentRevision);
-        }
-
-        //  get document based on document id
-        function get(documentId) {
-            return database.get(documentId);
-        }
-
-        //  get all documents from database
-        function getAll() {
-            return database.allDocs({
-                include_docs: true
-            });
-        }
-
-        //  drop database
-        function destroy() {
-            database.destroy();
-        }
+        //  initialized factory and function mappings
+        var factory = {
+            setDatabase: setDatabase,
+            sync : sync,
+            save: save,
+            get: get,
+            query: query,
+            getAll: getAll,
+            saveAll: saveAll
+        };
 
         return factory;
+
+        //  function definitions
+
+        //  setup database
+        function setDatabase(name) {
+            dbOptions = {
+                auto_compaction: true //,
+                    // revs_limit: 0
+            }
+            database = new PouchDB(name, dbOptions);
+        }
+
+        //  setup sync
+        function sync(remoteDb) {
+            if (!syncOptions) {
+                syncOptions = {
+                    live: true,
+                    retry: true
+                };
+            }
+            return database.sync(remoteDb, syncOptions);
+        }
+
+        //  save a document in pouchDb database
+        function save(document) {
+            var tracker = $q.defer();
+            if (document._id)
+                database.put(document).then(saveSuccessfull).catch(saveFailed);
+            else {
+                noIdError = {
+                    ok: false,
+                    message: 'No id provided'
+                };
+                tracker.reject(noIdError);
+            }
+
+            return tracker.promise;
+
+            //  respond to success response on saving database
+            function saveSuccessfull(response) {
+                tracker.resolve(response);
+            }
+
+            //  respond to failure response on saving database
+            function saveFailed(error) {
+                tracker.reject(error);
+            }
+        }
+
+        //  get a document from pouchdb database
+        function get(documentId, options) {
+            if (options)
+                return database.get(documentId, options);
+            else
+                return database.get(documentId);
+        }
+
+        //  query a document
+        //  refs { mrf: map reduce function }
+        function query(mrf, options) {
+            if (options)
+                return database.query(mrf, options);
+            else
+                return database.query(mrf);
+        }
+
+        //  fetch bulk documents from database
+        function getAll(options) {
+            if (options)
+                return database.allDocs(options);
+            else {
+                dgaOptions = {
+                    include_docs: true
+                };
+                return database.allDocs(dgaOptions);
+            }
+        }
+
+        //  put bulk documents into database
+        function saveAll(documents) {
+            return database.bulkDocs(documents);
+        }
     }
-    
-    function PouchCustomer($pouchDb, $q) {
-        //  temporary assignments
-        var database;
-        var changeListener;
 
-        //  initialized blank factory
-        var factory = {};
+    //  factory function for workshop's config database
+    function PouchDbConfig($q) {
+        //  named assignments
+        //  refs { dga: defaultGetAll }
+        var database, dbOptions, syncOptions, noIdError, dgaOptions;
 
-        //  function declarations and mapping
-        factory.setDatabase = setDatabase;
-        factory.db = db;
-        factory.startListening = startListening;
-        factory.stopListening = stopListening;
-        factory.sync = sync;
-        factory.save = save;
-        factory.delete = deleteDocument;
-        factory.get = get;
-        factory.getAll = getAll;
-        factory.destroy = destroy;
-        
-        //  set local database
-        function setDatabase(databaseName) {
-            database = new PouchDB(databaseName);
-        }
-        
-        //  get local database instance
-        function db() {
-            return database;
-        }
+        //  initialized factory and function mappings
+        var factory = {
+            setDatabase: setDatabase,
+            sync : sync,
+            save: save,
+            get: get,
+            query: query,
+            getAll: getAll
+        };
 
-        //  start listening to changes in local database
-        function startListening() {
-            changeListener = database.changes({
-                live: true,
-                include_docs: true
-            }).on("change", function(change) {
-                //  do something
-            });
-        }
-
-        //  stop listening to changes in local dataabse
-        function stopListening() {
-            changeListener.cancel();
-        }
-
-        //  sync database with remote server
-        function sync(remoteDatabase) {
-            return database.sync(remoteDatabase, {
-                live: true,
-                retry: true
-            });
-        }
-
-        //  save document to database
-        function save(jsonDocument) {
-            var deferred = $q.defer();
-            if (!jsonDocument._id) {
-                database.post(jsonDocument).then(function(response) {
-                    deferred.resolve(response);
-                }).catch(function(error) {
-                    deferred.reject(error);
-                });
-            } else {
-                database.put(jsonDocument).then(function(response) {
-                    deferred.resolve(response);
-                }).catch(function(error) {
-                    deferred.reject(error);
-                });
-            }
-            return deferred.promise;
-        }
-        
-        //  delete document from database based on document id and revision
-        function deleteDocument(documentId, documentRevision) {
-            if (documentRevision) {
-                return database.remove(documentId, documentRevision);
-            } else {
-                return database.remove(documentId);
-            }
-        }
-
-        //  get document based on document id
-        function get(documentId) {
-            return database.get(documentId);
-        }
-
-        //  get all documents from database
-        function getAll() {
-            return database.allDocs({
-                include_docs: true
-            });
-        }
-        
-        //  drop database
-        function destroy() {
-            database.destroy();
-        }
         return factory;
+
+        //  function definitions
+
+        //  setup database
+        function setDatabase(name) {
+            dbOptions = {
+                auto_compaction: true //,
+                    // revs_limit: 0
+            }
+            database = new PouchDB(name, dbOptions);
+        }
+
+        //  setup sync
+        function sync(remoteDb) {
+            if (!syncOptions) {
+                syncOptions = {
+                    live: true,
+                    retry: true
+                };
+            }
+            return database.sync(remoteDb, syncOptions);
+        }
+
+        //  save a document in pouchDb database
+        function save(document) {
+            var tracker = $q.defer();
+            if (document._id)
+                database.put(document).then(saveSuccessfull).catch(saveFailed);
+            else {
+                noIdError = {
+                    ok: false,
+                    message: 'No id provided'
+                };
+                tracker.reject(noIdError);
+            }
+
+            return tracker.promise;
+
+            //  respond to success response on saving database
+            function saveSuccessfull(response) {
+                tracker.resolve(response);
+            }
+
+            //  respond to failure response on saving database
+            function saveFailed(error) {
+                tracker.reject(error);
+            }
+        }
+
+        //  get a document from pouchdb database
+        function get(documentId, options) {
+            if (options)
+                return database.get(documentId, options);
+            else
+                return database.get(documentId);
+        }
+
+        //  query a document
+        //  refs { mrf: map reduce function }
+        function query(mrf, options) {
+            if (options)
+                return database.query(mrf, options);
+            else
+                return database.query(mrf);
+        }
+
+        //  fetch bulk documents from database
+        function getAll(options) {
+            if (options)
+                return database.allDocs(options);
+            else {
+                dgaOptions = {
+                    include_docs: true
+                };
+                return database.allDocs(dgaOptions);
+            }
+        }
     }
-    
-    function PouchCommon($pouchDb, $q) {
-        //  temporary assignments
-        var database;
-        var dbName;
-        var changeListener;
 
-        //  initialized blank factory
-        var factory = {};
+    //  factory function for common dataset
+    function PouchDbCommon($q) {
+        //  named assignments
+        //  refs { dga: defaultGetAll }
+        var database, dbOptions, replicaOptions, noIdError, dgaOptions;
 
-        //  function declarations and mapping
-        factory.setDatabase = setDatabase;
-        factory.db = db;
-        factory.startListening = startListening;
-        factory.stopListening = stopListening;
-        factory.replicate = replicate;
-        factory.save = save;
-        factory.delete = deleteDocument;
-        factory.get = get;
-        factory.getAll = getAll;
-        factory.destroy = destroy;
-        
-        //  set local database
-        function setDatabase(databaseName) {
-            database = new PouchDB(databaseName);
-            dbName = databaseName;
-        }
-        
-        //  get local database instance
-        function db() {
-            return database;
-        }
+        //  initialized factory and function mappings
+        var factory = {
+            setDatabase: setDatabase,
+            replicate : replicate,
+            save: save,
+            get: get,
+            query: query,
+            getAll: getAll
+        };
 
-        //  start listening to changes in local database
-        function startListening() {
-            changeListener = database.changes({
-                live: true,
-                include_docs: true
-            }).on("change", function(change) {
-                //  do something
-            });
-        }
-
-        //  stop listening to changes in local dataabse
-        function stopListening() {
-            changeListener.cancel();
-        }
-
-        //  replicate remote database to local
-        function replicate(remoteDatabase) {
-            return database.replicate.from(remoteDatabase, {
-                live: true,
-                retry: true
-            });
-        }
-
-        //  save document to database
-        function save(jsonDocument) {
-            var deferred = $q.defer();
-            if (!jsonDocument._id) {
-                database.post(jsonDocument).then(function(response) {
-                    deferred.resolve(response);
-                }).catch(function(error) {
-                    deferred.reject(error);
-                });
-            } else {
-                database.put(jsonDocument).then(function(response) {
-                    deferred.resolve(response);
-                }).catch(function(error) {
-                    deferred.reject(error);
-                });
-            }
-            return deferred.promise;
-        }
-        
-        //  delete document from database based on document id and revision
-        function deleteDocument(documentId, documentRevision) {
-            if (documentRevision) {
-                return database.remove(documentId, documentRevision);
-            } else {
-                return database.remove(documentId);
-            }
-        }
-
-        //  get document based on document id
-        function get(documentId) {
-            return database.get(documentId);
-        }
-
-        //  get all documents from database
-        function getAll() {
-            return database.allDocs({
-                include_docs: true
-            });
-        }
-        
-        //  drop database
-        function destroy() {
-            database.destroy();
-        }
         return factory;
+
+        //  function definitions
+
+        //  setup database
+        function setDatabase(name) {
+            dbOptions = {
+                auto_compaction: true //,
+                    // revs_limit: 0
+            }
+            database = new PouchDB(name, dbOptions);
+        }
+
+        //  setup replication from server
+        function replicate(remoteDb) {
+            if (!replicaOptions) {
+                replicaOptions = {
+                    live: true,
+                    retry: true
+                };
+            }
+            return database.replicate.from(remoteDb, replicaOptions);
+        }
+
+        //  save a document in pouchDb database
+        function save(document) {
+            var tracker = $q.defer();
+            if (document._id)
+                database.put(document).then(saveSuccessfull).catch(saveFailed);
+            else {
+                noIdError = {
+                    ok: false,
+                    message: 'No id provided'
+                };
+                tracker.reject(noIdError);
+            }
+
+            return tracker.promise;
+
+            //  respond to success response on saving database
+            function saveSuccessfull(response) {
+                tracker.resolve(response);
+            }
+
+            //  respond to failure response on saving database
+            function saveFailed(error) {
+                tracker.reject(error);
+            }
+        }
+
+        //  get a document from pouchdb database
+        function get(documentId, options) {
+            if (options)
+                return database.get(documentId, options);
+            else
+                return database.get(documentId);
+        }
+
+        //  query a document
+        //  refs { mrf: map reduce function }
+        function query(mrf, options) {
+            if (options)
+                return database.query(mrf, options);
+            else
+                return database.query(mrf);
+        }
+
+        //  fetch bulk documents from database
+        function getAll(options) {
+            if (options)
+                return database.allDocs(options);
+            else {
+                dgaOptions = {
+                    include_docs: true
+                };
+                return database.allDocs(dgaOptions);
+            }
+        }
     }
 })();
