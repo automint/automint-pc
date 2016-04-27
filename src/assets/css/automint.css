@@ -130,3 +130,11 @@ md-sidenav.md-closed.md-locked-open-add-active {
 .am-table-header {
     font-size: medium;
 }
+
+.am-datatable-actions {
+    width: 90px;
+}
+
+.am-datatable-actions .md-icon-button {
+    margin: 0;
+}
