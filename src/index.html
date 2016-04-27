@@ -1,0 +1,70 @@
+<!--
+Automint CRM Software
+@author ndkcha
+-->
+
+<!doctype html>
+<html ng-app="automintApp">
+
+<head>
+    <meta charset="utf-8">
+    <title page-title ng-bind="page_title"></title>
+    <meta name="viewport" content="initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <!-- favicon -->
+    <link rel="icon" type="image/png" href="assets/img/favicon-16x16.png" sizes="16x16">
+    <link rel="icon" type="image/png" href="assets/img/favicon-32x32.png" sizes="32x32">
+
+    <!-- material design icons -->
+    <link href="assets/material-icons/material-icons.css" rel="stylesheet">
+
+    <!-- material design -->
+    <link href="bower_components/angular-material/angular-material.min.css" rel="stylesheet">
+
+    <!-- javascript references -->
+    <script src="bower_components/jquery/dist/jquery.min.js"  onload="window.$ = window.jQuery = module.exports;"></script>
+    <script src="bower_components/angular/angular.min.js"></script>
+    <script src="bower_components/angular-sanitize/angular-sanitize.min.js"></script>
+    <script src="bower_components/angular-animate/angular-animate.min.js"></script>
+    <script src="bower_components/angular-ui-router/release/angular-ui-router.min.js"></script>
+    <script src="bower_components/angular-aria/angular-aria.min.js"></script>
+    <script src="bower_components/angular-messages/angular-messages.min.js"></script>
+    <script src="bower_components/angular-material/angular-material.min.js"></script>
+    <script src="bower_components/oclazyload/dist/ocLazyLoad.min.js"></script>
+    <script src="bower_components/moment/min/moment.min.js"></script>
+    
+    <!-- pouch db -->
+    <script src="assets/js/pouchdb-4.0.1.min.js"></script>
+
+    <!-- automint app -->
+    <script src="app/app.js"></script>
+    <script src="app/automint.js"></script>
+    <script src="app/app.db.js"></script>
+    <script src="app/app.service.js"></script>
+    <script src="app/app.theme.js"></script>
+    <script src="app/app.directive.js"></script>
+    <script src="app/app.controller.js"></script>
+    <script src="app/app.states.js"></script>
+    <script src="app/app.factory.js"></script>
+    <script src="app/app.oc_lazy_load.js"></script>
+    
+    <link rel="stylesheet" href="assets/css/automint.css">
+</head>
+
+<body layout="column" ng-cloak>
+    <section layout="row" flex>
+        <md-sidenav class="md-sidenav-left am-side-nav" md-component-id="main-nav-left" md-is-locked-open="$mdMedia('gt-md')" md-disable-backdrop md-whiteframe="4">
+            <md-content>
+                <div ui-view="side_bar"></div>
+            </md-content>
+        </md-sidenav>
+        <md-content flex>
+            <div ui-view="header_bar"></div>
+            <div ui-view layout-padding></div>
+        </md-content>
+    </section>
+</body>
+
+</html>
