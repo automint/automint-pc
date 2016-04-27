@@ -56,7 +56,7 @@ pkg/dist
 pkg/app
 
 # TypeScript Dependencies
-app/typings/
+src/typings/
 
 # Dev Dependencies from @ndkcha
 src/app/automint.js
