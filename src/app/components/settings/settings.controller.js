@@ -2,7 +2,7 @@
  * Controller for Settings component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -32,34 +32,18 @@
         vm.doLogin = doLogin;
         vm.onClickUploadCSV = onClickUploadCSV;
         vm.onClickUploadCover = onClickUploadCover;
+        vm.doSomething = function() {
+            console.log('Anand Log Thayo');
+        }
+        vm.handleUploadedFile = handleUploadedFile;
+        vm.handleUploadedCoverPic = handleUploadedCoverPic;
 
         //  default execution steps
         checkLogin();
-        initializeDropFiles();
-        initializeUploadCoverPic();
 
         //  function definitions
 
-        function initializeDropFiles() {
-            var xhr = new XMLHttpRequest();
-            if (xhr.upload) {
-                var dropFile = document.getElementById('csv-file-upload');
-                var selectFile = document.getElementById('csv-file-select');
-                selectFile.addEventListener('change', handleUploadedFile, false);
-                dropFile.addEventListener('drop', handleUploadedFile, false);
-                dropFile.addEventListener('dragover', handleDragHoverEvent, false);
-                dropFile.addEventListener('dragleave', handleDragHoverEvent, false);
-            }
-        }
-
-        function initializeUploadCoverPic() {
-            var xhr = new XMLHttpRequest();
-            if (xhr.upload) {
-                var selectFile = document.getElementById('am-upload-cover-pic');
-                selectFile.addEventListener('change', handleUploadedCoverPic, false);
-            }
-        }
-
+        //  store and change existing cover picture in UI as well as local storage
         function handleUploadedCoverPic(e) {
             var files = e.target.files;
             if (!files[0].type.match(/image/g)) {
@@ -86,14 +70,17 @@
             }
         }
 
+        //  callback function to import csv files
         function handleUploadedFile(e) {
             vm.currentCSVProgress = 0;
-            handleDragHoverEvent(e);
-            var files = e.target.files || e.dataTransfer.files;
+            var files = e.target.files || e.originalEvent.dataTransfer.files;
+            console.log(files);
             amImportdata.compileCSVFile(files).then(displayToastMessage).catch(displayToastMessage).finally(cleanUp, updates);
 
             function displayToastMessage(res) {
                 utils.showSimpleToast(res.message);
+                vm.currentCSVProgress = 100;
+                vm.showCSVProgress = (vm.currentCSVProgress < 100);
             }
 
             function cleanUp(res) {
@@ -106,20 +93,16 @@
             }
         }
 
-        function handleDragHoverEvent(e) {
-            e.stopPropagation();
-            e.preventDefault();
-            e.target.className = (e.type == "dragover" ? "am-file-uploader hover" : "am-file-uploader");
-        }
-
+        //  migrate click events from one element to another [BEGIN]
         function onClickUploadCSV() {
             angular.element(document.querySelector('#csv-file-select')).click();
         }
-        
         function onClickUploadCover() {
             angular.element(document.querySelector('#am-upload-cover-pic')).click();
         }
+        //  migrate click events from one element to another [END]
 
+        //  backup the database
         function doBackup() {
             amBackup.doBackup().then(respond).catch(respond);
 
@@ -129,6 +112,7 @@
             }
         }
 
+        //  check if user is signed in or not
         function checkLogin() {
             amLogin.loginDetails().then(success).catch(failure);
 
@@ -148,6 +132,7 @@
             }
         }
 
+        //  store user's login information in database
         function doLogin() {
             amLogin.login(vm.user.username, vm.user.password).then(success);
 
