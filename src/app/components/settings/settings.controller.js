@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .controller('amCtrlSettings', SettingsController);
 
-    SettingsController.$inject = ['$scope', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings'];
+    SettingsController.$inject = ['$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings'];
 
-    function SettingsController($scope, $log, utils, amBackup, amLogin, amImportdata, amIvSettings) {
+    function SettingsController($scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings) {
         //  initialize view model
         var vm = this;
 
@@ -41,6 +41,7 @@
         //  named assignments to keep track of UI [END]
         
         //  function maps [BEGIN]
+        vm.changeInvoiceTab = changeInvoiceTab;
         //  general settings
         vm.changeUsernameLabel = changeUsernameLabel;
         vm.changePasswordLabel = changePasswordLabel;
@@ -64,6 +65,13 @@
         //  function maps [END]
 
         //  default execution steps [BEGIN]
+        switch ($state.params.openTab) {
+            case 'invoice':
+                vm.invoiceTab = true;
+                break;
+            default:
+                break;
+        }
         //  general settings
         checkLogin();
         //  invoice settings
@@ -73,6 +81,11 @@
         //  default execution steps [END]
 
         //  function definitions
+        
+        //  default tab settings
+        function changeInvoiceTab(bool) {
+            vm.invoiceTab = bool;
+        }
        
         //  listen to changes in input fields [BEGIN]
         //  general settings

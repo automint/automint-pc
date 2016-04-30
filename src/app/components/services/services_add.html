@@ -209,6 +209,10 @@
                         <md-icon>done</md-icon>
                         <span layout-padding>Save</span>
                     </md-button>
+                    <md-button class="md-raised md-accent" ng-click="vm.save(vm.redirect.invoice)" ng-show="vm.isAddOperation()">
+                        <md-icon>receipt</md-icon>
+                        <span layout-padding>Invoice</span>
+                    </md-button>
                 </div>
             </md-content>
         </md-tab>

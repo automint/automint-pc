@@ -22,15 +22,17 @@
         var vm = this;
 
         //  named assignments to keep track of UI elements
-        vm.fabOptions = {
-            isOpen: false
-        }
+        vm.isFabOpen = true;
+        vm.fabClass = '';
 
         //  function maps
         vm.test = test;
         vm.printInvoice = printInvoice;
         vm.mailInvoice = mailInvoice;
         vm.goBack = goBack;
+        vm.editWorkshopInfo = editWorkshopInfo;
+        vm.openFab = openFab;
+        vm.closeFab = closeFab;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -42,6 +44,25 @@
         loadInvoiceWLogo();
 
         //  function definitions
+        
+        function openFab() {
+            if (vm.fabClass == '')
+                vm.fabClass = 'md-scale';
+            vm.isFabOpen = true;
+            vm.showFabTooltip = true;
+        }
+        
+        function closeFab() {
+            vm.isFabOpen = false;
+            vm.showFabTooltip = false;
+        }
+        
+        //  edit workshop info
+        function editWorkshopInfo() {
+            $state.go('restricted.settings', {
+                openTab: 'invoice'
+            });
+        }
 
         //  fill invoice details
         function fillInvoiceDetails() {

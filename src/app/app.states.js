@@ -196,6 +196,9 @@
                 templateUrl: 'app/components/settings/settings.html',
                 controller: 'amCtrlSettings',
                 controllerAs: 'vm',
+                params: {
+                    openTab: undefined
+                },
                 resolve: {
                     deps: ['$ocLazyLoad', loadSettingsDeps]
                 },

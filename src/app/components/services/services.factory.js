@@ -466,6 +466,11 @@
             }
 
             function success(res) {
+                res.id = {
+                    userId: newUserId,
+                    vehicleId: newVehicleId,
+                    serviceId: newServiceId
+                }
                 tracker.resolve(res);
             }
 

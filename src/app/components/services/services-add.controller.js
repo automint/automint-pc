@@ -23,7 +23,9 @@
         var vm = this;
 
         //  temporary named assignments
-        var autofillVehicle = false, flagGetUserBasedOnMobile = true, olInvoiceNo = 1;
+        var autofillVehicle = false,
+            flagGetUserBasedOnMobile = true,
+            olInvoiceNo = 1;
 
         //  vm assignments to keep track of UI related elements
         vm.label_userMobile = 'Enter Mobile Number:';
@@ -64,6 +66,11 @@
         vm.treatments = [];
         vm.selectedProblems = [];
 
+        //  named assignments to handle behaviour of UI elements
+        vm.redirect = {
+            invoice: 'invoice'
+        }
+
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
         vm.convertRegToCaps = convertRegToCaps;
@@ -93,22 +100,22 @@
         vm.save = save;
 
         //  default execution steps
-        // vm.serviceTab = true // testing purposes
         getTreatmentDisplayFormat();
         getVehicleTypes();
         getRegularTreatments();
         getLastInvoiceNo();
-        
+
         //  function definitions
 
         //  get last invoice number from database
         function getLastInvoiceNo() {
             amServices.getLastInvoiceNo().then(success).catch(failure);
-            
+
             function success(res) {
                 vm.service.invoiceno = ++res;
                 olInvoiceNo = res;
             }
+
             function failure(err) {
                 vm.service.invoiceno = 1;
                 olInvoiceNo = 1;
@@ -209,12 +216,12 @@
                 changeVehicle();
             }
         }
-        
+
         //  change flagGetUserBasedOnMobile
         function changeUserMobile(bool) {
             flagGetUserBasedOnMobile = bool;
         }
-        
+
         //  change user based on mobile number
         function selectUserBasedOnMobile() {
             if (vm.user.mobile != '' && (vm.user.id == '' || flagGetUserBasedOnMobile)) {
@@ -222,7 +229,7 @@
                 vm.loadingBasedOnMobile = true;
                 amServices.getCustomerByMobile(vm.user.mobile).then(success).catch(failure);
             }
-            
+
             function success(res) {
                 vm.loadingBasedOnMobile = false;
                 vm.user.id = res.id;
@@ -239,7 +246,6 @@
                 vm.loadingBasedOnMobile = false;
                 vm.user.id = '';
                 changeUserMobileLabel();
-                changeUserEmailLabel();
                 vm.possibleVehicleList = [];
                 changeVehicle();
             }
@@ -548,13 +554,13 @@
             vm.problem.cost = (vm.problem.rate == '') ? 0 : vm.problem.rate;
             updateCost();
         }
-        
+
         function validate() {
             if (vm.user.name == '') {
                 changeUserTab(true);
                 setTimeout(doFocus, 300);
                 utils.showSimpleToast('Please Enter Name');
-                
+
                 function doFocus() {
                     $('#ami-user-name').focus();
                 }
@@ -562,7 +568,7 @@
             }
             var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
             var isServiceBlank = (vm.service.problems.length == 0) && (vm.service.cost == undefined || vm.service.cost == 0) && (vm.service.odo == undefined || vm.service.odo == 0);
-            
+
             if (!isServiceBlank && isVehicleBlank) {
                 changeVehicleTab(true);
                 utils.showSimpleToast('Please Enter At Least One Vehicle Detail');
@@ -572,7 +578,7 @@
         }
 
         //  save to database
-        function save() {
+        function save(redirect) {
             if (!validate()) return;
             vm.service.date = moment(vm.service.date).format();
             vm.service.problems = vm.selectedProblems;
@@ -587,17 +593,28 @@
                 delete problem.checked;
                 delete problem['$$hashKey'];
             }
-        }
 
-        //  (save successfull)
-        function success(res) {
-            $state.go('restricted.services.all');
-            utils.showSimpleToast('Successfully Added!');
-        }
+            //  (save successfull)
+            function success(res) {
+                switch (redirect) {
+                    case vm.redirect.invoice:
+                        $state.go('restricted.invoices.view', {
+                            userId: res.id.userId,
+                            vehicleId: res.id.vehicleId,
+                            serviceId: res.id.serviceId
+                        });
+                        break;
+                    default:
+                        $state.go('restricted.services.all');
+                        break;
+                }
+                utils.showSimpleToast('Successfully Added!');
+            }
 
-        //  !(save successfull)
-        function failure(err) {
-            utils.showSimpleToast('Failed to add. Please Try Again!');
+            //  !(save successfull)
+            function failure(err) {
+                utils.showSimpleToast('Failed to add. Please Try Again!');
+            }
         }
     }
 })();
