@@ -18,7 +18,6 @@
 
     function doPrint(previewHtml) {
         var path = ammSaveHtml.generatePreviewFile(previewHtml);
-        console.log(path);
         openPrintWindow(path);
     }
 

@@ -9,15 +9,15 @@
 
 (function() {
     //  import node dependencies and other automint modules
-    var ammSaveHtml = require('./automint_modules/print/am-save-html.js');
     const ammPrint = require('./automint_modules/print/am-print.js');
+    const ammMailApi = require('./automint_modules/am-mailer.js');
     
     //  angular code 
     angular.module('automintApp').controller('amCtrlIvRI', InvoicesViewController);
 
-    InvoicesViewController.$inject = ['$q', '$log', '$state', 'utils', 'amInvoices'];
+    InvoicesViewController.$inject = ['$q', '$log', '$state', '$window', 'utils', 'amInvoices'];
 
-    function InvoicesViewController($q, $log, $state, utils, amInvoices) {
+    function InvoicesViewController($q, $log, $state, $window, utils, amInvoices) {
         //  initialize view model
         var vm = this;
         
@@ -29,6 +29,8 @@
         //  function maps
         vm.test = test;
         vm.printInvoice = printInvoice;
+        vm.mailInvoice = mailInvoice;
+        vm.goBack = goBack;
         
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -83,6 +85,16 @@
         function printInvoice() {
             var printObj = document.getElementById('am-invoice-body');
             ammPrint.doPrint(printObj.innerHTML);
+        }
+        
+        //  send email
+        function mailInvoice() {
+            var printObj = document.getElementById('am-invoice-mail-body');
+            ammMailApi.send(printObj.innerHTML, vm.service.invoiceno, vm.user);
+        }
+        
+        function goBack() {
+            $window.history.back();
         }
         
         //  test zone [BEGIN]
