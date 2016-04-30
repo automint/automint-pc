@@ -38,7 +38,6 @@
             $state.go('restricted.services.all');
             return;
         }
-        getDisplaySettings();
         fillInvoiceDetails();
         loadInvoiceWLogo();
         
@@ -46,19 +45,24 @@
         
         //  fill invoice details
         function fillInvoiceDetails() {
-            $q.all([
-                amInvoices.getWorkshopDetails(),
-                amInvoices.getServiceDetails($state.params.userId, $state.params.vehicleId, $state.params.serviceId)
-            ]).then(success).catch(failure);
+            amInvoices.getWorkshopDetails().then(fillWorkshopDetails).catch(failure);
+            amInvoices.getServiceDetails($state.params.userId, $state.params.vehicleId, $state.params.serviceId).then(fillServiceDetails).catch(failure);
             
-            function success(res) {
-                vm.workshop = res[0];
-                vm.user = res[1].user;
-                vm.vehicle = res[1].vehicle;
-                vm.service = res[1].service;
+            function fillWorkshopDetails(res) {
+                vm.workshop = res;
+                vm.workshop.label_phone = (vm.workshop.phone || vm.workshop.phone != '') ? '(M)' : '&nbsp;';
+                getDisplaySettings();
             }
+            
+            function fillServiceDetails(res) {
+                vm.user = res.user;
+                vm.vehicle = res.vehicle;
+                vm.service = res.service;
+            }
+            
             function failure(err) {
-                console.log(err);
+                getDisplaySettings();
+                $log.info('Could not load details');
             }
         }
         
@@ -73,10 +77,16 @@
             amInvoices.getDisplaySettings().then(success).catch(failure);
             
             function success(res) {
+                if (!res.workshopDetails) {
+                    vm.workshop = {};
+                }
+                if (res.workshopLogo) {
+                    vm.showInvoiceWLogo = (vm.invoiceWLogo != undefined); 
+                }
                 vm.displaySettings = res;
             }
             
-            function failure(err) {
+            function failure(err) { 
                 $log.info('Could not load display settings!');
             }
         }
