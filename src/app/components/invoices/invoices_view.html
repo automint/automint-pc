@@ -40,7 +40,7 @@
 </md-content>
 <md-content>
     <div id="am-invoice-mail-body">
-        <div id="am-invoice-body" style="box-shadow: 1px 1px 3px rgba(30,30,30,0.3); padding:1rem; margin: 1rem;">
+        <div id="am-invoice-body" style="box-shadow: 1px 1px 3px rgba(30,30,30,0.3); padding:1rem; margin: 0.1rem;">
             <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
             <html xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; margin: 0;">
 
@@ -51,7 +51,7 @@
                 <style>
                     .am-invoice-table {
                         border-collapse: collapse;
-                        width: 80%;
+                        width: 94%;
                     }
                     
                     .am-invoice-table td {
@@ -60,7 +60,7 @@
                     }
                     
                     .am-invoice-table .caption td {
-                        font-size: medium;
+                        font-size: small;
                     }
                     
                     .am-invoice-table .row td {
@@ -92,14 +92,14 @@
             <body style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;">
                 <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;">
                     <div style="float: right; padding-right: 2rem;">
-                        <img ng-show="vm.showInvoiceWLogo" ng-src="{{vm.invoiceWLogo}}" width="250" height="125"><br>
+                        <img id="am-invoice-w-logo" ng-src="{{vm.invoiceWLogo}}" width="250" height="125"><br>
                     </div>
                     <div style="float: left; padding-left: 2rem;">
-                        <h2 style="margin-bottom: 0.3rem">{{vm.workshop.name}}&nbsp;</span></h2>
-                        <span class="am-invoice-workshop-detail">{{vm.workshop.address1}}&nbsp;</span><br>
-                        <span class="am-invoice-workshop-detail">{{vm.workshop.address2}}&nbsp;</span><br>
-                        <span class="am-invoice-workshop-detail">{{vm.workshop.city}}&nbsp;</span></span><br>
-                        <span class="am-invoice-workshop-detail"><span style="font-size: x-small;">{{vm.workshop.label_phone}}</span> {{vm.workshop.phone}}&nbsp;</span>
+                        <h2 style="margin-bottom: 0.3rem; margin: 1px;">{{vm.workshop.name}}</span><span class="am-blank-padding">&nbsp;</span></h2>
+                        <span class="am-invoice-workshop-detail">{{vm.workshop.address1}}<span class="am-blank-padding">&nbsp;</span></span><br>
+                        <span class="am-invoice-workshop-detail">{{vm.workshop.address2}}<span class="am-blank-padding">&nbsp;</span></span><br>
+                        <span class="am-invoice-workshop-detail">{{vm.workshop.city}}<span class="am-blank-padding">&nbsp;</span></span><br>
+                        <span class="am-invoice-workshop-detail"><span style="font-size: x-small;">{{vm.workshop.label_phone}}</span> {{vm.workshop.phone}}<span class="am-blank-padding">&nbsp;</span></span>
                     </div>
                     <div style="clear: both"></div>
                 </section>
@@ -119,11 +119,11 @@
                             </tr>
                             <tr class="row" ng-repeat="problem in vm.service.problems">
                                 <td>{{problem.details}}</td>
-                                <td align="right">&#x20B9;&nbsp;{{problem.rate}}</td>
+                                <td align="right">Rs. {{problem.rate}}</td>
                             </tr>
                             <tr class="total">
                                 <td>Total</td>
-                                <td align="right">&#x20B9;&nbsp;{{vm.service.cost}}</td>
+                                <td align="right">Rs. {{vm.service.cost}}</td>
                             </tr>
                         </table>
                     </center>
