@@ -1,0 +1,125 @@
+<style>
+    .am-floating {
+        position: absolute;
+        bottom: 2rem;
+        right: 2rem;
+    }
+</style>
+<md-content layout="row" layout-align="end center" layout-margin layout-wrap class="am-floating">
+    <md-fab-speed-dial md-open="vm.fabOptions.isOpen" md-direction="left" class="md-scale">
+        <md-fab-trigger>
+            <md-tooltip md-direction="top" md-visible="true">Menu</md-tooltip>
+            <md-button class="md-fab md-accent">
+                <md-icon>menu</md-icon>
+            </md-button>
+        </md-fab-trigger>
+        <md-fab-actions>
+            <md-button aria-label="Email" class="md-fab md-raised md-mini" ng-click="vm.test()">
+                <md-icon aria-label="Email">email</md-icon>
+                <md-tooltip md-direction="top">Email</md-tooltip>
+            </md-button>
+            <md-button aria-label="Print" class="md-fab md-raised md-mini" ng-click="vm.printInvoice()">
+                <md-icon aria-label="Print">print</md-icon>
+                <md-tooltip md-direction="top">Print</md-tooltip>
+            </md-button>
+            <md-button aria-label="SMS" class="md-fab md-raised md-mini">
+                <md-icon aria-label="SMS">sms</md-icon>
+                <md-tooltip md-direction="top">SMS</md-tooltip>
+            </md-button>
+        </md-fab-actions>
+    </md-fab-speed-dial>
+</md-content>
+<md-content style="box-shadow: 1px 1px 3px rgba(30,30,30,0.3); padding:1rem; margin: 1rem;">
+    <div id="am-invoice-body">
+        <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+        <html xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; margin: 0;">
+
+        <head>
+            <meta name="viewport" content="width=device-width" />
+            <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+            <title>Invoice #{{vm.service.invoiceno}}</title>
+            <style>
+                .am-invoice-table {
+                    border-collapse: collapse;
+                    width: 80%;
+                }
+                
+                .am-invoice-table td {
+                    font-size: small;
+                    padding: 1rem;
+                }
+                
+                .am-invoice-table .caption td {
+                    font-size: medium;
+                }
+                
+                .am-invoice-table .row td {
+                    border-top: 1px solid #ECEFF1;
+                }
+                
+                .am-invoice-table .total td {
+                    border-top: 2px solid #37474F;
+                    font-weight: 800;
+                }
+                
+                .am-invoice-link {
+                    text-decoration: underline;
+                    color: #03A9F4;
+                    cursor: pointer;
+                    outline: none;
+                }
+                
+                .am-invoice-workshop-detail {
+                    font-size: small;
+                }
+            </style>
+        </head>
+
+        <body style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;">
+            <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;">
+                <table style="width: 100%; padding-left: 2rem; padding-right: 2rem;">
+                    <tr>
+                        <td align="left">
+                            <h2 style="margin-bottom: 0.3rem"><span ng-hide="vm.displaySettings.workshopDetails == false">{{vm.workshop.name}}</span><span ng-show="vm.displaySettings.workshopDetails == false">&nbsp</span></h2>
+                            <span class="am-invoice-workshop-detail"><span ng-hide="vm.displaySettings.workshopDetails == false">{{vm.workshop.address1}}<span ng-if="vm.workshop.address2 || vm.workshop.city">,</span></span><span ng-show="vm.displaySettings.workshopDetails == false">&nbsp</span></span><br>
+                            <span class="am-invoice-workshop-detail"><span ng-hide="vm.displaySettings.workshopDetails == false">{{vm.workshop.address2}}<span ng-if="vm.workshop.city">,</span></span>
+                            </span><span ng-show="vm.displaySettings.workshopDetails == false">&nbsp</span><br>
+                            <span class="am-invoice-workshop-detail"><span ng-hide="vm.displaySettings.workshopDetails == false">{{vm.workshop.city}}</span></span><span ng-show="vm.displaySettings.workshopDetails == false">&nbsp</span><br>
+                            <span class="am-invoice-workshop-detail"><span ng-hide="vm.displaySettings.workshopDetails == false"><span style="font-size: x-small;">(M)</span> {{vm.workshop.phone}}</span><span ng-show="vm.displaySettings.workshopDetails == false">&nbsp</span></span>
+                        </td>
+                        <td align="right">
+                            <img ng-show="vm.invoiceWLogo" ng-hide="vm.displaySettings.workshopLogo == false" ng-src="{{vm.invoiceWLogo}}" width="250" height="125"><br>
+                        </td>
+                    </tr>
+                </table>
+            </section>
+            <hr style="margin-top: 1.6rem; margin-bottom: 1rem; opacity: 0.3">
+            <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; margin: 1rem;">
+                <center>
+                    <table class="am-invoice-table">
+                        <tr class="caption">
+                            <td>
+                                <p style="font-size: large">{{vm.user.name}}</p>
+                                <span>{{vm.vehicle.manuf + ' ' + vm.vehicle.model}}</span>
+                            </td>
+                            <td style="text-align: right">
+                                <p style="text-align: right; font-size: large">Invoice #{{vm.service.invoiceno}}</p>
+                                <span>{{vm.service.date}}</span>
+                            </td>
+                        </tr>
+                        <tr class="row" ng-repeat="problem in vm.service.problems">
+                            <td>{{problem.details}}</td>
+                            <td align="right">&#x20B9;&nbsp;{{problem.rate}}</td>
+                        </tr>
+                        <tr class="total">
+                            <td>Total</td>
+                            <td align="right">&#x20B9;&nbsp;{{vm.service.cost}}</td>
+                        </tr>
+                    </table>
+                </center>
+            </section>
+        </body>
+
+        </html>
+    </div>
+</md-content>

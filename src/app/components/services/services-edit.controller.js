@@ -2,7 +2,7 @@
  * Controller for Edit Service component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -49,6 +49,7 @@
             date: new Date(),
             odo: 0,
             cost: 0,
+            invoiceno: 1,
             status: '',
             problems: []
         }
@@ -125,6 +126,7 @@
                 vm.service.date = new Date(res.vehicle.service.date);
                 vm.service.cost = res.vehicle.service.cost;
                 vm.service.odo = res.vehicle.service.odo;
+                vm.service.invoiceno = res.vehicle.service.invoiceno;
                 vm.service.status = res.vehicle.service.status;
                 vm.servicestatus = (res.vehicle.service.status == 'paid');
                 getRegularTreatments(res.vehicle.service.problems);

@@ -11,38 +11,117 @@
     angular.module('automintApp')
         .controller('amCtrlSettings', SettingsController);
 
-    SettingsController.$inject = ['$scope', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata'];
+    SettingsController.$inject = ['$scope', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings'];
 
-    function SettingsController($scope, $log, utils, amBackup, amLogin, amImportdata) {
+    function SettingsController($scope, $log, utils, amBackup, amLogin, amImportdata, amIvSettings) {
         //  initialize view model
         var vm = this;
 
-        //  named assignments to keep track of UI
+        //  named assignments to keep track of UI [BEGIN]
+        //  general settings
         vm.user = {
             username: '',
             password: ''
-        }
-        vm.label_username = 'Enter Username Here';
-        vm.label_password = 'Enter Password Here';
-
-        //  function maps
+        };
+        vm.label_username = 'Enter Username:';
+        vm.label_password = 'Enter Password:';
+        //  invoice settings
+        vm.workshop = {
+            name: '',
+            phone: '',
+            address1: '',
+            address2: '',
+            city: ''
+        };
+        vm.label_workshopName = 'Enter Workshop Name:';
+        vm.label_workshopPhone = 'Enter Phone Number:';
+        vm.label_workshopAddress1 = 'Enter Address Line 1:';
+        vm.label_workshopAddress2 = 'Enter Address Line 2:';
+        vm.label_workshopCity = 'Enter City:';
+        //  named assignments to keep track of UI [END]
+        
+        //  function maps [BEGIN]
+        //  general settings
         vm.changeUsernameLabel = changeUsernameLabel;
         vm.changePasswordLabel = changePasswordLabel;
         vm.doBackup = doBackup;
         vm.doLogin = doLogin;
-        vm.onClickUploadCSV = onClickUploadCSV;
-        vm.onClickUploadCover = onClickUploadCover;
-        vm.doSomething = function() {
-            console.log('Anand Log Thayo');
-        }
+        vm.uploadCSV = uploadCSV;
+        vm.uploadCover = uploadCover;
         vm.handleUploadedFile = handleUploadedFile;
         vm.handleUploadedCoverPic = handleUploadedCoverPic;
+        //  invoice settings
+        vm.changeWorkshopNameLabel = changeWorkshopNameLabel;
+        vm.changeWorkshopPhoneLabel = changeWorkshopPhoneLabel;
+        vm.changeWorkshopAddress1Label = changeWorkshopAddress1Label;
+        vm.changeWorkshopAddress2Label = changeWorkshopAddress2Label;
+        vm.changeWorkshopCityLabel = changeWorkshopCityLabel;
+        vm.saveWorkshopDetails = saveWorkshopDetails;
+        vm.changeInvoiceWLogo = changeInvoiceWLogo;
+        vm.uploadInvoiceWLogo = uploadInvoiceWLogo;
+        vm.resetLastInvoiceNo = resetLastInvoiceNo;
+        vm.saveIvDisplaySettings = saveIvDisplaySettings;
+        //  function maps [END]
 
-        //  default execution steps
+        //  default execution steps [BEGIN]
+        //  general settings
         checkLogin();
+        //  invoice settings
+        getWorkshopDetails();
+        getInvoiceSettings();
+        loadInvoiceWLogo();
+        //  default execution steps [END]
 
         //  function definitions
+       
+        //  listen to changes in input fields [BEGIN]
+        //  general settings
+        function changeUsernameLabel(force) {
+            vm.isUsername = (force != undefined || vm.user.username != '');
+            vm.label_username = vm.isUsername ? 'Username:' : 'Enter Username:';
+        }
+        function changePasswordLabel(force) {
+            vm.isPassword = (force != undefined || vm.user.password != '');
+            vm.label_password = vm.isPassword ? 'Password:' : 'Enter Password:';
+        }
+        //  invoice settings
+        function changeWorkshopNameLabel(force) {
+            vm.isWorkshopName = (force != undefined || vm.workshop.name != '');
+            vm.label_workshopName = vm.isWorkshopName ? 'Workshop Name:' : 'Enter Workshop Name:';
+        }
+        function changeWorkshopPhoneLabel(force) {
+            vm.isWorkshopPhone = (force != undefined || vm.workshop.phone != '');
+            vm.label_workshopPhone = vm.isWorkshopPhone ? 'Phone Number:' : 'Enter Phone Number:';
+        }
+        function changeWorkshopAddress1Label(force) {
+            vm.isWorkshopAddress1 = (force != undefined || vm.workshop.address1 != '');
+            vm.label_workshopAddress1 = vm.isWorkshopAddress1 ? 'Address Line 1:' : 'Enter Address Line 1:';
+        }
+        function changeWorkshopAddress2Label(force) {
+            vm.isWorkshopAddress2 = (force != undefined || vm.workshop.address2 != '');
+            vm.label_workshopAddress2 = vm.isWorkshopAddress2 ? 'Address Line 2:' : 'Enter Address Line 2:';
+        }
+        function changeWorkshopCityLabel(force) {
+            vm.isWorkshopCity = (force != undefined || vm.workshop.city != '');
+            vm.label_workshopCity = vm.isWorkshopCity ? 'City:' : 'Enter City:';
+        }
+        //  listen to changes in input fields [END]
 
+        //  migrate click events from one element to another [BEGIN]
+        //  general settings
+        function uploadCSV() {
+            angular.element(document.querySelector('#csv-file-select')).click();
+        }
+        function uploadCover() {
+            angular.element(document.querySelector('#am-upload-cover-pic')).click();
+        }
+        //  invoice settings
+        function uploadInvoiceWLogo() {
+            angular.element(document.querySelector('#am-upload-invoice-w-logo')).click();
+        }
+        //  migrate click events from one element to another [END]
+
+        //  functions defined for general settings
         //  store and change existing cover picture in UI as well as local storage
         function handleUploadedCoverPic(e) {
             var files = e.target.files;
@@ -72,15 +151,15 @@
 
         //  callback function to import csv files
         function handleUploadedFile(e) {
-            vm.currentCSVProgress = 0;
+            vm.currentCsvProgress = 0;
             var files = e.target.files || e.originalEvent.dataTransfer.files;
             console.log(files);
             amImportdata.compileCSVFile(files).then(displayToastMessage).catch(displayToastMessage).finally(cleanUp, updates);
 
             function displayToastMessage(res) {
                 utils.showSimpleToast(res.message);
-                vm.currentCSVProgress = 100;
-                vm.showCSVProgress = (vm.currentCSVProgress < 100);
+                vm.currentCsvProgress = 100;
+                vm.isCsvProcessed = (vm.currentCsvProgress < 100);
             }
 
             function cleanUp(res) {
@@ -88,19 +167,10 @@
             }
 
             function updates(res) {
-                vm.currentCSVProgress = (vm.total == 0) ? 0 : ((res.current * 100) / res.total);
-                vm.showCSVProgress = (vm.currentCSVProgress < 100);
+                vm.currentCsvProgress = (res.total == 0) ? 0 : ((res.current * 100) / res.total);
+                vm.isCsvProcessed = (vm.currentCsvProgress < 100);
             }
         }
-
-        //  migrate click events from one element to another [BEGIN]
-        function onClickUploadCSV() {
-            angular.element(document.querySelector('#csv-file-select')).click();
-        }
-        function onClickUploadCover() {
-            angular.element(document.querySelector('#am-upload-cover-pic')).click();
-        }
-        //  migrate click events from one element to another [END]
 
         //  backup the database
         function doBackup() {
@@ -144,17 +214,104 @@
                 }
             }
         }
-
-        //  listen to changes in input fields [BEGIN]
-        function changeUsernameLabel(force) {
-            vm.largeUsernameLabel = (force != undefined || vm.user.username != '');
-            vm.label_username = vm.largeUsernameLabel ? 'Username:' : 'Enter Username Here';
+        
+        //  functions defined for invoice settings
+        //  get workshop details from database
+        function getWorkshopDetails() {
+            amIvSettings.getWorkshopDetails().then(getWorkshopObject).catch(failure);
+            
+            function getWorkshopObject(res) {
+                vm.workshop = res;
+                changeWorkshopNameLabel();
+                changeWorkshopPhoneLabel();
+                changeWorkshopAddress1Label();
+                changeWorkshopAddress2Label();
+                changeWorkshopCityLabel();
+            }
+            
+            function failure(err) {
+                $log.info('No workshop details found!');
+            }
         }
-
-        function changePasswordLabel(force) {
-            vm.largePasswordLabel = (force != undefined || vm.user.password != '');
-            vm.label_password = vm.largePasswordLabel ? 'Password:' : 'Enter Password Here';
+        
+        //  save workshop details to database
+        function saveWorkshopDetails() {
+            amIvSettings.saveWorkshopDetails(vm.workshop).then(success).catch(failure);
+            
+            function success(res) {
+                utils.showSimpleToast('Workshop details updated successfully!');
+            }
+            
+            function failure(err) {
+                utils.showSimpleToast('Failied to update workshop details! Please Try Again!');
+            }
         }
-        //  listen to changes in input fields [END]
+        
+        //  get invoice settings
+        function getInvoiceSettings() {
+            amIvSettings.getInvoiceSettings().then(success).catch(failure);
+            
+            function success(res) {
+                vm.ivSettings = res;
+            }
+            
+            function failure(err) {
+                $log.info('Cannot find invoice settings!');
+            }
+        }
+        
+        //  change workshop logo in invoice settings
+        function changeInvoiceWLogo(e) {
+            var files = e.target.files;
+            if (!files[0].type.match(/image/g)) {
+                utils.showSimpleToast('Please upload photo');
+                return;
+            }
+            if (files && files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = loadReader;
+                reader.readAsDataURL(files[0]);
+            }
+
+            function loadReader(e) {
+                $('#am-invoice-w-logo').attr('src', e.target.result).width(250).height(125);
+                var coverPicElem = document.getElementById('am-invoice-w-logo');
+                var ic = document.createElement('canvas'),
+                    icontext = ic.getContext('2d');
+                ic.width = coverPicElem.width;
+                ic.height = coverPicElem.height;
+                icontext.drawImage(coverPicElem, 0, 0, coverPicElem.width, coverPicElem.height);
+                localStorage.setItem('invoice-w-pic', ic.toDataURL(files[0].type));
+                loadInvoiceWLogo();
+            }
+        }
+        
+        //  load workshop logo in invoice settings
+        function loadInvoiceWLogo() {
+            var source = localStorage.getItem('invoice-w-pic');
+            vm.invoiceWLogo = source;
+        }
+        
+        //  reset invoice number sequence
+        function resetLastInvoiceNo() {
+            amIvSettings.resetLastInvoiceNo().then(respond).catch(respond);
+            
+            function respond(res) {
+                getInvoiceSettings();
+            }
+        }
+        
+        //  change display settings
+        function saveIvDisplaySettings() {
+            amIvSettings.saveIvDisplaySettings(vm.ivSettings.display).then(success).catch(failure);
+            
+            function success(res) {
+                utils.showSimpleToast('Settings saved successfully!');
+            }
+            function failure(err) {
+                utils.showSimpleToast('Could not save settings at moment. Please try again!');
+            }
+        }
     }
 })();

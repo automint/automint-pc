@@ -2,7 +2,7 @@
  * Closure for state definitions and mappings to template files
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -203,6 +203,31 @@
                     pageTitle: 'Settings'
                 }
             })
+            .state('restricted.invoices', {
+                url: '/invoices',
+                template: '<div ui-view autoscroll="false"></div>',
+                abstract: true,
+                resolve: {
+                    deps: ['$ocLazyLoad', loadInvoicesDeps]
+                }
+            })
+            .state('restricted.invoices.view', {
+                url: '/view',
+                templateUrl: 'app/components/invoices/invoices_view.html',
+                params: {
+                    userId: undefined,
+                    vehicleId: undefined,
+                    serviceId: undefined
+                },
+                controller: 'amCtrlIvRI',
+                controllerAs: 'vm',
+                resolve: {
+                    deps: ['$ocLazyLoad', loadIvRIDeps]
+                },
+                data: {
+                    pageTitle: 'View Invoice'
+                }
+            })
 
         function loadDashboardDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
@@ -282,7 +307,19 @@
                 'app/components/settings/settings-backup.factory.js',
                 'app/components/settings/settings-login.factory.js',
                 'app/components/settings/settings-importdata.service.js',
+                'app/components/settings/settings-invoices.factory.js',
                 'assets/js/jquery.csv.min.js'
+            ])
+        }
+        function loadIvRIDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'material-datatable',
+                'app/components/invoices/invoices-view.controller.js'
+            ])
+        }
+        function loadInvoicesDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'app/components/invoices/invoices.factory.js'
             ])
         }
     }

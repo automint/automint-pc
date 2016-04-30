@@ -2,7 +2,7 @@
  * Controller for Add Service module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -23,7 +23,7 @@
         var vm = this;
 
         //  temporary named assignments
-        var autofillVehicle = false, flagGetUserBasedOnMobile = true;
+        var autofillVehicle = false, flagGetUserBasedOnMobile = true, olInvoiceNo = 1;
 
         //  vm assignments to keep track of UI related elements
         vm.label_userMobile = 'Enter Mobile Number:';
@@ -50,6 +50,7 @@
             odo: 0,
             cost: 0,
             status: '',
+            invoiceno: 1,
             problems: []
         };
         vm.problem = {
@@ -96,8 +97,23 @@
         getTreatmentDisplayFormat();
         getVehicleTypes();
         getRegularTreatments();
+        getLastInvoiceNo();
         
         //  function definitions
+
+        //  get last invoice number from database
+        function getLastInvoiceNo() {
+            amServices.getLastInvoiceNo().then(success).catch(failure);
+            
+            function success(res) {
+                vm.service.invoiceno = ++res;
+                olInvoiceNo = res;
+            }
+            function failure(err) {
+                vm.service.invoiceno = 1;
+                olInvoiceNo = 1;
+            }
+        }
 
         //  get treatment settings
         function getTreatmentDisplayFormat() {
@@ -562,7 +578,10 @@
             vm.service.problems = vm.selectedProblems;
             vm.service.problems.forEach(iterateProblems);
             vm.service.status = vm.servicestatus ? 'paid' : 'billed';
-            amServices.saveService(vm.user, vm.vehicle, vm.service).then(success).catch(failure);
+            var options = {
+                isLastInvoiceNoChanged: (vm.service.invoiceno == olInvoiceNo)
+            }
+            amServices.saveService(vm.user, vm.vehicle, vm.service, options).then(success).catch(failure);
 
             function iterateProblems(problem) {
                 delete problem.checked;

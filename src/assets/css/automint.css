@@ -2,7 +2,7 @@
  * Customised style sheet for Automint App
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1 
+ * @version 0.5.0 
  */
 
 .am-form-label {
@@ -61,6 +61,9 @@
     padding: 1rem 0;
     background: rgba(100, 100, 100, 0.1);
     border-radius: 2px;
+    font-size: small;
+    text-align: center;
+    line-height: 1.6;
     border: 1px dashed rgba(30, 30, 30, 0.1);
 }
 
@@ -134,7 +137,13 @@ md-sidenav.md-closed.md-locked-open-add-active {
 .am-datatable-actions {
     width: 90px;
 }
-
 .am-datatable-actions .md-icon-button {
+    margin: 0;
+}
+.am-datatable-actions.view-all-services {
+    width: 175px;
+}
+.am-datatable-actions.view-all-services .invoice {
+    font-variant: normal;
     margin: 0;
 }

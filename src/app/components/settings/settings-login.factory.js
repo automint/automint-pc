@@ -2,7 +2,7 @@
  * Factory to handle login events
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -62,6 +62,7 @@
                 function configExists(res) {
                     if (!res.user)
                         res.user = {};
+                    res.creator = $amRoot.username;
                     res.user['username'] = username;
                     res.user['password'] = password;
                     updateCreatorToDocs(username);
@@ -71,6 +72,7 @@
                 function noDocFound(err) {
                     var doc = {};
                     doc['_id'] = utils.generateUUID('wrkshp');
+                    doc.creator = $amRoot.username;
                     doc.user = {
                         username: username,
                         password: password

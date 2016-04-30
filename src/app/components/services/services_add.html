@@ -101,18 +101,22 @@
             <md-content layout-padding>
                 <div layout="column">
                     <div layout-gt-xs="row" layout-wrap layout-margin layout-align="end">
-                        <md-input-container flex-gt-xs="24">
+                        <md-input-container flex-gt-xs="20">
                             <md-checkbox class="am-checkbox" ng-model="vm.displayTreatmentAsList" aria-label="Display Treatment As">
                                 <span class="md-body-1">Show Treatments</span>
                             </md-checkbox>
                         </md-input-container>
+                        <md-input-container flex-gt-xs="18">
+                            <label class="am-form-label large">Invoice #:</label>
+                            <input type="number" ng-model="vm.service.invoiceno">
+                        </md-input-container>
                         <md-input-container flex-gt-xs="20">
-                            <label>Vehicle Type</label>
+                            <label class="am-form-label large">Vehicle Type:</label>
                             <md-select ng-model="vm.vehicle.type" ng-change="vm.changeVehicleType()" flex>
                                 <md-option ng-value="type" ng-repeat="type in vm.vehicleTypeList" ng-selected="type == vm.vehicle.type">{{type}}</md-option>
                             </md-select>
                         </md-input-container>
-                        <md-input-container flex-gt-xs="20">
+                        <md-input-container flex-gt-xs="18">
                             <label class="am-form-label large">Odometer Reading:</label>
                             <input type="number" ng-model="vm.service.odo">
                         </md-input-container>
