@@ -15,7 +15,7 @@
     <md-tooltip md-direction="top">Back</md-tooltip>
 </md-button>
 <md-content layout="row" layout-align="end center" layout-margin layout-wrap class="am-floating am-right">
-    <md-fab-speed-dial md-open="vm.fabOptions.isOpen" md-direction="left" class="md-scale">
+    <md-fab-speed-dial md-open="vm.isFabOpen" md-direction="left" ng-class="vm.fabClass" ng-mouseenter="vm.openFab()" ng-mouseleave="vm.closeFab()">
         <md-fab-trigger>
             <md-tooltip md-direction="top" md-visible="true">Menu</md-tooltip>
             <md-button class="md-fab md-accent">
@@ -34,6 +34,10 @@
             <md-button aria-label="SMS" class="md-fab md-raised md-mini" ng-hide="true">
                 <md-icon aria-label="SMS">sms</md-icon>
                 <md-tooltip md-direction="top">SMS</md-tooltip>
+            </md-button>
+            <md-button aria-label="Edit Info" class="md-fab md-raised md-mini" ng-click="vm.editWorkshopInfo()">
+                <md-icon aria-label="Edit Info">edit</md-icon>
+                <md-tooltip md-direction="top">Edit Workshop Info</md-tooltip>
             </md-button>
         </md-fab-actions>
     </md-fab-speed-dial>
