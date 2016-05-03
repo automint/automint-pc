@@ -1,0 +1,72 @@
+<style>
+    .toolbar-center {
+        margin-top: 1rem;
+    }
+</style>
+<md-content>
+    <md-tabs md-dynamic-height md-border-bottom>
+        <md-tab label="Treatments" md-active="vm.treatmensTab" md-on-deselect="vm.changeTreatmensTab(false)">
+            <md-content ng-controller="amCtrlTrRA as trVm">
+                <md-toolbar class="md-table-toolbar md-default">
+                    <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
+                        <md-button aria-label="Add Treatment" class="md-raised md-accent" ng-click="trVm.addTreatment()">
+                            <md-icon style="color: white">add</md-icon>
+                            <span style="color: white" layout-padding>Add Treatment</span>
+                        </md-button>
+                        <div flex></div>
+                        <div layout="row" layout-align="center center">
+                            <span class="toolbar-center">
+                <md-checkbox class="am-checkbox" ng-model="trVm.stgDisplayAsList" aria-label="Display Treatment As">
+                    <span class="md-body-1">Show treatments list ?</span>
+                            <span class="md-caption"><br>Displays as list while adding service</span>
+                            </md-checkbox>
+                            </span>
+                            <md-button class="md-icon-button">
+                                <md-icon>search</md-icon>
+                            </md-button>
+                        </div>
+                    </div>
+                </md-toolbar>
+
+                <md-table-container>
+                    <table md-table md-progress="trVm.promise">
+                        <thead md-head>
+                            <tr md-row>
+                                <th md-column><span class="am-table-header">Treatment</span></th>
+                                <th md-column ng-repeat="type in trVm.vehicletypes"><span class="am-table-header">{{type}}</span></th>
+                            </tr>
+                        </thead>
+                        <tbody md-body>
+                            <tr md-row ng-repeat="treatment in trVm.treatments | limitTo: trVm.query.limit: (trVm.query.page - 1)*(trVm.query.limit)">
+                                <td md-cell>{{treatment.name}}</td>
+                                <td md-cell ng-repeat="type in trVm.vehicletypes">{{trVm.getRate(treatment.rate, type)}}</td>
+                                <td md-cell class="am-datatable-actions">
+                                    <md-button class="md-icon-button" ng-click="trVm.editTreatment(treatment.name)">
+                                        <md-icon class="am-icon-button-size">edit</md-icon>
+                                    </md-button>
+                                    <md-button class="md-icon-button" ng-click="trVm.deleteTreatment(treatment.name)">
+                                        <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
+                                    </md-button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </md-table-container>
+
+                <md-table-pagination md-limit="trVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="trVm.query.page" md-total="{{trVm.query.total}}" md-page-select></md-table-pagination>
+            </md-content>
+        </md-tab>
+        <md-tab label="Packages" md-active="vm.packagesTab" md-on-deselect="vm.changePackagesTab(false)">
+            <md-content ng-controller="amCtrlPkRA as pkVm">
+                <md-toolbar class="md-table-toolbar md-default">
+                    <div layout-gt-xs="row" layout-xs="column" layout-align="start center" style="margin-top: 1rem;">
+                        <md-button aria-label="Add Package" class="md-raised md-accent" ng-click="pkVm.addPackage()">
+                            <md-icon style="color: white">add</md-icon>
+                            <span style="color: white" layout-padding>Add Package</span>
+                        </md-button>
+                    </div>
+                </md-toolbar>
+            </md-content>
+        </md-tab>
+    </md-tabs>
+</md-content>

@@ -62,7 +62,7 @@
         }, {
             name: 'Treatments',
             icon: 'local_car_wash',
-            state: 'restricted.treatments.all'
+            state: 'restricted.treatments.master'
         }, {
             name: 'Settings',
             icon: 'settings',

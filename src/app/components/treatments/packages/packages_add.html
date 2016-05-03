@@ -1,0 +1,42 @@
+<md-content layout-padding layot="column">
+    <div layout-gt-xs="row" layout-wrap layout-margin>
+        <md-input-container class="md-block" flex>
+            <md-icon class="md-accent">local_parking</md-icon>
+            <label class="am-form-label" ng-class="{'large': vm.isName}">{{vm.label_name}}</label>
+            <input ng-disabled="!vm.isAddOperation()" type="text" ng-model="vm.package.name" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
+        </md-input-container>
+    </div>
+    <md-table-container>
+        <table md-table md-row-select multiple ng-model="vm.selectedTreatments" md-progress="vm.treatmentPromise">
+            <thead md-head>
+                <tr md-row>
+                    <th md-column><span class="am-table-header">Treatment</span></th>
+                    <th md-column><span class="am-table-header">Rate</span></th>
+                    <th md-column md-numeric><span class="am-table-header">Amount</span></th>
+                </tr>
+            </thead>
+            <tbody md-body>
+                <tr md-row md-select="treatment" md-select-id="name" md-on-select="vm.onTreatmentSelected" md-on-deselect="vm.onTreatmentDeselected" md-auto-select ng-repeat="treatment in vm.treatments">
+                    <td md-cell ng-click="vm.editTreatmentDetails($event, treatment)" ng-class="{'md-placeholder': !treatment.name}">{{treatment.name || 'Enter Details' }}</td>
+                    <td md-cell ng-click="vm.editTreatmentRate($event, treatment)" ng-class="{'md-placeholder' : !treatment.rate}">{{treatment.rate || 'Enter Rate'}}</td>
+                    <td md-cell>{{(treatment.rate ? treatment.rate * (treatment.checked ? 1 : 0) : 0)}}</td>
+                </tr>
+                <!--<tr md-row>
+                    <td md-cell>
+                        <md-autocomplete id="new-treatment-details" md-autofocus md-search-text="vm.treatment.details" md-items="treatment in vm.treatments" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.updateTreatmentDetails()">
+                            <md-item-template>
+                                <span md-highlight-text="vm.treatment.details">{{treatment.name}}</span>
+                            </md-item-template>
+                        </md-autocomplete>
+                    </td>
+                    <td md-cell>
+                        <input type="number" ng-model="vm.treatment.rate" ng-blur="vm.finalizeNewTreatment()" placeholder="Enter Rate" class="am-table-input">
+                    </td>
+                    <td md-cell>
+                        {{vm.treatment.cost}}
+                    </td>
+                </tr>-->
+            </tbody>
+        </table>
+    </md-table-container>
+</md-content>

@@ -430,7 +430,7 @@
 
         //  populate regular treatment list
         function getRegularTreatments() {
-            amServices.getRegularTreatments().then(success).catch(failure);
+            vm.problemPromise = amServices.getRegularTreatments().then(success).catch(failure);
 
             function success(res) {
                 vm.treatments = res;
