@@ -147,3 +147,25 @@ md-sidenav.md-closed.md-locked-open-add-active {
     font-variant: normal;
     margin: 0;
 }
+
+.am-table-inline-input {
+    border: 0;
+    width: 97%;
+    font-weight: 400;
+    padding: 0.7rem;
+    outline: none;
+    background: transparent;
+    color: rgba(30, 30, 30, 0.7);
+    -webkit-transition: background 1s ease 0s, box-shadow 1s ease 0s;
+    -moz-transition: background 1s ease 0s, box-shadow 1s ease 0s;
+    transition: background 1s ease 0s, box-shadow 1s ease 0s ;
+    box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0);
+}
+.am-table-inline-input:focus {
+    background: white;
+    box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.3);
+}
+.am-table-inline-input:hover {
+    background: white;
+    box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.2);
+}

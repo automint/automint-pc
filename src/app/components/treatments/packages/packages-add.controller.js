@@ -9,13 +9,13 @@
 
 (function() {
     angular.module('automintApp').controller('amCtrlPkCI', PackageAddController);
-    
-    PackageAddController.$inject = ['amTreatments'];
-    
-    function PackageAddController(amTreatments) {
+
+    PackageAddController.$inject = ['$q', '$filter', '$state', 'utils', 'amTreatments'];
+
+    function PackageAddController($q, $filter, $state, utils, amTreatments) {
         //  initialize view model
         var vm = this;
-        
+
         //  named assignments to keep track of UI elements
         vm.label_name = "Enter Package Name:";
         vm.operationMode = 'add';
@@ -25,37 +25,144 @@
         vm.treatment = {
             details: '',
             rate: ''
-        }
+        };
+        vm.vehicletypes = [];
         vm.selectedTreatments = [];
-        
+
         //  default execution steps
+        getVehicleTypes();
         getTreatments();
-        
+
         //  function maps
         vm.changeNameLabel = changeNameLabel;
+        vm.updateTreatmentDetails = updateTreatmentDetails;
         vm.isAddOperation = isAddOperation;
-        
+        vm.finalizeNewTreatment = finalizeNewTreatment;
+        vm.treatmentQuerySearch = treatmentQuerySearch;
+        vm.save = save;
+
         //  function definitions
-        
+
+        //  listen to changes in input fields [BEGIN]
         function changeNameLabel(force) {
             vm.isName = (force != undefined) || (vm.package.name != '');
             vm.label_name = (vm.isName) ? "Package Name:" : "Enter Package Name:";
         }
-        
+
+        //  check current operation mode if it is 'add' or not
         function isAddOperation() {
             return (vm.operationMode == 'add');
         }
-        
+
+        //  get treatment from database
         function getTreatments() {
             vm.treatmentPromise = amTreatments.getTreatments().then(success).catch(failure);
-            
+
             function success(res) {
-                console.log(res);
                 vm.treatments = res.treatments;
             }
 
             function failure(err) {
                 vm.treatments = [];
+            }
+        }
+
+        //  get vehicle types to display headers on datatable
+        function getVehicleTypes() {
+            amTreatments.getVehicleTypes().then(success).catch(failure);
+
+            function success(res) {
+                res.forEach(iterateVehicleType);
+
+                function iterateVehicleType(type) {
+                    vm.vehicletypes.push(utils.convertToTitleCase(type.replace(/-/g, ' ')));
+                }
+            }
+
+            function failure(err) {
+                vm.vehicletypes.push('Default');
+            }
+        }
+
+        function updateTreatmentDetails() {
+            var found = $filter('filter')(vm.treatments, {
+                name: vm.treatment.details
+            });
+            if (found.length == 1 && found[0].name == vm.treatment.details)
+                vm.treatment.rate = found[0].rate;
+            else
+                vm.treatment.rate = {};
+        }
+
+        function finalizeNewTreatment(btnClicked) {
+            vm.treatment.details = vm.treatment.details.trim();
+            if (vm.treatment.details != '') {
+                var found = $filter('filter')(vm.treatments, {
+                    name: vm.treatment.details
+                });
+                if (found.length == 1 && found[0].name == vm.treatment.details) {
+                    found[0].checked = true;
+                    vm.selectedTreatments.push(found[0]);
+                } else {
+                    vm.treatments.push({
+                        name: vm.treatment.details,
+                        rate: vm.treatment.rate,
+                        checked: true
+                    });
+                    vm.selectedTreatments.push(vm.treatments[vm.treatments.length - 1]);
+                }
+                vm.treatment.details = '';
+                vm.treatment.rate = {};
+                $('#new-treatment-details').focus();
+            }
+            if (btnClicked)
+                $('#new-treatment-details').focus();
+        }
+
+        //  query search for treatments [autocomplete]
+        function treatmentQuerySearch() {
+            var tracker = $q.defer();
+            var results = (vm.treatment.details ? vm.treatments.filter(createFilterForTreatments(vm.treatment.details)) : vm.treatments);
+
+            return results;
+        }
+
+        //  create filter for users' query list
+        function createFilterForTreatments(query) {
+            var lcQuery = angular.lowercase(query);
+            return function filterFn(item) {
+                return (angular.lowercase(item.name).indexOf(lcQuery) === 0);
+            }
+        }
+
+        function save() {
+            if (vm.package.name == '') {
+                utils.showSimpleToast('Please Enter Name');
+                return;
+            }
+            if (vm.selectedTreatments.length <= 0) {
+                utils.showSimpleToast('Please Select Treatments');
+                return;
+            }
+                
+            vm.selectedTreatments.forEach(iterateTreatments);
+            amTreatments.savePackage(vm.package).then(success).catch(failure);
+
+            function iterateTreatments(treatment) {
+                vm.package[treatment.name] = treatment;
+                delete vm.package[treatment.name]['$$hashKey']
+                delete vm.package[treatment.name].name;
+            }
+            
+            function success(res) {
+                utils.showSimpleToast('Package has been save successfully!');
+                $state.go('restricted.treatments.master', {
+                    openTab: 'packages'
+                });
+            }
+            
+            function failure(err) {
+                utils.showSimpleToast('Could not save package at moment. Please Try Again!');
             }
         }
     }

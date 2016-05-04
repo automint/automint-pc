@@ -23,7 +23,9 @@
             saveVehicleTypes: saveVehicleTypes,
             getVehicleTypes: getVehicleTypes,
             getTreatmentSettings: getTreatmentSettings,
-            changeDisplayAsList: changeDisplayAsList
+            changeDisplayAsList: changeDisplayAsList,
+            getPackages: getPackages,
+            savePackage: savePackage
         }
         
         return factory;
@@ -268,6 +270,75 @@
             }
             function failure(error) {
                 tracker.reject(error);
+            }
+        }
+        
+        function getPackages() {
+            var tracker = $q.defer();
+            var response = {
+                packages: [],
+                total: 0
+            }
+            $amRoot.isTreatmentId().then(getTreatmentDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.packages)
+                    Object.keys(res.packages).forEach(iteratePackages);
+                tracker.resolve(response);
+                
+                function iteratePackages(package) {
+                    response.packages.push({
+                        name: package,
+                        treatments: res.packages[package]
+                    });
+                    response.total++;
+                }
+            }
+            
+            function failure(err) {
+                tracker.reject(response);
+            }
+        }
+        
+        function savePackage(package) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(writeTreatmentDoc);
+            }
+            
+            function getTreatmentObject(res) {
+                if (!res.packages)
+                    res.packages = {};
+                res.packages[package.name] = package;
+                delete res.packages[package.name].name;
+                pdbConfig.save(res).then(success).catch(failure);
+            }
+            
+            function writeTreatmentDoc(err) {
+                var doc = {
+                    _id: utils.generateUUID('trtmnt'),
+                    creator: $amRoot.username
+                }
+                doc.packages = {};
+                doc.packages[package.name] = package;
+                delete doc.packages[package.name].name;
+                pdbConfig.save(doc).then(success).catch(failure);
+            }
+            
+            function success(res) {
+                tracker.resolve(res);
+            }
+            
+            function failure(err) {
+                tracker.reject(err);
             }
         }
     }
