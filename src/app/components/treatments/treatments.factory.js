@@ -71,11 +71,11 @@
                 vehicleTypes.forEach(iterateNewTypes);
                 
                 function iterateNewTypes(type) {
-                    var found = $filter('filter')(res.vehicletypes, type);
-                    if (found.length != 1)
-                        res.vehicletypes.push(type);
-                    else
+                    var found = $filter('filter')(res.vehicletypes, type, true);
+                    if (found.length == 1 && found[0] == type)
                         totalMatch++;
+                    else
+                        res.vehicletypes.push(type);
                 }
                 if (totalMatch == vehicleTypes.length)
                     tracker.resolve('Duplicate Entries');
