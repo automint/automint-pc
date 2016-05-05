@@ -139,6 +139,8 @@
                 tracker.resolve(response);
                 
                 function iterateRegularTreatments(treatment) {
+                    if (res.regular[treatment]._deleted == true)
+                        return;
                     response.treatments.push({
                         name: treatment,
                         rate: res.regular[treatment].rate
