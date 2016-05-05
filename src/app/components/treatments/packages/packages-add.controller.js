@@ -30,8 +30,7 @@
         vm.selectedTreatments = [];
 
         //  default execution steps
-        getVehicleTypes();
-        getTreatments();
+        getVehicleTypes(getTreatments);
 
         //  function maps
         vm.changeNameLabel = changeNameLabel;
@@ -69,10 +68,16 @@
 
         //  get vehicle types to display headers on datatable
         function getVehicleTypes() {
+            var callback = arguments[0];
+            var callingFunction = this;
+            var callbackArgs = arguments;
+            
             amTreatments.getVehicleTypes().then(success).catch(failure);
+            delete callingFunction, callbackArgs, callback;
 
             function success(res) {
                 res.forEach(iterateVehicleType);
+                callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
 
                 function iterateVehicleType(type) {
                     vm.vehicletypes.push(utils.convertToTitleCase(type.replace(/-/g, ' ')));
@@ -81,6 +86,7 @@
 
             function failure(err) {
                 vm.vehicletypes.push('Default');
+                callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
             }
         }
 
@@ -155,7 +161,7 @@
             }
             
             function success(res) {
-                utils.showSimpleToast('Package has been save successfully!');
+                utils.showSimpleToast('Package has been saved successfully!');
                 $state.go('restricted.treatments.master', {
                     openTab: 'packages'
                 });

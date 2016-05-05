@@ -26,6 +26,8 @@
         //  function maps
         vm.addPackage = addPackage;
         vm.evalVehicleTypes = evalVehicleTypes;
+        vm.deletePackage = deletePackage;
+        vm.editPackage = editPackage;
         
         //  default execution steps
         getPackages();
@@ -47,6 +49,27 @@
             function failure(err) {
                 vm.packages = [];
                 vm.query.total = 0;
+            }
+        }
+        
+        function editPackage(name) {
+            $state.go('restricted.packages.edit', {
+                name: name
+            });
+        }
+        
+        function deletePackage(name) {
+            amTreatments.deletePackage(name).then(success).catch(failure);
+            
+            function success(res) {
+                if (res.ok) {
+                    utils.showSimpleToast('Package has been deleted!');
+                    getPackages();
+                } else
+                    failure();
+            }
+            function failure(err) {
+                utils.showSimpleToast('Package can not be deleted at moment. Please Try Again!');
             }
         }
         

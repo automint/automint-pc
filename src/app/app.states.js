@@ -265,6 +265,9 @@
                 templateUrl: 'app/components/treatments/packages/packages_add.html',
                 controller: 'amCtrlPkUI',
                 controllerAs: 'vm',
+                params: {
+                    name: undefined
+                },
                 resolve: {
                     deps: ['$ocLazyLoad', loadPkUIDeps]
                 },

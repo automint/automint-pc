@@ -25,6 +25,8 @@
             getTreatmentSettings: getTreatmentSettings,
             changeDisplayAsList: changeDisplayAsList,
             getPackages: getPackages,
+            getPackageInfo: getPackageInfo,
+            deletePackage: deletePackage,
             savePackage: savePackage
         }
         
@@ -275,16 +277,46 @@
             }
         }
         
+        function getPackageInfo(name) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.packages && res.packages[name]) {
+                    tracker.resolve({
+                        name: name,
+                        treatments: res.packages[name]
+                    });
+                } else
+                    failure();
+            }
+            
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'Package not found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
+        
         function getPackages() {
             var tracker = $q.defer();
             var response = {
                 packages: [],
                 total: 0
             }
-            $amRoot.isTreatmentId().then(getTreatmentDoc).catch(failure);
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
             return tracker.promise;
             
-            function getTreatmentDoc(res) {
+            function getTreatmentsDoc(res) {
                 pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
             }
             
@@ -294,6 +326,8 @@
                 tracker.resolve(response);
                 
                 function iteratePackages(package) {
+                    if (res.packages[package]._deleted == true)
+                        return;
                     response.packages.push({
                         name: package,
                         treatments: res.packages[package]
@@ -304,6 +338,37 @@
             
             function failure(err) {
                 tracker.reject(response);
+            }
+        }
+        
+        function deletePackage(name) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.packages && res.packages[name]) {
+                    res.packages[name]._deleted = true;
+                    pdbConfig.save(res).then(success).catch(failure);
+                } else
+                    failure();
+            }
+            
+            function success(res) {
+                tracker.resolve(res);
+            }
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'Could not find ' + name
+                    }
+                }
+                tracker.reject(err);
             }
         }
         

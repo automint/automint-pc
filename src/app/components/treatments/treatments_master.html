@@ -77,10 +77,10 @@
                             </md-card-title-text>
                             <div flex></div>
                             <div layout="row" layout-align="center center">
-                                <md-button class="md-icon-button md-primary">
+                                <md-button class="md-icon-button md-primary" ng-click="pkVm.editPackage(package.name)">
                                     <md-icon class="am-icon-button-size">edit</md-icon>
                                 </md-button>
-                                <md-button class="md-icon-button">
+                                <md-button class="md-icon-button" ng-click="pkVm.deletePackage(package.name)">
                                     <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
                                 </md-button>
                             </div>
