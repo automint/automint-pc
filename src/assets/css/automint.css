@@ -41,12 +41,10 @@
     transition: color 1s ease 0s;
     box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.3);
 }
-
 .am-table-input:focus {
     color: rgba(30, 30, 30, 0.9);
     box-shadow: 1px 1px 3px 1px rgba(30, 30, 30, 0.3);
 }
-
 .am-table-input.search-box {
     font-size: small;
     box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.3);
@@ -146,6 +144,12 @@ md-sidenav.md-closed.md-locked-open-add-active {
 .am-datatable-actions.view-all-services .invoice {
     font-variant: normal;
     margin: 0;
+}
+.am-datatable-actions.membership-addons {
+    max-width: 40px;
+}
+.am-datatable-actions.membership-addons input {
+    max-width: 40px;
 }
 
 .am-table-inline-input {

@@ -2,7 +2,7 @@
  * Factory that handles database interactions between treatments database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1 
+ * @version 0.5.0 
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -27,7 +27,9 @@
             getPackages: getPackages,
             getPackageInfo: getPackageInfo,
             deletePackage: deletePackage,
-            savePackage: savePackage
+            savePackage: savePackage,
+            getMemberships: getMemberships,
+            saveMembership: saveMembership
         }
         
         return factory;
@@ -404,6 +406,78 @@
                 tracker.resolve(res);
             }
             
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+        
+        function getMemberships() {
+            var tracker = $q.defer();
+            var response = {
+                memberships: [],
+                total: 0
+            }
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.memberships)
+                    Object.keys(res.memberships).forEach(iterateMemberships);
+                tracker.resolve(response);
+                
+                function iterateMemberships(membership) {
+                    if (res.memberships[membership]._deleted == true)
+                        return;
+                    delete res.memberships[membership].occurences
+                    delete res.memberships[membership].duration;
+                    response.memberships.push({
+                        name: membership,
+                        treatments: res.memberships[membership]
+                    });
+                    response.total++;
+                }
+            }
+            
+            function failure(err) {
+                tracker.reject(response);
+            }
+        }
+        
+        function saveMembership(membership) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(writeTreatmentDoc);
+            }
+            
+            function getTreatmentObject(res) {
+                if (!res.memberships)
+                    res.memberships = {};
+                res.memberships[membership.name] = membership;
+                delete res.memberships[membership.name].name;
+                pdbConfig.save(res).then(success).catch(failure);
+            }
+            
+            function writeTreatmentDoc(err) {
+                var doc = {
+                    _id: utils.generateUUID('trtmnt'),
+                    creator: $amRoot.username
+                }
+                doc.memberships = {};
+                doc.memberships[membership.name] = membership;
+                delete doc.memberships[membership.name].name;
+                pdbConfig.save(doc).then(success).catch(failure);
+            }
+            
+            function success(res) {
+                tracker.resolve(res);
+            }
             function failure(err) {
                 tracker.reject(err);
             }

@@ -28,9 +28,12 @@
             case 'packages':
                 changePackagesTab(true);
                 break;
+            case 'memberships':
+                changeMembershipsTab(true);
+                break;
             default:
                 // changeTreatmentsTab(true);
-                changePackagesTab(true);    //  testing purposes                
+                changeMembershipsTab(true);    //  testing purposes                
                 break;
         }
         
@@ -42,6 +45,10 @@
         
         function changePackagesTab(bool) {
             vm.packagesTab = bool;
+        }
+        
+        function changeMembershipsTab(bool) {
+            vm.membershipsTab = bool;
         }
     }
 })();

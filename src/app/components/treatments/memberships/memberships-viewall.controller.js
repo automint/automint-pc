@@ -1,5 +1,5 @@
 /**
- * Controller for View All Packages compoenent
+ * Conroller for View All Memberships component
  * @author ndkcha
  * @since 0.5.0
  * @version 0.5.0
@@ -8,11 +8,11 @@
 /// <reference path="../../../../typings/main.d.ts" />
 
 (function() {
-    angular.module('automintApp').controller('amCtrlPkRA', PackagesViewAllController);
-
-    PackagesViewAllController.$inject = ['$state', '$filter', 'utils', 'amTreatments'];
-
-    function PackagesViewAllController($state, $filter, utils, amTreatments) {
+    angular.module('automintApp').controller('amCtrlMsRA', MembershipsViewAll);
+    
+    MembershipsViewAll.$inject = ['$state', '$filter', 'utils', 'amTreatments'];
+    
+    function MembershipsViewAll($state, $filter, utils, amTreatments) {
         //  initialize view model
         var vm = this;
         
@@ -24,52 +24,29 @@
         };
         
         //  function maps
-        vm.addPackage = addPackage;
         vm.evalVehicleTypes = evalVehicleTypes;
-        vm.deletePackage = deletePackage;
-        vm.editPackage = editPackage;
+        vm.addMembership = addMembership;
         
         //  default execution steps
-        getPackages();
+        getMemberships();
         
         //  function definitions
         
-        function addPackage() {
-            $state.go('restricted.packages.add');
+        function addMembership() {
+            $state.go('restricted.memberships.add');
         }
         
-        function getPackages() {
-            amTreatments.getPackages().then(success).catch(failure);
+        function getMemberships() {
+            amTreatments.getMemberships().then(success).catch(failure);
             
             function success(res) {
-                vm.packages = res.packages;
+                vm.memberships = res.memberships;
                 vm.query.total = res.total;
             }
             
             function failure(err) {
-                vm.packages = [];
+                vm.memberships = [];
                 vm.query.total = 0;
-            }
-        }
-        
-        function editPackage(name) {
-            $state.go('restricted.packages.edit', {
-                name: name
-            });
-        }
-        
-        function deletePackage(name) {
-            amTreatments.deletePackage(name).then(success).catch(failure);
-            
-            function success(res) {
-                if (res.ok) {
-                    utils.showSimpleToast('Package has been deleted!');
-                    getPackages();
-                } else
-                    failure();
-            }
-            function failure(err) {
-                utils.showSimpleToast('Package can not be deleted at moment. Please Try Again!');
             }
         }
         

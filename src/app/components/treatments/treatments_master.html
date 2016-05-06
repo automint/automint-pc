@@ -110,5 +110,57 @@
 
             </md-content>
         </md-tab>
+        <md-tab label="Memberships" md-active="vm.membershipsTab" md-on-deselect="vm.changeMembershipsTab(false)">
+            <md-content ng-controller="amCtrlMsRA as msVm">
+                <md-content toolbar class="md-table-toolbar md-default">
+                    <div layout-gt-xs="row" layout-xs="column" layout-align="center center" style="margin-top: 1rem;">
+                        <md-button aria-label="Add Membership" class="md-raised md-accent" ng-click="msVm.addMembership()">
+                            <md-icon style="color: white">add</md-icon>
+                            <span style="color: white" layout-padding>Add Membership</span>
+                        </md-button>
+                        <div flex></div>
+                        <md-table-pagination md-limit="msVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="msVm.query.page" md-total="{{msVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
+                    </div>
+                </md-content>
+                
+                <md-content layout="column">
+                    <md-card ng-repeat="membership in msVm.memberships | limitTo: msVm.query.limit: (msVm.query.page - 1)*(msVm.query.limit)" style="background: rgba(236, 239, 241, 0.5);">
+                        <md-card-title layout-xs="column" layout-align="center center">
+                            <md-card-title-text>
+                                <span class="md-title">{{membership.name}}</span>
+                            </md-card-title-text>
+                            <div flex></div>
+                            <div layout="row" layout-align="center center">
+                                <md-button class="md-icon-button md-primary" ng-click="msVm.editPackage(membership.name)">
+                                    <md-icon class="am-icon-button-size">edit</md-icon>
+                                </md-button>
+                                <md-button class="md-icon-button" ng-click="msVm.deletePackage(membership.name)">
+                                    <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
+                                </md-button>
+                            </div>
+                        </md-card-title>
+                        <md-card-content>
+                            <md-table-container>
+                                <table md-table>
+                                    <thead md-head>
+                                        <tr md-row>
+                                            <th md-column>Treatments</th>
+                                            <th md-column ng-repeat="item in msVm.evalVehicleTypes(membership.treatments)">{{item}}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody md-body>
+                                        <tr md-row ng-repeat="(key, value) in membership.treatments">
+                                            <td md-cell>{{key}}</td>
+                                            <td md-cell ng-repeat="item in msVm.evalVehicleTypes(membership.treatments)">{{value.rate[item.toLowerCase().replace(' ', '-')]}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-table-container>
+                        </md-card-content>
+                    </md-card>
+                </md-content>
+                
+            </md-content>
+        </md-tab>
     </md-tabs>
 </md-content>

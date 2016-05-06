@@ -275,6 +275,38 @@
                     pageTitle: 'Edit Package'
                 }
             })
+            .state('restricted.memberships', {
+                url: '/memberships',
+                template: '<div ui-view autoscroll="false"></div>',
+                abstract: true,
+                resolve: {
+                    deps: ['$ocLazyLoad', loadMembershipDeps]
+                }
+            })
+            .state('restricted.memberships.add', {
+                url: '/add',
+                templateUrl: 'app/components/treatments/memberships/memberships_add.html',
+                controller: 'amCtrlMsCI',
+                controllerAs: 'vm',
+                resolve: {
+                    deps: ['$ocLazyLoad', loadMsCIDeps]
+                },
+                data: {
+                    pageTitle: 'Add Membership'
+                }
+            })
+            .state('restricted.memberships.edit', {
+                url: '/edit',
+                templateUrl: 'app/components/treatments/memberships/memberships_add.html',
+                controller: 'amCtrlMsUI',
+                controllerAs: 'vm',
+                resolve: {
+                    deps: ['$ocLazyLoad', loadMsUIDeps]
+                },
+                data: {
+                    pageTitle: 'Edit Membership'
+                }
+            });
 
         function loadDashboardDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
@@ -318,7 +350,8 @@
                 'material-datatable',
                 'app/components/treatments/treatments-master.controller.js',
                 'app/components/treatments/regular/treatments-viewall.controller.js',
-                'app/components/treatments/packages/packages-viewall.controller.js'
+                'app/components/treatments/packages/packages-viewall.controller.js',
+                'app/components/treatments/memberships/memberships-viewall.controller.js'
             ])
         }
         function loadTrUIDeps($ocLazyLoad) {
@@ -386,6 +419,23 @@
             return $ocLazyLoad.load([
                 'material-datatable',
                 'app/components/treatments/packages/packages-edit.controller.js'
+            ])
+        }
+        function loadMembershipDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'app/components/treatments/treatments.factory.js'
+            ])
+        }
+        function loadMsCIDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'material-datatable',
+                'app/components/treatments/memberships/memberships-add.controller.js'
+            ])
+        }
+        function loadMsUIDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'material-datatable',
+                'app/components/treatments/memberships/memberships-edit.controller.js'
             ])
         }
     }
