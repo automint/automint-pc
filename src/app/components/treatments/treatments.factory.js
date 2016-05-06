@@ -29,6 +29,8 @@
             deletePackage: deletePackage,
             savePackage: savePackage,
             getMemberships: getMemberships,
+            getMembershipInfo: getMembershipInfo,
+            deleteMembership: deleteMembership,
             saveMembership: saveMembership
         }
         
@@ -411,6 +413,42 @@
             }
         }
         
+        function getMembershipInfo(name) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.memberships && res.memberships[name]) {
+                    var m = $.extend({}, res.memberships[name]);
+                    delete res.memberships[name].occurences;
+                    delete res.memberships[name].duration;
+                    tracker.resolve({
+                        name: name,
+                        treatments: res.memberships[name],
+                        occurences: m.occurences,
+                        duration: m.duration
+                    });
+                    delete m;
+                } else
+                    failure();
+            }
+            
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'Membership not found'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
+        
         function getMemberships() {
             var tracker = $q.defer();
             var response = {
@@ -444,6 +482,38 @@
             
             function failure(err) {
                 tracker.reject(response);
+            }
+        }
+        
+        function deleteMembership(name) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.memberships && res.memberships[name]) {
+                    res.memberships[name]._deleted = true;
+                    pdbConfig.save(res).then(success).catch(failure);
+                } else
+                    failure();
+            }
+            
+            function success(res) {
+                tracker.resolve(res);
+            }
+            
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'No Membership Found!'
+                    }
+                }
+                tracker.reject(err);
             }
         }
         

@@ -1,7 +1,7 @@
 <md-content layout-padding layot="column">
     <div layout-gt-xs="row" layout-wrap layout-margin>
         <md-input-container class="md-block" flex>
-            <md-icon class="md-accent">local_parking</md-icon>
+            <md-icon class="md-accent">card_membership</md-icon>
             <label class="am-form-label" ng-class="{'large': vm.isName}">{{vm.label_name}}</label>
             <input ng-disabled="!vm.isAddOperation()" autofocus type="text" ng-model="vm.membership.name" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
         </md-input-container>
@@ -43,7 +43,7 @@
                         </md-autocomplete>
                     </td>
                     <td md-cell ng-repeat="type in vm.vehicletypes">
-                        <input type="number" ng-model="vm.treatment.rate[type.toLowerCase().replace(' ', '-')]" style="width: 97%" placeholder="Enter Rate" class="am-table-input">
+                        <input type="number" ng-model="vm.treatment.rate[type.toLowerCase().replace(' ', '-')]" style="width: 97%; min-width: 34px" placeholder="{{type}}" class="am-table-input">
                     </td>
                     <td md-cell class="am-datatable-actions membership-addons">
                         <input type="number" ng-model="vm.treatment.occurences" placeholder="Occ." class="am-table-input">

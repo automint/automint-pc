@@ -300,6 +300,9 @@
                 templateUrl: 'app/components/treatments/memberships/memberships_add.html',
                 controller: 'amCtrlMsUI',
                 controllerAs: 'vm',
+                params: {
+                    name: undefined
+                },
                 resolve: {
                     deps: ['$ocLazyLoad', loadMsUIDeps]
                 },

@@ -26,6 +26,8 @@
         //  function maps
         vm.evalVehicleTypes = evalVehicleTypes;
         vm.addMembership = addMembership;
+        vm.editMembership = editMembership;
+        vm.deleteMembership = deleteMembership;
         
         //  default execution steps
         getMemberships();
@@ -34,6 +36,12 @@
         
         function addMembership() {
             $state.go('restricted.memberships.add');
+        }
+        
+        function editMembership(name) {
+            $state.go('restricted.memberships.edit', {
+                name: name
+            });
         }
         
         function getMemberships() {
@@ -47,6 +55,21 @@
             function failure(err) {
                 vm.memberships = [];
                 vm.query.total = 0;
+            }
+        }
+        
+        function deleteMembership(name) {
+            amTreatments.deleteMembership(name).then(success).catch(failure);
+            
+            function success(res) {
+                if (res.ok) {
+                    utils.showSimpleToast('Membership has been deleted!');
+                    getMemberships();
+                } else
+                    failure();
+            }
+            function failure(err) {
+                utils.showSimpleToast('Could not delete membership at moment. Please Try Again!');
             }
         }
         

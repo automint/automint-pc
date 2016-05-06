@@ -122,7 +122,7 @@
                         <md-table-pagination md-limit="msVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="msVm.query.page" md-total="{{msVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
                     </div>
                 </md-content>
-                
+
                 <md-content layout="column">
                     <md-card ng-repeat="membership in msVm.memberships | limitTo: msVm.query.limit: (msVm.query.page - 1)*(msVm.query.limit)" style="background: rgba(236, 239, 241, 0.5);">
                         <md-card-title layout-xs="column" layout-align="center center">
@@ -131,10 +131,10 @@
                             </md-card-title-text>
                             <div flex></div>
                             <div layout="row" layout-align="center center">
-                                <md-button class="md-icon-button md-primary" ng-click="msVm.editPackage(membership.name)">
+                                <md-button class="md-icon-button md-primary" ng-click="msVm.editMembership(membership.name)">
                                     <md-icon class="am-icon-button-size">edit</md-icon>
                                 </md-button>
-                                <md-button class="md-icon-button" ng-click="msVm.deletePackage(membership.name)">
+                                <md-button class="md-icon-button" ng-click="msVm.deleteMembership(membership.name)">
                                     <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
                                 </md-button>
                             </div>
@@ -144,14 +144,18 @@
                                 <table md-table>
                                     <thead md-head>
                                         <tr md-row>
-                                            <th md-column>Treatments</th>
+                                            <th md-column style="min-width: 160px">Treatments</th>
                                             <th md-column ng-repeat="item in msVm.evalVehicleTypes(membership.treatments)">{{item}}</th>
+                                            <th md-column>Occurences</th>
+                                            <th md-column>Duration<br><small>(months)</small></th>
                                         </tr>
                                     </thead>
                                     <tbody md-body>
                                         <tr md-row ng-repeat="(key, value) in membership.treatments">
                                             <td md-cell>{{key}}</td>
                                             <td md-cell ng-repeat="item in msVm.evalVehicleTypes(membership.treatments)">{{value.rate[item.toLowerCase().replace(' ', '-')]}}</td>
+                                            <td md-cell>{{value.occurences}}</td>
+                                            <td md-cell>{{value.duration}}</td>
                                         </tr>
                                     </tbody>
                                 </table>
@@ -159,7 +163,7 @@
                         </md-card-content>
                     </md-card>
                 </md-content>
-                
+
             </md-content>
         </md-tab>
     </md-tabs>

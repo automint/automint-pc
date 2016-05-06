@@ -19,7 +19,7 @@
         //  named assignments to keep track of UI elements
         vm.label_name = "Enter Membership Name:";
         vm.label_occurences = "Enter Occurences:";
-        vm.label_duration = "Enter Duration (in months):";
+        vm.label_duration = "Enter Duration (months):";
         vm.operationMode = 'add';
         vm.membership = {
             name: '',
@@ -66,7 +66,7 @@
         }
         function changeDurationLabel(force) {
             vm.isDuration = (force != undefined) || (vm.membership.duration != '');
-            vm.label_duration = (vm.isDuration) ? "Duration (in months):" : "Enter Duration (in months):";
+            vm.label_duration = (vm.isDuration) ? "Duration (months):" : "Enter Duration (months):";
         }
         //  listen to changes in input fields [END]
 
