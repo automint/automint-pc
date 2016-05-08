@@ -22,9 +22,12 @@
             page: 1,
             total: 0
         };
+        vm.selectedMembership = undefined;
         
         //  function maps
         vm.evalVehicleTypes = evalVehicleTypes;
+        vm.changeExpandValues = changeExpandValues;
+        vm.expandMembership = expandMembership;
         vm.addMembership = addMembership;
         vm.editMembership = editMembership;
         vm.deleteMembership = deleteMembership;
@@ -33,6 +36,25 @@
         getMemberships();
         
         //  function definitions
+        
+        function changeExpandValues(isExpandAll) {
+            vm.isMembershipSelected = (isExpandAll) ? true : undefined;
+            for (var i = 0; i < vm.memberships.length; i++) {
+                vm.memberships[i].expanded = isExpandAll;
+            }
+        }
+        
+        function expandMembership(index) {
+            index += (vm.query.page - 1)*(vm.query.limit);
+            vm.memberships[index].expanded = !vm.memberships[index].expanded;
+            for (var i = 0; i < vm.memberships.length; i++) {
+                if (vm.memberships[i].expanded == true) {
+                    vm.isMembershipSelected = true;
+                    return;
+                }
+                vm.isMembershipSelected = undefined
+            }
+        }
         
         function addMembership() {
             $state.go('restricted.memberships.add');

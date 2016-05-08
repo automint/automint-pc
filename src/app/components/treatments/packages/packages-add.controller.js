@@ -33,6 +33,7 @@
         getVehicleTypes(getTreatments);
 
         //  function maps
+        vm.goBack = goBack;
         vm.changeNameLabel = changeNameLabel;
         vm.updateTreatmentDetails = updateTreatmentDetails;
         vm.isAddOperation = isAddOperation;
@@ -41,6 +42,12 @@
         vm.save = save;
 
         //  function definitions
+        
+        function goBack() {
+            $state.go('restricted.treatments.master', {
+                openTab: 'packages'
+            });
+        }
 
         //  listen to changes in input fields [BEGIN]
         function changeNameLabel(force) {

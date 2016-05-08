@@ -2,7 +2,7 @@
  * Controller for Add Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -28,6 +28,7 @@
         vm.addRate = addRate;
 
         //  function-maps
+        vm.goBack = goBack;
         vm.changeNameLabel = changeNameLabel;
         vm.isAddOperation = isAddOperation;
         
@@ -35,6 +36,13 @@
         getVehicleTypes();
 
         //  function definitions
+        
+        function goBack() {
+            $state.go('restricted.treatments.master', {
+                openTab: 'treatments'
+            });
+        }
+        
         function isAddOperation() {
             return (vm.operationMode == 'add');
         }

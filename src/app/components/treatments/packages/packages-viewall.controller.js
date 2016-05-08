@@ -24,6 +24,8 @@
         };
         
         //  function maps
+        vm.changeExpandValues = changeExpandValues;
+        vm.expandPackage = expandPackage;
         vm.addPackage = addPackage;
         vm.evalVehicleTypes = evalVehicleTypes;
         vm.deletePackage = deletePackage;
@@ -33,6 +35,25 @@
         getPackages();
         
         //  function definitions
+        
+        function changeExpandValues(isExpandAll) {
+            vm.isPackageSelected = (isExpandAll) ? true : undefined;
+            for (var i = 0; i < vm.packages.length; i++) {
+                vm.packages[i].expanded = isExpandAll;
+            }
+        }
+        
+        function expandPackage(index) {
+            index += (vm.query.page - 1)*(vm.query.limit);
+            vm.packages[index].expanded = !vm.packages[index].expanded;
+            for (var i = 0; i < vm.packages.length; i++) {
+                if (vm.packages[i].expanded == true) {
+                    vm.isPackageSelected = true;
+                    return;
+                }
+                vm.isPackageSelected = undefined
+            }
+        }
         
         function addPackage() {
             $state.go('restricted.packages.add');

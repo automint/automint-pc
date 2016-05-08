@@ -37,6 +37,7 @@
         getVehicleTypes(getTreatments, getPackageInfo);
 
         //  function maps
+        vm.goBack = goBack;
         vm.changeNameLabel = changeNameLabel;
         vm.updateTreatmentDetails = updateTreatmentDetails;
         vm.isAddOperation = isAddOperation;
@@ -45,6 +46,12 @@
         vm.save = save;
 
         //  function definitions
+        
+        function goBack() {
+            $state.go('restricted.treatments.master', {
+                openTab: 'packages'
+            })
+        }
         
         //  error and exit
         function errorAndExit() {

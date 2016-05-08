@@ -46,6 +46,7 @@
         getVehicleTypes(getTreatments, getMembershipInfo);
 
         //  function maps
+        vm.goBack = goBack;
         vm.changeNameLabel = changeNameLabel;
         vm.changeOccurencesLabel = changeOccurencesLabel;
         vm.changeDurationLabel = changeDurationLabel;
@@ -58,6 +59,12 @@
         vm.save = save;
 
         //  function definitions
+        
+        function goBack() {
+            $state.go('restricted.treatments.master', {
+                openTab: 'memberships'
+            });
+        }
 
         //  listen to changes in input fields [BEGIN]
         function changeNameLabel(force) {

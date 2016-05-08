@@ -32,8 +32,8 @@
                 changeMembershipsTab(true);
                 break;
             default:
-                // changeTreatmentsTab(true);
-                changeMembershipsTab(true);    //  testing purposes                
+                changeTreatmentsTab(true);
+                // changeMembershipsTab(true);    //  testing purposes                
                 break;
         }
         

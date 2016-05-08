@@ -2,7 +2,7 @@
  * Controller for Edit Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -31,6 +31,7 @@
         vm.addRate = addRate;
 
         //  function-maps
+        vm.goBack = goBack;
         vm.changeNameLabel = changeNameLabel;
         vm.isAddOperation = isAddOperation;
         
@@ -44,6 +45,14 @@
         }
         getVehicleTypes();
         
+        //  function definitions
+        
+        function goBack() {
+            $state.go('restricted.treatments.master', {
+                openTab: 'treatments'
+            });
+        }
+        
         //  auto load treatment details
         function loadTreatment() {
             amTreatments.treatmentDetails(treatmentName).then(treatmentsFound);
@@ -56,14 +65,13 @@
                 function iterateRate(rk) {
                     var found = $filter('filter')(vm.rates, {
                         type: utils.convertToTitleCase(rk.replace(/-/g, ' '))
-                    });
+                    }, true);
                     if (found.length == 1)
                         found[0].value = res.rate[rk];
                 }
             }
         }
 
-        //  function definitions
         function isAddOperation() {
             return (vm.operationMode == 'add');
         }
