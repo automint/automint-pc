@@ -28,7 +28,9 @@
             getVehicleTypes: getVehicleTypes,
             getTreatmentSettings: getTreatmentSettings,
             getCustomerByMobile: getCustomerByMobile,
-            getLastInvoiceNo: getLastInvoiceNo
+            getLastInvoiceNo: getLastInvoiceNo,
+            getPackages: getPackages,
+            getMemberships: getMemberships
         }
 
         return factory;
@@ -250,6 +252,80 @@
                 tracker.reject(err);
             }
         }
+        
+        //  return memberships from config database
+        function getMemberships() {
+            var tracker = $q.defer();
+            var response = {
+                memberships: [],
+                total: 0
+            }
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.memberships)
+                    Object.keys(res.memberships).forEach(iterateMemberships);
+                tracker.resolve(response);
+                
+                function iterateMemberships(membership) {
+                    if (res.memberships[membership]._deleted == true)
+                        return;
+                    var occ = res.memberships[membership].occurences;
+                    var dur = res.memberships[membership].duration;
+                    delete res.memberships[membership].occurences
+                    delete res.memberships[membership].duration;
+                    response.memberships.push({
+                        name: membership,
+                        treatments: res.memberships[membership],
+                        occurences: occ,
+                        duration: dur,
+                    });
+                    delete occ;
+                    delete dur;
+                    response.total++;
+                }
+            }
+            
+            function failure(err) {
+                tracker.reject(response);
+            }
+        }
+        
+        //  return packages from config database
+        function getPackages() {
+            var tracker = $q.defer();
+            var packages = [];
+            $amRoot.isTreatmentId().then(getConfigDocument).catch(failure);
+            return tracker.promise;
+            
+            function getConfigDocument(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getConfigObject).catch(failure);
+            }
+            
+            function getConfigObject(res) {
+                if (res.packages)
+                    Object.keys(res.packages).forEach(iteratePackages);
+                tracker.resolve(packages);
+                
+                function iteratePackages(package) {
+                    if (res.packages[package]._deleted == true)
+                        return;
+                    packages.push({
+                        name: package,
+                        treatments: res.packages[package]
+                    });
+                }
+            }
+            
+            function failure(err) {
+                tracker.reject(packages);
+            }
+        }
 
         //  return regular treatments from config database
         function getRegularTreatments() {
@@ -328,6 +404,8 @@
                 response.mobile = res.user.mobile;
                 response.email = res.user.email;
                 response.name = res.user.name;
+                response.address = res.user.address;
+                response.memberships = res.user.memberships;
                 if (res.user.vehicles)
                     Object.keys(res.user.vehicles).forEach(iterateVehicle, this);
                 response.possibleVehicleList = pvl;
@@ -354,7 +432,6 @@
         //  return customer information based on their mobile number
         function getCustomerByMobile(mobile) {
             var tracker = $q.defer();
-            console.log('fire');
             pdbCustomers.query(mapView, {
                 include_docs: true,
                 key: mobile
@@ -374,6 +451,7 @@
                 response.mobile = doc.user.mobile;
                 response.email = doc.user.email;
                 response.name = doc.user.name;
+                response.address = doc.user.address;
                 if (doc.user.vehicles)
                     Object.keys(doc.user.vehicles).forEach(iterateVehicle);
                 response.possibleVehicleList = pvl;
@@ -409,9 +487,25 @@
             var isVehicleBlank = (newVehicle.manuf == undefined || newVehicle.manuf == '') && (newVehicle.model == undefined || newVehicle.model == '') && (newVehicle.reg == undefined || newVehicle.reg == '');
             var isServiceBlank = (newService.problems.length == 0) && (newService.cost == undefined || newService.cost == 0);
             delete prefixUser, prefixVehicle;
+            var smArray = $.extend([], newUser.memberships);
+            newUser.memberships = {};
+            smArray.forEach(addMembershipsToUser);
             var problemsArray = $.extend([], newService.problems);
+            if (newService.packages) {
+                var packageArray = $.extend([], newService.packages);
+                newService.packages = {};
+                packageArray.forEach(iteratePackages);
+                delete packageArray;
+            }
+            if (newService.memberships) {
+                var membershipArray = $.extend([], newService.memberships);
+                newService.memberships = {};
+                membershipArray.forEach(iterateMemberships);
+                delete membershipArray;
+            }
             newService.problems = {};
             problemsArray.forEach(iterateProblems);
+            delete smArray;
             delete problemsArray;
             delete newService.id;
             delete newVehicle.id;
@@ -484,6 +578,76 @@
                 delete finalProblem['$$hashKey'];
                 newService.problems[problem.details] = finalProblem;
                 delete finalProblem;
+            }
+            
+            function iteratePackages(package) {
+                var finalPackage = $.extend({}, package);
+                delete finalPackage.name;
+                delete finalPackage['$$hashKey'];
+                var fpTreatments = $.extend([], finalPackage.treatments);
+                finalPackage.treatments = {};
+                fpTreatments.forEach(iterateTreatments);
+                newService.packages[package.name] = finalPackage;
+                delete fpTreatments;
+                delete finalPackage;
+                
+                function iterateTreatments(treatment) {
+                    if (!treatment.checked)
+                        return;
+                    treatment.rate = treatment.rate[newVehicle.type.toLowerCase().replace(' ', '-')];
+                    finalPackage.treatments[treatment.name] = treatment;
+                    delete treatment.name;
+                    delete treatment.checked;
+                    delete treatment['$$hashKey'];
+                }
+            }
+            
+            function iterateMemberships(membership) {
+                var finalMembership = $.extend({}, membership);
+                delete finalMembership.name;
+                delete finalMembership['$$hashKey'];
+                var fmTreatments = $.extend([], finalMembership.treatments);
+                finalMembership.treatments = {};
+                fmTreatments.forEach(iterateTreatments);
+                newService.memberships[membership.name] = finalMembership;
+                delete fmTreatments;
+                delete finalMembership;
+                
+                function iterateTreatments(treatment) {
+                    
+                    if (!treatment.checked)
+                        return;
+                    treatment.rate = treatment.rate[newVehicle.type.toLowerCase().replace(' ', '-')];
+                    ++treatment.used.occurences;
+                    treatment.used.duration = moment().diff(moment(membership.startdate), "months");
+                    treatment = $.extend(treatment, treatment.used, false);
+                    finalMembership.treatments[treatment.name] = treatment;
+                    delete treatment.given;
+                    delete treatment.used;
+                    delete treatment.name;
+                    delete treatment.checked;
+                    delete treatment['$$hashKey'];
+                }
+            }
+            
+            function addMembershipsToUser(membership) {
+                var mTreatments = $.extend([], membership.treatments);
+                membership.treatments = {};
+                mTreatments.forEach(iterateTreatments);
+                newUser.memberships[membership.name] = {
+                    occurences: membership.occurences,
+                    duration: membership.duration,
+                    treatments: membership.treatments,
+                    startdate: membership.startdate
+                }
+                delete mTreatments;
+                
+                function iterateTreatments(treatment) {
+                    membership.treatments[treatment.name] = $.extend({}, treatment);
+                    delete membership.treatments[treatment.name].name;
+                    delete membership.treatments[treatment.name].checked;
+                    delete membership.treatments[treatment.name]['$$hashKey'];
+                }
             }
         }
 

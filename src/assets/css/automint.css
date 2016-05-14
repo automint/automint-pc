@@ -131,11 +131,15 @@ md-sidenav.md-closed.md-locked-open-add-active {
 }
 
 .am-table-header {
-    font-size: medium;
+    font-size: 11pt;
 }
 
 .am-datatable-actions {
     width: 90px;
+}
+
+.am-datatable-actions.package-edit {
+    width: 20px;
 }
 
 .am-datatable-actions .md-icon-button {
@@ -217,11 +221,11 @@ md-sidenav.md-closed.md-locked-open-add-active {
 
 .am-el-item .el-item {
     background-color: white;
-    transition: all 500ms;
+    transition: all 200ms;
 }
 
 .am-el-item .el-item * {
-    transition: all 500ms;
+    transition: all 200ms;
 }
 
 .am-el-item .el-item .actions {
@@ -261,5 +265,5 @@ md-sidenav.md-closed.md-locked-open-add-active {
 .am-el-item .el-item .expanded > * {
     max-height: 0;
     opacity: 0;
-    transition: all 500ms;
+    transition: all 200ms;
 }

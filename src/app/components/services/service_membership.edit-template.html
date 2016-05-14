@@ -1,0 +1,61 @@
+<md-dialog aria-label="Membership" ng-cloak>
+    <md-toolbar>
+        <div class="md-toolbar-tools">
+            <h3 class="md-subhead">{{vm.membership.name}}</h3>
+            <div flex></div>
+            <md-button class="md-raised" ng-click="vm.confirmDialog()" style="margin-right: 1rem;">
+                <md-icon>done</md-icon>
+                <span layout-padding>Save</span>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content>
+        <div class="md-dialog-content" style="padding: 0">
+            <md-table-container>
+                <table md-table md-row-select multiple ng-model="vm.selectedTreatments" md-progress="vm.treatmentPromise">
+                    <thead md-head>
+                        <tr md-row>
+                            <th md-column><span>Treatment</span></th>
+                            <th md-column ng-repeat="type in vm.vehicletypes"><span>{{type}}</span></th>
+                            <th md-column class="am-datatable-actions membership-addons"><span>Occurences</span></th>
+                            <th md-column class="am-datatable-actions membership-addons"><span>Duration<br><small>(months)</small></span></th>
+                        </tr>
+                    </thead>
+                    <tbody md-body>
+                        <tr md-row md-select="treatment" md-select-id="name" md-on-select="vm.onTreatmentSelected" md-on-deselect="vm.onTreatmentDeselected" ng-repeat="treatment in vm.treatments">
+                            <td md-cell><input type="text" ng-model="treatment.name" placeholder="Enter Details" class="am-table-inline-input" style="min-width: 120px"></td>
+                            <td md-cell ng-repeat="type in vm.vehicletypes"><input type="number" ng-model="treatment.rate[type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
+                            <td md-cell><input type="number" ng-model="treatment.given.occurences" placeholder="Occ." class="am-table-inline-input"></td>
+                            <td md-cell><input type="number" ng-model="treatment.given.duration" placeholder="Months" class="am-table-inline-input"></td>
+                        </tr>
+                        <tr md-row ng-hide="false">
+                            <td md-cell>
+                                <md-autocomplete id="new-treatment-details" md-search-text="vm.treatment.details" md-items="treatment in vm.treatmentQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-current="vm.currentTreatment"
+                                    md-search-text-change="vm.updateTreatmentDetails()" md-min-length="1" md-no-cache>
+                                    <md-item-template>
+                                        <span md-highlight-text="vm.treatment.details" md-highlight-flags="^i">{{treatment.name}}</span>
+                                    </md-item-template>
+                                </md-autocomplete>
+                            </td>
+                            <td md-cell ng-repeat="type in vm.vehicletypes">
+                                <input type="number" ng-model="vm.treatment.rate[type.toLowerCase().replace(' ', '-')]" style="width: 97%; min-width: 34px" placeholder="{{type}}" class="am-table-input">
+                            </td>
+                            <td md-cell class="am-datatable-actions membership-addons">
+                                <input type="number" ng-model="vm.treatment.occurences" placeholder="Occ." class="am-table-input">
+                            </td>
+                            <td md-cell class="am-datatable-actions membership-addons">
+                                <input type="number" ng-model="vm.treatment.duration" placeholder="Months" class="am-table-input" ng-blur="vm.finalizeNewTreatment()">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+            <div layout="column" layout-gt-xs="row" layout-padding layout-margin layout-wrap>
+                <md-button ng-click="vm.finalizeNewTreatment(true)" class="md-raised">
+                    <md-icon>add</md-icon>
+                    <span layout-padding>Add More</span>
+                </md-button>
+            </div>
+        </div>
+    </md-dialog-content>
+</md-dialog>
