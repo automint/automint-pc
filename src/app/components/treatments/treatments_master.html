@@ -1,0 +1,193 @@
+<style>
+    .toolbar-center {
+        margin-top: 1rem;
+    }
+</style>
+<md-content>
+    <md-tabs md-dynamic-height md-border-bottom>
+        <md-tab label="Treatments" md-active="vm.treatmensTab" md-on-deselect="vm.changeTreatmensTab(false)">
+            <md-content ng-controller="amCtrlTrRA as trVm">
+                <md-toolbar class="md-table-toolbar md-default">
+                    <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
+                        <md-button aria-label="Add Treatment" class="md-raised md-accent" ng-click="trVm.addTreatment()">
+                            <md-icon style="color: white">add</md-icon>
+                            <span style="color: white" layout-padding>Add Treatment</span>
+                        </md-button>
+                        <div flex></div>
+                        <div layout="row" layout-align="center center">
+                            <span class="toolbar-center">
+                                <md-checkbox class="am-checkbox" ng-model="trVm.stgDisplayAsList" aria-label="Display Treatment As">
+                                    <span class="md-body-1">Show treatments list ?</span>
+                            <span class="md-caption"><br>Displays as list while adding service</span>
+                            </md-checkbox>
+                            </span>
+                            <md-button class="md-icon-button">
+                                <md-icon>search</md-icon>
+                            </md-button>
+                        </div>
+                    </div>
+                </md-toolbar>
+
+                <md-table-container>
+                    <table md-table md-progress="trVm.promise">
+                        <thead md-head>
+                            <tr md-row>
+                                <th md-column><span class="am-table-header">Treatment</span></th>
+                                <th md-column ng-repeat="type in trVm.vehicletypes"><span class="am-table-header">{{type}}</span></th>
+                            </tr>
+                        </thead>
+                        <tbody md-body>
+                            <tr md-row ng-repeat="treatment in trVm.treatments | limitTo: trVm.query.limit: (trVm.query.page - 1)*(trVm.query.limit)">
+                                <td md-cell>{{treatment.name}}</td>
+                                <td md-cell ng-repeat="type in trVm.vehicletypes">{{trVm.getRate(treatment.rate, type)}}</td>
+                                <td md-cell class="am-datatable-actions">
+                                    <md-button class="md-icon-button" ng-click="trVm.editTreatment(treatment.name)">
+                                        <md-icon class="am-icon-button-size">edit</md-icon>
+                                    </md-button>
+                                    <md-button class="md-icon-button" ng-click="trVm.deleteTreatment(treatment.name)">
+                                        <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
+                                    </md-button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </md-table-container>
+
+                <md-table-pagination md-limit="trVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="trVm.query.page" md-total="{{trVm.query.total}}" md-page-select></md-table-pagination>
+            </md-content>
+        </md-tab>
+        <md-tab label="Packages" md-active="vm.packagesTab" md-on-deselect="vm.changePackagesTab(false)">
+            <md-content ng-controller="amCtrlPkRA as pkVm">
+                <md-content toolbar class="md-table-toolbar md-default">
+                    <div layout-gt-xs="row" layout-xs="column" layout-align="center center" style="margin-top: 1rem;">
+                        <md-button aria-label="Add Package" class="md-raised md-accent" ng-click="pkVm.addPackage()">
+                            <md-icon style="color: white">add</md-icon>
+                            <span style="color: white" layout-padding>Add Package</span>
+                        </md-button>
+                        <div flex></div>
+                        <div layout-xs="column" layout="row">
+                            <md-button ng-click="pkVm.changeExpandValues(true)" class="md-icon-button md-accent">
+                                <md-icon>expand_more</md-icon>
+                                <md-tooltip md-visible="true">Expand All</md-tooltip>
+                            </md-button>
+                            <md-button ng-click="pkVm.changeExpandValues(false)" class="md-icon-button md-accent">
+                                <md-icon>expand_less</md-icon>
+                                <md-tooltip md-direction="top" md-visible="true">Collapse All</md-tooltip>
+                            </md-button>
+                            <md-table-pagination ng-if="pkVm.packages.length >= pkVm.query.limit" md-limit="pkVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="pkVm.query.page" md-total="{{pkVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
+                        </div>
+
+                    </div>
+                </md-content>
+
+                <md-content layout="column" style="margin: 1rem;" ng-class="{'md-whiteframe-z1': pkVm.isPackageSelected == undefined}">
+                    <md-item ng-repeat="package in pkVm.packages | limitTo: pkVm.query.limit: (pkVm.query.page - 1)*(pkVm.query.limit)" class="am-el-item" ng-class="{ 'am-selected-el-item': package.expanded == true, 'margin-1px': pkVm.memberships.indexOf(package) >= 0 && pkVm.isPackageSelected != undefined}">
+                        <md-item-content class="el-item tile" ng-class="{ 'selected md-whiteframe-z2': package.expanded == true}" layout="column">
+                            <div layout-xs="column" layout="row" layout-align="center center" layout-fill ng-click="pkVm.expandPackage($index)" class="folded" layout-padding>
+                                <span ng-class="{'md-title': package.expanded == true, 'md-subhead': package.expanded != true}">{{package.name}}</span>
+                                <div flex></div>
+                                <div layout="row" layout-align="center center" class="actions" ng-show="package.expanded == true">
+                                    <md-button class="md-icon-button md-primary" ng-click="pkVm.editPackage(package.name)">
+                                        <md-icon class="am-icon-button-size">edit</md-icon>
+                                    </md-button>
+                                    <md-button class="md-icon-button" ng-click="pkVm.deletePackage(package.name)">
+                                        <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
+                                    </md-button>
+                                </div>
+                            </div>
+                            <div layout="column" layout-fill class="expanded">
+                                <md-table-container>
+                                    <table md-table>
+                                        <thead md-head>
+                                            <tr md-row>
+                                                <th md-column style="min-width: 160px">Treatments</th>
+                                                <th md-column ng-repeat="item in pkVm.evalVehicleTypes(package.treatments)">{{item}}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody md-body>
+                                            <tr md-row ng-repeat="(key, value) in package.treatments">
+                                                <td md-cell>{{key}}</td>
+                                                <td md-cell ng-repeat="item in pkVm.evalVehicleTypes(package.treatments)">{{value.rate[item.toLowerCase().replace(' ', '-')]}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </md-table-container>
+                            </div>
+                        </md-item-content>
+                    </md-item>
+                </md-content>
+
+                <md-table-pagination ng-if="pkVm.packages.length >= pkVm.query.limit" md-limit="pkVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="pkVm.query.page" md-total="{{pkVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
+
+            </md-content>
+        </md-tab>
+        <md-tab label="Memberships" md-active="vm.membershipsTab" md-on-deselect="vm.changeMembershipsTab(false)">
+            <md-content ng-controller="amCtrlMsRA as msVm">
+                <md-content toolbar class="md-table-toolbar md-default">
+                    <div layout-gt-xs="row" layout-xs="column" layout-align="center center" style="margin-top: 1rem;">
+                        <md-button aria-label="Add Membership" class="md-raised md-accent" ng-click="msVm.addMembership()">
+                            <md-icon style="color: white">add</md-icon>
+                            <span style="color: white" layout-padding>Add Membership</span>
+                        </md-button>
+                        <div flex></div>
+                        <div layout-xs="column" layout="row">
+                            <md-button ng-click="msVm.changeExpandValues(true)" class="md-icon-button md-accent">
+                                <md-icon>expand_more</md-icon>
+                                <md-tooltip md-visible="true">Expand All</md-tooltip>
+                            </md-button>
+                            <md-button ng-click="msVm.changeExpandValues(false)" class="md-icon-button md-accent">
+                                <md-icon>expand_less</md-icon>
+                                <md-tooltip md-direction="top" md-visible="true">Collapse All</md-tooltip>
+                            </md-button>
+                            <md-table-pagination ng-if="msVm.memberships.length >= msVm.query.limit" md-limit="msVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="msVm.query.page" md-total="{{msVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
+                        </div>
+                    </div>
+                </md-content>
+
+                <md-content layout="column" style="margin: 1rem;" ng-class="{'md-whiteframe-z1': msVm.isMembershipSelected == undefined}">
+                    <md-item ng-repeat="membership in msVm.memberships | limitTo: msVm.query.limit: (msVm.query.page - 1)*(msVm.query.limit)" class="am-el-item" ng-class="{ 'am-selected-el-item': membership.expanded == true, 'margin-1px': msVm.memberships.indexOf(membership) >= 0 && msVm.isMembershipSelected != undefined}">
+                        <md-item-content class="el-item tile md-whiteframe-z1" ng-class="{ 'selected md-whiteframe-z2': membership.expanded == true}" layout="column">
+                            <div layout-xs="column" layout="row" layout-align="center center" layout-fill ng-click="msVm.expandMembership($index)" class="folded" layout-padding>
+                                <span class="membership-name" ng-class="{'md-title': membership.expanded == true, 'md-subhead': membership.expanded != true}">{{membership.name}}</span>
+                                <div flex></div>
+                                <div layout="row" layout-align="center center" class="actions" ng-show="membership.expanded == true">
+                                    <md-button class="md-icon-button md-primary" ng-click="msVm.editMembership(membership.name)">
+                                        <md-icon class="am-icon-button-size">edit</md-icon>
+                                    </md-button>
+                                    <md-button class="md-icon-button" ng-click="msVm.deleteMembership(membership.name)">
+                                        <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
+                                    </md-button>
+                                </div>
+                            </div>
+                            <div layout="column" layout-fill class="expanded">
+                                <md-table-container>
+                                    <table md-table>
+                                        <thead md-head>
+                                            <tr md-row>
+                                                <th md-column style="min-width: 160px">Treatments</th>
+                                                <th md-column ng-repeat="item in msVm.evalVehicleTypes(membership.treatments)">{{item}}</th>
+                                                <th md-column>Occurences</th>
+                                                <th md-column>Duration<br><small>(months)</small></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody md-body>
+                                            <tr md-row ng-repeat="(key, value) in membership.treatments">
+                                                <td md-cell>{{key}}</td>
+                                                <td md-cell ng-repeat="item in msVm.evalVehicleTypes(membership.treatments)">{{value.rate[item.toLowerCase().replace(' ', '-')]}}</td>
+                                                <td md-cell>{{value.occurences}}</td>
+                                                <td md-cell>{{value.duration}}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </md-table-container>
+                            </div>
+                        </md-item-content>
+                    </md-item>
+                </md-content>
+
+                <md-table-pagination ng-if="msVm.memberships.length >= msVm.query.limit" md-limit="msVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="msVm.query.page" md-total="{{msVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
+
+            </md-content>
+        </md-tab>
+    </md-tabs>
+</md-content>

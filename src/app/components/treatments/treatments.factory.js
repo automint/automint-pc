@@ -2,7 +2,7 @@
  * Factory that handles database interactions between treatments database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1 
+ * @version 0.5.0 
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -23,7 +23,15 @@
             saveVehicleTypes: saveVehicleTypes,
             getVehicleTypes: getVehicleTypes,
             getTreatmentSettings: getTreatmentSettings,
-            changeDisplayAsList: changeDisplayAsList
+            changeDisplayAsList: changeDisplayAsList,
+            getPackages: getPackages,
+            getPackageInfo: getPackageInfo,
+            deletePackage: deletePackage,
+            savePackage: savePackage,
+            getMemberships: getMemberships,
+            getMembershipInfo: getMembershipInfo,
+            deleteMembership: deleteMembership,
+            saveMembership: saveMembership
         }
         
         return factory;
@@ -67,11 +75,11 @@
                 vehicleTypes.forEach(iterateNewTypes);
                 
                 function iterateNewTypes(type) {
-                    var found = $filter('filter')(res.vehicletypes, type);
-                    if (found.length != 1)
-                        res.vehicletypes.push(type);
-                    else
+                    var found = $filter('filter')(res.vehicletypes, type, true);
+                    if (found.length == 1 && found[0] == type)
                         totalMatch++;
+                    else
+                        res.vehicletypes.push(type);
                 }
                 if (totalMatch == vehicleTypes.length)
                     tracker.resolve('Duplicate Entries');
@@ -137,6 +145,8 @@
                 tracker.resolve(response);
                 
                 function iterateRegularTreatments(treatment) {
+                    if (res.regular[treatment]._deleted == true)
+                        return;
                     response.treatments.push({
                         name: treatment,
                         rate: res.regular[treatment].rate
@@ -268,6 +278,278 @@
             }
             function failure(error) {
                 tracker.reject(error);
+            }
+        }
+        
+        function getPackageInfo(name) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.packages && res.packages[name]) {
+                    tracker.resolve({
+                        name: name,
+                        treatments: res.packages[name]
+                    });
+                } else
+                    failure();
+            }
+            
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'Package not found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
+        
+        function getPackages() {
+            var tracker = $q.defer();
+            var response = {
+                packages: [],
+                total: 0
+            }
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.packages)
+                    Object.keys(res.packages).forEach(iteratePackages);
+                tracker.resolve(response);
+                
+                function iteratePackages(package) {
+                    if (res.packages[package]._deleted == true)
+                        return;
+                    response.packages.push({
+                        name: package,
+                        treatments: res.packages[package]
+                    });
+                    response.total++;
+                }
+            }
+            
+            function failure(err) {
+                tracker.reject(response);
+            }
+        }
+        
+        function deletePackage(name) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.packages && res.packages[name]) {
+                    res.packages[name]._deleted = true;
+                    pdbConfig.save(res).then(success).catch(failure);
+                } else
+                    failure();
+            }
+            
+            function success(res) {
+                tracker.resolve(res);
+            }
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'Could not find ' + name
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
+        
+        function savePackage(package) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(writeTreatmentDoc);
+            }
+            
+            function getTreatmentObject(res) {
+                if (!res.packages)
+                    res.packages = {};
+                res.packages[package.name] = package;
+                delete res.packages[package.name].name;
+                pdbConfig.save(res).then(success).catch(failure);
+            }
+            
+            function writeTreatmentDoc(err) {
+                var doc = {
+                    _id: utils.generateUUID('trtmnt'),
+                    creator: $amRoot.username
+                }
+                doc.packages = {};
+                doc.packages[package.name] = package;
+                delete doc.packages[package.name].name;
+                pdbConfig.save(doc).then(success).catch(failure);
+            }
+            
+            function success(res) {
+                tracker.resolve(res);
+            }
+            
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+        
+        function getMembershipInfo(name) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.memberships && res.memberships[name]) {
+                    var m = $.extend({}, res.memberships[name]);
+                    delete res.memberships[name].occurences;
+                    delete res.memberships[name].duration;
+                    tracker.resolve({
+                        name: name,
+                        treatments: res.memberships[name],
+                        occurences: m.occurences,
+                        duration: m.duration
+                    });
+                    delete m;
+                } else
+                    failure();
+            }
+            
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'Membership not found'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
+        
+        function getMemberships() {
+            var tracker = $q.defer();
+            var response = {
+                memberships: [],
+                total: 0
+            }
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.memberships)
+                    Object.keys(res.memberships).forEach(iterateMemberships);
+                tracker.resolve(response);
+                
+                function iterateMemberships(membership) {
+                    if (res.memberships[membership]._deleted == true)
+                        return;
+                    delete res.memberships[membership].occurences
+                    delete res.memberships[membership].duration;
+                    response.memberships.push({
+                        name: membership,
+                        treatments: res.memberships[membership]
+                    });
+                    response.total++;
+                }
+            }
+            
+            function failure(err) {
+                tracker.reject(response);
+            }
+        }
+        
+        function deleteMembership(name) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.memberships && res.memberships[name]) {
+                    res.memberships[name]._deleted = true;
+                    pdbConfig.save(res).then(success).catch(failure);
+                } else
+                    failure();
+            }
+            
+            function success(res) {
+                tracker.resolve(res);
+            }
+            
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'No Membership Found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
+        
+        function saveMembership(membership) {
+            var tracker = $q.defer();
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(writeTreatmentDoc);
+            }
+            
+            function getTreatmentObject(res) {
+                if (!res.memberships)
+                    res.memberships = {};
+                res.memberships[membership.name] = membership;
+                delete res.memberships[membership.name].name;
+                pdbConfig.save(res).then(success).catch(failure);
+            }
+            
+            function writeTreatmentDoc(err) {
+                var doc = {
+                    _id: utils.generateUUID('trtmnt'),
+                    creator: $amRoot.username
+                }
+                doc.memberships = {};
+                doc.memberships[membership.name] = membership;
+                delete doc.memberships[membership.name].name;
+                pdbConfig.save(doc).then(success).catch(failure);
+            }
+            
+            function success(res) {
+                tracker.resolve(res);
+            }
+            function failure(err) {
+                tracker.reject(err);
             }
         }
     }

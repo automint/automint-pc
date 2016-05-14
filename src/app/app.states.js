@@ -48,6 +48,7 @@
                     pageTitle: 'Dashboard'
                 }
             })
+            //  customers
             .state('restricted.customers', {
                 url: '/customers',
                 template: '<div ui-view autoscroll="false"></div>',
@@ -95,6 +96,7 @@
                     pageTitle: 'Edit Customer'
                 }
             })
+            //  treatments
             .state('restricted.treatments', {
                 url: '/treatments',
                 template: '<div ui-view autoscroll="false"></div>',
@@ -103,13 +105,16 @@
                     deps: ['$ocLazyLoad', loadTreatmentDeps]
                 }
             })
-            .state('restricted.treatments.all', {
+            .state('restricted.treatments.master', {
                 url: '/all',
-                templateUrl: 'app/components/treatments/treatments_viewAll.html',
-                controller: 'amCtrlTrRA',
+                templateUrl: 'app/components/treatments/treatments_master.html',
+                params: {
+                    openTab: undefined
+                },
+                controller: 'amCtrlTrMaster',
                 controllerAs: 'vm',
                 resolve: {
-                    deps: ['$ocLazyLoad', loadTrRADeps]
+                    deps: ['$ocLazyLoad', loadTrMasterDeps]
                 },
                 data: {
                     pageTitle: 'All Treatments'
@@ -117,7 +122,7 @@
             })
             .state('restricted.treatments.add', {
                 url: '/add',
-                templateUrl: 'app/components/treatments/treatments_add.html',
+                templateUrl: 'app/components/treatments/regular/treatments_add.html',
                 controller: 'amCtrlTrCI',
                 controllerAs: 'vm',
                 resolve: {
@@ -129,7 +134,7 @@
             })
             .state('restricted.treatments.edit', {
                 url: '/edit',
-                templateUrl: 'app/components/treatments/treatments_add.html',
+                templateUrl: 'app/components/treatments/regular/treatments_add.html',
                 controller: 'amCtrlTrUI',
                 controllerAs: 'vm',
                 params: {
@@ -142,6 +147,7 @@
                     pageTitle: 'Edit Treatment'
                 }
             })
+            //  services
             .state('restricted.services', {
                 url: '/services',
                 template: '<div ui-view autoscroll="fase"></div>',
@@ -191,6 +197,7 @@
                     pageTitle: 'Edit Service'
                 }
             })
+            //  settings
             .state('restricted.settings', {
                 url: '/settings',
                 templateUrl: 'app/components/settings/settings.html',
@@ -206,6 +213,7 @@
                     pageTitle: 'Settings'
                 }
             })
+            //  invoices
             .state('restricted.invoices', {
                 url: '/invoices',
                 template: '<div ui-view autoscroll="false"></div>',
@@ -231,6 +239,77 @@
                     pageTitle: 'View Invoice'
                 }
             })
+            //  packages
+            .state('restricted.packages', {
+                url: '/packages',
+                template: '<div ui-view autoscroll="false"></div>',
+                abstract: true,
+                resolve: {
+                    deps: ['$ocLazyLoad', loadPackageDeps]
+                }
+            })
+            .state('restricted.packages.add', {
+                url: '/add',
+                templateUrl: 'app/components/treatments/packages/packages_add.html',
+                controller: 'amCtrlPkCI',
+                controllerAs: 'vm',
+                resolve: {
+                    deps: ['$ocLazyLoad', loadPkCIDeps]
+                },
+                data: {
+                    pageTitle: 'Add Package'
+                }
+            })
+            .state('restricted.packages.edit', {
+                url: '/edit',
+                templateUrl: 'app/components/treatments/packages/packages_add.html',
+                controller: 'amCtrlPkUI',
+                controllerAs: 'vm',
+                params: {
+                    name: undefined
+                },
+                resolve: {
+                    deps: ['$ocLazyLoad', loadPkUIDeps]
+                },
+                data: {
+                    pageTitle: 'Edit Package'
+                }
+            })
+            .state('restricted.memberships', {
+                url: '/memberships',
+                template: '<div ui-view autoscroll="false"></div>',
+                abstract: true,
+                resolve: {
+                    deps: ['$ocLazyLoad', loadMembershipDeps]
+                }
+            })
+            .state('restricted.memberships.add', {
+                url: '/add',
+                templateUrl: 'app/components/treatments/memberships/memberships_add.html',
+                controller: 'amCtrlMsCI',
+                controllerAs: 'vm',
+                resolve: {
+                    deps: ['$ocLazyLoad', loadMsCIDeps]
+                },
+                data: {
+                    pageTitle: 'Add Membership'
+                }
+            })
+            .state('restricted.memberships.edit', {
+                url: '/edit',
+                templateUrl: 'app/components/treatments/memberships/memberships_add.html',
+                controller: 'amCtrlMsUI',
+                controllerAs: 'vm',
+                params: {
+                    name: undefined
+                },
+                resolve: {
+                    deps: ['$ocLazyLoad', loadMsUIDeps]
+                },
+                data: {
+                    pageTitle: 'Edit Membership'
+                }
+            });
 
         function loadDashboardDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
@@ -266,19 +345,22 @@
         function loadTrCIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/treatments/treatments-add.controller.js'
+                'app/components/treatments/regular/treatments-add.controller.js'
             ])
         }
-        function loadTrRADeps($ocLazyLoad) {
+        function loadTrMasterDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/treatments/treatments-viewall.controller.js'
+                'app/components/treatments/treatments-master.controller.js',
+                'app/components/treatments/regular/treatments-viewall.controller.js',
+                'app/components/treatments/packages/packages-viewall.controller.js',
+                'app/components/treatments/memberships/memberships-viewall.controller.js'
             ])
         }
         function loadTrUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/treatments/treatments-edit.controller.js'
+                'app/components/treatments/regular/treatments-edit.controller.js'
             ])
         }
         function loadServicesDeps($ocLazyLoad) {
@@ -323,6 +405,40 @@
         function loadInvoicesDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'app/components/invoices/invoices.factory.js'
+            ])
+        }
+        function loadPackageDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'app/components/treatments/treatments.factory.js'
+            ])
+        }
+        function loadPkCIDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'material-datatable',
+                'app/components/treatments/packages/packages-add.controller.js'
+            ])
+        }
+        function loadPkUIDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'material-datatable',
+                'app/components/treatments/packages/packages-edit.controller.js'
+            ])
+        }
+        function loadMembershipDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'app/components/treatments/treatments.factory.js'
+            ])
+        }
+        function loadMsCIDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'material-datatable',
+                'app/components/treatments/memberships/memberships-add.controller.js'
+            ])
+        }
+        function loadMsUIDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'material-datatable',
+                'app/components/treatments/memberships/memberships-edit.controller.js'
             ])
         }
     }

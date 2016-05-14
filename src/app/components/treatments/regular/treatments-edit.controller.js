@@ -1,21 +1,24 @@
 /**
- * Controller for Add Treatments component
+ * Controller for Edit Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
-/// <reference path="../../../typings/main.d.ts" />
+/// <reference path="../../../../typings/main.d.ts" />
 
 (function() {
     angular.module('automintApp')
-        .controller('amCtrlTrCI', TreatmentAddController);
-
-    TreatmentAddController.$inject = ['$state', 'utils', 'amTreatments'];
-
-    function TreatmentAddController($state, utils, amTreatments) {
+        .controller('amCtrlTrUI', TreatmentsEditController);
+    
+    TreatmentsEditController.$inject = ['$state', '$filter', 'utils', 'amTreatments'];
+    
+    function TreatmentsEditController($state, $filter, utils, amTreatments) {
         //  initialize view model object
         var vm = this;
+        
+        //  temporary named assignments
+        var treatmentName = $state.params.name;
 
         //  named assignments to keep track of UI elements
         vm.label_name = 'Enter Treatment Name:';
@@ -23,18 +26,52 @@
             name: ''
         };
         vm.rates = [];
-        vm.operationMode = 'add';
+        vm.operationMode = 'edit';
         vm.save = save;
         vm.addRate = addRate;
 
         //  function-maps
+        vm.goBack = goBack;
         vm.changeNameLabel = changeNameLabel;
         vm.isAddOperation = isAddOperation;
         
         //  default execution steps
+        if (treatmentName == '' || treatmentName == undefined) {
+            utils.showSimpleToast('Something went wrong! Please Try Again!');
+            $state.go('restricted.treatments.master', {
+                openTab: 'treatments'
+            });
+            return;
+        }
         getVehicleTypes();
-
+        
         //  function definitions
+        
+        function goBack() {
+            $state.go('restricted.treatments.master', {
+                openTab: 'treatments'
+            });
+        }
+        
+        //  auto load treatment details
+        function loadTreatment() {
+            amTreatments.treatmentDetails(treatmentName).then(treatmentsFound);
+            
+            function treatmentsFound(res) {
+                vm.treatment.name = res.name;
+                changeNameLabel();
+                Object.keys(res.rate).forEach(iterateRate);
+                
+                function iterateRate(rk) {
+                    var found = $filter('filter')(vm.rates, {
+                        type: utils.convertToTitleCase(rk.replace(/-/g, ' '))
+                    }, true);
+                    if (found.length == 1)
+                        found[0].value = res.rate[rk];
+                }
+            }
+        }
+
         function isAddOperation() {
             return (vm.operationMode == 'add');
         }
@@ -44,6 +81,7 @@
             
             function success(res) {
                 res.forEach(iterateVehicleType);
+                loadTreatment();
                 
                 function iterateVehicleType(type) {
                     vm.rates.push({
@@ -61,11 +99,12 @@
                     value: '',
                     fromDb: true,
                     focusIndex: vm.rates.length
-                })
+                });
+                loadTreatment();
             }
         }
         
-        function addRate(focus) {
+        function addRate() {
             var fIndex = vm.rates.length;
             vm.rates.push({
                 type: '',
@@ -107,13 +146,15 @@
             
             function success(res) {
                 if (res.ok) {
-                    utils.showSimpleToast('Treatment has been added');
-                    $state.go('restricted.treatments.all');
+                    utils.showSimpleToast('Treatment has been updated');
+                    $state.go('restricted.treatments.master', {
+                        openTab: 'treatments'
+                    });
                 } else
                     failure();
             }
             function failure(err) {
-                utils.showSimpleToast('Treatment can not be added at moment. Please Try Again!');
+                utils.showSimpleToast('Treatment can not be updated at moment. Please Try Again!');
             }
         }
     }
