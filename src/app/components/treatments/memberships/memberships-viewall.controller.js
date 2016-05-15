@@ -31,11 +31,23 @@
         vm.addMembership = addMembership;
         vm.editMembership = editMembership;
         vm.deleteMembership = deleteMembership;
+        vm.calculateTotal = calculateTotal;
         
         //  default execution steps
         getMemberships();
         
         //  function definitions
+        
+        function calculateTotal(vehicletype, index) {
+            var total = 0;
+            if (vm.memberships[index])
+                Object.keys(vm.memberships[index].treatments).forEach(iterateTreatments);
+            return total;
+            
+            function iterateTreatments(treatment) {
+                total += vm.memberships[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')];
+            }
+        }
         
         function changeExpandValues(isExpandAll) {
             vm.isMembershipSelected = (isExpandAll) ? true : undefined;

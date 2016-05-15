@@ -19,7 +19,7 @@
             getWorkshopDetails: getWorkshopDetails,
             saveWorkshopDetails: saveWorkshopDetails,
             getInvoiceSettings: getInvoiceSettings,
-            resetLastInvoiceNo: resetLastInvoiceNo,
+            changeLastInvoiceNo: changeLastInvoiceNo,
             saveIvDisplaySettings: saveIvDisplaySettings
         }
         
@@ -156,8 +156,8 @@
             }
         }
         
-        //  reset last invoice number in database
-        function resetLastInvoiceNo() {
+        //  change last invoice number in database
+        function changeLastInvoiceNo(invoiceno) {
             var tracker = $q.defer();
             $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
             return tracker.promise;
@@ -171,7 +171,7 @@
                     res.settings = {};
                 if (!res.settings.invoices)
                     res.settings.invoices = {};
-                res.settings.invoices.lastInvoiceNumber = 0;
+                res.settings.invoices.lastInvoiceNumber = invoiceno;
                 pdbConfig.save(res).then(success).catch(failure);
             }
             
@@ -181,7 +181,7 @@
                     creator: $amRoot.username,
                     settings: {
                         invoices: {
-                            lastInvoiceNumber: 0
+                            lastInvoiceNumber: invoiceno
                         }
                     }
                 }

@@ -17,9 +17,8 @@
                         <div layout="row" layout-align="center center">
                             <span class="toolbar-center">
                                 <md-checkbox class="am-checkbox" ng-model="trVm.stgDisplayAsList" aria-label="Display Treatment As">
-                                    <span class="md-body-1">Show treatments list ?</span>
-                            <span class="md-caption"><br>Displays as list while adding service</span>
-                            </md-checkbox>
+                                    <p class="md-body-1">Display as list while adding service</p>
+                                </md-checkbox>
                             </span>
                             <md-button class="md-icon-button">
                                 <md-icon>search</md-icon>
@@ -110,6 +109,12 @@
                                                 <td md-cell ng-repeat="item in pkVm.evalVehicleTypes(package.treatments)">{{value.rate[item.toLowerCase().replace(' ', '-')]}}</td>
                                             </tr>
                                         </tbody>
+                                        <tfoot md-foot>
+                                            <tr md-row>
+                                                <td md-cell class="md-body-2">Sub Total:</td>
+                                                <td md-cell class="md-body-2" ng-repeat="item in pkVm.evalVehicleTypes(package.treatments)">{{pkVm.calculateTotal(item, $parent.$index)}}</td>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </md-table-container>
                             </div>
@@ -178,6 +183,14 @@
                                                 <td md-cell>{{value.duration}}</td>
                                             </tr>
                                         </tbody>
+                                        <tfoot md-foot>
+                                            <tr md-row>
+                                                <td md-cell class="md-body-2">Sub Total:</td>
+                                                <td md-cell class="md-body-2" ng-repeat="item in msVm.evalVehicleTypes(membership.treatments)">{{msVm.calculateTotal(item, $parent.$index)}}</td>
+                                                <td md-cell class="md-body-2">&nbsp;</td>
+                                                <td md-cell class="md-body-2">&nbsp;</td>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </md-table-container>
                             </div>

@@ -32,7 +32,7 @@
             </thead>
             <tbody md-body>
                 <tr md-row md-select="treatment" md-select-id="name" md-on-select="vm.onTreatmentSelected" md-on-deselect="vm.onTreatmentDeselected" ng-repeat="treatment in vm.treatments">
-                    <td md-cell><input type="text" ng-model="treatment.name" placeholder="Enter Details" class="am-table-inline-input" style="min-width: 120px"></td>
+                    <td md-cell><input type="text" ng-model="treatment.name" placeholder="Enter Details" class="am-table-inline-input" style="min-width: 120px"><md-tooltip md-direction="top">{{treatment.name}}</md-tooltip></td>
                     <td md-cell ng-repeat="type in vm.vehicletypes"><input type="number" ng-model="treatment.rate[type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
                     <td md-cell><input type="number" ng-model="treatment.occurences" placeholder="Occ." class="am-table-inline-input"></td>
                     <td md-cell><input type="number" ng-model="treatment.duration" placeholder="Months" class="am-table-inline-input"></td>

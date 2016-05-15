@@ -82,6 +82,7 @@
                         <md-input-container class="md-block" flex-gt-xs="50">
                             <label class="am-form-label" ng-class="{'large': vm.largeVehicleRegLabel}">{{vm.label_vehicleReg}}</label>
                             <input type="text" class="am-vehicle-reg" ng-model="vm.vehicle.reg" ng-change="vm.convertRegToCaps()" ng-blur="vm.changeVehicleRegLabel()" ng-focus="vm.changeVehicleRegLabel(true)">
+                            <div class="am-hint">e.g. <span class="spacing-1p bold-500">GJ01AB9999</span></div>
                         </md-input-container>
                     </div>
                 </div>

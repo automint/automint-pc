@@ -30,11 +30,23 @@
         vm.evalVehicleTypes = evalVehicleTypes;
         vm.deletePackage = deletePackage;
         vm.editPackage = editPackage;
+        vm.calculateTotal = calculateTotal;
         
         //  default execution steps
         getPackages();
         
         //  function definitions
+        
+        function calculateTotal(vehicletype, index) {
+            var total = 0;
+            if (vm.packages[index])
+                Object.keys(vm.packages[index].treatments).forEach(iterateTreatments);
+            return total;
+            
+            function iterateTreatments(treatment) {
+                total += vm.packages[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')];
+            }
+        }
         
         function changeExpandValues(isExpandAll) {
             vm.isPackageSelected = (isExpandAll) ? true : undefined;
