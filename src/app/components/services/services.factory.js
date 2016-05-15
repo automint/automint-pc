@@ -284,7 +284,11 @@
                         treatments: res.memberships[membership],
                         occurences: occ,
                         duration: dur,
+                        amount: res.memberships[membership].amount,
+                        description: res.memberships[membership].description
                     });
+                    delete res.memberships[membership].amount;
+                    delete res.memberships[membership].description;
                     delete occ;
                     delete dur;
                     response.total++;

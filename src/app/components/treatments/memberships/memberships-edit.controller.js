@@ -20,17 +20,21 @@
         vm.label_name = "Enter Membership Name:";
         vm.label_occurences = "Enter Occurences:";
         vm.label_duration = "Enter Duration (months):";
+        vm.label_amount = "Enter Amount:";
+        vm.label_description = "Enter Description:";
         vm.operationMode = 'edit';
         vm.membership = {
             name: '',
             occurences: 1,
-            duration: 1
+            duration: 1,
+            amount: '',
+            description: ''
         };
         vm.treatment = {
             details: '',
             rate: '',
-            occurences: '',
-            duration: ''
+            occurences: vm.membership.occurences,
+            duration: vm.membership.duration
         };
         vm.treatments = [];
         vm.vehicletypes = [];
@@ -50,6 +54,8 @@
         vm.changeNameLabel = changeNameLabel;
         vm.changeOccurencesLabel = changeOccurencesLabel;
         vm.changeDurationLabel = changeDurationLabel;
+        vm.changeAmountLabel = changeAmountLabel;
+        vm.changeDescriptionLabel = changeDescriptionLabel;
         vm.changeDuration = changeDuration;
         vm.changeOccurences = changeOccurences;
         vm.updateTreatmentDetails = updateTreatmentDetails;
@@ -79,6 +85,14 @@
             vm.isDuration = (force != undefined) || (vm.membership.duration != '');
             vm.label_duration = (vm.isDuration) ? "Duration (months):" : "Enter Duration (months):";
         }
+        function changeAmountLabel(force) {
+            vm.isAmount = (force != undefined) || (vm.membership.amount != '');
+            vm.label_amount = (vm.isAmount) ? "Amount:" : "Enter Amount:";
+        }
+        function changeDescriptionLabel(force) {
+            vm.isDescription = (force != undefined) || (vm.membership.description != '');
+            vm.label_description = (vm.isDescription) ? "Description:" : "Enter Description:";
+        }
         //  listen to changes in input fields [END]
 
         //  check current operation mode if it is 'add' or not
@@ -97,6 +111,7 @@
         //  change master occurences that changes individual occurences
         function changeOccurences() {
             vm.treatments.forEach(iterateTreatments);
+            vm.treatment.occurences = vm.membership.occurences;
             
             function iterateTreatments(treatment) {
                 treatment.occurences = vm.membership.occurences;
@@ -106,6 +121,7 @@
         //  change master durations that changes individual duration
         function changeDuration() {
             vm.treatments.forEach(iterateTreatments);
+            vm.treatment.duration = vm.membership.duration;
             
             function iterateTreatments(treatment) {
                 treatment.duration = vm.membership.duration;
@@ -132,12 +148,14 @@
                     }, true);
                     
                     if (found.length == 1) {
+                        found[0].checked = true;
                         found[0].rate = res.treatments[treatment].rate;
                         found[0].occurences = res.treatments[treatment].occurences;
                         found[0].duration = res.treatments[treatment].duration;
                         vm.selectedTreatments.push(found[0]);
                     } else {
                         vm.treatments.push({
+                            checked: true,
                             name: treatment,
                             rate: res.treatments[treatment].rate,
                             occurences: res.treatments[treatment].occurences,
@@ -217,21 +235,26 @@
                 });
                 if (found.length == 1 && found[0].name == vm.treatment.details) {
                     found[0].checked = true;
+                    found[0].rate = vm.treatment.rate;
+                    found[0].duration = vm.treatment.duration;
+                    found[0].occurences = vm.treatment.occurences;
                     vm.selectedTreatments.push(found[0]);
                 } else {
                     vm.treatments.push({
                         name: vm.treatment.details,
                         rate: vm.treatment.rate,
+                        duration: vm.treatment.duration,
+                        occurences: vm.treatment.occurences,
                         checked: true
                     });
                     vm.selectedTreatments.push(vm.treatments[vm.treatments.length - 1]);
                 }
-                vm.treatment.details = '';
-                vm.treatment.rate = {};
-                $('#new-treatment-details').focus();
+                vm.treatment.occurences = vm.membership.occurences;
+                vm.treatment.duration = vm.membership.duration;
+                angular.element('#new-treatment-details').find('input')[0].focus();
             }
             if (btnClicked)
-                $('#new-treatment-details').focus();
+                angular.element('#new-treatment-details').find('input')[0].focus();
         }
 
         //  query search for treatments [autocomplete]
@@ -251,10 +274,6 @@
         }
 
         function save() {
-            if (vm.membership.name == '') {
-                utils.showSimpleToast('Please Enter Name');
-                return;
-            }
             if (vm.selectedTreatments.length <= 0) {
                 utils.showSimpleToast('Please Select Treatments');
                 return;

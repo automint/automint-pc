@@ -106,14 +106,18 @@
                         return;
                     var occ = res.memberships[membership].occurences;
                     var dur = res.memberships[membership].duration;
-                    delete res.memberships[membership].occurences
+                    delete res.memberships[membership].occurences;
                     delete res.memberships[membership].duration;
                     response.memberships.push({
                         name: membership,
                         treatments: res.memberships[membership],
                         occurences: occ,
                         duration: dur,
+                        amount: res.memberships[membership].amount,
+                        description: res.memberships[membership].description
                     });
+                    delete res.memberships[membership].amount;
+                    delete res.memberships[membership].description;
                     delete occ;
                     delete dur;
                     response.total++;

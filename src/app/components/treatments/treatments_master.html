@@ -153,7 +153,10 @@
                     <md-item ng-repeat="membership in msVm.memberships | limitTo: msVm.query.limit: (msVm.query.page - 1)*(msVm.query.limit)" class="am-el-item" ng-class="{ 'am-selected-el-item': membership.expanded == true, 'margin-1px': msVm.memberships.indexOf(membership) >= 0 && msVm.isMembershipSelected != undefined}">
                         <md-item-content class="el-item tile md-whiteframe-z1" ng-class="{ 'selected md-whiteframe-z2': membership.expanded == true}" layout="column">
                             <div layout-xs="column" layout="row" layout-align="center center" layout-fill ng-click="msVm.expandMembership($index)" class="folded" layout-padding>
-                                <span class="membership-name" ng-class="{'md-title': membership.expanded == true, 'md-subhead': membership.expanded != true}">{{membership.name}}</span>
+                                <span class="membership-name" ng-class="{'md-title': membership.expanded == true, 'md-subhead': membership.expanded != true}">
+                                    {{membership.name}}
+                                    <span ng-show="membership.expanded == true && membership.amount != undefinied"><br>&#x20B9; {{membership.amount}}</span>
+                                </span>
                                 <div flex></div>
                                 <div layout="row" layout-align="center center" class="actions" ng-show="membership.expanded == true">
                                     <md-button class="md-icon-button md-primary" ng-click="msVm.editMembership(membership.name)">

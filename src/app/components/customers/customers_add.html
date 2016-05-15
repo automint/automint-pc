@@ -49,7 +49,7 @@
         <md-tab label="Vehicle Information" md-active="vm.vehicleTab" md-on-deselect="vm.changeVehicleTab(false)">
             <md-content layout-padding>
                 <div layout="column">
-                    <div layout-gt-xs="row" layout-wrap layout-margin ng-if="!vm.addOperationConfig()">
+                    <div layout-gt-xs="row" layout-wrap layout-margin ng-if="!vm.isAddOperation()">
                         <div layout="column" flex>
                             <span class="am-form-label">Choose Vehicle:</span>
                             <md-menu>
