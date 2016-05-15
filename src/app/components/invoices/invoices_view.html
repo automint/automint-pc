@@ -3,11 +3,11 @@
         background: transparent;
         z-index: 999;
         position: fixed;
-        bottom: 2rem;
+        bottom: 1.6rem;
     }
     
     .am-floating.am-right {
-        right: 2rem;
+        right: 0.3rem;
     }
 </style>
 <md-button aria-label="Back" class="md-fab md-raised md-mini am-floating" ng-click="vm.goBack()">
@@ -63,6 +63,19 @@
                         padding: 1rem;
                     }
                     
+                    .am-invoice-table .m-d {
+                        padding: 1rem 1rem 0.3rem 1rem !important;
+                    }
+                    
+                    .am-invoice-table .m-dt {
+                        padding: 0.3rem 1rem 0.3rem 1rem !important;
+                        font-size: 9pt;
+                    }
+                    .am-invoice-table .m-dtl {
+                        padding: 0.3rem 1rem 1rem 1rem !important;
+                        font-size: 9pt;
+                    }
+                    
                     .am-invoice-table .caption td {
                         font-size: small;
                     }
@@ -87,25 +100,39 @@
                         font-size: small;
                     }
                     
-                    img {
-                        border: 0;
+                    .am-invoice-w-area {
+                        font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;
+                        width: 100%;
+                    }
+                    
+                    .am-invoice-w-area .parent {
+                        display: flex;
+                        align-items: center;
+                    }
+                    
+                    .am-invoice-w-area .parent .left {
+                        padding-left: 2rem;
+                    }
+                    
+                    .am-invoice-w-area .parent .right {
+                        padding-right: 2rem;
                     }
                 </style>
             </head>
 
             <body style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;">
-                <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;">
-                    <div style="float: right; padding-right: 2rem;">
-                        <img id="am-invoice-w-logo" ng-src="{{vm.invoiceWLogo}}" width="250" height="125"><br>
+                <section class="am-invoice-w-area">
+                    <div class="parent">
+                        <div class="left">
+                            <h2 style="margin-bottom: 0.3rem; margin: 1px;">{{vm.workshop.name}}</span><span class="am-blank-padding">&nbsp;</span></h2>
+                            <span class="am-invoice-workshop-detail">{{vm.workshop.address1}}<span class="am-blank-padding">&nbsp;</span></span><br>
+                            <span class="am-invoice-workshop-detail">{{vm.workshop.address2}}<span class="am-blank-padding">&nbsp;</span></span><br>
+                            <span class="am-invoice-workshop-detail">{{vm.workshop.city}}<span class="am-blank-padding">&nbsp;</span></span><br>
+                            <span class="am-invoice-workshop-detail"><span style="font-size: x-small;">{{vm.workshop.label_phone}}</span> {{vm.workshop.phone}}<span class="am-blank-padding">&nbsp;</span></span>
+                        </div>
+                        <div style="flex-grow: 1"></div>
+                        <div class="right" id="am-invoice-w-logo-holder"></div>
                     </div>
-                    <div style="float: left; padding-left: 2rem;">
-                        <h2 style="margin-bottom: 0.3rem; margin: 1px;">{{vm.workshop.name}}</span><span class="am-blank-padding">&nbsp;</span></h2>
-                        <span class="am-invoice-workshop-detail">{{vm.workshop.address1}}<span class="am-blank-padding">&nbsp;</span></span><br>
-                        <span class="am-invoice-workshop-detail">{{vm.workshop.address2}}<span class="am-blank-padding">&nbsp;</span></span><br>
-                        <span class="am-invoice-workshop-detail">{{vm.workshop.city}}<span class="am-blank-padding">&nbsp;</span></span><br>
-                        <span class="am-invoice-workshop-detail"><span style="font-size: x-small;">{{vm.workshop.label_phone}}</span> {{vm.workshop.phone}}<span class="am-blank-padding">&nbsp;</span></span>
-                    </div>
-                    <div style="clear: both"></div>
                 </section>
                 <hr style="margin-top: 1.6rem; margin-bottom: 1rem; opacity: 0.3">
                 <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; margin: 1rem;">
@@ -120,6 +147,22 @@
                                     <p style="text-align: right; font-size: large">Invoice #{{vm.service.invoiceno}}</p>
                                     <span>{{vm.service.date}}</span>
                                 </td>
+                            </tr>
+                            <tr class="row" ng-repeat-start="(key, membership) in vm.service.memberships">
+                                <td class="m-d">{{key}}</td>
+                                <td align="right" class="m-d">&nbsp;</td>
+                            </tr>
+                            <tr ng-repeat-end ng-repeat="(tn, treatment) in membership.treatments">
+                                <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{tn}}</span></td>
+                                <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate}}</td>
+                            </tr>
+                            <tr class="row" ng-repeat-start="(key, package) in vm.service.packages">
+                                <td class="m-d">{{key}}</td>
+                                <td class="m-d" align="right">&nbsp;</td>
+                            </tr>
+                            <tr ng-repeat-end ng-repeat="(tn, treatment) in package.treatments">
+                                <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{tn}}</span></td>
+                                <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate}}</td>
                             </tr>
                             <tr class="row" ng-repeat="problem in vm.service.problems">
                                 <td>{{problem.details}}</td>

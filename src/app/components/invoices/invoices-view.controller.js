@@ -11,6 +11,7 @@
     //  import node dependencies and other automint modules
     const ammPrint = require('./automint_modules/print/am-print.js');
     const ammMailApi = require('./automint_modules/am-mailer.js');
+    const eIpc = require("electron").ipcRenderer;
 
     //  angular code 
     angular.module('automintApp').controller('amCtrlIvRI', InvoicesViewController);
@@ -42,21 +43,29 @@
         }
         fillInvoiceDetails();
         loadInvoiceWLogo();
+    
+        //  electron watchers
+        eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
         
+        function OnInvoiceMailSent(event, arg) {
+            var message = (arg) ? 'Mail has been sent!' : 'Could not sent email. Please Try Again!'; 
+            utils.showSimpleToast(message);
+        }
+
         function openFab() {
             if (vm.fabClass == '')
                 vm.fabClass = 'md-scale';
             vm.isFabOpen = true;
             vm.showFabTooltip = true;
         }
-        
+
         function closeFab() {
             vm.isFabOpen = false;
             vm.showFabTooltip = false;
         }
-        
+
         //  edit workshop info
         function editWorkshopInfo() {
             $state.go('restricted.settings', {
@@ -91,8 +100,8 @@
         function loadInvoiceWLogo() {
             var source = localStorage.getItem('invoice-w-pic');
             vm.invoiceWLogo = source;
-            if (!vm.invoiceWLogo)
-                removeInvoiceWLogo();
+            if (vm.invoiceWLogo)
+                addInvoiceWLogo();
         }
 
         //  load display settings
@@ -103,8 +112,8 @@
                 if (!res.workshopDetails) {
                     vm.workshop = {};
                 }
-                if (!res.workshopLogo)
-                    removeInvoiceWLogo();
+                if (res.workshopLogo)
+                    addInvoiceWLogo();
                 vm.displaySettings = res;
             }
 
@@ -121,27 +130,42 @@
 
         //  send email
         function mailInvoice() {
+            removeInvoiceWLogo();
             var elem = document.getElementsByClassName('am-blank-padding');
-            for (var i=0; i<elem.length; i++) {
+            for (var i = 0; i < elem.length; i++) {
                 var e = elem[i];
                 e.innerHTML = '';
             }
             var printObj = document.getElementById('am-invoice-mail-body');
-            // console.log(printObj.innerHTML);
+            utils.showSimpleToast('Sending Mail...');
             ammMailApi.send(printObj.innerHTML, vm.service.invoiceno, vm.user);
-            for (var i=0; i<elem.length; i++) {
+            for (var i = 0; i < elem.length; i++) {
                 var e = elem[i];
                 e.innerHTML = '&nbsp;';
             }
+            addInvoiceWLogo();
         }
 
         function goBack() {
             $window.history.back();
         }
 
+        function addInvoiceWLogo() {
+            var elem = document.getElementById('am-invoice-w-logo-holder');
+            if (elem.hasChildNodes())
+                return;
+            var x = document.createElement("IMG");
+            x.setAttribute("src", vm.invoiceWLogo);
+            x.setAttribute("width", "250");
+            x.setAttribute("height", "125");
+            elem.appendChild(x);
+        }
+
         function removeInvoiceWLogo() {
-            var elem = document.getElementById('am-invoice-w-logo');
-            elem.parentNode.removeChild(elem);
+            var elem = document.getElementById('am-invoice-w-logo-holder');
+            while (elem.firstChild) {
+                elem.removeChild(elem.firstChild);
+            }
         }
 
         //  test zone [BEGIN]

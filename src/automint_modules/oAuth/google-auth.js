@@ -2,7 +2,7 @@
  * Module to authenticate user to Google Server
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../typings/main.d.ts" />
@@ -94,7 +94,6 @@
             var code = (raw_code && raw_code.length > 1) ? raw_code[1] : null;
             var error = /\?error=(.+)$/.exec(url);
 
-            console.log(code);
             if (code || error) {
                 // Close the browser if code found or error
                 authWindow.destroy();

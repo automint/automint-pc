@@ -2,15 +2,17 @@
  * Module to send emails
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../typings/main.d.ts" />
 
 (function() {
     //  import required modules
+    const BrowserWindow = require('electron').remote.BrowserWindow;
     var google = require('googleapis');
     var gAuth = require('./oAuth/google-auth.js');
+    var ipc = require('electron').remote.ipcMain;
 
     //  named assignments
     var mailHtml;
@@ -70,10 +72,11 @@
                             invoiceno: options.invoiceno,
                             user: options.user
                         });
-                    }
+                    } else
+                        BrowserWindow.getFocusedWindow().webContents.send('am-invoice-mail-sent', false);
                     return;
                 }
-                console.log('Mail has been sent!');
+                BrowserWindow.getFocusedWindow().webContents.send('am-invoice-mail-sent', true);
             });
         });
     }
