@@ -2,7 +2,7 @@
  * Controller for Edit Customer component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,27 +11,29 @@
     angular.module('automintApp')
         .controller('amCtrlCuUI', CustomerEditController);
 
-    CustomerEditController.$inject = ['$state', '$q', '$log', '$filter', 'utils', 'amCustomers'];
+    CustomerEditController.$inject = ['$state', '$q', '$log', '$filter', '$mdDialog', 'utils', 'amCustomers'];
 
-    function CustomerEditController($state, $q, $log, $filter, utils, amCustomers) {
+    function CustomerEditController($state, $q, $log, $filter, $mdDialog, utils, amCustomers) {
         //  initialize view model
         var vm = this;
 
         //  temporary named assignments
-        var autofillVehicle = false;
+        var autofillVehicle = false, isMembershipAltered = false;
         var userDbInstance;
 
         //  vm assignments to keep track of UI related elements
         vm.label_userName = 'Enter Full Name';
         vm.label_userMobile = 'Enter Mobile Number';
-        vm.label_userEmail = 'Enter Email Address';
+        vm.label_userEmail = 'Enter Email:';
+        vm.label_userAddress = 'Enter Address:';
         vm.label_vehicleReg = 'Enter Vehicle Registration Number';
         vm.label_vehicleManuf = 'Manufacturer:';
         vm.label_vehicleModel = 'Model:';
         vm.user = {
             mobile: '',
             name: '',
-            email: ''
+            email: '',
+            address: ''
         };
         vm.vehicle = {
             id: '',
@@ -41,6 +43,8 @@
         };
         vm.manufacturers = [];
         vm.models = [];
+        vm.membershipChips = [];
+        vm.vehicleTypeList = [];
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -51,22 +55,342 @@
         vm.changeUserNameLabel = changeUserNameLabel;
         vm.changeUserMobileLabel = changeUserMobileLabel;
         vm.changeUserEmailLabel = changeUserEmailLabel;
+        vm.changeUserAddressLabel = changeUserAddressLabel;
         vm.changeVehicleRegLabel = changeVehicleRegLabel;
         vm.changeVehicleTab = changeVehicleTab;
         vm.changeVehicle = changeVehicle;
-        vm.addOperationConfig = addOperationConfig;
+        vm.isAddOperation = isAddOperation;
         vm.chooseVehicle = chooseVehicle;
         vm.save = save;
-
+        vm.queryMembershipChip = queryMembershipChip;
+        vm.OnClickMembershipChip = OnClickMembershipChip;
+        vm.OnAddMembershipChip = OnAddMembershipChip;
+        vm.changeMembershipTab = changeMembershipTab;
+        vm.goBack = goBack;
+        
         //  default execution steps
+        
         if ($state.params.id != undefined)
-            getCustomer();
+            getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
         else {
             utils.showSimpleToast('Something went wrong!');
             $state.go('restricted.customers.all');
         }
 
         //  function definitions
+        
+        function goBack() {
+            $state.go('restricted.customers.all');
+        }
+        
+        function changeMembershipTab(bool) {
+            vm.membershipTab = bool;
+        }
+        
+        function OnClickMembershipChip(event) {
+            var chipIndex = angular.element(event.currentTarget).controller('mdChips').selectedChip;
+            if (chipIndex < 0)
+                return;
+            $mdDialog.show({
+                controller: MembershipEditDialogController,
+                controllerAs: 'vm',
+                templateUrl: 'app/components/services/service_membership.edit-template.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    membership: vm.membershipChips[chipIndex],
+                    treatments: vm.treatments,
+                    vehicletypes: vm.vehicleTypeList
+                },
+                clickOutsideToClose: true
+            }).then(changeMembershipChip).catch(changeMembershipChip);
+            
+            function changeMembershipChip(obj) {
+                isMembershipAltered = true;
+                $log.info('Changes Saved');
+            }
+        }
+        
+        function adjustExistingMembership(membership) {
+            var m = $.extend({}, membership.treatments, false);
+            membership.treatments = [];
+            Object.keys(m).forEach(iterateTreatments);
+            membership.selectedTreatments = [];
+            membership.treatments.forEach(makeSelectedTreatments);
+            membership.expandMembership = expandMembership;
+            membership.calculateMembershipTotal = calculateMembershipTotal;
+            membership.onTreatmentSelected = onTreatmentSelected;
+            membership.onTreatmentDeselected = onTreatmentDeselected;
+            membership.calculateTOccurenceLeft = calculateTOccurenceLeft;
+            membership.calculateTDurationLeft = calculateTDurationLeft;
+            delete m;
+            
+            function iterateTreatments(treatment) {
+                delete treatment['$$hashKey'];
+                m[treatment].name = treatment;
+                m[treatment].checked = true;
+                membership.treatments.push(m[treatment]);
+            }
+            
+            function expandMembership() {
+                membership.expanded = (membership.expanded == undefined ? true : !membership.expanded);
+            }
+            function makeSelectedTreatments(treatment) {
+                if (calculateTOccurenceLeft(treatment) != 0 && calculateTDurationLeft(treatment) != 0) {
+                    treatment.checked = true;
+                    membership.selectedTreatments.push(treatment);
+                } else
+                    treatment.checked = false;
+            }
+            function calculateMembershipTotal() {
+                var total = 0;
+                membership.selectedTreatments.forEach(it);
+                membership.total = total;
+                return total;
+
+                function it(t) {
+                    total += t.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+                }
+            }
+            
+            function calculateTOccurenceLeft(item) {
+                return (item.given.occurences - item.used.occurences);
+            }
+            function calculateTDurationLeft(item) {
+                return (item.given.duration - item.used.duration);
+            }
+            function onTreatmentSelected(item) {
+                item.checked = true;
+            }
+
+            function onTreatmentDeselected(item) {
+                item.checked = false;
+            }
+        }
+
+        function OnAddMembershipChip(chip) {
+            isMembershipAltered = true;
+            var m = $.extend({}, chip.treatments, false);
+            chip.treatments = [];
+            Object.keys(m).forEach(iterateTreatments);
+            chip.selectedTreatments = [];
+            chip.startdate = moment().format();
+            chip.treatments.forEach(makeSelectedTreatments);
+            chip.expandMembership = expandMembership;
+            chip.calculateMembershipTotal = calculateMembershipTotal;
+            chip.onTreatmentSelected = onTreatmentSelected;
+            chip.onTreatmentDeselected = onTreatmentDeselected;
+            chip.calculateTOccurenceLeft = calculateTOccurenceLeft;
+            chip.calculateTDurationLeft = calculateTDurationLeft;
+            delete m;
+            
+            function iterateTreatments(treatment) {
+                delete treatment['$$hashKey'];
+                m[treatment].given = {
+                    occurences: m[treatment].occurences,
+                    duration: m[treatment].duration
+                }
+                m[treatment].used = {
+                    occurences: 0,
+                    duration: 0
+                }
+                delete m[treatment].occurences;
+                delete m[treatment].duration;
+                m[treatment].name = treatment;
+                m[treatment].checked = true;
+                chip.treatments.push(m[treatment]);
+            }
+
+            function expandMembership() {
+                chip.expanded = (chip.expanded == undefined ? true : !chip.expanded);
+            }
+            function makeSelectedTreatments(treatment) {
+                if (calculateTOccurenceLeft(treatment) != 0 && calculateTDurationLeft(treatment) != 0) {
+                    treatment.checked = true;
+                    chip.selectedTreatments.push(treatment);
+                } else
+                    treatment.checked = false;
+            }
+            function calculateMembershipTotal() {
+                var total = 0;
+                chip.selectedTreatments.forEach(it);
+                chip.total = total;
+                return total;
+
+                function it(t) {
+                    total += t.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+                }
+            }
+            
+            function calculateTOccurenceLeft(item) {
+                return (item.given.occurences - item.used.occurences);
+            }
+            function calculateTDurationLeft(item) {
+                return (item.given.duration - item.used.duration);
+            }
+            function onTreatmentSelected(item) {
+                item.checked = true;
+            }
+
+            function onTreatmentDeselected(item) {
+                item.checked = false;
+            }
+        }
+
+        function MembershipEditDialogController($mdDialog, membership, treatments, vehicletypes) {
+            var editMsVm = this;
+
+            editMsVm.treatment = {
+                details: '',
+                rate: ''
+            };
+            editMsVm.membership = {
+                name: membership.name,
+                occurences: membership.occurences,
+                duration: membership.duration
+            };
+            editMsVm.vehicletypes = vehicletypes;
+            editMsVm.selectedTreatments = [];
+            editMsVm.treatments = treatments;
+            editMsVm.confirmDialog = confirmDialog;
+
+            loadDefaultOccDur();
+            loadMemberships();
+
+            function loadMemberships() {
+                membership.treatments.forEach(iterateTreatments);
+
+                function iterateTreatments(treatment) {
+                    var found = $filter('filter')(editMsVm.treatments, {
+                        name: treatment.name
+                    }, true);
+
+                    if (found.length == 1) {
+                        found[0].rate = treatment.rate;
+                        found[0].given.occurences = treatment.given.occurences;
+                        found[0].given.duration = treatment.given.duration;
+                        found[0].used.occurences = treatment.used.occurences;
+                        found[0].used.duration = treatment.used.duration;
+                        editMsVm.selectedTreatments.push(found[0]);
+                    } else {
+                        editMsVm.treatments.push(treatment);
+                        editMsVm.selectedTreatments.push(editMsVm.treatments[editMsVm.treatments.length - 1]);
+                    }
+                }
+            }
+
+            function loadDefaultOccDur() {
+                editMsVm.treatments.forEach(iterateTreatments);
+
+                function iterateTreatments(treatment) {
+                    if (!treatment.given) {
+                        treatment.given = {
+                            occurences: membership.occurences,
+                            duration: membership.duration
+                        }
+                    }
+                    if (!treatment.used) {
+                        treatment.used = {
+                            occurences: 0,
+                            duration: 0
+                        }
+                    }
+                }
+            }
+            
+            function confirmDialog() {
+                membership.treatments = editMsVm.selectedTreatments;
+                membership.selectedTreatments = [];
+                membership.treatments.forEach(makeSelectedTreatments);
+                $mdDialog.hide();
+                
+                function makeSelectedTreatments(treatment) {
+                    if (membership.calculateTOccurenceLeft(treatment) != 0 && membership.calculateTDurationLeft(treatment) != 0) {
+                        treatment.checked = true;
+                        membership.selectedTreatments.push(treatment);
+                    } else
+                        treatment.checked = false;
+                }
+            }
+        }
+
+        function queryMembershipChip() {
+            var tracker = $q.defer();
+            var results = (vm.membershipChipText) ? vm.allMemberships.filter(createFilterForMemberships(vm.membershipChipText)) : vm.allMemberships;
+
+            return results;
+
+            function createFilterForMemberships(query) {
+                var lcQuery = angular.lowercase(query);
+                return function filterFn(item) {
+                    return (angular.lowercase(item.name).indexOf(lcQuery) >= 0);
+                }
+            }
+        }
+        
+        function getMemberships() {
+            var callback = arguments[0];
+            var callingFunction = this;
+            var callbackArgs = arguments;
+            
+            amCustomers.getMemberships().then(success).catch(failure);
+            
+            function success(res) {
+                vm.allMemberships = res.memberships;
+                if (callback)
+                    callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
+            }
+
+            function failure(error) {
+                vm.allMemberships = [];
+                if (callback)
+                    callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
+            }
+        }
+        
+        function getRegularTreatments() {
+            var callback = arguments[0];
+            var callingFunction = this;
+            var callbackArgs = arguments;
+            
+            amCustomers.getRegularTreatments().then(success).catch(failure);
+
+            function success(res) {
+                vm.treatments = res;
+                if (callback)
+                    callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
+            }
+
+            function failure(err) {
+                vm.treatments = [];
+                if (callback)
+                    callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
+            }
+        }
+        
+        function getVehicleTypes() {
+            var callback = arguments[0];
+            var callingFunction = this;
+            var callbackArgs = arguments;
+            
+            amCustomers.getVehicleTypes().then(success).catch(failure);
+
+            function success(res) {
+                res.forEach(iterateVehicleType);
+                if (callback)
+                    callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
+
+                function iterateVehicleType(type) {
+                    vm.vehicleTypeList.push(utils.convertToTitleCase(type.replace(/-/g, ' ')));
+                }
+            }
+
+            function failure(err) {
+                vm.vehicleTypeList.push('Default');
+                if (callback)
+                    callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
+            }
+        }
 
         function getCustomer() {
             amCustomers.getCustomer($state.params.id).then(success).catch(failure);
@@ -78,9 +402,13 @@
                 vm.user.mobile = res.user.mobile;
                 vm.user.email = res.user.email;
                 vm.user.name = res.user.name;
+                vm.user.address = res.user.address;
                 changeUserMobileLabel();
                 changeUserEmailLabel();
                 changeUserNameLabel();
+                changeUserAddressLabel();
+                if (res.user.memberships)
+                    Object.keys(res.user.memberships).forEach(iterateMemberships);
                 if (res.user.vehicles)
                     Object.keys(res.user.vehicles).forEach(iterateVehicle, this);
                 vm.possibleVehicleList = pvl;
@@ -95,6 +423,11 @@
                         model: vehicle.model,
                         name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg)
                     });
+                }
+                function iterateMemberships(membership) {
+                    res.user.memberships[membership].name = membership;
+                    vm.membershipChips.push(res.user.memberships[membership]);
+                    adjustExistingMembership(res.user.memberships[membership]);
                 }
             }
 
@@ -220,7 +553,7 @@
         }
 
         //  return boolean response to different configurations [BEGIN]
-        function addOperationConfig() {
+        function isAddOperation() {
             return false;
         }
         //  return boolean response to different configurations [END]
@@ -232,27 +565,31 @@
 
         //  listen to changes in input fields [BEGIN]
         function changeUserNameLabel(force) {
-            vm.largeUserNameLabel = (force != undefined || vm.user.name != '');
-            vm.label_userName = vm.largeUserNameLabel ? 'Name:' : 'Enter Full Name';
+            vm.isUserName = (force != undefined || vm.user.name != '');
+            vm.label_userName = vm.isUserName ? 'Name:' : 'Enter Full Name:';
         }
         function changeUserMobileLabel(force) {
-            vm.largeUserMobileLabel = (force != undefined || vm.user.mobile != ''); 
-            vm.label_userMobile = vm.largeUserMobileLabel ? 'Mobile:' : 'Enter Mobile Number';
+            vm.isUserMobile = (force != undefined || vm.user.mobile != ''); 
+            vm.label_userMobile = vm.isUserMobile ? 'Mobile:' : 'Enter Mobile Number:';
         }
         function changeUserEmailLabel(force) {
-            vm.largeUserEmailLabel = (force != undefined || vm.user.email != ''); 
-            vm.label_userEmail = vm.largeUserEmailLabel ? 'Email:' : 'Enter Email Address';
+            vm.isUserEmail = (force != undefined || vm.user.email != '');
+            vm.label_userEmail = vm.isUserEmail ? 'Email:' : 'Enter Email:';
+        }
+        function changeUserAddressLabel(force) {
+            vm.isUserAddress = (force != undefined || vm.user.address != '');
+            vm.label_userAddress = vm.isUserAddress ? 'Address:' : 'Enter Address:';
         }
         function changeVehicleRegLabel(force) {
-            vm.largeVehicleRegLabel = (force != undefined || vm.vehicle.reg != ''); 
-            vm.label_vehicleReg = vm.largeVehicleRegLabel ? 'Vehicle Registration Number:' : 'Enter Vehicle Registration Number';
+            vm.isVehicleReg = (force != undefined || vm.vehicle.reg != ''); 
+            vm.label_vehicleReg = vm.isVehicleReg ? 'Vehcile Registration Number:' : 'Enter Vehicle Registration Number:';
         }
         //  listen to changes in input fields [END]
 
         function isSame() {
-            var checkuser = userDbInstance.user.mobile == vm.user.mobile && userDbInstance.user.name == vm.user.name && userDbInstance.user.email == vm.user.email;
+            var checkuser = userDbInstance.user.mobile == vm.user.mobile && userDbInstance.user.name == vm.user.name && userDbInstance.user.email == vm.user.email && userDbInstance.user.address == vm.user.address;
             var checkvehicle = (userDbInstance.user.vehicles && userDbInstance.user.vehicles[vm.vehicle.id] && userDbInstance.user.vehicles[vm.vehicle.id].reg == vm.vehicle.reg && userDbInstance.user.vehicles[vm.vehicle.id].manuf == vm.vehicle.manuf && userDbInstance.user.vehicles[vm.vehicle.id].model == vm.vehicle.model) || (vm.vehicle.reg == '' && vm.vehicle.manuf == '' && vm.vehicle.model == '');
-            return checkuser && checkvehicle;
+            return checkuser && checkvehicle && !isMembershipAltered;
         }
 
         //  save to database
@@ -262,10 +599,16 @@
                 successfullSave();
                 return;
             }
-
             userDbInstance.user.mobile = vm.user.mobile;
             userDbInstance.user.name = vm.user.name;
             userDbInstance.user.email = vm.user.email;
+            userDbInstance.user.address = vm.user.address;
+            
+            if (vm.membershipChips) {
+                var smArray = $.extend([], vm.membershipChips);
+                userDbInstance.user.memberships = {};
+                smArray.forEach(addMembershipsToUser);
+            }
 
             if (!((vm.vehicle.reg == '' || vm.vehicle.reg == undefined) && (vm.vehicle.manuf == '' || vm.vehicle.manuf == undefined) && (vm.vehicle.model == '' || vm.vehicle.model == undefined))) {
                 if (!userDbInstance.user.vehicles)
@@ -289,6 +632,26 @@
                 amCustomers.saveCustomer(userDbInstance).then(successfullSave).catch(failedSave);
             else
                 failedSave();
+                
+            function addMembershipsToUser(membership) {
+                var mTreatments = $.extend([], membership.treatments);
+                membership.treatments = {};
+                mTreatments.forEach(iterateTreatments);
+                userDbInstance.user.memberships[membership.name] = {
+                    occurences: membership.occurences,
+                    duration: membership.duration,
+                    treatments: membership.treatments,
+                    startdate: membership.startdate
+                }
+                delete mTreatments;
+                
+                function iterateTreatments(treatment) {
+                    membership.treatments[treatment.name] = $.extend({}, treatment);
+                    delete membership.treatments[treatment.name].name;
+                    delete membership.treatments[treatment.name].checked;
+                    delete membership.treatments[treatment.name]['$$hashKey'];
+                }
+            }
         }
 
         function successfullSave(res) {
