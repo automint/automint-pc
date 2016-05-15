@@ -487,9 +487,11 @@
             var isVehicleBlank = (newVehicle.manuf == undefined || newVehicle.manuf == '') && (newVehicle.model == undefined || newVehicle.model == '') && (newVehicle.reg == undefined || newVehicle.reg == '');
             var isServiceBlank = (newService.problems.length == 0) && (newService.cost == undefined || newService.cost == 0);
             delete prefixUser, prefixVehicle;
-            var smArray = $.extend([], newUser.memberships);
-            newUser.memberships = {};
-            smArray.forEach(addMembershipsToUser);
+            if (newUser.memberships) {
+                var smArray = $.extend([], newUser.memberships);
+                newUser.memberships = {};
+                smArray.forEach(addMembershipsToUser);
+            }
             var problemsArray = $.extend([], newService.problems);
             if (newService.packages) {
                 var packageArray = $.extend([], newService.packages);

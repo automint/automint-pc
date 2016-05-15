@@ -15,7 +15,10 @@
         box-shadow: 1px 1px 3px 1px rgba(200,200,200,0.1);
     }
 </style>
-
+<md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
+    <md-icon aria-label="Back">arrow_back</md-icon>
+    <md-tooltip md-direction="bottom">Back</md-tooltip>
+</md-button>
 <md-content>
     <md-tabs md-dynamic-height md-border-bottom>
         <md-tab label="Customer Information" md-active="vm.userTab" md-on-deselect="vm.changeUserTab(false)">
@@ -215,9 +218,9 @@
                                                 </tr>
                                             </thead>
                                             <tbody md-body>
-                                                <tr md-row md-select="treatment" ng-disabled="membership.calculateTOccurenceLeft(treatment) == 0 || membership.calculateTDurationLeft(treatment) == 0" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected" ng-repeat="treatment in membership.treatments">
+                                                <tr md-row md-select="treatment" ng-disabled="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected" ng-repeat="treatment in membership.treatments">
                                                     <td md-cell style="width: auto">{{treatment.name}}</td>
-                                                    <td md-cell><input type="number" ng-disabled="membership.calculateTOccurenceLeft(treatment) == 0 || membership.calculateTDurationLeft(treatment) == 0" ng-model="treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
+                                                    <td md-cell><input type="number" ng-disabled="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0" ng-model="treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
                                                     <td md-cell style="text-align: center">{{membership.calculateTOccurenceLeft(treatment)}}</td>
                                                     <td md-cell style="text-align: center">{{membership.calculateTDurationLeft(treatment)}}</td>
                                                     <td md-cell>{{treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] * (treatment.checked ? 1 : 0)}}</td>

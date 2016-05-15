@@ -91,6 +91,7 @@
         vm.calculateCost = calculateCost;
         vm.OnAddMembershipChip = OnAddMembershipChip;
         vm.navigateToSubscriptMembership = navigateToSubscriptMembership;
+        vm.goBack = goBack;
 
         //  default execution steps
         getVehicleTypes();
@@ -99,6 +100,10 @@
         getMemberships();
 
         //  function definitions
+        
+        function goBack() {
+            $state.go('restricted.services.all');
+        }
         
         function addMembershipChip(chip) {
             vm.membershipChips.push(chip);
@@ -852,20 +857,34 @@
         //  save to database
         function save() {
             if (!validate()) return;
-            vm.service.date = moment(vm.service.date).format();
             vm.service.problems = vm.selectedProblems;
-            vm.service.problems.forEach(iterateProblems);
-            vm.service.status = vm.servicestatus ? 'paid' : 'billed';
             if (vm.membershipChips)
                 vm.user.memberships = vm.membershipChips;
             switch (vm.serviceType) {
+                case vm.serviceTypeList[0]:
+                    if (checkTreatments() == false) {
+                        utils.showSimpleToast('Please select treatment(s)');
+                        return;
+                    }
+                    break;
                 case vm.serviceTypeList[1]:
+                    if (checkPackage() == false && checkTreatments() == false) {
+                        utils.showSimpleToast('Please select package(s) or treatment(s)');
+                        return;
+                    }
                     vm.packages.forEach(addPkToService);
                     break;
                 case vm.serviceTypeList[2]:
+                    if (checkMembership() == false && checkTreatments() == false) {
+                        utils.showSimpleToast('Please select membership(s) or treatment(s)');
+                        return;
+                    }
                     vm.membershipChips.forEach(addMsToService);
                     break;
             }
+            vm.service.status = vm.servicestatus ? 'paid' : 'billed';
+            vm.service.date = moment(vm.service.date).format();
+            vm.service.problems.forEach(iterateProblems);
             amServices.saveService(vm.user, vm.vehicle, vm.service).then(success).catch(failure);
             
             function addMsToService(membership) {
@@ -893,6 +912,36 @@
             function iterateProblems(problem) {
                 delete problem.checked;
                 delete problem['$$hashKey'];
+            }
+            function checkPackage() {
+                var isPackagesSelected = false;
+                for (var i = 0; i < vm.packages.length; i++) {
+                    if (vm.packages[i].checked) {
+                        isPackagesSelected = true;
+                        break;
+                    }
+                }
+                return isPackagesSelected;
+            }
+            function checkMembership() {
+                var isMembershipsSelected = false;
+                for (var i = 0; i < vm.membershipChips.length; i++) {
+                    if (vm.membershipChips[i].checked) {
+                        isMembershipsSelected = true;
+                        break;
+                    }
+                }
+                return isMembershipsSelected;
+            }
+            function checkTreatments() {
+                var isTreatmentsSelected = false;
+                for (var i = 0; i < vm.service.problems.length; i++) {
+                    if (vm.service.problems[i].checked) {
+                        isTreatmentsSelected = true;
+                        break;
+                    }
+                }
+                return isTreatmentsSelected;
             }
         }
 
