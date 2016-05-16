@@ -23,6 +23,7 @@
             total: 0
         };
         vm.selectedMembership = undefined;
+        vm.isExpandAll = false;
         
         //  function maps
         vm.evalVehicleTypes = evalVehicleTypes;
@@ -49,10 +50,11 @@
             }
         }
         
-        function changeExpandValues(isExpandAll) {
-            vm.isMembershipSelected = (isExpandAll) ? true : undefined;
+        function changeExpandValues() {
+            vm.isExpandAll = !vm.isExpandAll;
+            vm.isMembershipSelected = (vm.isExpandAll) ? true : undefined;
             for (var i = 0; i < vm.memberships.length; i++) {
-                vm.memberships[i].expanded = isExpandAll;
+                vm.memberships[i].expanded = vm.isExpandAll;
             }
         }
         

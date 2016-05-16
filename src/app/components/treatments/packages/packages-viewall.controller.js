@@ -22,6 +22,7 @@
             page: 1,
             total: 0
         };
+        vm.isExpandAll = false;
         
         //  function maps
         vm.changeExpandValues = changeExpandValues;
@@ -48,10 +49,11 @@
             }
         }
         
-        function changeExpandValues(isExpandAll) {
-            vm.isPackageSelected = (isExpandAll) ? true : undefined;
+        function changeExpandValues() {
+            vm.isExpandAll = !vm.isExpandAll;
+            vm.isPackageSelected = (vm.isExpandAll) ? true : undefined;
             for (var i = 0; i < vm.packages.length; i++) {
-                vm.packages[i].expanded = isExpandAll;
+                vm.packages[i].expanded = vm.isExpandAll;
             }
         }
         
