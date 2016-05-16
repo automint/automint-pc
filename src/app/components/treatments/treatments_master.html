@@ -17,9 +17,8 @@
                         <div layout="row" layout-align="center center">
                             <span class="toolbar-center">
                                 <md-checkbox class="am-checkbox" ng-model="trVm.stgDisplayAsList" aria-label="Display Treatment As">
-                                    <span class="md-body-1">Show treatments list ?</span>
-                            <span class="md-caption"><br>Displays as list while adding service</span>
-                            </md-checkbox>
+                                    <p class="md-body-1">Display as list while adding service</p>
+                                </md-checkbox>
                             </span>
                             <md-button class="md-icon-button">
                                 <md-icon>search</md-icon>
@@ -66,13 +65,10 @@
                         </md-button>
                         <div flex></div>
                         <div layout-xs="column" layout="row">
-                            <md-button ng-click="pkVm.changeExpandValues(true)" class="md-icon-button md-accent">
-                                <md-icon>expand_more</md-icon>
-                                <md-tooltip md-visible="true">Expand All</md-tooltip>
-                            </md-button>
-                            <md-button ng-click="pkVm.changeExpandValues(false)" class="md-icon-button md-accent">
-                                <md-icon>expand_less</md-icon>
-                                <md-tooltip md-direction="top" md-visible="true">Collapse All</md-tooltip>
+                            <md-button ng-click="pkVm.changeExpandValues()" class="md-icon-button md-accent" ng-mouseover="pkVm.isExpandAllVisible = true" ng-mouseleave="pkVm.isExpandAllVisible = false">
+                                <md-icon>code</md-icon>
+                                <md-tooltip ng-if="!pkVm.isExpandAll" md-visible="pkVm.isExpandAllVisible">Expand All</md-tooltip>
+                                <md-tooltip ng-if="pkVm.isExpandAll" md-visible="pkVm.isExpandAllVisible">Collapse All</md-tooltip>
                             </md-button>
                             <md-table-pagination ng-if="pkVm.packages.length >= pkVm.query.limit" md-limit="pkVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="pkVm.query.page" md-total="{{pkVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
                         </div>
@@ -81,7 +77,7 @@
                 </md-content>
 
                 <md-content layout="column" style="margin: 1rem;" ng-class="{'md-whiteframe-z1': pkVm.isPackageSelected == undefined}">
-                    <md-item ng-repeat="package in pkVm.packages | limitTo: pkVm.query.limit: (pkVm.query.page - 1)*(pkVm.query.limit)" class="am-el-item" ng-class="{ 'am-selected-el-item': package.expanded == true, 'margin-1px': pkVm.memberships.indexOf(package) >= 0 && pkVm.isPackageSelected != undefined}">
+                    <md-item ng-repeat="package in pkVm.packages | limitTo: pkVm.query.limit: (pkVm.query.page - 1)*(pkVm.query.limit)" class="am-el-item" ng-class="{ 'am-selected-el-item': package.expanded == true, 'margin-1px': pkVm.packages.indexOf(package) >= 0 && pkVm.isPackageSelected != undefined}">
                         <md-item-content class="el-item tile" ng-class="{ 'selected md-whiteframe-z2': package.expanded == true}" layout="column">
                             <div layout-xs="column" layout="row" layout-align="center center" layout-fill ng-click="pkVm.expandPackage($index)" class="folded" layout-padding>
                                 <span ng-class="{'md-title': package.expanded == true, 'md-subhead': package.expanded != true}">{{package.name}}</span>
@@ -110,6 +106,12 @@
                                                 <td md-cell ng-repeat="item in pkVm.evalVehicleTypes(package.treatments)">{{value.rate[item.toLowerCase().replace(' ', '-')]}}</td>
                                             </tr>
                                         </tbody>
+                                        <tfoot md-foot>
+                                            <tr md-row>
+                                                <td md-cell class="md-body-2">Sub Total:</td>
+                                                <td md-cell class="md-body-2" ng-repeat="item in pkVm.evalVehicleTypes(package.treatments)">{{pkVm.calculateTotal(item, $parent.$index)}}</td>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </md-table-container>
                             </div>
@@ -131,13 +133,10 @@
                         </md-button>
                         <div flex></div>
                         <div layout-xs="column" layout="row">
-                            <md-button ng-click="msVm.changeExpandValues(true)" class="md-icon-button md-accent">
-                                <md-icon>expand_more</md-icon>
-                                <md-tooltip md-visible="true">Expand All</md-tooltip>
-                            </md-button>
-                            <md-button ng-click="msVm.changeExpandValues(false)" class="md-icon-button md-accent">
-                                <md-icon>expand_less</md-icon>
-                                <md-tooltip md-direction="top" md-visible="true">Collapse All</md-tooltip>
+                            <md-button ng-click="msVm.changeExpandValues()" class="md-icon-button md-accent" ng-mouseover="msVm.isExpandAllVisible = true" ng-mouseleave="msVm.isExpandAllVisible = false">
+                                <md-icon>code</md-icon>
+                                <md-tooltip ng-if="!msVm.isExpandAll" md-visible="msVm.isExpandAllVisible">Expand All</md-tooltip>
+                                <md-tooltip ng-if="msVm.isExpandAll" md-visible="msVm.isExpandAllVisible">Collapse All</md-tooltip>
                             </md-button>
                             <md-table-pagination ng-if="msVm.memberships.length >= msVm.query.limit" md-limit="msVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="msVm.query.page" md-total="{{msVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
                         </div>
@@ -148,7 +147,10 @@
                     <md-item ng-repeat="membership in msVm.memberships | limitTo: msVm.query.limit: (msVm.query.page - 1)*(msVm.query.limit)" class="am-el-item" ng-class="{ 'am-selected-el-item': membership.expanded == true, 'margin-1px': msVm.memberships.indexOf(membership) >= 0 && msVm.isMembershipSelected != undefined}">
                         <md-item-content class="el-item tile md-whiteframe-z1" ng-class="{ 'selected md-whiteframe-z2': membership.expanded == true}" layout="column">
                             <div layout-xs="column" layout="row" layout-align="center center" layout-fill ng-click="msVm.expandMembership($index)" class="folded" layout-padding>
-                                <span class="membership-name" ng-class="{'md-title': membership.expanded == true, 'md-subhead': membership.expanded != true}">{{membership.name}}</span>
+                                <span class="membership-name" ng-class="{'md-title': membership.expanded == true, 'md-subhead': membership.expanded != true}">
+                                    {{membership.name}}
+                                    <span ng-show="membership.expanded == true && membership.amount != undefinied"><br>&#x20B9; {{membership.amount}}</span>
+                                </span>
                                 <div flex></div>
                                 <div layout="row" layout-align="center center" class="actions" ng-show="membership.expanded == true">
                                     <md-button class="md-icon-button md-primary" ng-click="msVm.editMembership(membership.name)">
@@ -178,6 +180,14 @@
                                                 <td md-cell>{{value.duration}}</td>
                                             </tr>
                                         </tbody>
+                                        <tfoot md-foot>
+                                            <tr md-row>
+                                                <td md-cell class="md-body-2">Sub Total:</td>
+                                                <td md-cell class="md-body-2" ng-repeat="item in msVm.evalVehicleTypes(membership.treatments)">{{msVm.calculateTotal(item, $parent.$index)}}</td>
+                                                <td md-cell class="md-body-2">&nbsp;</td>
+                                                <td md-cell class="md-body-2">&nbsp;</td>
+                                            </tr>
+                                        </tfoot>
                                     </table>
                                 </md-table-container>
                             </div>

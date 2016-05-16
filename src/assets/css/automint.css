@@ -5,6 +5,10 @@
  * @version 0.5.0 
  */
 
+.am-clear-error-spacer .md-errors-spacer {
+    display: none;
+}
+
 .am-form-label {
     font-weight: 500;
     padding-bottom: 0.1rem;

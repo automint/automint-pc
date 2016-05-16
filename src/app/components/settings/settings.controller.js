@@ -16,6 +16,9 @@
     function SettingsController($scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings) {
         //  initialize view model
         var vm = this;
+        
+        //  temporary named assignments
+        var olino = 0;
 
         //  named assignments to keep track of UI [BEGIN]
         //  general settings
@@ -62,6 +65,7 @@
         vm.uploadInvoiceWLogo = uploadInvoiceWLogo;
         vm.resetLastInvoiceNo = resetLastInvoiceNo;
         vm.saveIvDisplaySettings = saveIvDisplaySettings;
+        vm.OnBlurLastInvoiceNumber = OnBlurLastInvoiceNumber;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -85,6 +89,14 @@
         //  default tab settings
         function changeInvoiceTab(bool) {
             vm.invoiceTab = bool;
+        }
+        
+        function OnBlurLastInvoiceNumber(ar, arg) {
+            if (vm.ivSettings.lastInvoiceNumber == '' || vm.ivSettings.lastInvoiceNumber == null || vm.ivSettings.lastInvoiceNumber == undefined)
+                vm.ivSettings.lastInvoiceNumber = 0;
+            if (vm.ivSettings.lastInvoiceNumber == olino)
+                return;
+            resetLastInvoiceNo(vm.ivSettings.lastInvoiceNumber);
         }
        
         //  listen to changes in input fields [BEGIN]
@@ -266,6 +278,7 @@
             
             function success(res) {
                 vm.ivSettings = res;
+                olino = res.lastInvoiceNumber;
             }
             
             function failure(err) {
@@ -307,11 +320,13 @@
         }
         
         //  reset invoice number sequence
-        function resetLastInvoiceNo() {
-            amIvSettings.resetLastInvoiceNo().then(respond).catch(respond);
+        function resetLastInvoiceNo(invoiceno, reset) {
+            amIvSettings.changeLastInvoiceNo((invoiceno == undefined) ? 0 : invoiceno).then(respond).catch(respond);
             
             function respond(res) {
                 getInvoiceSettings();
+                if (reset != true)
+                    utils.showActionToast('Invoice number has been ' + ((invoiceno == undefined) ? 'reset' : 'changed'), 'Undo', resetLastInvoiceNo, olino, true);
             }
         }
         

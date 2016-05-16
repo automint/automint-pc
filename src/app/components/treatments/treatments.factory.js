@@ -431,7 +431,9 @@
                         name: name,
                         treatments: res.memberships[name],
                         occurences: m.occurences,
-                        duration: m.duration
+                        duration: m.duration,
+                        amount: m.amount,
+                        description: m.description
                     });
                     delete m;
                 } else
@@ -474,8 +476,12 @@
                     delete res.memberships[membership].duration;
                     response.memberships.push({
                         name: membership,
-                        treatments: res.memberships[membership]
+                        treatments: res.memberships[membership],
+                        amount: res.memberships[membership].amount,
+                        description: res.memberships[membership].description
                     });
+                    delete res.memberships[membership].amount;
+                    delete res.memberships[membership].description;
                     response.total++;
                 }
             }

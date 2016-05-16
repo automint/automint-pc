@@ -22,6 +22,7 @@
             page: 1,
             total: 0
         };
+        vm.isExpandAll = false;
         
         //  function maps
         vm.changeExpandValues = changeExpandValues;
@@ -30,16 +31,29 @@
         vm.evalVehicleTypes = evalVehicleTypes;
         vm.deletePackage = deletePackage;
         vm.editPackage = editPackage;
+        vm.calculateTotal = calculateTotal;
         
         //  default execution steps
         getPackages();
         
         //  function definitions
         
-        function changeExpandValues(isExpandAll) {
-            vm.isPackageSelected = (isExpandAll) ? true : undefined;
+        function calculateTotal(vehicletype, index) {
+            var total = 0;
+            if (vm.packages[index])
+                Object.keys(vm.packages[index].treatments).forEach(iterateTreatments);
+            return total;
+            
+            function iterateTreatments(treatment) {
+                total += vm.packages[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')];
+            }
+        }
+        
+        function changeExpandValues() {
+            vm.isExpandAll = !vm.isExpandAll;
+            vm.isPackageSelected = (vm.isExpandAll) ? true : undefined;
             for (var i = 0; i < vm.packages.length; i++) {
-                vm.packages[i].expanded = isExpandAll;
+                vm.packages[i].expanded = vm.isExpandAll;
             }
         }
         

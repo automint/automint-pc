@@ -11,11 +11,22 @@
     </md-toolbar>
     <md-dialog-content>
         <div class="md-dialog-content" style="padding: 0">
-            <md-table-container>
+            <md-table-container ng-if="vm.displayTreatmentAsList">
                 <table md-table md-row-select multiple ng-model="vm.selectedTreatments" md-progress="vm.treatmentPromise">
                     <thead md-head>
                         <tr md-row>
-                            <th md-column><span>Treatment</span></th>
+                            <th md-column>
+                                <span class="am-table-header">Treatment</span>
+                                <span style="margin-left: 1rem;">
+                                    <span class="am-table-header">(</span>
+                                    <md-input-container>
+                                        <md-checkbox class="am-checkbox" layout="row" layout-align="center center" ng-model="vm.displayTreatmentAsList" aria-label="Display Treatment As" style="width: 100%">
+                                            <span class="md-body-1" layout-wrap flex>Show All</span>
+                                        </md-checkbox>
+                                    </md-input-container>
+                                    <span class="am-table-header">)</span>
+                                </span>
+                            </th>
                             <th md-column ng-repeat="type in vm.vehicletypes"><span>{{type}}</span></th>
                             <th md-column class="am-datatable-actions membership-addons"><span>Occurences</span></th>
                             <th md-column class="am-datatable-actions membership-addons"><span>Duration<br><small>(months)</small></span></th>
@@ -23,6 +34,56 @@
                     </thead>
                     <tbody md-body>
                         <tr md-row md-select="treatment" md-select-id="name" md-on-select="vm.onTreatmentSelected" md-on-deselect="vm.onTreatmentDeselected" ng-repeat="treatment in vm.treatments">
+                            <td md-cell><input type="text" ng-model="treatment.name" placeholder="Enter Details" class="am-table-inline-input" style="min-width: 120px"></td>
+                            <td md-cell ng-repeat="type in vm.vehicletypes"><input type="number" ng-model="treatment.rate[type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
+                            <td md-cell><input type="number" ng-model="treatment.given.occurences" placeholder="Occ." class="am-table-inline-input"></td>
+                            <td md-cell><input type="number" ng-model="treatment.given.duration" placeholder="Months" class="am-table-inline-input"></td>
+                        </tr>
+                        <tr md-row ng-hide="false">
+                            <td md-cell>
+                                <md-autocomplete id="new-treatment-details" md-search-text="vm.treatment.details" md-items="treatment in vm.treatmentQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-current="vm.currentTreatment"
+                                    md-search-text-change="vm.updateTreatmentDetails()" md-min-length="1" md-no-cache>
+                                    <md-item-template>
+                                        <span md-highlight-text="vm.treatment.details" md-highlight-flags="^i">{{treatment.name}}</span>
+                                    </md-item-template>
+                                </md-autocomplete>
+                            </td>
+                            <td md-cell ng-repeat="type in vm.vehicletypes">
+                                <input type="number" ng-model="vm.treatment.rate[type.toLowerCase().replace(' ', '-')]" style="width: 97%; min-width: 34px" placeholder="{{type}}" class="am-table-input">
+                            </td>
+                            <td md-cell class="am-datatable-actions membership-addons">
+                                <input type="number" ng-model="vm.treatment.occurences" placeholder="Occ." class="am-table-input">
+                            </td>
+                            <td md-cell class="am-datatable-actions membership-addons">
+                                <input type="number" ng-model="vm.treatment.duration" placeholder="Months" class="am-table-input" ng-blur="vm.finalizeNewTreatment()">
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+            <md-table-container ng-if="!vm.displayTreatmentAsList">
+                <table md-table md-row-select multiple ng-model="vm.selectedTreatments" md-progress="vm.treatmentPromise">
+                    <thead md-head>
+                        <tr md-row>
+                            <th md-column>
+                                <span class="am-table-header">Treatment</span>
+                                <span style="margin-left: 1rem;">
+                                    <span class="am-table-header">(</span>
+                                    <md-input-container>
+                                        <md-checkbox class="am-checkbox" layout="row" layout-align="center center" ng-model="vm.displayTreatmentAsList" aria-label="Display Treatment As" style="width: 100%">
+                                            <span class="md-body-1" layout-wrap flex>Show All</span>
+                                        </md-checkbox>
+                                    </md-input-container>
+                                    <span class="am-table-header">)</span>
+                                </span>
+                            </th>
+                            <th md-column ng-repeat="type in vm.vehicletypes"><span>{{type}}</span></th>
+                            <th md-column class="am-datatable-actions membership-addons"><span>Occurences</span></th>
+                            <th md-column class="am-datatable-actions membership-addons"><span>Duration<br><small>(months)</small></span></th>
+                        </tr>
+                    </thead>
+                    <tbody md-body>
+                        <tr md-row md-select="treatment" md-select-id="name" md-on-select="vm.onTreatmentSelected" md-on-deselect="vm.onTreatmentDeselected" ng-repeat="treatment in vm.selectedTreatments">
                             <td md-cell><input type="text" ng-model="treatment.name" placeholder="Enter Details" class="am-table-inline-input" style="min-width: 120px"></td>
                             <td md-cell ng-repeat="type in vm.vehicletypes"><input type="number" ng-model="treatment.rate[type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
                             <td md-cell><input type="number" ng-model="treatment.given.occurences" placeholder="Occ." class="am-table-inline-input"></td>

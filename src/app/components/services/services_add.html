@@ -3,10 +3,6 @@
         margin-top: 0.8rem;
     }
     
-    .am-clear-error-spacer .md-errors-spacer {
-        display: none;
-    }
-    
     .am-membership-subscribe-button {
         background: rgba(80,80,80,0.1); 
         border-radius: 6px;
@@ -19,7 +15,10 @@
         box-shadow: 1px 1px 3px 1px rgba(200,200,200,0.1);
     }
 </style>
-
+<md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
+    <md-icon aria-label="Back">arrow_back</md-icon>
+    <md-tooltip md-direction="bottom">Back</md-tooltip>
+</md-button>
 <md-content>
     <md-tabs md-dynamic-height md-border-bottom>
         <md-tab label="Customer Information" md-active="vm.userTab" md-on-deselect="vm.changeUserTab(false)">
@@ -219,9 +218,9 @@
                                                 </tr>
                                             </thead>
                                             <tbody md-body>
-                                                <tr md-row md-select="treatment" ng-disabled="membership.calculateTOccurenceLeft(treatment) == 0 || membership.calculateTDurationLeft(treatment) == 0" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected" ng-repeat="treatment in membership.treatments">
+                                                <tr md-row md-select="treatment" ng-disabled="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected" ng-repeat="treatment in membership.treatments">
                                                     <td md-cell style="width: auto">{{treatment.name}}</td>
-                                                    <td md-cell><input type="number" ng-disabled="membership.calculateTOccurenceLeft(treatment) == 0 || membership.calculateTDurationLeft(treatment) == 0" ng-model="treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
+                                                    <td md-cell><input type="number" ng-disabled="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0" ng-model="treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
                                                     <td md-cell style="text-align: center">{{membership.calculateTOccurenceLeft(treatment)}}</td>
                                                     <td md-cell style="text-align: center">{{membership.calculateTDurationLeft(treatment)}}</td>
                                                     <td md-cell>{{treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] * (treatment.checked ? 1 : 0)}}</td>
@@ -302,7 +301,7 @@
                     </md-content>
                     <md-content>
                         <md-table-container ng-if="!vm.displayTreatmentAsList">
-                            <table md-table md-progress="vm.problemPromise">
+                            <table md-table md-row-select multiple ng-model="vm.selectedProblems" md-progress="vm.problemPromise">
                                 <thead md-head>
                                     <tr md-row>
                                         <th md-column>
@@ -311,7 +310,7 @@
                                                 <span class="am-table-header">(</span>
                                             <md-input-container>
                                                 <md-checkbox class="am-checkbox" layout="row" layout-align="center center" ng-model="vm.displayTreatmentAsList" aria-label="Display Treatment As" style="width: 100%">
-                                                    <span class="am-form-label" layout-wrap flex>Show Treatments</span>
+                                                    <span class="am-form-label" layout-wrap flex>Show All</span>
                                                 </md-checkbox>
                                             </md-input-container>
                                             <span class="am-table-header">)</span>
@@ -322,7 +321,7 @@
                                     </tr>
                                 </thead>
                                 <tbody md-body>
-                                    <tr md-row ng-repeat="problem in vm.selectedProblems" layout-align="center center">
+                                    <tr md-row md-select="problem" md-select-id="details" md-on-select="vm.onProblemSelected" md-on-deselect="vm.onProblemDeselected" ng-repeat="problem in vm.selectedProblems" layout-align="center center">
                                         <td md-cell ng-click="vm.editProblemDetails($event, problem)" ng-class="{'md-placeholder': !problem.details}">{{problem.details || 'Enter Details' }}</td>
                                         <td md-cell ng-click="vm.editProblemRate($event, problem)" ng-class="{'md-placeholder' : !problem.rate}">{{problem.rate || 'Enter Rate'}}</td>
                                         <td md-cell>{{(problem.rate ? problem.rate * (problem.checked ? 1 : 0) : 0)}}</td>
@@ -368,7 +367,7 @@
                                     </tr>
                                 </thead>
                                 <tbody md-body>
-                                    <tr md-row md-select="problem" md-select-id="details" md-on-select="vm.onProblemSelected" md-on-deselect="vm.onProblemDeselected" md-auto-select ng-repeat="problem in vm.service.problems">
+                                    <tr md-row md-select="problem" md-select-id="details" md-on-select="vm.onProblemSelected" md-on-deselect="vm.onProblemDeselected" ng-repeat="problem in vm.service.problems">
                                         <td md-cell ng-click="vm.editProblemDetails($event, problem)" ng-class="{'md-placeholder': !problem.details}">{{problem.details || 'Enter Details' }}</td>
                                         <td md-cell ng-click="vm.editProblemRate($event, problem)" ng-class="{'md-placeholder' : !problem.rate}">{{problem.rate || 'Enter Rate'}}</td>
                                         <td md-cell>{{(problem.rate ? problem.rate * (problem.checked ? 1 : 0) : 0)}}</td>

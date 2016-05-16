@@ -329,11 +329,13 @@
         }
         function loadCuCIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
+                'material-datatable',
                 'app/components/customers/customers-add.controller.js'
             ])
         }
         function loadCuUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
+                'material-datatable',
                 'app/components/customers/customers-edit.controller.js'
             ])
         }

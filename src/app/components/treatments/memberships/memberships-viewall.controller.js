@@ -23,6 +23,7 @@
             total: 0
         };
         vm.selectedMembership = undefined;
+        vm.isExpandAll = false;
         
         //  function maps
         vm.evalVehicleTypes = evalVehicleTypes;
@@ -31,16 +32,29 @@
         vm.addMembership = addMembership;
         vm.editMembership = editMembership;
         vm.deleteMembership = deleteMembership;
+        vm.calculateTotal = calculateTotal;
         
         //  default execution steps
         getMemberships();
         
         //  function definitions
         
-        function changeExpandValues(isExpandAll) {
-            vm.isMembershipSelected = (isExpandAll) ? true : undefined;
+        function calculateTotal(vehicletype, index) {
+            var total = 0;
+            if (vm.memberships[index])
+                Object.keys(vm.memberships[index].treatments).forEach(iterateTreatments);
+            return total;
+            
+            function iterateTreatments(treatment) {
+                total += vm.memberships[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')];
+            }
+        }
+        
+        function changeExpandValues() {
+            vm.isExpandAll = !vm.isExpandAll;
+            vm.isMembershipSelected = (vm.isExpandAll) ? true : undefined;
             for (var i = 0; i < vm.memberships.length; i++) {
-                vm.memberships[i].expanded = isExpandAll;
+                vm.memberships[i].expanded = vm.isExpandAll;
             }
         }
         

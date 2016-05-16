@@ -2,7 +2,7 @@
  * Factory that handles database interactions between customer database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,10 +11,9 @@
     angular.module('automintApp')
         .factory('amCustomers', CustomersFactory);
 
-    CustomersFactory.$inject = ['$q', '$http', 'utils', 'pdbCommon', 'pdbCustomers', '$amRoot'];
+    CustomersFactory.$inject = ['$q', '$http', 'utils', 'pdbCommon', 'pdbCustomers', 'pdbConfig', '$amRoot'];
 
-    // function CustomersFactory($q:angular.IQService, $http:angular.IHttpService, utils, pdbCommon, pdbCustomers, $amRoot) {
-    function CustomersFactory($q, $http, utils, pdbCommon, pdbCustomers, $amRoot) {
+    function CustomersFactory($q, $http, utils, pdbCommon, pdbCustomers, pdbConfig, $amRoot) {
         //  initialize factory variable and map functions
         var factory = {
             getCustomers: getCustomers,
@@ -23,12 +22,112 @@
             addNewCustomer: addNewCustomer,
             deleteCustomer: deleteCustomer,
             getCustomer: getCustomer,
-            saveCustomer: saveCustomer
+            saveCustomer: saveCustomer,
+            getMemberships: getMemberships,
+            getRegularTreatments: getRegularTreatments,
+            getVehicleTypes: getVehicleTypes
         };
 
         return factory;
 
         //  function definitions
+        
+        function getVehicleTypes() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.vehicletypes)
+                    tracker.resolve(res.vehicletypes);
+                else
+                    tracker.reject('No vehicle types found!');
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+        
+        function getRegularTreatments() {
+            var tracker = $q.defer();
+            var treatments = [];
+            $amRoot.isTreatmentId().then(getConfigDocument).catch(failure);
+            return tracker.promise;
+
+            function getConfigDocument(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getConfigObject).catch(failure);
+            }
+
+            function getConfigObject(res) {
+                if (res.regular)
+                    Object.keys(res.regular).forEach(iterateTreatments);
+                tracker.resolve(treatments);
+
+                function iterateTreatments(name) {
+                    if (!res.regular[name]._deleted) {
+                        treatments.push({
+                            name: name,
+                            rate: res.regular[name].rate
+                        })
+                    }
+                }
+            }
+
+            function failure(err) {
+                tracker.reject(treatments);
+            }
+        }
+        
+        function getMemberships() {
+            var tracker = $q.defer();
+            var response = {
+                memberships: [],
+                total: 0
+            }
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.memberships)
+                    Object.keys(res.memberships).forEach(iterateMemberships);
+                tracker.resolve(response);
+                
+                function iterateMemberships(membership) {
+                    if (res.memberships[membership]._deleted == true)
+                        return;
+                    var occ = res.memberships[membership].occurences;
+                    var dur = res.memberships[membership].duration;
+                    delete res.memberships[membership].occurences;
+                    delete res.memberships[membership].duration;
+                    response.memberships.push({
+                        name: membership,
+                        treatments: res.memberships[membership],
+                        occurences: occ,
+                        duration: dur,
+                        amount: res.memberships[membership].amount,
+                        description: res.memberships[membership].description
+                    });
+                    delete res.memberships[membership].amount;
+                    delete res.memberships[membership].description;
+                    delete occ;
+                    delete dur;
+                    response.total++;
+                }
+            }
+            
+            function failure(err) {
+                tracker.reject(response);
+            }
+        }
 
         //  get customers for datatable
         function getCustomers(page, limit, query) {
@@ -277,14 +376,40 @@
                 delete vehicle.id;
                 customer.vehicles[utils.generateUUID(prefixVehicle)] = vehicle;
             }
+            
+            if (customer.memberships) {
+                var smArray = $.extend([], customer.memberships);
+                customer.memberships = {};
+                smArray.forEach(addMembershipsToUser);
+            }
 
             var doc = {
                 _id: utils.generateUUID(prefixUser),
                 creator: $amRoot.username,
                 user: customer
             }
-
+            
             return saveCustomer(doc);
+            
+            function addMembershipsToUser(membership) {
+                var mTreatments = $.extend([], membership.treatments);
+                membership.treatments = {};
+                mTreatments.forEach(iterateTreatments);
+                customer.memberships[membership.name] = {
+                    occurences: membership.occurences,
+                    duration: membership.duration,
+                    treatments: membership.treatments,
+                    startdate: membership.startdate
+                }
+                delete mTreatments;
+                
+                function iterateTreatments(treatment) {
+                    membership.treatments[treatment.name] = $.extend({}, treatment);
+                    delete membership.treatments[treatment.name].name;
+                    delete membership.treatments[treatment.name].checked;
+                    delete membership.treatments[treatment.name]['$$hashKey'];
+                }
+            }
         }
 
         //  get customer from database

@@ -27,22 +27,23 @@
                             </div>
                             <md-progress-linear md-mode="determinate" value="{{vm.currentCsvProgress}}" ng-show="vm.isCsvProcessed"></md-progress-linear>
                             <div layout="column" layout-margin>
-                                <span class="md-body-1">First row of the CSV file must be the header row, divided into fields like this: name, mobile, registration, manufacturer, model.</span>
+                                <span class="md-body-1"><span style="font-size: small">First row of the CSV file must be the header row, divided into fields like this;</span><br><i style="font-weight: 500">name, mobile, registration, manufacturer, model.</i></span>
                             </div>
                         </md-card-content>
                     </md-card>
                 </div>
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card>
-                        <md-card-title layout-xs="column" layout-align="center center">
-                            <md-card-title-text>
+                        <md-card-content>
+                            <div layout-xs="column" layout="row" layout-align="center center">
                                 <span class="md-title">Backup Your Data</span>
-                            </md-card-title-text>
-                            <md-button class="md-raised" ng-click="vm.doBackup()">
-                                <md-icon>file_download</md-icon>
-                                <span layout-padding>Download</span>
-                            </md-button>
-                        </md-card-title>
+                                <div flex></div>
+                                <md-button class="md-raised" ng-click="vm.doBackup()">
+                                    <md-icon>file_download</md-icon>
+                                    <span layout-padding>Download</span>
+                                </md-button>
+                            </div>
+                        </md-card-content>
                     </md-card>
                     <md-card ng-hide="true">
                         <md-card-title>
@@ -72,16 +73,19 @@
                         </md-card-content>
                     </md-card>
                     <md-card>
-                        <md-card-title layout-xs="column">
-                            <md-card-title-text>
-                                <span class="md-title">Cover Photo</span>
-                                <span class="md-subhead">Size of photo should be 250x125px (WxH)</span>
-                            </md-card-title-text>
-                            <md-button class="md-raised" ng-click="vm.uploadCover()">
-                                <span layout-padding>Change</span>
-                            </md-button>
-                            <input type="file" id="am-upload-cover-pic" am-upload-files="vm.handleUploadedCoverPic" ng-hide="true">
-                        </md-card-title>
+                        <md-card-content>
+                            <div layout-xs="column" layout="row">
+                                <div layout="column">
+                                    <span class="md-title">Cover Logo</span>
+                                    <span class="md-body-1">Size of photo should be 250x125px (WxH)</span>
+                                </div>
+                                <div flex></div>
+                                <md-button class="md-raised" ng-click="vm.uploadCover()">
+                                    <span layout-padding>Change</span>
+                                </md-button>
+                                <input type="file" id="am-upload-cover-pic" am-upload-files="vm.handleUploadedCoverPic" ng-hide="true">
+                            </div>
+                        </md-card-content> 
                     </md-card>
                 </div>
             </md-content>
@@ -136,15 +140,11 @@
                 </div>
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card>
-                        <md-card-title layout-xs="column">
-                            <md-card-title-text>
-                                <span class="md-title">Current Invoicing Status</span>
-                            </md-card-title-text>
-                        </md-card-title>
                         <md-card-content>
                             <div layout="row" layout-xs="column">
-                                <div layout="column" layout-align="center start" flex>
-                                    <span><span class="am-form-label">Last Invoice Number: </span><span class="md-body-1">{{vm.ivSettings.lastInvoiceNumber}}</span></span>
+                                <div layout="row" layout-align="center center" flex="70">
+                                    <span class="md-body-1" flex>Last Invoice Number: </span>
+                                    <input type="number" ng-model="vm.ivSettings.lastInvoiceNumber" ng-blur="vm.OnBlurLastInvoiceNumber()" class="am-table-inline-input" flex>
                                 </div>
                                 <div layout="column" layout-align="center end" flex>
                                     <md-button class="md-accent" ng-click="vm.resetLastInvoiceNo()">
