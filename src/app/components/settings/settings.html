@@ -3,6 +3,11 @@
         font-size: small;
         vertical-align: middle;
     }
+    
+    .am-pt-cursor {
+        cursor: pointer;
+        outline: none;
+    }
 </style>
 
 <md-content>
@@ -86,6 +91,30 @@
                                 <input type="file" id="am-upload-cover-pic" am-upload-files="vm.handleUploadedCoverPic" ng-hide="true">
                             </div>
                         </md-card-content> 
+                    </md-card>
+                    <md-card>
+                        <md-card-title>
+                            <md-card-title-text>
+                                <span class="md-title">Service Tax</span>
+                            </md-card-title-text>
+                            <md-checkbox ng-model="vm.sTaxSettings.applyTax" ng-change="vm.saveServiceTaxSettings()" aria-label="Apply Service Tax">
+                                <span class="md-body-1">Apply Service Tax</span>
+                            </md-checkbox>
+                        </md-card-title>
+                        <md-card-content ng-show="vm.sTaxSettings.applyTax">
+                            <div layout="row" layout-xs="column">
+                                <div layout="row" layout-align="start center">
+                                    <span class="md-body-1 am-pt-cursor" layout-padding ng-click="vm.sTaxSettings.inclutionAdjust = false">Add</span>
+                                    <md-switch aria-label="Adjust Service Tax" ng-change="vm.saveServiceTaxSettings()" ng-model="vm.sTaxSettings.inclutionAdjust"></md-switch>
+                                    <span class="md-body-1 am-pt-cursor" ng-click="vm.sTaxSettings.inclutionAdjust = true">Adjust</span>
+                                </div>
+                                <div flex></div>
+                                <div layout="row" layout-align="center center" flex="40">
+                                    <span class="md-body-1" >Service Tax <small>(%)</small>:</span>
+                                    <input type="number" ng-blur="vm.saveServiceTaxSettings()" ng-model="vm.sTaxSettings.tax" class="am-table-inline-input" value="0" flex>
+                                </div>
+                            </div>
+                        </md-card-content>
                     </md-card>
                 </div>
             </md-content>

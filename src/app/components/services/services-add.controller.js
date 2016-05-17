@@ -60,7 +60,8 @@
         vm.problem = {
             details: '',
             rate: '',
-            cost: 0
+            tax: '',
+            amount: ''
         };
         vm.servicestatus = true;
         vm.manufacturers = [];
@@ -100,8 +101,6 @@
         vm.treatmentsQuerySearch = treatmentsQuerySearch;
         vm.onProblemSelected = onProblemSelected;
         vm.onProblemDeselected = onProblemDeselected;
-        vm.editProblemDetails = editProblemDetails;
-        vm.editProblemRate = editProblemRate;
         vm.changeServiceTab = changeServiceTab;
         vm.updateTreatmentDetails = updateTreatmentDetails;
         vm.finalizeNewProblem = finalizeNewProblem;
@@ -113,6 +112,9 @@
         vm.OnAddMembershipChip = OnAddMembershipChip;
         vm.navigateToSubscriptMembership = navigateToSubscriptMembership;
         vm.goBack = goBack;
+        vm.changeProblemRate = changeProblemRate;
+        vm.changeServiceTax = changeServiceTax;
+        vm.OnServiceTaxEnabledChange = OnServiceTaxEnabledChange;
 
         //  default execution steps
         // vm.serviceTab = true; //  testing purposes [amTODO: remove it]
@@ -124,6 +126,53 @@
         getLastInvoiceNo();
 
         //  function definitions
+        
+        function OnServiceTaxEnabledChange() {
+            vm.service.problems.forEach(iterateProblems);
+            
+            function iterateProblems(problem) {
+                changeProblemRate(problem);
+            }
+        }
+        
+        function changeServiceTax() {
+            vm.service.problems.forEach(iterateProblems);
+            vm.problem.tax = (vm.sTaxSettings.tax) ? vm.sTaxSettings.tax : '';
+            changeProblemRate(vm.problem);
+            
+            function iterateProblems(problem) {
+                problem.tax = (vm.sTaxSettings.tax) ? vm.sTaxSettings.tax : '';
+                changeProblemRate(problem);
+            }
+        }
+        
+        function changeProblemRate(problem) {
+            if (vm.sTaxSettings.applyTax) {
+                if (vm.sTaxSettings.inclutionAdjust)
+                    problem.rate = parseFloat((problem.amount*100)/(problem.tax + 100)).toFixed(2);
+                else
+                    problem.amount = Math.round(problem.rate + (problem.rate*problem.tax/100));
+            } else {
+                if (vm.sTaxSettings.inclutionAdjust)
+                    problem.rate = parseInt(problem.amount);
+                else
+                    problem.amount = parseInt(problem.rate);
+            }
+        }
+        
+        function getServiceTaxSettings() {
+            amServices.getServiceTaxSettings().then(success).catch(failure);
+            
+            function success(res) {
+                vm.sTaxSettings = res;
+                changeServiceTax();
+                OnServiceTaxEnabledChange();
+            }
+            
+            function failure(err) {
+                vm.sTaxSettings = {};
+            }
+        }
         
         function goBack() {
             $state.go('restricted.services.all');
@@ -884,11 +933,13 @@
         //  load treatment list into problem list
         function loadTreatmentIntoProblems() {
             vm.treatments.forEach(iterateTreatment);
+            getServiceTaxSettings();
 
             function iterateTreatment(treatment) {
                 vm.service.problems.push({
                     details: treatment.name,
                     rate: treatment.rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')],
+                    amount: treatment.rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')],
                     checked: false
                 });
             }
@@ -897,10 +948,12 @@
         //  problem table listeners [BEGIN]
         function onProblemSelected(item) {
             item.checked = true;
+            changeProblemRate(item);
         }
 
         function onProblemDeselected(item) {
             item.checked = false;
+            changeProblemRate(item);
         }
         //  problem table listeners [END]
 
@@ -920,55 +973,20 @@
             }
         }
 
-        //  show edit dialog box to edit problem details in run time
-        function editProblemDetails(event, item) {
-            event.stopPropagation();
-            $mdEditDialog.small({
-                messages: {
-                    test: 'Write your product or issue!'
-                },
-                modelValue: item.details,
-                placeholder: 'Enter Product or Issue',
-                save: function(input) {
-                    item.details = input.$modelValue;
-                },
-                targetEvent: event
-            });
-        }
-
-        //  show edit dialog box to edit problem rate in run time
-        function editProblemRate(event, item) {
-            event.stopPropagation();
-            $mdEditDialog.small({
-                messages: {
-                    test: 'Enter Rate for ' + item.details + '!'
-                },
-                modelValue: item.rate,
-                placeholder: 'Enter Rate',
-                save: function(input) {
-                    item.rate = input.$modelValue;
-                },
-                type: 'number',
-                targetEvent: event
-            });
-        }
-
         function calculateCost() {
             var totalCost = 0;
             vm.service.problems.forEach(iterateProblem);
             if (vm.serviceType == vm.serviceTypeList[1]) {
-                //  packages
                 vm.packages.forEach(iteratePackages);
             }
             if (vm.serviceType == vm.serviceTypeList[2]) {
                 vm.membershipChips.forEach(iterateMemberships);
             }
-            totalCost += vm.problem.cost;
             vm.service.cost = totalCost;
             return totalCost;
 
             function iterateProblem(element) {
-                totalCost += (element.rate ? element.rate * (element.checked ? 1 : 0) : 0);
+                totalCost += parseInt(Math.round(element.rate ? (element.rate * (element.checked ? 1 : 0) + (element.tax && vm.sTaxSettings.applyTax && element.checked ? (element.rate*element.tax/100) : 0)) : 0));
             }
             function iteratePackages(package) {
                 if (!package.checked)
@@ -993,17 +1011,22 @@
                 });
                 if (found.length == 1) {
                     found[0].checked = true;
+                    found[0].rate = vm.problem.rate;
+                    found[0].tax = vm.problem.tax;
+                    found[0].amount = vm.problem.amount;
                     vm.selectedProblems.push(found[0]);
                 } else {
                     vm.service.problems.push({
                         details: vm.problem.details,
                         rate: vm.problem.rate,
+                        tax: vm.problem.tax,
+                        amount: vm.problem.amount,
                         checked: true
                     });
                     vm.selectedProblems.push(vm.service.problems[vm.service.problems.length - 1]);
                 }
                 vm.problem.details = '';
-                vm.problem.cost = '';
+                vm.problem.amount = '';
                 vm.problem.rate = '';
                 $('#new-problem-details').focus();
             }
@@ -1015,13 +1038,26 @@
             var found = $filter('filter')(vm.treatments, {
                 name: vm.problem.details
             });
+            vm.problem.amount = (vm.problem.rate == '') ? 0 : vm.problem.rate;
             if (found.length == 1) {
                 var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
                 var defaultRate = found[0].rate['default'];
-                vm.problem.rate = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                vm.problem.amount = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                if (vm.sTaxSettings.applyTax) {
+                    if (vm.sTaxSettings.inclutionAdjust)
+                        vm.problem.rate = parseFloat((vm.problem.amount*100)/(vm.problem.tax + 100)).toFixed(2);
+                    else {
+                        vm.problem.rate = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                        vm.problem.amount = Math.round(vm.problem.rate + (vm.problem.rate*vm.problem.tax/100));
+                    }
+                } else {
+                    if (vm.sTaxSettings.applyTax)
+                        vm.problem.rate = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                    else
+                        vm.problem.amount = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                }
             } else
                 vm.problem.rate = '';
-            vm.problem.cost = (vm.problem.rate == '') ? 0 : vm.problem.rate;
         }
 
         function validate() {
@@ -1080,6 +1116,13 @@
             vm.service.status = vm.servicestatus ? 'paid' : 'billed';
             vm.service.date = moment(vm.service.date).format();
             vm.service.problems.forEach(iterateProblems);
+            if (vm.sTaxSettings != undefined) {
+                vm.service.serviceTax = {
+                    applyTax: vm.sTaxSettings.applyTax,
+                    taxIncType: (vm.sTaxSettings.inclutionAdjust) ? 'adjust' : 'add',
+                    tax: vm.sTaxSettings.tax
+                };
+            }
             amServices.saveService(vm.user, vm.vehicle, vm.service, options).then(success).catch(failure);
 
             function addMsToService(membership) {
@@ -1106,6 +1149,7 @@
             }
             function iterateProblems(problem) {
                 delete problem.checked;
+                delete problem['amount'];
                 delete problem['$$hashKey'];
             }
             function checkPackage() {

@@ -30,12 +30,44 @@
             getCustomerByMobile: getCustomerByMobile,
             getLastInvoiceNo: getLastInvoiceNo,
             getPackages: getPackages,
-            getMemberships: getMemberships
+            getMemberships: getMemberships,
+            getServiceTaxSettings: getServiceTaxSettings
         }
 
         return factory;
 
         //  function definitions
+        
+        function getServiceTaxSettings() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
+            }
+            
+            function getSettingsObj(res) {
+                if (res.settings && res.settings.servicetax) {
+                    tracker.resolve({
+                        applyTax: res.settings.servicetax.applyTax,
+                        inclutionAdjust: (res.settings.servicetax.taxIncType == 'adjust') ? true : false,
+                        tax: res.settings.servicetax.tax
+                    });
+                } else
+                    failure();
+            }
+            
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'Service Tax Settings Not Found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
 
         //  retrieve current treatment settings
         function getTreatmentSettings() {
@@ -518,6 +550,8 @@
             delete newUser.id;
             if (options && options.isLastInvoiceNoChanged)
                 saveLastInvoiceNo(newService.invoiceno);
+            
+            console.log(newService);
             pdbCustomers.get(newUserId).then(foundExistingUser).catch(noUserFound);
             return tracker.promise;
 
