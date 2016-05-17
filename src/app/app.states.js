@@ -395,6 +395,7 @@
                 'app/components/settings/settings-login.factory.js',
                 'app/components/settings/settings-importdata.service.js',
                 'app/components/settings/settings-invoices.factory.js',
+                'app/components/settings/settings-servicetax.factory.js',
                 'assets/js/jquery.csv.min.js'
             ])
         }

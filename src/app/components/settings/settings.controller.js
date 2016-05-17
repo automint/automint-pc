@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .controller('amCtrlSettings', SettingsController);
 
-    SettingsController.$inject = ['$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings'];
+    SettingsController.$inject = ['$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings', 'amSeTaxSettings'];
 
-    function SettingsController($scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings) {
+    function SettingsController($scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings, amSeTaxSettings) {
         //  initialize view model
         var vm = this;
         
@@ -66,6 +66,8 @@
         vm.resetLastInvoiceNo = resetLastInvoiceNo;
         vm.saveIvDisplaySettings = saveIvDisplaySettings;
         vm.OnBlurLastInvoiceNumber = OnBlurLastInvoiceNumber;
+        //  service tax settings
+        vm.saveServiceTaxSettings = saveServiceTaxSettings;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -82,6 +84,8 @@
         getWorkshopDetails();
         getInvoiceSettings();
         loadInvoiceWLogo();
+        //  service tax settings
+        getServiceTaxSettings();
         //  default execution steps [END]
 
         //  function definitions
@@ -339,6 +343,33 @@
             }
             function failure(err) {
                 utils.showSimpleToast('Could not save settings at moment. Please try again!');
+            }
+        }
+        
+        function getServiceTaxSettings() {
+            amSeTaxSettings.getServiceTaxSettings().then(success).catch(failure);
+            
+            function success(res) {
+                vm.sTaxSettings = res;
+            }
+            
+            function failure(err) {
+                vm.sTaxSettings = {};
+            }
+        }
+        
+        function saveServiceTaxSettings() {
+            amSeTaxSettings.saveServiceTaxSettings(vm.sTaxSettings).then(success).catch(failure);
+            
+            function success(res) {
+                if (res.ok)
+                    utils.showSimpleToast('Service Tax Settings Saved Successfully!');
+                else
+                    failure();
+            }
+            
+            function failure(err) {
+                utils.showSimpleToast('Failed to save Service Tax Settings. Please Try Again!');
             }
         }
     }
