@@ -65,7 +65,8 @@
                     function iterateProblems(problem) {
                         response.service.problems.push({
                             details: problem,
-                            rate: problems[problem].rate
+                            rate: problems[problem].rate,
+                            tax: problems[problem].tax
                         })
                     }
                 }

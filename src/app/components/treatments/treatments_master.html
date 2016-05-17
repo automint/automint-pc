@@ -52,7 +52,7 @@
                     </table>
                 </md-table-container>
 
-                <md-table-pagination md-limit="trVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="trVm.query.page" md-total="{{trVm.query.total}}" md-page-select></md-table-pagination>
+                <md-table-pagination md-limit="trVm.query.limit" md-limit-options="[10, 20, 50, 100]" md-page="trVm.query.page" md-total="{{trVm.query.total}}" md-page-select></md-table-pagination>
             </md-content>
         </md-tab>
         <md-tab label="Packages" md-active="vm.packagesTab" md-on-deselect="vm.changePackagesTab(false)">
@@ -70,7 +70,7 @@
                                 <md-tooltip ng-if="!pkVm.isExpandAll" md-visible="pkVm.isExpandAllVisible">Expand All</md-tooltip>
                                 <md-tooltip ng-if="pkVm.isExpandAll" md-visible="pkVm.isExpandAllVisible">Collapse All</md-tooltip>
                             </md-button>
-                            <md-table-pagination ng-if="pkVm.packages.length >= pkVm.query.limit" md-limit="pkVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="pkVm.query.page" md-total="{{pkVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
+                            <md-table-pagination ng-if="pkVm.packages.length >= pkVm.query.limit" md-limit="pkVm.query.limit" md-limit-options="[10, 20, 50, 100]" md-page="pkVm.query.page" md-total="{{pkVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
                         </div>
 
                     </div>
@@ -119,7 +119,7 @@
                     </md-item>
                 </md-content>
 
-                <md-table-pagination ng-if="pkVm.packages.length >= pkVm.query.limit" md-limit="pkVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="pkVm.query.page" md-total="{{pkVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
+                <md-table-pagination ng-if="pkVm.packages.length >= pkVm.query.limit" md-limit="pkVm.query.limit" md-limit-options="[10, 20, 50, 100]" md-page="pkVm.query.page" md-total="{{pkVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
 
             </md-content>
         </md-tab>
@@ -138,7 +138,7 @@
                                 <md-tooltip ng-if="!msVm.isExpandAll" md-visible="msVm.isExpandAllVisible">Expand All</md-tooltip>
                                 <md-tooltip ng-if="msVm.isExpandAll" md-visible="msVm.isExpandAllVisible">Collapse All</md-tooltip>
                             </md-button>
-                            <md-table-pagination ng-if="msVm.memberships.length >= msVm.query.limit" md-limit="msVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="msVm.query.page" md-total="{{msVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
+                            <md-table-pagination ng-if="msVm.memberships.length >= msVm.query.limit" md-limit="msVm.query.limit" md-limit-options="[10, 20, 50, 100]" md-page="msVm.query.page" md-total="{{msVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
                         </div>
                     </div>
                 </md-content>
@@ -195,7 +195,7 @@
                     </md-item>
                 </md-content>
 
-                <md-table-pagination ng-if="msVm.memberships.length >= msVm.query.limit" md-limit="msVm.query.limit" md-limit-options="[5, 10, 15, 20]" md-page="msVm.query.page" md-total="{{msVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
+                <md-table-pagination ng-if="msVm.memberships.length >= msVm.query.limit" md-limit="msVm.query.limit" md-limit-options="[10, 20, 50, 100]" md-page="msVm.query.page" md-total="{{msVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
 
             </md-content>
         </md-tab>

@@ -127,7 +127,12 @@
                 function itreateTreatments(treatment) {
                     treatment.occurences = 1;
                     treatment.duration = 1;
+                    Object.keys(treatment.rate).forEach(iterateRates);
                     vm.treatments.push(treatment);
+                    
+                    function iterateRates(rate) {
+                        treatment.rate[rate] = 0;
+                    }
                 }
             }
 

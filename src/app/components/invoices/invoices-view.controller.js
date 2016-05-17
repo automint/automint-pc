@@ -88,6 +88,18 @@
                 vm.user = res.user;
                 vm.vehicle = res.vehicle;
                 vm.service = res.service;
+                vm.sTaxSettings = {
+                    applyTax: res.service.serviceTax.applyTax,
+                    inclutionAdjust: (res.service.serviceTax.taxIncType == 'adjust'),
+                    tax: res.service.serviceTax.tax
+                };
+                vm.service.problems.forEach(iterateProblems);
+                
+                function iterateProblems(problem) {
+                    if (vm.service.serviceTax && vm.service.serviceTax.applyTax && vm.service.serviceTax.taxIncType == 'adjust') {
+                        problem.rate = Math.round(parseFloat(problem.rate) + parseFloat(problem.rate)*problem.tax/100);
+                    }
+                }
             }
 
             function failure(err) {

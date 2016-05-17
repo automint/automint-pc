@@ -35,6 +35,39 @@
         background: white;
         box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.2);
     }
+    
+    .am-tax-adjust md-switch .md-bar {
+        background-color: #03A9F4;
+        /* set not selected bar color */
+    }
+    
+    .am-tax-adjust md-switch.md-checked .md-bar {
+        background-color: #03A9F4;
+        /* set selected bar color */
+    }
+    
+    .am-tax-adjust md-switch[disabled] .md-bar {
+        background-color: #03A9F4;
+        /* set disabled bar color */
+    }
+    /* 
+     * The switch:
+     */
+    
+    .am-tax-adjust md-switch .md-thumb {
+        color: rgb(158, 158, 158);
+        /* not selected switch color */
+    }
+    
+    .am-tax-adjust md-switch.md-checked .md-thumb {
+        background-color: #FAFAFA;
+        /* selected switch color */
+    }
+    
+    .am-tax-adjust md-switch[disabled] .md-thumb {
+        background-color: #0277BD;
+        /* disabled switch color */
+    }
 </style>
 
 <md-content>
@@ -109,7 +142,7 @@
                             <div layout-xs="column" layout="row">
                                 <div layout="column">
                                     <span class="md-title">Cover Logo</span>
-                                    <span class="md-body-1">Size of photo should be 250x125px (WxH)</span>
+                                    <span class="md-body-1">Size of image should be 250x125px (WxH)</span>
                                 </div>
                                 <div flex></div>
                                 <md-button class="md-raised" ng-click="vm.uploadCover()">
@@ -124,13 +157,13 @@
                             <md-card-title-text>
                                 <span class="md-title">Service Tax</span>
                             </md-card-title-text>
-                            <md-checkbox ng-model="vm.sTaxSettings.applyTax" ng-change="vm.saveServiceTaxSettings()" aria-label="Apply Service Tax">
+                            <md-checkbox ng-model="vm.sTaxSettings.applyTax" ng-click="vm.sTaxSettings.inclutionAdjust = (vm.sTaxSettings.inclutionAdjust == undefined) ? true : vm.sTaxSettings.inclutionAdjust" ng-change="vm.saveServiceTaxSettings()" aria-label="Apply Service Tax">
                                 <span class="md-body-1">Apply Service Tax</span>
                             </md-checkbox>
                         </md-card-title>
                         <md-card-content ng-show="vm.sTaxSettings.applyTax">
                             <div layout="row" layout-xs="column">
-                                <div layout="row" layout-align="start center">
+                                <div layout="row" layout-align="start center" class="am-tax-adjust">
                                     <span class="md-body-1 am-pt-cursor" layout-padding ng-click="vm.sTaxSettings.inclutionAdjust = false">Add</span>
                                     <md-switch aria-label="Adjust Service Tax" ng-change="vm.saveServiceTaxSettings()" ng-model="vm.sTaxSettings.inclutionAdjust"></md-switch>
                                     <span class="md-body-1 am-pt-cursor" ng-click="vm.sTaxSettings.inclutionAdjust = true">Adjust</span>

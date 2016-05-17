@@ -64,12 +64,7 @@
             }
             
             function failure(err) {
-                vm.rates.push({
-                    type: 'Default',
-                    value: '',
-                    fromDb: true,
-                    focusIndex: vm.rates.length
-                })
+                vm.rates = [];
             }
         }
         

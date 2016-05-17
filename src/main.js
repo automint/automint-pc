@@ -42,12 +42,7 @@
         });
         mainWindow.maximize();
         // and load the index.html of the app.
-        mainWindow.webContents.openDevTools();
-var ses = mainWindow.webContents.session;
-ses.clearStorageData(function() {
-    mainWindow.loadURL('file://' + __dirname + '/index.html');
-});
-        // mainWindow.loadURL('file://' + __dirname + '/index.html');
+        mainWindow.loadURL('file://' + __dirname + '/index.html');
 
         // Emitted when the window is closed.
         mainWindow.on('closed', function() {

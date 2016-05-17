@@ -427,6 +427,8 @@
                     var m = $.extend({}, res.memberships[name]);
                     delete res.memberships[name].occurences;
                     delete res.memberships[name].duration;
+                    delete res.memberships[name].amount;
+                    delete res.memberships[name].description;
                     tracker.resolve({
                         name: name,
                         treatments: res.memberships[name],

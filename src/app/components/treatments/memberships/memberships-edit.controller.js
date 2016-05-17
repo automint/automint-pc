@@ -136,13 +136,15 @@
                 vm.membership.name = res.name;
                 vm.membership.occurences = res.occurences;
                 vm.membership.duration = res.duration;
+                vm.membership.amount = res.amount;
+                vm.membership.description = res.description;
                 changeNameLabel();
                 changeOccurences();
                 changeDuration();
                 Object.keys(res.treatments).forEach(iterateTreatments);
-                console.log(res);
                 
                 function iterateTreatments(treatment) {
+                    
                     var found = $filter('filter')(vm.treatments, {
                         name: treatment
                     }, true);

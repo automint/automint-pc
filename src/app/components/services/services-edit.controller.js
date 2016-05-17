@@ -125,7 +125,7 @@
                 var found = $filter('filter')(excludedProblems, {
                     details: problem.details
                 }, true);
-                if (found.length <= 0)
+                if (!excludedProblems || found.length <= 0)
                     problem.tax = (vm.sTaxSettings.tax) ? vm.sTaxSettings.tax : '';
                 changeProblemRate(problem);
             }
@@ -568,7 +568,6 @@
             }
             
             function failure(err) {
-                vm.vehicleTypeList.push('Default');
                 getDetails();
             }
         }
@@ -766,8 +765,20 @@
                 });
                 if (found.length == 1) {
                     var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
-                    var defaultRate = found[0].rate['default'];
-                    problem.rate = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                    if (vm.sTaxSettings.applyTax) {
+                        if (vm.sTaxSettings.inclutionAdjust) {
+                            problem.amount = (rate == '' || rate == undefined ? problem.amount : rate);
+                            problem.rate = parseFloat((problem.amount*100)/(problem.tax + 100)).toFixed(2);
+                        } else {
+                            problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
+                            problem.amount = Math.round(problem.rate + (problem.rate*problem.tax/100));
+                        }
+                    } else {
+                        if (vm.sTaxSettings.inclutionAdjust)
+                            problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
+                        else
+                            problem.amount = (rate == '' || rate == undefined ? problem.amount : rate);
+                    }
                 }
             }
         }
@@ -951,20 +962,19 @@
             vm.problem.amount = (vm.problem.rate == '') ? 0 : vm.problem.rate;
             if (found.length == 1) {
                 var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
-                var defaultRate = found[0].rate['default'];
-                vm.problem.amount = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
                 if (vm.sTaxSettings.applyTax) {
                     if (vm.sTaxSettings.inclutionAdjust)
                         vm.problem.rate = parseFloat((vm.problem.amount*100)/(vm.problem.tax + 100)).toFixed(2);
                     else {
-                        vm.problem.rate = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                        vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
                         vm.problem.amount = Math.round(vm.problem.rate + (vm.problem.rate*vm.problem.tax/100));
                     }
                 } else {
-                    if (vm.sTaxSettings.applyTax)
-                        vm.problem.rate = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                    if (vm.sTaxSettings.inclutionAdjust)
+                        vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
                     else
-                        vm.problem.amount = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                        vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
                 }
             } else
                 vm.problem.rate = '';
