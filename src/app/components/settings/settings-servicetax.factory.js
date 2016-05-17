@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').factory('amSeTaxSettings', ServiceTaxSettings);
     
-    ServiceTaxSettings.$inject = ['$q', '$amRoot', 'pdbConfig'];
+    ServiceTaxSettings.$inject = ['$q', '$amRoot', 'utils', 'pdbConfig'];
     
-    function ServiceTaxSettings($q, $amRoot, pdbConfig) {
+    function ServiceTaxSettings($q, $amRoot, utils, pdbConfig) {
         //  intialize factory variable and function maps
         var factory = {
             getServiceTaxSettings: getServiceTaxSettings,
@@ -78,7 +78,6 @@
             }
             
             function writeSettingsDoc(err) {
-                console.log(res);
                 var doc = {
                     _id: utils.generateUUID('sttngs'),
                     creator: $amRoot.username,
