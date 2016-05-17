@@ -8,6 +8,33 @@
         cursor: pointer;
         outline: none;
     }
+    
+    .am-tax-inline-input {
+        border: 0;
+        border-bottom: 1px solid black;
+        width: 97%;
+        font-weight: 400;
+        padding: 0.7rem;
+        outline: none;
+        background: transparent;
+        color: rgba(30, 30, 30, 0.7);
+        -webkit-transition: background 1s ease 0s, box-shadow 1s ease 0s, border-bottom 1s ease 0s;
+        -moz-transition: background 1s ease 0s, box-shadow 1s ease 0s, border-bottom 1s ease 0s;
+        transition: background 1s ease 0s, box-shadow 1s ease 0s, border-bottom 1s ease 0s;
+        box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0);
+    }
+    
+    .am-tax-inline-input:focus {
+        border-bottom: 0;
+        background: white;
+        box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.3);
+    }
+    
+    .am-tax-inline-input:hover {
+        border-bottom: 0;
+        background: white;
+        box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.2);
+    }
 </style>
 
 <md-content>
@@ -90,7 +117,7 @@
                                 </md-button>
                                 <input type="file" id="am-upload-cover-pic" am-upload-files="vm.handleUploadedCoverPic" ng-hide="true">
                             </div>
-                        </md-card-content> 
+                        </md-card-content>
                     </md-card>
                     <md-card>
                         <md-card-title>
@@ -110,8 +137,8 @@
                                 </div>
                                 <div flex></div>
                                 <div layout="row" layout-align="center center" flex="40">
-                                    <span class="md-body-1" >Service Tax <small>(%)</small>:</span>
-                                    <input type="number" ng-blur="vm.saveServiceTaxSettings()" ng-model="vm.sTaxSettings.tax" class="am-table-inline-input" value="0" flex>
+                                    <span class="md-body-1">Service Tax <small>(%)</small>:</span>
+                                    <input type="number" ng-blur="vm.saveServiceTaxSettings()" ng-model="vm.sTaxSettings.tax" class="am-tax-inline-input" value="0" flex>
                                 </div>
                             </div>
                         </md-card-content>
@@ -119,7 +146,7 @@
                 </div>
             </md-content>
         </md-tab>
-        
+
         <md-tab label="Invoice Settings" md-active="vm.invoiceTab" md-on-deselect="vm.changeInvoiceTab(false)">
             <md-content class="md-padding" layout-xs="column" layout="row">
                 <div flex-xs flex-gt-xs="50" layout="column">

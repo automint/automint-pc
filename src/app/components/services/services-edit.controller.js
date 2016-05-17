@@ -133,14 +133,20 @@
         
         function changeProblemRate(problem) {
             if (vm.sTaxSettings.applyTax) {
-                if (vm.sTaxSettings.inclutionAdjust)
+                if (vm.sTaxSettings.inclutionAdjust) {
+                    if (!problem.amount) {
+                        var r = parseFloat(problem.rate)
+                        problem.amount = Math.round(r + (r*problem.tax/100));
+                    }
                     problem.rate = parseFloat((problem.amount*100)/(problem.tax + 100)).toFixed(2);
-                else
+                } else
                     problem.amount = Math.round(problem.rate + (problem.rate*problem.tax/100));
             } else {
-                if (vm.sTaxSettings.inclutionAdjust)
+                if (vm.sTaxSettings.inclutionAdjust) {
+                    if (!problem.amount)
+                        problem.amount = parseFloat(problem.rate);
                     problem.rate = parseInt(problem.amount);
-                else
+                } else
                     problem.amount = parseInt(problem.rate);
             }
         }
