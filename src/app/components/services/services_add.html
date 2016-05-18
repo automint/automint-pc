@@ -220,7 +220,10 @@
                                             <tbody md-body>
                                                 <tr md-row md-select="treatment" ng-disabled="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected" ng-repeat="treatment in membership.treatments">
                                                     <td md-cell style="width: auto">{{treatment.name}}</td>
-                                                    <td md-cell><input type="number" ng-disabled="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0" ng-model="treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
+                                                    <td md-cell>
+                                                        <span ng-if="!(membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0)"><input type="number" ng-model="treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></span>
+                                                        <span ng-if="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0">{{treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]}}</span>
+                                                    </td>
                                                     <td md-cell style="text-align: center">{{membership.calculateTOccurenceLeft(treatment)}}</td>
                                                     <td md-cell style="text-align: center">{{membership.calculateTDurationLeft(treatment)}}</td>
                                                     <td md-cell>{{(treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]) ? (treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] * (treatment.checked ? 1 : 0)) : 0}}</td>
@@ -289,15 +292,15 @@
                                                 <tr md-row md-select="treatment" md-select-id="key" md-on-select="package.onTreatmentSelected" md-on-deselect="package.onTreatmentDeselected" ng-repeat="treatment in package.treatments">
                                                     <td md-cell>{{treatment.name}}</td>
                                                     <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                                        <span ng-if="vm.sTaxSettings.inclutionAdjust">{{treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] | number: 2}}</span>
-                                                        <span ng-if="!vm.sTaxSettings.inclutionAdjust"><input type="number" ng-model="treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]" class="am-table-inline-input" ng-change="package.changeTreatmentTax(treatment)">
+                                                        <span ng-if="vm.sTaxSettings.inclusive">{{treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] | number: 2}}</span>
+                                                        <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-model="treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]" class="am-table-inline-input" ng-change="package.changeTreatmentTax(treatment)">
                                                     </td>
                                                     <td md-cell ng-if="vm.sTaxSettings.applyTax">
                                                         {{treatment.tax[vm.vehicle.type.toLowerCase().replace(' ', '-')] | number: 2}}
                                                     </td>
                                                     <td md-cell>
-                                                        <span ng-if="vm.sTaxSettings.inclutionAdjust"><input type="number" ng-model="treatment.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')]" class="am-table-inline-input" ng-change="package.changeTreatmentTax(treatment)" style="text-align: right"></span>
-                                                        <span ng-if="!vm.sTaxSettings.inclutionAdjust" style="text-align: right">{{treatment.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')]}}</span>
+                                                        <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input type="number" ng-model="treatment.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')]" class="am-table-inline-input" ng-change="package.changeTreatmentTax(treatment)" style="text-align: right"></span>
+                                                        <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax" style="text-align: right">{{treatment.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')]}}</span>
                                                     </td>
                                                 </tr>
                                             </tbody>
@@ -338,15 +341,15 @@
                                     <tr md-row md-select="problem" md-select-id="details" md-on-select="vm.onProblemSelected" md-on-deselect="vm.onProblemDeselected" ng-repeat="problem in vm.selectedProblems" layout-align="center center">
                                         <td md-cell><input type="text" ng-model="problem.details" class="am-table-inline-input"></td>
                                         <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                            <span ng-if="vm.sTaxSettings.inclutionAdjust">{{problem.rate | number: 2}}</span>
-                                            <span ng-if="!vm.sTaxSettings.inclutionAdjust"><input type="number" ng-model="problem.rate" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)">
+                                            <span ng-if="vm.sTaxSettings.inclusive">{{problem.rate | number: 2}}</span>
+                                            <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-model="problem.rate" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)">
                                         </td>
                                         <td md-cell ng-if="vm.sTaxSettings.applyTax">
                                             {{problem.tax | number: 2}}
                                         </td>
                                         <td md-cell>
-                                            <span ng-if="vm.sTaxSettings.inclutionAdjust"><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
-                                            <span ng-if="!vm.sTaxSettings.inclutionAdjust"><input disabled type="text" ng-model="problem.amount" class="am-table-inline-input" style="text-align: right"></span>
+                                            <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
+                                            <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{problem.amount}}</span>
                                         </td>
                                     </tr>
                                     <tr md-row>
@@ -358,14 +361,14 @@
                                             </md-autocomplete>
                                         </td>
                                         <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                            <span ng-if="vm.sTaxSettings.inclutionAdjust">{{vm.problem.rate | number: 2}}</span>
-                                            <span ng-if="!vm.sTaxSettings.inclutionAdjust"><input type="number" ng-blur="vm.finalizeNewProblem()" ng-model="vm.problem.rate" ng-change="vm.changeProblemRate(vm.problem)" placeholder="Enter Rate" class="am-table-input" style="width: 97%"></span>
+                                            <span ng-if="vm.sTaxSettings.inclusive">{{vm.problem.rate | number: 2}}</span>
+                                            <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewProblem()" ng-model="vm.problem.rate" ng-change="vm.changeProblemRate(vm.problem)" placeholder="Enter Rate" class="am-table-input" style="width: 97%"></span>
                                         </td>
                                         <td md-cell ng-if="vm.sTaxSettings.applyTax">
                                             {{vm.problem.tax | number: 2}}
                                         <td md-cell>
-                                            <span ng-if="vm.sTaxSettings.inclutionAdjust"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
-                                            <span ng-if="!vm.sTaxSettings.inclutionAdjust"><input disabled type="text" ng-model="vm.problem.amount" placeholder="Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
+                                            <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
+                                            <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{vm.problem.amount}}</span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -397,15 +400,15 @@
                                     <tr md-row md-select="problem" md-select-id="details" md-on-select="vm.onProblemSelected" md-on-deselect="vm.onProblemDeselected" ng-repeat="problem in vm.service.problems">
                                         <td md-cell><input type="text" ng-model="problem.details" class="am-table-inline-input"></td>
                                         <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                            <span ng-if="vm.sTaxSettings.inclutionAdjust">{{problem.rate | number: 2}}</span>
-                                            <span ng-if="!vm.sTaxSettings.inclutionAdjust"><input type="number" ng-model="problem.rate" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)"></span>
+                                            <span ng-if="vm.sTaxSettings.inclusive">{{problem.rate | number: 2}}</span>
+                                            <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-model="problem.rate" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)"></span>
                                         </td>
                                         <td md-cell ng-if="vm.sTaxSettings.applyTax">
                                             {{problem.tax | number: 2}}
                                         </td>
                                         <td md-cell>
-                                            <span ng-if="vm.sTaxSettings.inclutionAdjust"><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
-                                            <span ng-if="!vm.sTaxSettings.inclutionAdjust"><input disabled type="text" ng-model="problem.amount" class="am-table-inline-input" style="text-align: right"></span>
+                                            <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
+                                            <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{problem.amount}}</span>
                                        </td>
                                     </tr>
                                     <tr md-row>
@@ -417,14 +420,14 @@
                                             </md-autocomplete>
                                         </td>
                                         <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                            <span ng-if="vm.sTaxSettings.inclutionAdjust">{{vm.problem.rate | number: 2}}</span>
-                                            <span ng-if="!vm.sTaxSettings.inclutionAdjust"><input ng-blur="vm.finalizeNewProblem()" type="number" ng-model="vm.problem.rate" ng-change="vm.changeProblemRate(vm.problem)" placeholder="Enter Rate" class="am-table-input" style="width: 97%"></span>
+                                            <span ng-if="vm.sTaxSettings.inclusive">{{vm.problem.rate | number: 2}}</span>
+                                            <span ng-if="!vm.sTaxSettings.inclusive"><input ng-blur="vm.finalizeNewProblem()" type="number" ng-model="vm.problem.rate" ng-change="vm.changeProblemRate(vm.problem)" placeholder="Enter Rate" class="am-table-input" style="width: 97%"></span>
                                         </td>
                                         <td md-cell ng-if="vm.sTaxSettings.applyTax">
                                             {{vm.problem.tax | number: 2}}
                                         <td md-cell>
-                                            <span ng-if="vm.sTaxSettings.inclutionAdjust"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
-                                            <span ng-if="!vm.sTaxSettings.inclutionAdjust"><input disabled type="text" ng-model="vm.problem.amount" placeholder="Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
+                                            <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
+                                            <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{vm.problem.amount}}</span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -440,7 +443,7 @@
                     <md-divider></md-divider>
                     <div layout-gt-xs="row" layout-align="center center" layout-wrap layout-margin>
                         <md-checkbox aria-label="Payment Receieved" ng-model="vm.servicestatus" flex="20" flex-xs>Payment Received</md-checkbox>
-                        <md-checkbox aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()"><span class="md-body-1">Service Tax</span></md-checkbox>
+                        <md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()"><span class="md-body-1">Service Tax</span></md-checkbox>
                         <div flex></div>
                         <span><span class="am-form-label">Total Cost:&nbsp;</span>{{vm.calculateCost()}}</span>
                     </div>

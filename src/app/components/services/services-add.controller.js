@@ -136,34 +136,34 @@
             calculatePackageTax();
             
             function iterateProblems(problem) {
-                changeProblemRate(problem);
+                changeProblemRate(problem, true);
             }
         }
         
         function changeServiceTax() {
             vm.service.problems.forEach(iterateProblems);
-            changeProblemRate(vm.problem);
+            changeProblemRate(vm.problem, true);
             calculatePackageTax();
             
             function iterateProblems(problem) {
-                changeProblemRate(problem);
+                changeProblemRate(problem, true);
             }
         }
         
-        function changeProblemRate(problem) {
+        function changeProblemRate(problem, force) {
             if (vm.sTaxSettings.applyTax) {
-                if (vm.sTaxSettings.inclutionAdjust) {
+                if (vm.sTaxSettings.inclusive) {
                     problem.rate = (problem.amount*100)/(vm.sTaxSettings.tax + 100);
                     problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
                 } else {
                     problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
                     problem.amount = Math.round(problem.rate + problem.tax);
                 }
-            } else {
-                if (vm.sTaxSettings.inclutionAdjust)
-                    problem.rate = parseInt(problem.amount);
+            } else if (force) {
+                if (vm.sTaxSettings.inclusive)
+                    problem.rate = problem.amount;
                 else
-                    problem.amount = parseInt(problem.rate);
+                    problem.amount = problem.rate;
             }
         }
         
@@ -172,6 +172,7 @@
             
             function success(res) {
                 vm.sTaxSettings = res;
+                vm.orgApplyTax = res.applyTax;
                 changeServiceTax();
                 getPackages();
                 OnServiceTaxEnabledChange();
@@ -398,13 +399,17 @@
                     name: editMsVm.treatment.details
                 });
                 if (found.length == 1 && found[0].name == editMsVm.treatment.details) {
-                    editMsVm.treatment.rate = found[0].rate;
                     editMsVm.treatment.occurences = found[0].given.occurences;
                     editMsVm.treatment.duration = found[0].given.duration;
                 } else {
-                    editMsVm.treatment.rate = {};
                     editMsVm.treatment.occurences = editMsVm.membership.occurences
                     editMsVm.treatment.duration = editMsVm.membership.duration;
+                }
+                editMsVm.treatment.rate = {};
+                editMsVm.vehicletypes.forEach(iterateRates);
+                
+                function iterateRates(rate) {
+                    editMsVm.treatment.rate[rate.toLowerCase().replace(' ', '-')] = 0;
                 }
             }
             
@@ -433,15 +438,23 @@
                     if (found.length == 1 && found[0].name == editMsVm.treatment.details) {
                         found[0].checked = true;
                         found[0].rate = editMsVm.treatment.rate;
-                        found[0].duration = editMsVm.treatment.duration;
-                        found[0].occurences = editMsVm.treatment.occurences;
+                        found[0].given.duration = editMsVm.treatment.duration;
+                        found[0].given.occurences = editMsVm.treatment.occurences;
+                        found[0].used.duration = 0;
+                        found[0].used.occurences = 0;
                         editMsVm.selectedTreatments.push(found[0]);
                     } else {
                         editMsVm.treatments.push({
                             name: editMsVm.treatment.details,
                             rate: editMsVm.treatment.rate,
-                            duration: editMsVm.treatment.duration,
-                            occurences: editMsVm.treatment.occurences,
+                            given: {
+                                duration: editMsVm.treatment.duration,
+                                occurences: editMsVm.treatment.occurences,
+                            },
+                            used: {
+                                duration: 0,
+                                occurences: 0
+                            },
                             checked: true
                         });
                         editMsVm.selectedTreatments.push(editMsVm.treatments[editMsVm.treatments.length - 1]);
@@ -525,7 +538,7 @@
                 package.treatments.forEach(iterateTreatments);
                 
                 function iterateTreatments(treatment) {
-                    package.changeTreatmentTax(treatment);
+                    package.changeTreatmentTax(treatment, true);
                 }
             }
         }
@@ -567,23 +580,23 @@
                         }
                     }
                     
-                    function changeTreatmentTax(treatment) {
+                    function changeTreatmentTax(treatment, force) {
                         var cvt = vm.vehicle.type.toLowerCase().replace(' ', '-');
                         if (vm.sTaxSettings.applyTax) {
                             if (treatment.tax == undefined)
                                 treatment.tax = {};
-                            if (vm.sTaxSettings.inclutionAdjust) {
+                            if (vm.sTaxSettings.inclusive) {
                                 treatment.rate[cvt] = (treatment.amount[cvt]*100)/(vm.sTaxSettings.tax + 100);
                                 treatment.tax[cvt] = (treatment.rate[cvt]*vm.sTaxSettings.tax/100);
                             } else {
                                 treatment.tax[cvt] = (treatment.rate[cvt]*vm.sTaxSettings.tax/100);
                                 treatment.amount[cvt] = Math.round(treatment.rate[cvt] + treatment.tax[cvt]);
                             }
-                        } else {
-                            if (vm.sTaxSettings.inclutionAdjust)
-                                treatment.rate[cvt] = parseInt(treatment.amount[cvt]);
+                        } else if (force) {
+                            if (vm.sTaxSettings.inclusive)
+                                treatment.rate[cvt] = treatment.amount[cvt];
                             else
-                                treatment.amount[cvt] = parseInt(treatment.rate[cvt]);
+                                treatment.amount[cvt] = treatment.rate[cvt];
                         }
                     }
 
@@ -919,7 +932,7 @@
                 if (found.length == 1) {
                     var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
                     if (vm.sTaxSettings.applyTax) {
-                        if (vm.sTaxSettings.inclutionAdjust) {
+                        if (vm.sTaxSettings.inclusive) {
                             problem.amount = (rate == '' || rate == undefined ? problem.amount : rate);
                             problem.rate = (problem.amount*100)/(vm.sTaxSettings.tax + 100);
                             problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
@@ -929,7 +942,7 @@
                             problem.amount = Math.round(problem.rate + problem.tax);
                         }
                     } else {
-                        if (vm.sTaxSettings.inclutionAdjust)
+                        if (vm.sTaxSettings.inclusive)
                             problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
                         else
                             problem.amount = (rate == '' || rate == undefined ? problem.amount : rate);
@@ -1052,7 +1065,7 @@
             return totalCost;
 
             function iterateProblem(element) {
-                totalCost += parseInt(Math.round(element.rate ? (element.rate * (element.checked ? 1 : 0) + (element.tax && vm.sTaxSettings.applyTax && element.checked ? element.tax : 0)) : 0));
+                totalCost += parseInt(Math.round(element.amount ? (element.amount * (element.checked ? 1 : 0)) : 0));
             }
             function iteratePackages(package) {
                 if (!package.checked)
@@ -1114,7 +1127,7 @@
                 var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
                 vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
                 if (vm.sTaxSettings.applyTax) {
-                    if (vm.sTaxSettings.inclutionAdjust) {
+                    if (vm.sTaxSettings.inclusive) {
                         vm.problem.rate = (vm.problem.amount*100)/(vm.sTaxSettings.tax + 100);
                         vm.problem.tax = (vm.problem.rate*vm.sTaxSettings.tax/100);
                     } else {
@@ -1123,7 +1136,7 @@
                         vm.problem.amount = Math.round(vm.problem.rate + vm.problem.tax);
                     }
                 } else {
-                    if (vm.sTaxSettings.inclutionAdjust)
+                    if (vm.sTaxSettings.inclusive)
                         vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
                     else
                         vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
@@ -1144,9 +1157,8 @@
                 return false
             }
             var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
-            var isServiceBlank = (vm.service.problems.length == 0) && (vm.service.cost == undefined || vm.service.cost == 0) && (vm.service.odo == undefined || vm.service.odo == 0);
-
-            if (!isServiceBlank && isVehicleBlank) {
+            
+            if (isVehicleBlank) {
                 changeVehicleTab(true);
                 utils.showSimpleToast('Please Enter At Least One Vehicle Detail');
                 return false;
@@ -1197,7 +1209,7 @@
             if (vm.sTaxSettings != undefined) {
                 vm.service.serviceTax = {
                     applyTax: vm.sTaxSettings.applyTax,
-                    taxIncType: (vm.sTaxSettings.inclutionAdjust) ? 'adjust' : 'add',
+                    taxIncType: (vm.sTaxSettings.inclusive) ? 'inclusive' : 'exclusive',
                     tax: vm.sTaxSettings.tax
                 };
             }

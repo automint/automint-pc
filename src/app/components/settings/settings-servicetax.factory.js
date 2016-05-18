@@ -36,7 +36,7 @@
                 if (res.settings && res.settings.servicetax) {
                     tracker.resolve({
                         applyTax: res.settings.servicetax.applyTax,
-                        inclutionAdjust: (res.settings.servicetax.taxIncType == 'adjust') ? true : false,
+                        inclusive: (res.settings.servicetax.taxIncType == 'inclusive') ? true : false,
                         tax: res.settings.servicetax.tax
                     });
                 } else
@@ -70,8 +70,8 @@
                     res.settings.servicetax = {};
                 if (taxObject.applyTax != undefined)
                     res.settings.servicetax.applyTax = taxObject.applyTax;
-                if (taxObject.inclutionAdjust != undefined)
-                    res.settings.servicetax.taxIncType = (taxObject.inclutionAdjust) ? 'adjust' : 'add';
+                if (taxObject.inclusive != undefined)
+                    res.settings.servicetax.taxIncType = (taxObject.inclusive) ? 'inclusive' : 'exclusive';
                 if (taxObject.tax != undefined)
                     res.settings.servicetax.tax = taxObject.tax;
                 pdbConfig.save(res).then(success).catch(failure);
@@ -87,8 +87,8 @@
                 }
                 if (taxObject.applyTax)
                     doc.settings.servicetax.applyTax = taxObject.applyTax;
-                if (taxObject.inclutionAdjust)
-                    doc.settings.servicetax.taxIncType = (taxObject.inclutionAdjust) ? 'adjust' : 'add';
+                if (taxObject.inclusive)
+                    doc.settings.servicetax.taxIncType = (taxObject.inclusive) ? 'inclusive' : 'exclusive';
                 if (taxObject.tax)
                     doc.settings.servicetax.tax = taxObject.tax;
                 pdbConfig.save(doc).then(success).catch(failure);

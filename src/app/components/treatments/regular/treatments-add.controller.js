@@ -66,6 +66,7 @@
             
             function failure(err) {
                 vm.rates = [];
+                addRate();
             }
         }
         

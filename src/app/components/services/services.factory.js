@@ -51,7 +51,7 @@
                 if (res.settings && res.settings.servicetax) {
                     tracker.resolve({
                         applyTax: res.settings.servicetax.applyTax,
-                        inclutionAdjust: (res.settings.servicetax.taxIncType == 'adjust') ? true : false,
+                        inclusive: (res.settings.servicetax.taxIncType == 'inclusive') ? true : false,
                         tax: res.settings.servicetax.tax
                     });
                 } else
@@ -521,7 +521,6 @@
             var newVehicleId = ((newVehicle.id == undefined || newVehicle.id == '') ? utils.generateUUID(prefixVehicle) : newVehicle.id);
             var newUserId = ((newUser.id == undefined || newUser.id == '') ? utils.generateUUID(prefixUser) : newUser.id);
             var isVehicleBlank = (newVehicle.manuf == undefined || newVehicle.manuf == '') && (newVehicle.model == undefined || newVehicle.model == '') && (newVehicle.reg == undefined || newVehicle.reg == '');
-            var isServiceBlank = (newService.problems.length == 0) && (newService.cost == undefined || newService.cost == 0);
             delete prefixUser, prefixVehicle;
             if (newUser.memberships) {
                 var smArray = $.extend([], newUser.memberships);
@@ -564,11 +563,9 @@
                     if (!res.user.vehicles[newVehicleId])
                         res.user.vehicles[newVehicleId] = {};
                     Object.keys(newVehicle).forEach(iterateVehicleFields);
-                    if (!isServiceBlank) {
-                        if (!res.user.vehicles[newVehicleId].services)
-                            res.user.vehicles[newVehicleId].services = {};
-                        res.user.vehicles[newVehicleId].services[newServiceId] = newService;
-                    }
+                    if (!res.user.vehicles[newVehicleId].services)
+                        res.user.vehicles[newVehicleId].services = {};
+                    res.user.vehicles[newVehicleId].services[newServiceId] = newService;
                 }
                 pdbCustomers.save(res).then(success).catch(failure);
 
@@ -583,10 +580,8 @@
 
             function noUserFound(err) {
                 if (!isVehicleBlank) {
-                    if (!isServiceBlank) {
-                        newVehicle.services = {};
-                        newVehicle.services[newServiceId] = newService;
-                    }
+                    newVehicle.services = {};
+                    newVehicle.services[newServiceId] = newService;
                     newUser.vehicles = {};
                     newUser.vehicles[newVehicleId] = newVehicle;
                 }

@@ -100,7 +100,7 @@
                 vm.service = res.service;
                 vm.sTaxSettings = {
                     applyTax: res.service.serviceTax.applyTax,
-                    inclutionAdjust: (res.service.serviceTax.taxIncType == 'adjust'),
+                    inclusive: (res.service.serviceTax.taxIncType == 'inclusive'),
                     tax: res.service.serviceTax.tax
                 };
             }

@@ -154,16 +154,16 @@
                             <md-card-title-text>
                                 <span class="md-title">Service Tax</span>
                             </md-card-title-text>
-                            <md-checkbox ng-model="vm.sTaxSettings.applyTax" ng-click="vm.sTaxSettings.inclutionAdjust = (vm.sTaxSettings.inclutionAdjust == undefined) ? true : vm.sTaxSettings.inclutionAdjust" ng-change="vm.saveServiceTaxSettings()" aria-label="Apply Service Tax">
+                            <md-checkbox ng-model="vm.sTaxSettings.applyTax" ng-click="vm.sTaxSettings.inclusive = (vm.sTaxSettings.inclusive == undefined) ? true : vm.sTaxSettings.inclusive" ng-change="vm.saveServiceTaxSettings()" aria-label="Apply Service Tax">
                                 <span class="md-body-1">Apply Service Tax</span>
                             </md-checkbox>
                         </md-card-title>
                         <md-card-content ng-show="vm.sTaxSettings.applyTax">
                             <div layout="row" layout-xs="column">
                                 <div layout="row" layout-align="start center" class="am-tax-adjust">
-                                    <span class="md-body-1 am-pt-cursor" layout-padding ng-click="vm.sTaxSettings.inclutionAdjust = false">Add</span>
-                                    <md-switch aria-label="Adjust Service Tax" ng-change="vm.saveServiceTaxSettings()" ng-model="vm.sTaxSettings.inclutionAdjust"></md-switch>
-                                    <span class="md-body-1 am-pt-cursor" ng-click="vm.sTaxSettings.inclutionAdjust = true">Adjust</span>
+                                    <span class="md-body-1 am-pt-cursor" layout-padding ng-click="vm.sTaxSettings.inclusive = false">Exclusive</span>
+                                    <md-switch aria-label="Adjust Service Tax" ng-change="vm.saveServiceTaxSettings()" ng-model="vm.sTaxSettings.inclusive"></md-switch>
+                                    <span class="md-body-1 am-pt-cursor" ng-click="vm.sTaxSettings.inclusive = true">Inclusive</span>
                                 </div>
                                 <div flex></div>
                                 <div layout="row" layout-align="center center" flex="40">

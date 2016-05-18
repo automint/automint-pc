@@ -2,7 +2,7 @@
  * Controller for View All Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1 
+ * @version 0.5.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -93,7 +93,7 @@
             }
             
             function failure(err) {
-                vm.vehicletypes.push('Default');
+                vm.vehicletypes = [];
             }
         }
         
