@@ -155,7 +155,7 @@
                             </tr>
                             <tr ng-repeat-end ng-repeat="(tn, treatment) in membership.treatments">
                                 <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{tn}}</span></td>
-                                <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate}}</td>
+                                <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">&nbsp;</td>
                             </tr>
                             <tr class="row" ng-repeat-start="package in vm.service.packages">
                                 <td class="m-d">{{package.name}}</td>
