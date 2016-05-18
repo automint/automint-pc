@@ -18,7 +18,7 @@
         var vm = this;
         
         //  temporary named assignments
-        var olino = 0;
+        var olino = 0, ivEmailSubject;
 
         //  named assignments to keep track of UI [BEGIN]
         //  general settings
@@ -66,6 +66,7 @@
         vm.resetLastInvoiceNo = resetLastInvoiceNo;
         vm.saveIvDisplaySettings = saveIvDisplaySettings;
         vm.OnBlurLastInvoiceNumber = OnBlurLastInvoiceNumber;
+        vm.saveIvEmailSubject = saveIvEmailSubject;
         //  service tax settings
         vm.saveServiceTaxSettings = saveServiceTaxSettings;
         //  function maps [END]
@@ -86,6 +87,7 @@
         loadInvoiceWLogo();
         //  service tax settings
         getServiceTaxSettings();
+        // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
         //  default execution steps [END]
 
         //  function definitions
@@ -283,6 +285,7 @@
             function success(res) {
                 vm.ivSettings = res;
                 olino = res.lastInvoiceNumber;
+                ivEmailSubject = res.emailsubject;
             }
             
             function failure(err) {
@@ -370,6 +373,22 @@
             
             function failure(err) {
                 utils.showSimpleToast('Failed to save Service Tax Settings. Please Try Again!');
+            }
+        }
+        
+        function saveIvEmailSubject(es, reset) {
+            if (vm.ivSettings.emailsubject == undefined)
+                return;
+            
+            amIvSettings.saveIvEmailSubject((es == undefined) ? vm.ivSettings.emailsubject : es).then(respond).catch(respond);
+            
+            function respond(res) {
+                getInvoiceSettings();
+                if (ivEmailSubject != undefined) {
+                    if (reset != true)
+                        utils.showActionToast('Email Subject has been changed!', 'Undo', saveIvEmailSubject, ivEmailSubject, true);
+                } else
+                    utils.showSimpleToast('Email Subject has been changed!')
             }
         }
     }

@@ -24,11 +24,12 @@
 
     //  function definitions
 
-    function send(mailHtml, invoiceNo, user) {
+    function send(mailHtml, user, workshopname, emailsubject) {
         gAuth.authenticate(sendEmail, false, {
             message: mailHtml,
-            invoiceno: invoiceNo,
-            user: user
+            user: user,
+            workshopname: workshopname,
+            emailsubject: emailsubject
         });
     }
 
@@ -47,10 +48,11 @@
                 console.log(err);
                 return;
             }
+            
             email_lines.push("To: \"" + options.user.name + "\" <" + options.user.email + ">");
             email_lines.push('Content-type: text/html;charset=iso-8859-1');
             email_lines.push('MIME-Version: 1.0');
-            email_lines.push("Subject: Invoice #" + options.invoiceno);
+            email_lines.push("Subject: " + ((options.emailsubject != undefined || options.emailsubject != '') ? options.emailsubject : (options.workshopname != undefined || options.workshopname != '') ? options.workshopname + ' Invoice' : 'Invoice'));
             email_lines.push("");
             email_lines.push(email.html);
 
@@ -69,8 +71,9 @@
                     if (err.toString().match(/invalid_request/g)) {
                         gAuth.authenticate(sendEmail, true, {
                             message: options.message,
-                            invoiceno: options.invoiceno,
-                            user: options.user
+                            user: options.user,
+                            workshopname: options.workshopname,
+                            emailsubject: options.emailsubject
                         });
                     } else
                         BrowserWindow.getFocusedWindow().webContents.send('am-invoice-mail-sent', false);

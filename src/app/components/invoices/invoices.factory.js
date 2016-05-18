@@ -18,7 +18,7 @@
         var factory = {
             getServiceDetails: getServiceDetails,
             getWorkshopDetails: getWorkshopDetails,
-            getDisplaySettings: getDisplaySettings
+            getIvSettings: getIvSettings
         }
 
         return factory;
@@ -105,7 +105,7 @@
         }
         
         //  get display configurations
-        function getDisplaySettings() {
+        function getIvSettings() {
             var tracker = $q.defer();
             $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
             return tracker.promise;
@@ -115,8 +115,8 @@
             }
             
             function getSettingsObject(res) {
-                if (res.settings && res.settings.invoices && res.settings.invoices.display)
-                    tracker.resolve(res.settings.invoices.display);
+                if (res.settings && res.settings.invoices)
+                    tracker.resolve(res.settings.invoices);
                 else
                     failure();
             }

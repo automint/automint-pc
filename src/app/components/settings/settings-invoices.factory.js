@@ -20,7 +20,8 @@
             saveWorkshopDetails: saveWorkshopDetails,
             getInvoiceSettings: getInvoiceSettings,
             changeLastInvoiceNo: changeLastInvoiceNo,
-            saveIvDisplaySettings: saveIvDisplaySettings
+            saveIvDisplaySettings: saveIvDisplaySettings,
+            saveIvEmailSubject: saveIvEmailSubject
         }
         
         return factory;
@@ -182,6 +183,46 @@
                     settings: {
                         invoices: {
                             lastInvoiceNumber: invoiceno
+                        }
+                    }
+                }
+                pdbConfig.save(doc).then(success).catch(failure);
+            }
+            
+            function success(res) {
+                tracker.resolve(res);
+            }
+            
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+        
+        function saveIvEmailSubject(emailsubject) {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
+            }
+            
+            function getSettingsObject(res) {
+                if (!res.settings)
+                    res.settings = {};
+                if (!res.settings.invoices)
+                    res.settings.invoices = {};
+                res.settings.invoices.emailsubject = emailsubject;
+                pdbConfig.save(res).then(success).catch(failure);
+            }
+            
+            function writeSettingsObject(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    settings: {
+                        invoices: {
+                            emailsubject: emailsubject
                         }
                     }
                 }

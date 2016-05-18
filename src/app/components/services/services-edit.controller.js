@@ -116,17 +116,11 @@
             }
         }
         
-        function changeServiceTax(excludedProblems) {
+        function changeServiceTax() {
             vm.service.problems.forEach(iterateProblems);
-            vm.problem.tax = (vm.sTaxSettings.tax) ? vm.sTaxSettings.tax : '';
             changeProblemRate(vm.problem);
             
             function iterateProblems(problem) {
-                var found = $filter('filter')(excludedProblems, {
-                    details: problem.details
-                }, true);
-                if (!excludedProblems || found.length <= 0)
-                    problem.tax = (vm.sTaxSettings.tax) ? vm.sTaxSettings.tax : '';
                 changeProblemRate(problem);
             }
         }
@@ -138,9 +132,12 @@
                         var r = parseFloat(problem.rate)
                         problem.amount = Math.round(r + (r*problem.tax/100));
                     }
-                    problem.rate = parseFloat((problem.amount*100)/(problem.tax + 100)).toFixed(2);
-                } else
-                    problem.amount = Math.round(problem.rate + (problem.rate*problem.tax/100));
+                    problem.rate = (problem.amount*100)/(vm.sTaxSettings.tax + 100);
+                    problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
+                } else {
+                    problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
+                    problem.amount = Math.round(problem.rate + problem.tax);
+                }
             } else {
                 if (vm.sTaxSettings.inclutionAdjust) {
                     if (!problem.amount)
@@ -151,7 +148,7 @@
             }
         }
         
-        function getServiceTaxSettings(existingProblems) {
+        function getServiceTaxSettings() {
             amServices.getServiceTaxSettings().then(success).catch(failure);
             
             function success(res) {
@@ -161,7 +158,7 @@
                     vm.sTaxSettings.tax = vm.service.serviceTax.tax;
                     vm.sTaxSettings.inclutionAdjust = (vm.service.serviceTax.taxIncType == 'adjust') ? true : false;
                 }
-                changeServiceTax(existingProblems);
+                changeServiceTax();
                 OnServiceTaxEnabledChange();
             }
             
@@ -768,10 +765,12 @@
                     if (vm.sTaxSettings.applyTax) {
                         if (vm.sTaxSettings.inclutionAdjust) {
                             problem.amount = (rate == '' || rate == undefined ? problem.amount : rate);
-                            problem.rate = parseFloat((problem.amount*100)/(problem.tax + 100)).toFixed(2);
+                            problem.rate = (problem.amount*100)/(vm.sTaxSettings.tax + 100);
+                            problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
                         } else {
                             problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
-                            problem.amount = Math.round(problem.rate + (problem.rate*problem.tax/100));
+                            problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
+                            problem.amount = Math.round(problem.rate + problem.tax);
                         }
                     } else {
                         if (vm.sTaxSettings.inclutionAdjust)
@@ -837,7 +836,7 @@
         function loadTreatmentIntoProblems(existingProblems) {
             vm.treatments.forEach(iterateTreatment);
             existingProblems.forEach(iterateProblem);
-            getServiceTaxSettings(existingProblems);
+            getServiceTaxSettings();
             
             function iterateProblem(problem) {
                 var found = $filter('filter')(vm.service.problems, {
@@ -909,7 +908,7 @@
             return totalCost;
 
             function iterateProblem(element) {
-                totalCost += parseInt(Math.round(element.rate ? (element.rate * (element.checked ? 1 : 0) + (element.tax && vm.sTaxSettings.applyTax && element.checked ? (element.rate*element.tax/100) : 0)) : 0));
+                totalCost += parseInt(Math.round(element.rate ? (element.rate * (element.checked ? 1 : 0) + (element.tax && vm.sTaxSettings.applyTax && element.checked ? element.tax : 0)) : 0));
             }
             function iteratePackages(package) {
                 if (!package.checked)
@@ -964,11 +963,13 @@
                 var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
                 vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
                 if (vm.sTaxSettings.applyTax) {
-                    if (vm.sTaxSettings.inclutionAdjust)
-                        vm.problem.rate = parseFloat((vm.problem.amount*100)/(vm.problem.tax + 100)).toFixed(2);
-                    else {
+                    if (vm.sTaxSettings.inclutionAdjust) {
+                        vm.problem.rate = (vm.problem.amount*100)/(vm.sTaxSettings.tax + 100);
+                        vm.problem.tax = (vm.problem.rate*vm.sTaxSettings.tax/100);
+                    } else {
                         vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
-                        vm.problem.amount = Math.round(vm.problem.rate + (vm.problem.rate*vm.problem.tax/100));
+                        vm.problem.tax = (vm.problem.rate*vm.sTaxSettings.tax/100);
+                        vm.problem.amount = Math.round(vm.problem.rate + vm.problem.tax);
                     }
                 } else {
                     if (vm.sTaxSettings.inclutionAdjust)
@@ -995,9 +996,6 @@
         //  save to database
         function save() {
             if (!validate()) return;
-            vm.service.problems = vm.selectedProblems;
-            if (vm.membershipChips)
-                vm.user.memberships = vm.membershipChips;
             switch (vm.serviceType) {
                 case vm.serviceTypeList[0]:
                     if (checkTreatments() == false) {
@@ -1010,13 +1008,22 @@
                         utils.showSimpleToast('Please select package(s) or treatment(s)');
                         return;
                     }
-                    vm.packages.forEach(addPkToService);
                     break;
                 case vm.serviceTypeList[2]:
                     if (checkMembership() == false && checkTreatments() == false) {
                         utils.showSimpleToast('Please select membership(s) or treatment(s)');
                         return;
                     }
+                    break;
+            }
+            vm.service.problems = vm.selectedProblems;
+            if (vm.membershipChips)
+                vm.user.memberships = vm.membershipChips;
+            switch (vm.serviceType) {
+                case vm.serviceTypeList[1]:
+                    vm.packages.forEach(addPkToService);
+                    break;
+                case vm.serviceTypeList[2]:
                     vm.membershipChips.forEach(addMsToService);
                     break;
             }

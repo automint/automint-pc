@@ -34,6 +34,7 @@
         vm.editWorkshopInfo = editWorkshopInfo;
         vm.openFab = openFab;
         vm.closeFab = closeFab;
+        vm.calculateServiceTax = calculateServiceTax;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -93,18 +94,28 @@
                     inclutionAdjust: (res.service.serviceTax.taxIncType == 'adjust'),
                     tax: res.service.serviceTax.tax
                 };
-                vm.service.problems.forEach(iterateProblems);
+                /*vm.service.problems.forEach(iterateProblems);
                 
                 function iterateProblems(problem) {
                     if (vm.service.serviceTax && vm.service.serviceTax.applyTax && vm.service.serviceTax.taxIncType == 'adjust') {
                         problem.rate = Math.round(parseFloat(problem.rate) + parseFloat(problem.rate)*problem.tax/100);
                     }
-                }
+                }*/
             }
 
             function failure(err) {
                 getDisplaySettings();
                 $log.info('Could not load details');
+            }
+        }
+        
+        function calculateServiceTax() {
+            var tax = 0;
+            vm.service.problems.forEach(iterateProblems);
+            return tax;
+            
+            function iterateProblems(problem) {
+                tax += problem.tax;
             }
         }
 
@@ -118,15 +129,15 @@
 
         //  load display settings
         function getDisplaySettings() {
-            amInvoices.getDisplaySettings().then(success).catch(failure);
+            amInvoices.getIvSettings().then(success).catch(failure);
 
             function success(res) {
-                if (!res.workshopDetails) {
+                if (!res.display.workshopDetails) {
                     vm.workshop = {};
                 }
-                if (res.workshopLogo)
+                if (res.display.workshopLogo)
                     addInvoiceWLogo();
-                vm.displaySettings = res;
+                vm.ivSettings = res;
             }
 
             function failure(err) {
@@ -142,6 +153,10 @@
 
         //  send email
         function mailInvoice() {
+            if (vm.user.email == undefined || vm.user.email == '') {
+                utils.showSimpleToast(vm.user.name + '\'s email has not been set. Email can not be sent!');
+                return;
+            }
             removeInvoiceWLogo();
             var elem = document.getElementsByClassName('am-blank-padding');
             for (var i = 0; i < elem.length; i++) {
@@ -150,12 +165,13 @@
             }
             var printObj = document.getElementById('am-invoice-mail-body');
             utils.showSimpleToast('Sending Mail...');
-            ammMailApi.send(printObj.innerHTML, vm.service.invoiceno, vm.user);
+            ammMailApi.send(printObj.innerHTML, vm.user, vm.workshop.name, vm.ivSettings.emailsubject);
             for (var i = 0; i < elem.length; i++) {
                 var e = elem[i];
                 e.innerHTML = '&nbsp;';
             }
-            addInvoiceWLogo();
+            if (vm.ivSettings.display.workshopLogo)
+                addInvoiceWLogo();
         }
 
         function goBack() {

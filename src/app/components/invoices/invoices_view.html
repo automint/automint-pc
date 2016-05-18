@@ -76,7 +76,14 @@
                     }
                     
                     .am-invoice-table .total td {
+                        border-top: 1px solid #ECEFF1;
+                        padding: 0.5rem 1rem 1rem 1rem !important;
+                        font-weight: 800;
+                    }
+                    
+                    .am-invoice-table .tax td {
                         border-top: 2px solid #37474F;
+                        padding: 1rem 1rem 0.5rem 1rem !important;
                         font-weight: 800;
                     }
                     
@@ -139,6 +146,10 @@
                                     <span>{{vm.service.date}}</span>
                                 </td>
                             </tr>
+                            <tr class="caption">
+                                <td><span style="font-weight: 700">Treatments</span></td>
+                                <td style="text-align: right"><span style="font-weight: 700">Amount</span></td>
+                            </tr>
                             <tr class="row" ng-repeat-start="(key, membership) in vm.service.memberships">
                                 <td class="m-d">{{key}}</td>
                                 <td align="right" class="m-d">&nbsp;</td>
@@ -153,15 +164,19 @@
                             </tr>
                             <tr ng-repeat-end ng-repeat="(tn, treatment) in package.treatments">
                                 <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{tn}}</span></td>
-                                <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate}}</td>
+                                <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate | number: (vm.sTaxSettings.inclutionAdjust) ? 2 : 0}}</td>
                             </tr>
                             <tr class="row" ng-repeat="problem in vm.service.problems">
                                 <td>{{problem.details}}</td>
-                                <td align="right">Rs. {{problem.rate}}</td>
+                                <td align="right">Rs. {{problem.rate | number: (vm.sTaxSettings.inclutionAdjust) ? 2 : 0}}</td>
+                            </tr>
+                            <tr class="tax">
+                                <td>Tax</td>
+                                <td align="right">Rs. {{vm.calculateServiceTax() | number: (vm.sTaxSettings.inclutionAdjust) ? 2 : 0}}</td>
                             </tr>
                             <tr class="total">
                                 <td>Total</td>
-                                <td align="right">Rs. {{vm.service.cost}}</td>
+                                <td align="right">Rs. {{vm.service.cost | number: (vm.sTaxSettings.inclutionAdjust) ? 2 : 0}}</td>
                             </tr>
                         </table>
                     </center>

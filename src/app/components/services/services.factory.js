@@ -551,7 +551,6 @@
             if (options && options.isLastInvoiceNoChanged)
                 saveLastInvoiceNo(newService.invoiceno);
             
-            console.log(newService);
             pdbCustomers.get(newUserId).then(foundExistingUser).catch(noUserFound);
             return tracker.promise;
 

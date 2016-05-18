@@ -18,7 +18,7 @@
 
         //  named assignments to keep track of UI elements
         vm.label_name = "Enter Membership Name:";
-        vm.label_occurences = "Enter Occurences:";
+        vm.label_occurences = "Enter Number of Services:";
         vm.label_duration = "Enter Duration (months):";
         vm.label_amount = "Enter Amount:";
         vm.label_description = "Enter Description:";
@@ -79,7 +79,7 @@
         }
         function changeOccurencesLabel(force) {
             vm.isOccurences = (force != undefined) || (vm.membership.occurences != '');
-            vm.label_occurences = (vm.isOccurences) ? "Occurences:" : "Enter Occurences:";
+            vm.label_occurences = (vm.isOccurences) ? "Number of Services:" : "Enter Number of Services:";
         }
         function changeDurationLabel(force) {
             vm.isDuration = (force != undefined) || (vm.membership.duration != '');
