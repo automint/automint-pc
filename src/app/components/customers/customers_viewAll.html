@@ -31,17 +31,14 @@
             </tr>
         </thead>
         <tbody md-body>
-            <tr md-row md-auto-select ng-repeat="customer in vm.customers | limitTo: vm.query.limit: (vm.displayItemPage-1)*(vm.query.limit)">
+            <tr md-row md-auto-select ng-repeat="customer in vm.customers | limitTo: vm.query.limit: (vm.displayItemPage-1)*(vm.query.limit)" ng-click="vm.editCustomer(customer.id)" class="am-select-table-row">
                 <td md-cell>{{customer.name}}</td>
                 <td md-cell>{{customer.mobile}}</td>
                 <td md-cell>{{customer.email}}</td>
                 <td md-cell><span ng-repeat="vehicle in customer.vehicles">{{vehicle.manuf + ' ' + vehicle.model}}<span ng-if="vehicle.reg">&nbsp;({{vehicle.reg}})</span><span ng-if="customer.vehicles.length > 1 && $index != customer.vehicles.length-1"></span><br></span></td>
-                <td md-cell>
+                <td md-cell class="am-datatable-actions view-all-customers">
                     <md-button class="md-icon-button" ng-click="vm.editCustomer(customer.id)">
                         <md-icon class="am-icon-button-size">edit</md-icon>
-                    </md-button>
-                    <md-button class="md-icon-button" ng-click="vm.deleteCustomer(customer.id)">
-                        <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
                     </md-button>
                 </td>
             </tr>
@@ -49,6 +46,6 @@
     </table>
 </md-table-container>
 
-<md-table-pagination md-limit="vm.query.limit" ng-show="vm.showPaginationBar" md-limit-options="[5, 10, 15, 20]" md-page="vm.query.page" md-total="{{vm.query.total}}" md-on-paginate="vm.getCustomers" md-page-select></md-table-pagination>
+<md-table-pagination md-limit="vm.query.limit" ng-show="vm.showPaginationBar" md-limit-options="[10, 20, 50, 100]" md-page="vm.query.page" md-total="{{vm.query.total}}" md-on-paginate="vm.getCustomers" md-page-select></md-table-pagination>
 
-<md-table-pagination md-limit="vm.query.limit" ng-hide="vm.showPaginationBar" md-limit-options="[5, 10, 15, 20]" md-page="vm.displayItemPage" md-total="{{vm.query.total}}" md-page-select></md-table-pagination>
+<md-table-pagination md-limit="vm.query.limit" ng-hide="vm.showPaginationBar" md-limit-options="[10, 20, 50, 100]" md-page="vm.displayItemPage" md-total="{{vm.query.total}}" md-page-select></md-table-pagination>

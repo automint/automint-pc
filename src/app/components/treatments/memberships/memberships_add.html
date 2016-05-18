@@ -1,0 +1,154 @@
+<md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
+    <md-icon aria-label="Back">arrow_back</md-icon>
+    <md-tooltip md-direction="bottom">Back</md-tooltip>
+</md-button>
+<md-content layout-padding layot="column">
+    <div layout-gt-xs="row" layout-wrap layout-margin>
+        <md-input-container class="am-clear-error-spacer" flex>
+            <md-icon class="md-accent">card_membership</md-icon>
+            <label class="am-form-label" ng-class="{'large': vm.isName}">{{vm.label_name}}</label>
+            <input ng-disabled="!vm.isAddOperation()" autofocus type="text" ng-change="vm.convertNameToTitleCase()" ng-model="vm.membership.name" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
+        </md-input-container>
+        <md-input-container class="am-clear-error-spacer" flex-gt-xs="20">
+            <md-icon class="md-accent">repeat</md-icon>
+            <label class="am-form-label" ng-class="{'large': vm.isOccurences}">{{vm.label_occurences}}</label>
+            <input type="number" ng-model="vm.membership.occurences" ng-blur="vm.changeOccurencesLabel()" ng-focus="vm.changeOccurencesLabel(true)" ng-change="vm.changeOccurences()">
+        </md-input-container>
+        <md-input-container class="am-clear-error-spacer" flex-gt-xs="20">
+            <md-icon class="md-accent">timer</md-icon>
+            <label class="am-form-label" ng-class="{'large': vm.isDuration}">{{vm.label_duration}}</label>
+            <input type="number" ng-model="vm.membership.duration" ng-blur="vm.changeDurationLabel()" ng-focus="vm.changeDurationLabel(true)" ng-change="vm.changeDuration()">
+        </md-input-container>
+    </div>
+    <div layout-gt-xs="row" layout-wrap layout-margin>
+        <md-input-container class="am-clear-error-spacer" flex-gt-xs="20">
+            <md-icon class="md-accent">account_balance_wallet</md-icon>
+            <label class="am-form-label" ng-class="{'large': vm.isAmount}">{{vm.label_amount}}</label>
+            <input type="number" ng-model="vm.membership.amount" ng-blur="vm.changeAmountLabel()" ng-focus="vm.changeAmountLabel(true)">
+        </md-input-container>
+        <md-input-container class="am-clear-error-spacer" flex>
+            <md-icon class="md-accent">description</md-icon>
+            <label class="am-form-label" ng-class="{'large': vm.isDescription}">{{vm.label_description}}</label>
+            <input type="text" ng-model="vm.membership.description" ng-blur="vm.changeDescriptionLabel()" ng-focus="vm.changeDescriptionLabel(true)">
+        </md-input-container>
+    </div>
+    <md-table-container ng-if="vm.displayTreatmentAsList">
+        <table md-table md-row-select multiple ng-model="vm.selectedTreatments" md-progress="vm.treatmentPromise">
+            <thead md-head>
+                <tr md-row>
+                    <th md-column>
+                        <span class="am-table-header">Treatment</span>
+                        <span style="margin-left: 1rem;">
+                            <span class="am-table-header">(</span>
+                            <md-input-container style="margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0">
+                                <md-checkbox class="am-checkbox" layout="row" layout-align="center center" ng-model="vm.displayTreatmentAsList" aria-label="Display Treatment As" style="width: 100%">
+                                    <span class="md-body-1" layout-wrap flex>Show All</span>
+                                </md-checkbox>
+                            </md-input-container>
+                            <span class="am-table-header">)</span>
+                        </span>
+                    </th>
+                    <th md-column class="am-datatable-actions membership-addons"><span>Services<br><small>(number)</small></span></th>
+                    <th md-column class="am-datatable-actions membership-addons"><span>Duration<br><small>(months)</small></span></th>
+                </tr>
+            </thead>
+            <tbody md-body>
+                <tr md-row md-select="treatment" md-select-id="name" md-on-select="vm.onTreatmentSelected" md-on-deselect="vm.onTreatmentDeselected" ng-repeat="treatment in vm.treatments">
+                    <td md-cell><input type="text" ng-model="treatment.name" placeholder="Enter Details" class="am-table-inline-input" style="min-width: 120px">
+                        <md-tooltip md-direction="top">{{treatment.name}}</md-tooltip>
+                    </td>
+                    <td md-cell><input type="number" ng-model="treatment.occurences" placeholder="Occ." class="am-table-inline-input"></td>
+                    <td md-cell><input type="number" ng-model="treatment.duration" placeholder="Months" class="am-table-inline-input"></td>
+                </tr>
+                <tr md-row ng-hide="false">
+                    <td md-cell>
+                        <md-autocomplete id="new-treatment-details" md-search-text="vm.treatment.details" md-items="treatment in vm.treatmentQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-current="vm.currentTreatment"
+                            md-search-text-change="vm.convertTnToTitleCase()" md-min-length="1" md-no-cache>
+                            <md-item-template>
+                                <span md-highlight-text="vm.treatment.details" md-highlight-flags="^i">{{treatment.name}}</span>
+                            </md-item-template>
+                        </md-autocomplete>
+                    </td>
+                    <td md-cell class="am-datatable-actions membership-addons">
+                        <input type="number" ng-model="vm.treatment.occurences" placeholder="Occ." class="am-table-input">
+                    </td>
+                    <td md-cell class="am-datatable-actions membership-addons">
+                        <input type="number" ng-model="vm.treatment.duration" placeholder="Months" class="am-table-input" ng-blur="vm.finalizeNewTreatment()">
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot md-foot>
+                <tr md-row>
+                    <td md-cell colspan="2" style="border: 0">
+                        <md-button ng-click="vm.finalizeNewTreatment(true)" class="md-raised">
+                            <md-icon>add</md-icon>
+                            <span layout-padding>Add More</span>
+                        </md-button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </md-table-container>
+    <md-table-container ng-if="!vm.displayTreatmentAsList">
+        <table md-table md-row-select multiple ng-model="vm.selectedTreatments" md-progress="vm.treatmentPromise">
+            <thead md-head>
+                <tr md-row>
+                    <th md-column>
+                        <span class="am-table-header">Treatment</span>
+                        <span style="margin-left: 1rem;">
+                            <span class="am-table-header">(</span>
+                            <md-input-container style="margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0">
+                                <md-checkbox class="am-checkbox" layout="row" layout-align="center center" ng-model="vm.displayTreatmentAsList" aria-label="Display Treatment As" style="width: 100%">
+                                    <span class="md-body-1" layout-wrap flex>Show All</span>
+                                </md-checkbox>
+                            </md-input-container>
+                            <span class="am-table-header">)</span>
+                        </span>
+                    </th>
+                    <th md-column class="am-datatable-actions membership-addons"><span>Services<br><small>(number)</small></span></th>
+                    <th md-column class="am-datatable-actions membership-addons"><span>Duration<br><small>(months)</small></span></th>
+                </tr>
+            </thead>
+            <tbody md-body>
+                <tr md-row md-select="treatment" md-select-id="name" md-on-select="vm.onTreatmentSelected" md-on-deselect="vm.onTreatmentDeselected" ng-repeat="treatment in vm.selectedTreatments">
+                    <td md-cell><input type="text" ng-model="treatment.name" placeholder="Enter Details" class="am-table-inline-input" style="min-width: 120px">
+                        <md-tooltip md-direction="top">{{treatment.name}}</md-tooltip>
+                    </td>
+                    <td md-cell><input type="number" ng-model="treatment.occurences" placeholder="Occ." class="am-table-inline-input"></td>
+                    <td md-cell><input type="number" ng-model="treatment.duration" placeholder="Months" class="am-table-inline-input"></td>
+                </tr>
+                <tr md-row ng-hide="false">
+                    <td md-cell>
+                        <md-autocomplete id="new-treatment-details" md-search-text="vm.treatment.details" md-items="treatment in vm.treatmentQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-current="vm.currentTreatment" md-min-length="1" md-no-cache>
+                            <md-item-template>
+                                <span md-highlight-text="vm.treatment.details" md-highlight-flags="^i">{{treatment.name}}</span>
+                            </md-item-template>
+                        </md-autocomplete>
+                    </td>
+                    <td md-cell class="am-datatable-actions membership-addons">
+                        <input type="number" ng-model="vm.treatment.occurences" placeholder="Occ." class="am-table-input">
+                    </td>
+                    <td md-cell class="am-datatable-actions membership-addons">
+                        <input type="number" ng-model="vm.treatment.duration" placeholder="Months" class="am-table-input">
+                    </td>
+                </tr>
+            </tbody>
+            <tfoot md-foot>
+                <tr md-row>
+                    <td md-cell colspan="2" style="border: 0">
+                        <md-button ng-click="vm.finalizeNewTreatment(true)" class="md-raised">
+                            <md-icon>add</md-icon>
+                            <span layout-padding>Add More</span>
+                        </md-button>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </md-table-container>
+    <div layout="row" layout-align="end center">
+        <md-button class="md-raised md-warn" ng-click="vm.save()">
+            <md-icon>done</md-icon>
+            <span layout-padding>Save</span>
+        </md-button>
+    </div>
+</md-content>

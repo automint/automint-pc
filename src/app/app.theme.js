@@ -16,7 +16,8 @@
     function AppTheme($mdThemingProvider) {
         $mdThemingProvider.theme('default')
             .primaryPalette('blue-grey', {
-                'default': '900'
+                'default': '900',
+                'hue-1': '50'
             })
             .accentPalette('light-blue', {
                 'default': '700'

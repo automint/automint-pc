@@ -60,4 +60,9 @@ src/typings/
 
 # Dev Dependencies from @ndkcha
 src/app/automint.js
+src/oauth/
 nd_tests/
+
+# Runtime Dependencies
+.tempdata/
+.credentials/

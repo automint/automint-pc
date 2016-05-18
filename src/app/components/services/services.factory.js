@@ -2,7 +2,7 @@
  * Factory that handles database interactions between services database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .factory('amServices', ServicesFactory);
 
-    ServicesFactory.$inject = ['$http', '$q', 'utils', '$amRoot', 'pdbCustomers', 'pdbCommon', 'pdbConfig'];
+    ServicesFactory.$inject = ['$http', '$q', '$log', 'utils', '$amRoot', 'pdbCustomers', 'pdbCommon', 'pdbConfig'];
 
-    function ServicesFactory($http, $q, utils, $amRoot, pdbCustomers, pdbCommon, pdbConfig) {
+    function ServicesFactory($http, $q, $log, utils, $amRoot, pdbCustomers, pdbCommon, pdbConfig) {
         //  initialize factory variable and function maps
         var factory = {
             getManufacturers: getManufacturers,
@@ -27,26 +27,61 @@
             deleteService: deleteService,
             getVehicleTypes: getVehicleTypes,
             getTreatmentSettings: getTreatmentSettings,
-            getCustomerByMobile: getCustomerByMobile
+            getCustomerByMobile: getCustomerByMobile,
+            getLastInvoiceNo: getLastInvoiceNo,
+            getPackages: getPackages,
+            getMemberships: getMemberships,
+            getServiceTaxSettings: getServiceTaxSettings
         }
 
         return factory;
 
         //  function definitions
+        
+        function getServiceTaxSettings() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
+            }
+            
+            function getSettingsObj(res) {
+                if (res.settings && res.settings.servicetax) {
+                    tracker.resolve({
+                        applyTax: res.settings.servicetax.applyTax,
+                        inclusive: (res.settings.servicetax.taxIncType == 'inclusive') ? true : false,
+                        tax: res.settings.servicetax.tax
+                    });
+                } else
+                    failure();
+            }
+            
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'Service Tax Settings Not Found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
 
         //  retrieve current treatment settings
         function getTreatmentSettings() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(settingsExists).catch(failure);
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
             return tracker.promise;
 
             //  if settings configuration is tracked, fetch corrosponding document
-            function settingsExists(response) {
-                pdbConfig.get($amRoot.docIds.settings).then(settingsSuccess).catch(failure);
+            function getSettingsDoc(response) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
             }
 
             //  if document call is successfull, return treatment settings if available
-            function settingsSuccess(response) {
+            function getSettingsObject(response) {
                 if (response.settings.treatments)
                     tracker.resolve(response.settings.treatments);
                 else {
@@ -65,21 +100,21 @@
         //  retrieve vehicle types from config database
         function getVehicleTypes() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(configFound).catch(noConfigFound);
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
             return tracker.promise;
 
-            function configFound(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(settingsDocFound).catch(noConfigFound);
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
             }
 
-            function settingsDocFound(res) {
+            function getSettingsObject(res) {
                 if (res.vehicletypes)
                     tracker.resolve(res.vehicletypes);
                 else
                     tracker.reject('No vehicle types found!');
             }
 
-            function noConfigFound(err) {
+            function failure(err) {
                 tracker.reject(err);
             }
         }
@@ -87,10 +122,10 @@
         //  return service tree
         function serviceTree(userId, vehicleId, serviceId) {
             var tracker = $q.defer();
-            pdbCustomers.get(userId).then(userFound).catch(userNotFound);
+            pdbCustomers.get(userId).then(getUserObject).catch(failure);
             return tracker.promise;
 
-            function userFound(response) {
+            function getUserObject(response) {
                 if (response.user) {
                     var user = $.extend({}, response.user);
                     if (user.vehicles && user.vehicles[vehicleId]) {
@@ -118,10 +153,16 @@
                     }
                     tracker.resolve(user);
                 } else
-                    tracker.reject('User Not Found!');
+                    failure();
             }
 
-            function userNotFound(error) {
+            function failure(error) {
+                if (!error) {
+                    error = {
+                        success: false,
+                        message: 'User Not Found!'
+                    }
+                }
                 tracker.reject(error);
             }
         }
@@ -129,10 +170,10 @@
         //  delete service from UI
         function deleteService(userId, vehicleId, serviceId) {
             var tracker = $q.defer();
-            pdbCustomers.get(userId).then(userFound).catch(failure);
+            pdbCustomers.get(userId).then(getUserObject).catch(failure);
             return tracker.promise;
 
-            function userFound(res) {
+            function getUserObject(res) {
                 res.user.vehicles[vehicleId].services[serviceId]._deleted = true;
                 pdbCustomers.save(res).then(success).catch(failure);
             }
@@ -243,19 +284,97 @@
                 tracker.reject(err);
             }
         }
+        
+        //  return memberships from config database
+        function getMemberships() {
+            var tracker = $q.defer();
+            var response = {
+                memberships: [],
+                total: 0
+            }
+            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getTreatmentsDoc(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
+            }
+            
+            function getTreatmentObject(res) {
+                if (res.memberships)
+                    Object.keys(res.memberships).forEach(iterateMemberships);
+                tracker.resolve(response);
+                
+                function iterateMemberships(membership) {
+                    if (res.memberships[membership]._deleted == true)
+                        return;
+                    var occ = res.memberships[membership].occurences;
+                    var dur = res.memberships[membership].duration;
+                    delete res.memberships[membership].occurences
+                    delete res.memberships[membership].duration;
+                    response.memberships.push({
+                        name: membership,
+                        treatments: res.memberships[membership],
+                        occurences: occ,
+                        duration: dur,
+                        amount: res.memberships[membership].amount,
+                        description: res.memberships[membership].description
+                    });
+                    delete res.memberships[membership].amount;
+                    delete res.memberships[membership].description;
+                    delete occ;
+                    delete dur;
+                    response.total++;
+                }
+            }
+            
+            function failure(err) {
+                tracker.reject(response);
+            }
+        }
+        
+        //  return packages from config database
+        function getPackages() {
+            var tracker = $q.defer();
+            var packages = [];
+            $amRoot.isTreatmentId().then(getConfigDocument).catch(failure);
+            return tracker.promise;
+            
+            function getConfigDocument(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getConfigObject).catch(failure);
+            }
+            
+            function getConfigObject(res) {
+                if (res.packages)
+                    Object.keys(res.packages).forEach(iteratePackages);
+                tracker.resolve(packages);
+                
+                function iteratePackages(package) {
+                    if (res.packages[package]._deleted == true)
+                        return;
+                    packages.push({
+                        name: package,
+                        treatments: res.packages[package]
+                    });
+                }
+            }
+            
+            function failure(err) {
+                tracker.reject(packages);
+            }
+        }
 
         //  return regular treatments from config database
         function getRegularTreatments() {
             var tracker = $q.defer();
             var treatments = [];
-            $amRoot.isTreatmentId().then(treatmentConfigFound).catch(failure);
+            $amRoot.isTreatmentId().then(getConfigDocument).catch(failure);
             return tracker.promise;
 
-            function treatmentConfigFound(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(treatmentDocFound).catch(failure);
+            function getConfigDocument(res) {
+                pdbConfig.get($amRoot.docIds.treatment).then(getConfigObject).catch(failure);
             }
 
-            function treatmentDocFound(res) {
+            function getConfigObject(res) {
                 if (res.regular)
                     Object.keys(res.regular).forEach(iterateTreatments);
                 tracker.resolve(treatments);
@@ -321,6 +440,8 @@
                 response.mobile = res.user.mobile;
                 response.email = res.user.email;
                 response.name = res.user.name;
+                response.address = res.user.address;
+                response.memberships = res.user.memberships;
                 if (res.user.vehicles)
                     Object.keys(res.user.vehicles).forEach(iterateVehicle, this);
                 response.possibleVehicleList = pvl;
@@ -347,7 +468,6 @@
         //  return customer information based on their mobile number
         function getCustomerByMobile(mobile) {
             var tracker = $q.defer();
-            console.log('fire');
             pdbCustomers.query(mapView, {
                 include_docs: true,
                 key: mobile
@@ -367,6 +487,7 @@
                 response.mobile = doc.user.mobile;
                 response.email = doc.user.email;
                 response.name = doc.user.name;
+                response.address = doc.user.address;
                 if (doc.user.vehicles)
                     Object.keys(doc.user.vehicles).forEach(iterateVehicle);
                 response.possibleVehicleList = pvl;
@@ -392,7 +513,7 @@
         }
 
         //  save a service to database
-        function saveService(newUser, newVehicle, newService) {
+        function saveService(newUser, newVehicle, newService, options) {
             var tracker = $q.defer();
             var prefixVehicle = 'vhcl' + ((newVehicle.manuf && newVehicle.model) ? '-' + angular.lowercase(newVehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(newVehicle.model).replace(' ', '-') : '');
             var prefixUser = 'usr-' + angular.lowercase(newUser.name).replace(' ', '-');
@@ -400,15 +521,35 @@
             var newVehicleId = ((newVehicle.id == undefined || newVehicle.id == '') ? utils.generateUUID(prefixVehicle) : newVehicle.id);
             var newUserId = ((newUser.id == undefined || newUser.id == '') ? utils.generateUUID(prefixUser) : newUser.id);
             var isVehicleBlank = (newVehicle.manuf == undefined || newVehicle.manuf == '') && (newVehicle.model == undefined || newVehicle.model == '') && (newVehicle.reg == undefined || newVehicle.reg == '');
-            var isServiceBlank = (newService.problems.length == 0) && (newService.cost == undefined || newService.cost == 0);
             delete prefixUser, prefixVehicle;
+            if (newUser.memberships) {
+                var smArray = $.extend([], newUser.memberships);
+                newUser.memberships = {};
+                smArray.forEach(addMembershipsToUser);
+            }
             var problemsArray = $.extend([], newService.problems);
+            if (newService.packages) {
+                var packageArray = $.extend([], newService.packages);
+                newService.packages = {};
+                packageArray.forEach(iteratePackages);
+                delete packageArray;
+            }
+            if (newService.memberships) {
+                var membershipArray = $.extend([], newService.memberships);
+                newService.memberships = {};
+                membershipArray.forEach(iterateMemberships);
+                delete membershipArray;
+            }
             newService.problems = {};
             problemsArray.forEach(iterateProblems);
+            delete smArray;
             delete problemsArray;
             delete newService.id;
             delete newVehicle.id;
             delete newUser.id;
+            if (options && options.isLastInvoiceNoChanged)
+                saveLastInvoiceNo(newService.invoiceno);
+            
             pdbCustomers.get(newUserId).then(foundExistingUser).catch(noUserFound);
             return tracker.promise;
 
@@ -422,11 +563,9 @@
                     if (!res.user.vehicles[newVehicleId])
                         res.user.vehicles[newVehicleId] = {};
                     Object.keys(newVehicle).forEach(iterateVehicleFields);
-                    if (!isServiceBlank) {
-                        if (!res.user.vehicles[newVehicleId].services)
-                            res.user.vehicles[newVehicleId].services = {};
-                        res.user.vehicles[newVehicleId].services[newServiceId] = newService;
-                    }
+                    if (!res.user.vehicles[newVehicleId].services)
+                        res.user.vehicles[newVehicleId].services = {};
+                    res.user.vehicles[newVehicleId].services[newServiceId] = newService;
                 }
                 pdbCustomers.save(res).then(success).catch(failure);
 
@@ -441,10 +580,8 @@
 
             function noUserFound(err) {
                 if (!isVehicleBlank) {
-                    if (!isServiceBlank) {
-                        newVehicle.services = {};
-                        newVehicle.services[newServiceId] = newService;
-                    }
+                    newVehicle.services = {};
+                    newVehicle.services[newServiceId] = newService;
                     newUser.vehicles = {};
                     newUser.vehicles[newVehicleId] = newVehicle;
                 }
@@ -457,6 +594,11 @@
             }
 
             function success(res) {
+                res.id = {
+                    userId: newUserId,
+                    vehicleId: newVehicleId,
+                    serviceId: newServiceId
+                }
                 tracker.resolve(res);
             }
 
@@ -470,6 +612,76 @@
                 delete finalProblem['$$hashKey'];
                 newService.problems[problem.details] = finalProblem;
                 delete finalProblem;
+            }
+            
+            function iteratePackages(package) {
+                var finalPackage = $.extend({}, package);
+                delete finalPackage.name;
+                delete finalPackage['$$hashKey'];
+                var fpTreatments = $.extend([], finalPackage.treatments);
+                finalPackage.treatments = {};
+                fpTreatments.forEach(iterateTreatments);
+                newService.packages[package.name] = finalPackage;
+                delete fpTreatments;
+                delete finalPackage;
+                
+                function iterateTreatments(treatment) {
+                    if (!treatment.checked)
+                        return;
+                    treatment.rate = treatment.rate[newVehicle.type.toLowerCase().replace(' ', '-')];
+                    treatment.tax = treatment.tax[newVehicle.type.toLowerCase().replace(' ', '-')];
+                    finalPackage.treatments[treatment.name] = treatment;
+                    delete treatment.amount;
+                    delete treatment.name;
+                    delete treatment.checked;
+                    delete treatment['$$hashKey'];
+                }
+            }
+            
+            function iterateMemberships(membership) {
+                var finalMembership = $.extend({}, membership);
+                delete finalMembership.name;
+                delete finalMembership['$$hashKey'];
+                var fmTreatments = $.extend([], finalMembership.treatments);
+                finalMembership.treatments = {};
+                fmTreatments.forEach(iterateTreatments);
+                newService.memberships[membership.name] = finalMembership;
+                delete fmTreatments;
+                delete finalMembership;
+                
+                function iterateTreatments(treatment) {
+                    if (!treatment.checked)
+                        return;
+                    ++treatment.used.occurences;
+                    treatment.used.duration = moment().diff(moment(membership.startdate), "months");
+                    treatment = $.extend(treatment, treatment.used, false);
+                    finalMembership.treatments[treatment.name] = treatment;
+                    delete treatment.given;
+                    delete treatment.used;
+                    delete treatment.name;
+                    delete treatment.checked;
+                    delete treatment['$$hashKey'];
+                }
+            }
+            
+            function addMembershipsToUser(membership) {
+                var mTreatments = $.extend([], membership.treatments);
+                membership.treatments = {};
+                mTreatments.forEach(iterateTreatments);
+                newUser.memberships[membership.name] = {
+                    occurences: membership.occurences,
+                    duration: membership.duration,
+                    treatments: membership.treatments,
+                    startdate: membership.startdate
+                }
+                delete mTreatments;
+                
+                function iterateTreatments(treatment) {
+                    membership.treatments[treatment.name] = $.extend({}, treatment);
+                    delete membership.treatments[treatment.name].name;
+                    delete membership.treatments[treatment.name].checked;
+                    delete membership.treatments[treatment.name]['$$hashKey'];
+                }
             }
         }
 
@@ -525,6 +737,69 @@
             //  throw an error via promise
             function failure(error) {
                 tracker.reject(error);
+            }
+        }
+        
+        //  get last invoice number
+        function getLastInvoiceNo() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+            
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.invoices && res.settings.invoices.lastInvoiceNumber)
+                    tracker.resolve(res.settings.invoices.lastInvoiceNumber);
+                else
+                    failure();
+            }
+            
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'No invoice settings found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
+        
+        //  save last invoice number
+        function saveLastInvoiceNo(lino) {
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
+            }
+            
+            function getSettingsObject(res) {
+                if (!res.settings)
+                    res.settings = {};
+                if (!res.settings.invoices)
+                    res.settings.invoices = {};
+                res.settings.invoices.lastInvoiceNumber = lino;
+                pdbConfig.save(res);
+            }
+            
+            function writeSettingsObject(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    settings: {
+                        invoices: {
+                            lastInvoiceNumber: 1
+                        }
+                    }
+                }
+                pdbConfig.save(doc);
+            }
+            
+            function failure(err) {
+                $log.info('Cannot save invoice settings');
             }
         }
     }

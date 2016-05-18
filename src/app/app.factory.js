@@ -21,7 +21,8 @@
         var factory = {
             generateUUID: generateUUID,
             convertToTitleCase: convertToTitleCase,
-            showSimpleToast: showSimpleToast
+            showSimpleToast: showSimpleToast,
+            showActionToast: showActionToast
         }
         
         return factory;
@@ -53,6 +54,21 @@
         function showSimpleToast(content) {
             toastSimple.textContent(content);
             $mdToast.show(toastSimple);
+        }
+        
+        //  show action wala toast
+        function showActionToast(content, actionText, actionCallback) {
+            var callbackArgs = arguments;
+            var callingFunction = this;
+            toastSimple.textContent(content);
+            toastSimple.action(actionText);
+            toastSimple.highlightAction(true);
+            $mdToast.show(toastSimple).then(performAction);
+            
+            function performAction(res) {
+                if (res == 'ok') 
+                    actionCallback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 3));
+            }
         }
     }
 })();
