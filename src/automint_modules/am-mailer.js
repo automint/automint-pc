@@ -52,7 +52,7 @@
             email_lines.push("To: \"" + options.user.name + "\" <" + options.user.email + ">");
             email_lines.push('Content-type: text/html;charset=iso-8859-1');
             email_lines.push('MIME-Version: 1.0');
-            email_lines.push("Subject: " + ((options.emailsubject != undefined || options.emailsubject != '') ? options.emailsubject : (options.workshopname != undefined || options.workshopname != '') ? options.workshopname + ' Invoice' : 'Invoice'));
+            email_lines.push("Subject: " + ((options.emailsubject != undefined && options.emailsubject != '') ? options.emailsubject : ((options.workshopname != undefined && options.workshopname != '') ? options.workshopname + ' Invoice' : 'Invoice')));
             email_lines.push("");
             email_lines.push(email.html);
 

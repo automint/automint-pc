@@ -28,9 +28,9 @@
         <md-icon aria-label="SMS">sms</md-icon>
         <md-tooltip md-direction="top">SMS</md-tooltip>
     </md-button>
-    <md-button aria-label="Edit Info" class="md-fab md-raised md-mini" ng-click="vm.editWorkshopInfo()">
+    <md-button aria-label="Edit Info" class="md-fab md-raised md-mini" ng-click="vm.editService()">
         <md-icon aria-label="Edit Info">edit</md-icon>
-        <md-tooltip md-direction="top">Edit Workshop Info</md-tooltip>
+        <md-tooltip md-direction="top">Edit Service</md-tooltip>
     </md-button>
 </md-content>
 <md-content>
@@ -78,13 +78,11 @@
                     .am-invoice-table .total td {
                         border-top: 1px solid #ECEFF1;
                         padding: 0.5rem 1rem 1rem 1rem !important;
-                        font-weight: 800;
                     }
                     
                     .am-invoice-table .tax td {
                         border-top: 2px solid #37474F;
                         padding: 1rem 1rem 0.5rem 1rem !important;
-                        font-weight: 800;
                     }
                     
                     .am-invoice-link {
@@ -158,25 +156,25 @@
                                 <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{tn}}</span></td>
                                 <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate}}</td>
                             </tr>
-                            <tr class="row" ng-repeat-start="(key, package) in vm.service.packages">
-                                <td class="m-d">{{key}}</td>
+                            <tr class="row" ng-repeat-start="package in vm.service.packages">
+                                <td class="m-d">{{package.name}}</td>
                                 <td class="m-d" align="right">&nbsp;</td>
                             </tr>
-                            <tr ng-repeat-end ng-repeat="(tn, treatment) in package.treatments">
-                                <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{tn}}</span></td>
-                                <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate | number: (vm.sTaxSettings.inclutionAdjust) ? 2 : 0}}</td>
+                            <tr ng-repeat-end ng-repeat="treatment in package.treatments">
+                                <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{treatment.name}}</span></td>
+                                <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclutionAdjust) ? 2 : 0) : 0}}</td>
                             </tr>
                             <tr class="row" ng-repeat="problem in vm.service.problems">
                                 <td>{{problem.details}}</td>
-                                <td align="right">Rs. {{problem.rate | number: (vm.sTaxSettings.inclutionAdjust) ? 2 : 0}}</td>
+                                <td align="right">Rs. {{problem.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclutionAdjust) ? 2 : 0) : 0}}</td>
                             </tr>
-                            <tr class="tax">
+                            <tr class="tax" ng-if="vm.sTaxSettings.applyTax">
                                 <td>Tax</td>
-                                <td align="right">Rs. {{vm.calculateServiceTax() | number: (vm.sTaxSettings.inclutionAdjust) ? 2 : 0}}</td>
+                                <td align="right">Rs. {{vm.calculateServiceTax() | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclutionAdjust) ? 2 : 0) : 0}}</td>
                             </tr>
-                            <tr class="total">
+                            <tr class="total" ng-class="{'tax': !vm.sTaxSettings.applyTax}">
                                 <td>Total</td>
-                                <td align="right">Rs. {{vm.service.cost | number: (vm.sTaxSettings.inclutionAdjust) ? 2 : 0}}</td>
+                                <td align="right">Rs. {{vm.service.cost | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclutionAdjust) ? 2 : 0) : 0}}</td>
                             </tr>
                         </table>
                     </center>

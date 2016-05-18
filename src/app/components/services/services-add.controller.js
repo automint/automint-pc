@@ -115,20 +115,25 @@
         vm.changeProblemRate = changeProblemRate;
         vm.changeServiceTax = changeServiceTax;
         vm.OnServiceTaxEnabledChange = OnServiceTaxEnabledChange;
+        vm.convertPbToTitleCase = convertPbToTitleCase;
 
         //  default execution steps
         // vm.serviceTab = true; //  testing purposes [amTODO: remove it]
         getTreatmentDisplayFormat();
         getVehicleTypes();
         getRegularTreatments();
-        getPackages();
         getMemberships();
         getLastInvoiceNo();
 
         //  function definitions
         
+        function convertPbToTitleCase() {
+            vm.problem.details = utils.convertToTitleCase(vm.problem.details);
+        }
+        
         function OnServiceTaxEnabledChange() {
             vm.service.problems.forEach(iterateProblems);
+            calculatePackageTax();
             
             function iterateProblems(problem) {
                 changeProblemRate(problem);
@@ -138,6 +143,7 @@
         function changeServiceTax() {
             vm.service.problems.forEach(iterateProblems);
             changeProblemRate(vm.problem);
+            calculatePackageTax();
             
             function iterateProblems(problem) {
                 changeProblemRate(problem);
@@ -167,11 +173,13 @@
             function success(res) {
                 vm.sTaxSettings = res;
                 changeServiceTax();
+                getPackages();
                 OnServiceTaxEnabledChange();
             }
             
             function failure(err) {
                 vm.sTaxSettings = {};
+                getPackages();
             }
         }
         
@@ -269,6 +277,8 @@
         }
 
         function OnAddMembershipChip(chip) {
+            if (vm.membershipChips.length > 0)
+                vm.serviceType = vm.serviceTypeList[2];
             var m = $.extend({}, chip.treatments, false);
             chip.treatments = [];
             Object.keys(m).forEach(iterateTreatments);
@@ -317,6 +327,8 @@
                 return total;
 
                 function it(t) {
+                    if (t.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] == undefined)
+                        return;
                     total += t.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
                 }
             }
@@ -504,6 +516,19 @@
                 vm.allMemberships = [];
             }
         }
+        
+        function calculatePackageTax() {
+            if (vm.packages)
+                vm.packages.forEach(iteratePackages);
+                
+            function iteratePackages(package) {
+                package.treatments.forEach(iterateTreatments);
+                
+                function iterateTreatments(treatment) {
+                    package.changeTreatmentTax(treatment);
+                }
+            }
+        }
 
         //  get packages
         function getPackages() {
@@ -517,11 +542,13 @@
                     var treatments = [];
                     Object.keys(package.treatments).forEach(iterateTreatments);
                     package.treatments = treatments;
+                    package.treatments.forEach(changeTreatmentTax);
                     package.selectedTreatments = $.extend([], package.treatments);
                     package.onTreatmentSelected = onTreatmentSelected;
                     package.onTreatmentDeselected = onTreatmentDeselected;
                     package.calculatePackageTotal = calculatePackageTotal;
                     package.expandPackage = expandPackage;
+                    package.changeTreatmentTax = changeTreatmentTax;
                     vm.packages.push(package);
                     delete treatments;
 
@@ -536,7 +563,27 @@
                         return total;
 
                         function it(t) {
-                            total += t.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+                            total += t.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+                        }
+                    }
+                    
+                    function changeTreatmentTax(treatment) {
+                        var cvt = vm.vehicle.type.toLowerCase().replace(' ', '-');
+                        if (vm.sTaxSettings.applyTax) {
+                            if (treatment.tax == undefined)
+                                treatment.tax = {};
+                            if (vm.sTaxSettings.inclutionAdjust) {
+                                treatment.rate[cvt] = (treatment.amount[cvt]*100)/(vm.sTaxSettings.tax + 100);
+                                treatment.tax[cvt] = (treatment.rate[cvt]*vm.sTaxSettings.tax/100);
+                            } else {
+                                treatment.tax[cvt] = (treatment.rate[cvt]*vm.sTaxSettings.tax/100);
+                                treatment.amount[cvt] = Math.round(treatment.rate[cvt] + treatment.tax[cvt]);
+                            }
+                        } else {
+                            if (vm.sTaxSettings.inclutionAdjust)
+                                treatment.rate[cvt] = parseInt(treatment.amount[cvt]);
+                            else
+                                treatment.amount[cvt] = parseInt(treatment.rate[cvt]);
                         }
                     }
 
@@ -544,6 +591,7 @@
                         treatments.push({
                             name: treatment,
                             rate: package.treatments[treatment].rate,
+                            amount: $.extend({}, package.treatments[treatment].rate),
                             checked: true
                         });
                     }
@@ -862,7 +910,8 @@
         //  replace all the treatment values with updated vehicle type
         function changeVehicleType() {
             vm.service.problems.forEach(iterateProblem);
-
+            calculatePackageTax();
+            
             function iterateProblem(problem) {
                 var found = $filter('filter')(vm.treatments, {
                     name: problem.details
@@ -1008,14 +1057,19 @@
             function iteratePackages(package) {
                 if (!package.checked)
                     return;
-                package.selectedTreatments.forEach(iterateTreatments);
+                package.selectedTreatments.forEach(ipt);
             }
             function iterateMemberships(membership) {
                 if (!membership.checked)
                     return;
-                membership.selectedTreatments.forEach(iterateTreatments);
+                membership.selectedTreatments.forEach(imt);
             }
-            function iterateTreatments(treatment) {
+            function ipt(treatment) {
+                totalCost += treatment.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+            }
+            function imt(treatment) {
+                if (treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] == undefined)
+                    return;
                 totalCost += treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
             }
         }

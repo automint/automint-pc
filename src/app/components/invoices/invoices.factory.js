@@ -38,6 +38,8 @@
                 response.user = res.user;
                 response.service.date = moment(response.service.date).format('MMMM DD YYYY');
                 makeProblemsArray();
+                if (response.service.packages)
+                    makePackageArray();
                 tracker.resolve(response);
 
                 function iterateVehicles(vId) {
@@ -68,6 +70,30 @@
                             rate: problems[problem].rate,
                             tax: problems[problem].tax
                         })
+                    }
+                }
+                
+                function makePackageArray() {
+                    var packages = $.extend({}, response.service.packages);
+                    response.service.packages = [];
+                    Object.keys(packages).forEach(iteratePackages);
+                    
+                    function iteratePackages(package) {
+                        var p = {
+                            name: package,
+                            rate: packages[package].rate,
+                            treatments: []
+                        }
+                        Object.keys(packages[package].treatments).forEach(iterateTreatments);
+                        response.service.packages.push(p);
+                        
+                        function iterateTreatments(treatment) {
+                            p.treatments.push({
+                                name: treatment,
+                                rate: packages[package].treatments[treatment].rate,
+                                tax: packages[package].treatments[treatment].tax
+                            })
+                        }
                     }
                 }
             }

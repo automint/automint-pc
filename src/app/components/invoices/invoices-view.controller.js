@@ -35,6 +35,7 @@
         vm.openFab = openFab;
         vm.closeFab = closeFab;
         vm.calculateServiceTax = calculateServiceTax;
+        vm.editService = editService;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -73,6 +74,14 @@
                 openTab: 'invoice'
             });
         }
+        
+        function editService() {
+            $state.go('restricted.services.edit', {
+                userId: $state.params.userId,
+                vehicleId: $state.params.vehicleId,
+                serviceId: $state.params.serviceId
+            });
+        }
 
         //  fill invoice details
         function fillInvoiceDetails() {
@@ -94,13 +103,6 @@
                     inclutionAdjust: (res.service.serviceTax.taxIncType == 'adjust'),
                     tax: res.service.serviceTax.tax
                 };
-                /*vm.service.problems.forEach(iterateProblems);
-                
-                function iterateProblems(problem) {
-                    if (vm.service.serviceTax && vm.service.serviceTax.applyTax && vm.service.serviceTax.taxIncType == 'adjust') {
-                        problem.rate = Math.round(parseFloat(problem.rate) + parseFloat(problem.rate)*problem.tax/100);
-                    }
-                }*/
             }
 
             function failure(err) {
@@ -111,11 +113,23 @@
         
         function calculateServiceTax() {
             var tax = 0;
+            if (!vm.service.serviceTax.applyTax)
+                return 0;
             vm.service.problems.forEach(iterateProblems);
+            if (vm.service.packages)
+                vm.service.packages.forEach(iteratePackages);
             return tax;
             
             function iterateProblems(problem) {
                 tax += problem.tax;
+            }
+            
+            function iteratePackages(package) {
+                package.treatments.forEach(iterateTreatments);
+                
+                function iterateTreatments(treatment) {
+                    tax += treatment.tax;
+                }
             }
         }
 
@@ -165,7 +179,7 @@
             }
             var printObj = document.getElementById('am-invoice-mail-body');
             utils.showSimpleToast('Sending Mail...');
-            ammMailApi.send(printObj.innerHTML, vm.user, vm.workshop.name, vm.ivSettings.emailsubject);
+            ammMailApi.send(printObj.innerHTML, vm.user, (vm.workshop) ? vm.workshop.name : undefined, (vm.ivSettings) ? vm.ivSettings.emailsubject : undefined);
             for (var i = 0; i < elem.length; i++) {
                 var e = elem[i];
                 e.innerHTML = '&nbsp;';
@@ -175,7 +189,7 @@
         }
 
         function goBack() {
-            $window.history.back();
+            $state.go('restricted.services.all');
         }
 
         function addInvoiceWLogo() {

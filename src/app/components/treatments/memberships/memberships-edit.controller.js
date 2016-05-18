@@ -63,8 +63,18 @@
         vm.finalizeNewTreatment = finalizeNewTreatment;
         vm.treatmentQuerySearch = treatmentQuerySearch;
         vm.save = save;
+        vm.convertNameToTitleCase = convertNameToTitleCase;
+        vm.convertTnToTitleCase = convertTnToTitleCase;
 
         //  function definitions
+        
+        function convertTnToTitleCase() {
+            vm.treatment.details = utils.convertToTitleCase(vm.treatment.details);
+        }
+        
+        function convertNameToTitleCase() {
+            vm.membership.name = utils.convertToTitleCase(vm.membership.name);
+        }
         
         function goBack() {
             $state.go('restricted.treatments.master', {
@@ -276,11 +286,6 @@
         }
 
         function save() {
-            if (vm.selectedTreatments.length <= 0) {
-                utils.showSimpleToast('Please Select Treatments');
-                return;
-            }
-                
             vm.selectedTreatments.forEach(iterateTreatments);
             amTreatments.saveMembership(vm.membership).then(success).catch(failure);
 

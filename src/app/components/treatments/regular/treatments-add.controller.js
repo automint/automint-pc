@@ -31,6 +31,7 @@
         vm.goBack = goBack;
         vm.changeNameLabel = changeNameLabel;
         vm.isAddOperation = isAddOperation;
+        vm.convertNameToTitleCase = convertNameToTitleCase;
         
         //  default execution steps
         getVehicleTypes();
@@ -84,6 +85,10 @@
                     $(focusField).focus();
                 }
             }
+        }
+        
+        function convertNameToTitleCase() {
+            vm.treatment.name = utils.convertToTitleCase(vm.treatment.name);
         }
         
         function changeNameLabel(force) {

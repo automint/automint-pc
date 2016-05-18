@@ -33,6 +33,7 @@
         vm.editMembership = editMembership;
         vm.deleteMembership = deleteMembership;
         vm.calculateTotal = calculateTotal;
+        vm.IsMembershipVisible = IsMembershipVisible;
         
         //  default execution steps
         getMemberships();
@@ -46,6 +47,8 @@
             return total;
             
             function iterateTreatments(treatment) {
+                if (vm.memberships[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')] == undefined)
+                    return;
                 total += vm.memberships[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')];
             }
         }
@@ -92,6 +95,10 @@
                 vm.memberships = [];
                 vm.query.total = 0;
             }
+        }
+        
+        function IsMembershipVisible(membership) {
+            return (Object.keys(membership.treatments).length > 0);
         }
         
         function deleteMembership(name) {

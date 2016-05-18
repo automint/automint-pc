@@ -634,7 +634,9 @@
                     if (!treatment.checked)
                         return;
                     treatment.rate = treatment.rate[newVehicle.type.toLowerCase().replace(' ', '-')];
+                    treatment.tax = treatment.tax[newVehicle.type.toLowerCase().replace(' ', '-')];
                     finalPackage.treatments[treatment.name] = treatment;
+                    delete treatment.amount;
                     delete treatment.name;
                     delete treatment.checked;
                     delete treatment['$$hashKey'];

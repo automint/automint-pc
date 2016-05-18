@@ -34,6 +34,7 @@
         vm.goBack = goBack;
         vm.changeNameLabel = changeNameLabel;
         vm.isAddOperation = isAddOperation;
+        vm.convertNameToTitleCase = convertNameToTitleCase;
         
         //  default execution steps
         if (treatmentName == '' || treatmentName == undefined) {
@@ -46,6 +47,10 @@
         getVehicleTypes();
         
         //  function definitions
+        
+        function convertNameToTitleCase() {
+            vm.treatment.name = utils.convertToTitleCase(vm.treatment.name);
+        }
         
         function goBack() {
             $state.go('restricted.treatments.master', {

@@ -44,8 +44,18 @@
         vm.finalizeNewTreatment = finalizeNewTreatment;
         vm.treatmentQuerySearch = treatmentQuerySearch;
         vm.save = save;
+        vm.convertNameToTitleCase = convertNameToTitleCase;
+        vm.convertTnToTitleCase = convertTnToTitleCase;
 
         //  function definitions
+        
+        function convertTnToTitleCase() {
+            vm.treatment.details = utils.convertToTitleCase(vm.treatment.details);
+        }
+        
+        function convertNameToTitleCase() {
+            vm.package.name = utils.convertToTitleCase(vm.package.name);
+        }
         
         function goBack() {
             $state.go('restricted.treatments.master', {
