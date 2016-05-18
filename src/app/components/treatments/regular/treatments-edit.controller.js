@@ -99,17 +99,13 @@
             }
             
             function failure(err) {
-                vm.rates.push({
-                    type: 'Default',
-                    value: '',
-                    fromDb: true,
-                    focusIndex: vm.rates.length
-                });
+                vm.rates = [];
+                addRate();
                 loadTreatment();
             }
         }
         
-        function addRate() {
+        function addRate(focus) {
             var fIndex = vm.rates.length;
             vm.rates.push({
                 type: '',

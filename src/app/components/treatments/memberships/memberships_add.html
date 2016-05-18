@@ -50,7 +50,6 @@
                     </th>
                     <th md-column class="am-datatable-actions membership-addons"><span>Services<br><small>(number)</small></span></th>
                     <th md-column class="am-datatable-actions membership-addons"><span>Duration<br><small>(months)</small></span></th>
-                    <th md-column ng-repeat="type in vm.vehicletypes"><span>{{type}}</span></th>
                 </tr>
             </thead>
             <tbody md-body>
@@ -60,11 +59,10 @@
                     </td>
                     <td md-cell><input type="number" ng-model="treatment.occurences" placeholder="Occ." class="am-table-inline-input"></td>
                     <td md-cell><input type="number" ng-model="treatment.duration" placeholder="Months" class="am-table-inline-input"></td>
-                    <td md-cell ng-repeat="type in vm.vehicletypes"><input type="number" ng-model="treatment.rate[type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
                 </tr>
                 <tr md-row ng-hide="false">
                     <td md-cell>
-                        <md-autocomplete id="new-treatment-details" md-search-text="vm.treatment.details" md-items="treatment in vm.treatmentQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-current="vm.currentTreatment"
+                        <md-autocomplete id="new-treatment-details" md-search-text="vm.treatment.details" md-items="treatment in vm.treatmentQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-current="vm.currentTreatment"
                             md-search-text-change="vm.convertTnToTitleCase()" md-min-length="1" md-no-cache>
                             <md-item-template>
                                 <span md-highlight-text="vm.treatment.details" md-highlight-flags="^i">{{treatment.name}}</span>
@@ -76,9 +74,6 @@
                     </td>
                     <td md-cell class="am-datatable-actions membership-addons">
                         <input type="number" ng-model="vm.treatment.duration" placeholder="Months" class="am-table-input" ng-blur="vm.finalizeNewTreatment()">
-                    </td>
-                    <td md-cell ng-repeat="type in vm.vehicletypes">
-                        <input type="number" ng-model="vm.treatment.rate[type.toLowerCase().replace(' ', '-')]" style="width: 97%; min-width: 34px" placeholder="{{type}}" class="am-table-input">
                     </td>
                 </tr>
             </tbody>
@@ -112,7 +107,6 @@
                     </th>
                     <th md-column class="am-datatable-actions membership-addons"><span>Services<br><small>(number)</small></span></th>
                     <th md-column class="am-datatable-actions membership-addons"><span>Duration<br><small>(months)</small></span></th>
-                    <th md-column ng-repeat="type in vm.vehicletypes"><span>{{type}}</span></th>
                 </tr>
             </thead>
             <tbody md-body>
@@ -122,11 +116,10 @@
                     </td>
                     <td md-cell><input type="number" ng-model="treatment.occurences" placeholder="Occ." class="am-table-inline-input"></td>
                     <td md-cell><input type="number" ng-model="treatment.duration" placeholder="Months" class="am-table-inline-input"></td>
-                    <td md-cell ng-repeat="type in vm.vehicletypes"><input type="number" ng-model="treatment.rate[type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
                 </tr>
                 <tr md-row ng-hide="false">
                     <td md-cell>
-                        <md-autocomplete id="new-treatment-details" md-search-text="vm.treatment.details" md-items="treatment in vm.treatmentQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-current="vm.currentTreatment" md-search-text-change="vm.convertTnToTitleCase()" md-min-length="1" md-no-cache>
+                        <md-autocomplete id="new-treatment-details" md-search-text="vm.treatment.details" md-items="treatment in vm.treatmentQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-current="vm.currentTreatment" md-min-length="1" md-no-cache>
                             <md-item-template>
                                 <span md-highlight-text="vm.treatment.details" md-highlight-flags="^i">{{treatment.name}}</span>
                             </md-item-template>
@@ -137,9 +130,6 @@
                     </td>
                     <td md-cell class="am-datatable-actions membership-addons">
                         <input type="number" ng-model="vm.treatment.duration" placeholder="Months" class="am-table-input">
-                    </td>
-                    <td md-cell ng-repeat="type in vm.vehicletypes">
-                        <input type="number" ng-model="vm.treatment.rate[type.toLowerCase().replace(' ', '-')]" style="width: 97%; min-width: 34px" placeholder="{{type}}" class="am-table-input" ng-blur="$last && vm.finalizeNewTreatment()">
                     </td>
                 </tr>
             </tbody>

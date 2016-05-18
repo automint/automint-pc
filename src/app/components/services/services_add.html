@@ -52,6 +52,23 @@
                             <textarea ng-model="vm.user.address" md-maxlength="150" rows="5" md-select-on-focus ng-blur="vm.changeUserAddressLabel()" ng-focus="vm.changeUserAddressLabel(true)"></textarea>
                         </md-input-container>
                     </div>
+                    <div layout="row" layout-align="start" layout-margin>
+                        <md-icon class="md-accent">card_membership</md-icon>
+                        <div layout="column" layout-align="start" flex>
+                            <label class="md-body-2" style="color: rgba(30, 30, 30, 0.7);">Memberships <i>(AMC Contracts)</i>:</label>
+                            <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-require-match="true">
+                                <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
+                                    <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
+                                </md-autocomplete>
+                                <md-chip-template>
+                                    <span>
+                                    <span style="font-size: small">{{$chip.name}}</span>
+                                    </span>
+                                </md-chip-template>
+                            </md-chips>
+                            <span class="md-caption" style="line-height: 2rem"><address>*&nbsp;Click on Membership for details</address></span>
+                        </div>
+                    </div>
                     <div layout="row" layout-align="center center" ng-show="vm.loadingBasedOnMobile">
                         <md-progress-circular md-mode="indeterminate"></md-progress-circular>
                         <span>Please wait</span>
@@ -62,22 +79,6 @@
                         <span layout-padding>Continue</span>
                         <md-icon>navigate_next</md-icon>
                     </md-button>
-                </div>
-                <div layout="row" layout-align="start" layout-margin>
-                    <md-icon class="md-accent">card_membership</md-icon>
-                    <div layout="column" layout-align="start" flex>
-                        <label class="md-body-2" style="color: rgba(30, 30, 30, 0.7);">Memberships:</label>
-                        <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-require-match="true">
-                            <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
-                                <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
-                            </md-autocomplete>
-                            <md-chip-template>
-                                <span>
-                                <span style="font-size: small">{{$chip.name}}</span>
-                                </span>
-                            </md-chip-template>
-                        </md-chips>
-                    </div>
                 </div>
             </md-content>
         </md-tab>
@@ -175,34 +176,22 @@
                                     <md-checkbox aria-label="Check All" style="opacity: 0; cursor: default"></md-checkbox>
                                     <span class="am-form-label" style="opacity: 0">Actions</span>
                                 </div>
-                                <div aria-label="name" flex="50">
+                                <div aria-label="name" flex>
                                     <span class="am-form-label large">Membership</span>
-                                </div>
-                                <div aria-label="rate" flex="20">
-                                    <span class="am-form-label large">Rate</span>
-                                </div>
-                                <div aria-label="amount" flex="20" style="text-align: right; margin-right: 1rem">
-                                    <span class="am-form-label large">Amount</span>
                                 </div>
                             </div>
                             <md-divider></md-divider>
                             <div layout="column" ng-repeat="membership in vm.membershipChips">
                                 <div layout="row" style="font-size: small">
                                     <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
-                                        <md-checkbox class="am-checkbox-dt" ng-model="membership.checked" aria-label="Check"></md-checkbox>
+                                        <md-checkbox class="am-checkbox-dt" ng-disabled="membership.IsExpired()" ng-model="membership.checked" aria-label="Check"></md-checkbox>
                                         <md-button class="md-icon-button md-primary" ng-click="membership.expandMembership()">
                                             <md-icon ng-hide="membership.expanded">add_circle_outline</md-icon>
                                             <md-icon ng-show="membership.expanded">remove_circle_outline</md-icon>
                                         </md-button>
                                     </div>
-                                    <div aria-label="name" flex="50" layout="column" layout-align="center start">
+                                    <div aria-label="name" flex layout="column" layout-align="center start">
                                         <span>{{membership.name}}</span>
-                                    </div>
-                                    <div aria-label="rate" flex="20" layout="column" layout-align="center start">
-                                        <span>{{membership.calculateMembershipTotal()}}</span>
-                                    </div>
-                                    <div aria-label="amount" flex="20" style="text-align: right; margin-right: 1rem" layout="column" layout-align="center end">
-                                        <span>{{(membership.total ? membership.total * (membership.checked ? 1 : 0) : 0)}}</span>
                                     </div>
                                 </div>
                                 <div layout="column" style="font-size: small" ng-show="membership.expanded == true">
@@ -211,22 +200,15 @@
                                             <thead md-head>
                                                 <tr md-row>
                                                     <th md-column><span class="am-table-header">Treatments</span></th>
-                                                    <th md-column><span class="am-table-header">Rate</span></th>
-                                                    <th md-column><span class="am-datatable-actions membership-addons">Services<br><small>(number)</small><md-tooltip>Count before Service</md-tooltip></span></th>
-                                                    <th md-column><span class="am-datatable-actions membership-addons">Duration<br><small>(months)</small><md-tooltip>Count before Service</md-tooltip></span></th>
-                                                    <th md-column md-numeric><span class="am-table-header">Amount</span></th>
+                                                    <th md-column style="text-align: center"><span class="am-datatable-actions membership-addons">Services<br><small>(number)</small><md-tooltip>Count before Service</md-tooltip></span></th>
+                                                    <th md-column style="text-align: center"><span class="am-datatable-actions membership-addons">Duration<br><small>(months)</small><md-tooltip>Count before Service</md-tooltip></span></th>
                                                 </tr>
                                             </thead>
                                             <tbody md-body>
                                                 <tr md-row md-select="treatment" ng-disabled="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected" ng-repeat="treatment in membership.treatments">
                                                     <td md-cell style="width: auto">{{treatment.name}}</td>
-                                                    <td md-cell>
-                                                        <span ng-if="!(membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0)"><input type="number" ng-model="treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></span>
-                                                        <span ng-if="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0">{{treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]}}</span>
-                                                    </td>
                                                     <td md-cell style="text-align: center">{{membership.calculateTOccurenceLeft(treatment)}}</td>
                                                     <td md-cell style="text-align: center">{{membership.calculateTDurationLeft(treatment)}}</td>
-                                                    <td md-cell>{{(treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]) ? (treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] * (treatment.checked ? 1 : 0)) : 0}}</td>
                                                 </tr>
                                             </tbody>
                                         </table>

@@ -54,7 +54,6 @@
         vm.changeDescriptionLabel = changeDescriptionLabel;
         vm.changeDuration = changeDuration;
         vm.changeOccurences = changeOccurences;
-        vm.updateTreatmentDetails = updateTreatmentDetails;
         vm.isAddOperation = isAddOperation;
         vm.finalizeNewTreatment = finalizeNewTreatment;
         vm.treatmentQuerySearch = treatmentQuerySearch;
@@ -137,12 +136,7 @@
                 function itreateTreatments(treatment) {
                     treatment.occurences = 1;
                     treatment.duration = 1;
-                    Object.keys(treatment.rate).forEach(iterateRates);
                     vm.treatments.push(treatment);
-                    
-                    function iterateRates(rate) {
-                        treatment.rate[rate] = 0;
-                    }
                 }
             }
 
@@ -175,16 +169,6 @@
             }
         }
 
-        function updateTreatmentDetails() {
-            var found = $filter('filter')(vm.treatments, {
-                name: vm.treatment.details
-            });
-            if (found.length == 1 && found[0].name == vm.treatment.details)
-                vm.treatment.rate = found[0].rate;
-            else
-                vm.treatment.rate = {};
-        }
-
         function finalizeNewTreatment(btnClicked) {
             vm.treatment.details = vm.treatment.details.trim();
             if (vm.treatment.details != '') {
@@ -193,14 +177,12 @@
                 });
                 if (found.length == 1 && found[0].name == vm.treatment.details) {
                     found[0].checked = true;
-                    found[0].rate = vm.treatment.rate;
                     found[0].duration = vm.treatment.duration;
                     found[0].occurences = vm.treatment.occurences;
                     vm.selectedTreatments.push(found[0]);
                 } else {
                     vm.treatments.push({
                         name: vm.treatment.details,
-                        rate: vm.treatment.rate,
                         duration: vm.treatment.duration,
                         occurences: vm.treatment.occurences,
                         checked: true
@@ -208,7 +190,6 @@
                     vm.selectedTreatments.push(vm.treatments[vm.treatments.length - 1]);
                 }
                 vm.treatment.details = '';
-                vm.treatment.rate = {};
                 vm.treatment.occurences = vm.membership.occurences;
                 vm.treatment.duration = vm.membership.duration;
                 angular.element('#new-treatment-details').find('input')[0].focus();

@@ -26,32 +26,17 @@
         vm.isExpandAll = false;
         
         //  function maps
-        vm.evalVehicleTypes = evalVehicleTypes;
         vm.changeExpandValues = changeExpandValues;
         vm.expandMembership = expandMembership;
         vm.addMembership = addMembership;
         vm.editMembership = editMembership;
         vm.deleteMembership = deleteMembership;
-        vm.calculateTotal = calculateTotal;
         vm.IsMembershipVisible = IsMembershipVisible;
         
         //  default execution steps
         getMemberships();
         
         //  function definitions
-        
-        function calculateTotal(vehicletype, index) {
-            var total = 0;
-            if (vm.memberships[index])
-                Object.keys(vm.memberships[index].treatments).forEach(iterateTreatments);
-            return total;
-            
-            function iterateTreatments(treatment) {
-                if (vm.memberships[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')] == undefined || vm.memberships[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')] == '')
-                    return;
-                total += vm.memberships[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')];
-            }
-        }
         
         function changeExpandValues() {
             vm.isExpandAll = !vm.isExpandAll;
@@ -113,24 +98,6 @@
             }
             function failure(err) {
                 utils.showSimpleToast('Could not delete membership at moment. Please Try Again!');
-            }
-        }
-        
-        function evalVehicleTypes(treatments) {
-            var vehicleTypes = [];
-            Object.keys(treatments).forEach(iterateTreatments);
-            return vehicleTypes;
-            
-            function iterateTreatments(treatment) {
-                Object.keys(treatments[treatment].rate).forEach(iterateRates);
-                
-                function iterateRates(rateType) {
-                    rateType = utils.convertToTitleCase(rateType.replace(/-/g, ' '));
-                    var found = $filter('filter')(vehicleTypes, rateType, true);
-                    
-                    if (found.length == 0)
-                        vehicleTypes.push(rateType);
-                }
             }
         }
     }

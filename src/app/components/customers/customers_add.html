@@ -113,20 +113,23 @@
         </md-tab>
         <md-tab label="Membership Information" md-active="vm.membershipTab" md-on-deselect="vm.changeMembershipTab(false)">
             <md-content>
-                <div layout="row" layout-align="start center" layout-margin>
-                    <md-icon class="md-accent">card_membership</md-icon>
-                    <div layout="column" layout-align="start" flex>
-                        <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-require-match="true">
-                            <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
-                                <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
-                            </md-autocomplete>
-                            <md-chip-template>
-                                <span>
-                                <span style="font-size: small">{{$chip.name}}</span>
-                                </span>
-                            </md-chip-template>
-                        </md-chips>
+                <div layout="column">
+                    <div layout="row" layout-align="start center"  layout-margin>
+                        <md-icon class="md-accent">card_membership</md-icon>
+                        <div layout="column" layout-align="start" flex>
+                            <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-require-match="true">
+                                <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
+                                    <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
+                                </md-autocomplete>
+                                <md-chip-template>
+                                    <span>
+                                    <span style="font-size: small">{{$chip.name}}</span>
+                                    </span>
+                                </md-chip-template>
+                            </md-chips>
+                        </div>
                     </div>
+                    <span class="md-caption" style="margin-left: 3rem; line-height: 2rem"><address>*&nbsp;Click on Membership for details</address></span>
                 </div>
                 <div layout="row" layout-align="end center">
                     <md-button class="md-raised md-warn" ng-click="vm.save()">

@@ -29,7 +29,8 @@
                             </th>
                             <th md-column class="am-datatable-actions membership-addons"><span>Services<br><small>(number)</small></span></th>
                             <th md-column class="am-datatable-actions membership-addons"><span>Duration<br><small>(months)</small></span></th>
-                            <th md-column ng-repeat="type in vm.vehicletypes"><span>{{type}}</span></th>
+                            <th md-column class="am-datatable-actions membership-addons"><span>Services Left<br><small>(number)</small></span></th>
+                            <th md-column class="am-datatable-actions membership-addons"><span>Duration Left<br><small>(months)</small></span></th>
                         </tr>
                     </thead>
                     <tbody md-body>
@@ -37,7 +38,8 @@
                             <td md-cell><input type="text" ng-model="treatment.name" placeholder="Enter Details" class="am-table-inline-input" style="min-width: 120px"></td>
                             <td md-cell><input type="number" ng-model="treatment.given.occurences" placeholder="Occ." class="am-table-inline-input"></td>
                             <td md-cell><input type="number" ng-model="treatment.given.duration" placeholder="Months" class="am-table-inline-input"></td>
-                            <td md-cell ng-repeat="type in vm.vehicletypes"><input type="number" ng-model="treatment.rate[type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
+                            <td md-cell>{{treatment.given.occurences - treatment.used.occurences}}</td>
+                            <td md-cell>{{treatment.given.duration - treatment.used.duration}}</td>
                         </tr>
                         <tr md-row ng-hide="false">
                             <td md-cell>
@@ -54,9 +56,8 @@
                             <td md-cell class="am-datatable-actions membership-addons">
                                 <input type="number" ng-model="vm.treatment.duration" placeholder="Months" class="am-table-input">
                             </td>
-                            <td md-cell ng-repeat="type in vm.vehicletypes">
-                                <input type="number" ng-model="vm.treatment.rate[type.toLowerCase().replace(' ', '-')]" ng-blur="$last && vm.finalizeNewTreatment()" style="width: 97%; min-width: 34px" placeholder="{{type}}" class="am-table-input">
-                            </td>
+                            <td md-cell class="am-datatable-actions membership-addons">&nbsp;</td>
+                            <td md-cell class="am-datatable-actions membership-addons">&nbsp;</td>
                         </tr>
                     </tbody>
                 </table>
@@ -81,7 +82,6 @@
                             <th md-column class="am-datatable-actions membership-addons"><span>Duration<br><small>(months)</small></span></th>
                             <th md-column class="am-datatable-actions membership-addons"><span>Services Left<br><small>(number)</small></span></th>
                             <th md-column class="am-datatable-actions membership-addons"><span>Duration Left<br><small>(months)</small></span></th>
-                            <th md-column ng-repeat="type in vm.vehicletypes"><span>{{type}}</span></th>
                         </tr>
                     </thead>
                     <tbody md-body>
@@ -91,7 +91,6 @@
                             <td md-cell><input type="number" ng-model="treatment.given.duration" placeholder="Months" class="am-table-inline-input"></td>
                             <td md-cell>{{treatment.given.occurences - treatment.used.occurences}}</td>
                             <td md-cell>{{treatment.given.duration - treatment.used.duration}}</td>
-                            <td md-cell ng-repeat="type in vm.vehicletypes"><input type="number" ng-model="treatment.rate[type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
                         </tr>
                         <tr md-row ng-hide="false">
                             <td md-cell>
@@ -110,9 +109,6 @@
                             </td>
                             <td md-cell class="am-datatable-actions membership-addons">&nbsp;</td>
                             <td md-cell class="am-datatable-actions membership-addons">&nbsp;</td>
-                            <td md-cell ng-repeat="type in vm.vehicletypes">
-                                <input type="number" ng-model="vm.treatment.rate[type.toLowerCase().replace(' ', '-')]" ng-blur="$last && vm.finalizeNewTreatment()" style="width: 97%; min-width: 34px" placeholder="{{type}}" class="am-table-input">
-                            </td>
                         </tr>
                     </tbody>
                 </table>

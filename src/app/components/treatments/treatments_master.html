@@ -36,13 +36,10 @@
                             </tr>
                         </thead>
                         <tbody md-body>
-                            <tr md-row ng-repeat="treatment in trVm.treatments | limitTo: trVm.query.limit: (trVm.query.page - 1)*(trVm.query.limit)">
+                            <tr md-row ng-repeat="treatment in trVm.treatments | limitTo: trVm.query.limit: (trVm.query.page - 1)*(trVm.query.limit)" ng-click="trVm.editTreatment(treatment.name)" class="am-select-table-row">
                                 <td md-cell>{{treatment.name}}</td>
                                 <td md-cell ng-repeat="type in trVm.vehicletypes">{{trVm.getRate(treatment.rate, type)}}</td>
-                                <td md-cell class="am-datatable-actions">
-                                    <md-button class="md-icon-button" ng-click="trVm.editTreatment(treatment.name)">
-                                        <md-icon class="am-icon-button-size">edit</md-icon>
-                                    </md-button>
+                                <td md-cell class="am-datatable-actions view-all-customers">
                                     <md-button class="md-icon-button" ng-click="trVm.deleteTreatment(treatment.name)">
                                         <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
                                     </md-button>
@@ -180,14 +177,6 @@
                                                 <td md-cell>{{value.duration}}</td>
                                             </tr>
                                         </tbody>
-                                        <tfoot md-foot>
-                                            <tr md-row>
-                                                <td md-cell class="md-body-2">Sub Total:</td>
-                                                <td md-cell class="md-body-2" ng-repeat="item in msVm.evalVehicleTypes(membership.treatments)">{{msVm.calculateTotal(item, $parent.$index)}}</td>
-                                                <td md-cell class="md-body-2">&nbsp;</td>
-                                                <td md-cell class="md-body-2">&nbsp;</td>
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </md-table-container>
                             </div>

@@ -210,8 +210,7 @@
                 targetEvent: event,
                 locals: {
                     membership: vm.membershipChips[chipIndex],
-                    treatments: vm.treatments,
-                    vehicletypes: vm.vehicleTypeList
+                    treatments: vm.treatments
                 },
                 clickOutsideToClose: true
             }).then(changeMembershipChip).catch(changeMembershipChip);
@@ -228,10 +227,10 @@
             membership.selectedTreatments = [];
             membership.treatments.forEach(makeSelectedTreatments);
             membership.expandMembership = expandMembership;
-            membership.calculateMembershipTotal = calculateMembershipTotal;
             membership.onTreatmentSelected = onTreatmentSelected;
             membership.onTreatmentDeselected = onTreatmentDeselected;
             membership.calculateTOccurenceLeft = calculateTOccurenceLeft;
+            membership.IsExpired = IsExpired;
             membership.calculateTDurationLeft = calculateTDurationLeft;
             delete m;
             
@@ -252,22 +251,23 @@
                 } else
                     treatment.checked = false;
             }
-            function calculateMembershipTotal() {
-                var total = 0;
-                membership.selectedTreatments.forEach(it);
-                membership.total = total;
-                return total;
-
-                function it(t) {
-                    total += t.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
-                }
-            }
             
             function calculateTOccurenceLeft(item) {
                 return (item.given.occurences - item.used.occurences);
             }
             function calculateTDurationLeft(item) {
                 return (item.given.duration - item.used.duration);
+            }
+            function IsExpired() {
+                var e = true;
+                membership.treatments.forEach(it);
+                return e;
+                
+                function it(t) {
+                    if (calculateTOccurenceLeft(t) != 0 && calculateTDurationLeft(t) != 0) {
+                        e = false;
+                    }
+                }
             }
             function onTreatmentSelected(item) {
                 item.checked = true;
@@ -288,11 +288,11 @@
             chip.startdate = moment().format();
             chip.treatments.forEach(makeSelectedTreatments);
             chip.expandMembership = expandMembership;
-            chip.calculateMembershipTotal = calculateMembershipTotal;
             chip.onTreatmentSelected = onTreatmentSelected;
             chip.onTreatmentDeselected = onTreatmentDeselected;
             chip.calculateTOccurenceLeft = calculateTOccurenceLeft;
             chip.calculateTDurationLeft = calculateTDurationLeft;
+            chip.IsExpired = IsExpired;
             delete m;
             
             function iterateTreatments(treatment) {
@@ -322,19 +322,17 @@
                 } else
                     treatment.checked = false;
             }
-            function calculateMembershipTotal() {
-                var total = 0;
-                chip.selectedTreatments.forEach(it);
-                chip.total = total;
-                return total;
-
+            function IsExpired() {
+                var e = true;
+                membership.treatments.forEach(it);
+                return e;
+                
                 function it(t) {
-                    if (t.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] == undefined)
-                        return;
-                    total += t.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+                    if (calculateTOccurenceLeft(t) != 0 && calculateTDurationLeft(t) != 0) {
+                        e = false;
+                    }
                 }
             }
-            
             function calculateTOccurenceLeft(item) {
                 return (item.given.occurences - item.used.occurences);
             }
@@ -350,19 +348,17 @@
             }
         }
 
-        function MembershipEditDialogController($mdDialog, membership, treatments, vehicletypes) {
+        function MembershipEditDialogController($mdDialog, membership, treatments) {
             var editMsVm = this;
 
             editMsVm.treatment = {
-                details: '',
-                rate: ''
+                details: ''
             };
             editMsVm.membership = {
                 name: membership.name,
                 occurences: membership.occurences,
                 duration: membership.duration
             };
-            editMsVm.vehicletypes = vehicletypes;
             editMsVm.selectedTreatments = [];
             editMsVm.treatments = treatments;
             editMsVm.confirmDialog = confirmDialog;
@@ -382,7 +378,6 @@
                     }, true);
 
                     if (found.length == 1) {
-                        found[0].rate = treatment.rate;
                         found[0].given.occurences = treatment.given.occurences;
                         found[0].given.duration = treatment.given.duration;
                         found[0].used.occurences = treatment.used.occurences;
@@ -405,12 +400,6 @@
                 } else {
                     editMsVm.treatment.occurences = editMsVm.membership.occurences
                     editMsVm.treatment.duration = editMsVm.membership.duration;
-                }
-                editMsVm.treatment.rate = {};
-                editMsVm.vehicletypes.forEach(iterateRates);
-                
-                function iterateRates(rate) {
-                    editMsVm.treatment.rate[rate.toLowerCase().replace(' ', '-')] = 0;
                 }
             }
             
@@ -1059,9 +1048,6 @@
             if (vm.serviceType == vm.serviceTypeList[1]) {
                 vm.packages.forEach(iteratePackages);
             }
-            if (vm.serviceType == vm.serviceTypeList[2]) {
-                vm.membershipChips.forEach(iterateMemberships);
-            }
             vm.service.cost = totalCost;
             return totalCost;
 
@@ -1073,18 +1059,8 @@
                     return;
                 package.selectedTreatments.forEach(ipt);
             }
-            function iterateMemberships(membership) {
-                if (!membership.checked)
-                    return;
-                membership.selectedTreatments.forEach(imt);
-            }
             function ipt(treatment) {
                 totalCost += treatment.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')];
-            }
-            function imt(treatment) {
-                if (treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] == undefined)
-                    return;
-                totalCost += treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
             }
         }
         
@@ -1109,7 +1085,7 @@
             function ipt(treatment) {
                 if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !treatment.tax)
                     return;
-                totalCost += treatment.tax[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+                totalTax += parseFloat(treatment.tax[vm.vehicle.type.toLowerCase().replace(' ', '-')].toFixed(2));
             }
         }
 

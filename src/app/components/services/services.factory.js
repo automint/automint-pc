@@ -650,10 +650,8 @@
                 delete finalMembership;
                 
                 function iterateTreatments(treatment) {
-                    
                     if (!treatment.checked)
                         return;
-                    treatment.rate = treatment.rate[newVehicle.type.toLowerCase().replace(' ', '-')];
                     ++treatment.used.occurences;
                     treatment.used.duration = moment().diff(moment(membership.startdate), "months");
                     treatment = $.extend(treatment, treatment.used, false);
