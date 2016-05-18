@@ -11,26 +11,28 @@ var jsonminify = require('gulp-jsonminify');
 const imagemin = require('gulp-imagemin');
 const pngquant = require('imagemin-pngquant');
 
-gulp.task('default', function () {
+gulp.task('default', function() {
     console.log('Gulp is up and running.');
     runSequence(
         'clean',
         'root-dir-files',
         'app-dir',
         'assets-dir',
+        'automint-modules',
         'bower_components',
         'data-dir',
-        'node_modules'
+        'node_modules',
+        'oauth-dir'
     );
 });
 
-gulp.task('clean', function () {
+gulp.task('clean', function() {
     return del([
-    'app'
-  ]);
+        'app'
+    ]);
 });
 
-gulp.task('root-dir-files', function () {
+gulp.task('root-dir-files', function() {
     gulp.src('../src/index.html')
         .pipe(minifyInline())
         .pipe(htmlmin({
@@ -44,7 +46,7 @@ gulp.task('root-dir-files', function () {
         .pipe(gulp.dest('app'));
 });
 
-gulp.task('app-dir', function () {
+gulp.task('app-dir', function() {
     gulp.src('../src/app/**/*.js')
         .pipe(uglify())
         .pipe(gulp.dest('app/app'));
@@ -56,7 +58,7 @@ gulp.task('app-dir', function () {
         .pipe(gulp.dest('app/app'));
 });
 
-gulp.task('assets-dir', function () {
+gulp.task('assets-dir', function() {
     gulp.src('../src/assets/css/*.css')
         .pipe(cleanCSS())
         .pipe(gulp.dest('app/assets/css'));
@@ -71,13 +73,33 @@ gulp.task('assets-dir', function () {
         .pipe(gulp.dest('app/assets/material-icons'));
 });
 
+gulp.task('automint-modules', function() {
+    gulp.src('../src/automint_modules/**/*.js')
+        .pipe(uglify())
+        .pipe(gulp.dest('app/automint_modules'));
+    gulp.src('../src/automint_modules/**/*.json')
+        .pipe(jsonminify())
+        .pipe(gulp.dest('app/automint_modules'));
+    gulp.src('../src/automint_modules/**/*.html')
+        .pipe(minifyInline())
+        .pipe(htmlmin({
+            collapseWhitespace: true
+        }))
+        .pipe(gulp.dest('app/automint_modules'));
+});
 
-gulp.task('bower_components', function () {
+gulp.task('bower_components', function() {
     return gulp.src(mainBowerFiles({
             paths: '../src/',
             overrides: {
-                angular: {
+                "angular": {
                     main: './angular.min.js'
+                },
+                "angular-animate": {
+                    main: './angular-animate.min.js'
+                },
+                "angular-aria": {
+                    main: './angular-aria.min.js'
                 },
                 "angular-material": {
                     main: [
@@ -91,29 +113,23 @@ gulp.task('bower_components', function () {
                         "dist/md-data-table.min.css"
                     ]
                 },
+                "angular-messages": {
+                    main: './angular-messages.min.js'
+                },
                 "angular-sanitize": {
                     main: './angular-sanitize.min.js'
-                },
-                "angular-animate": {
-                    main: './angular-animate.min.js'
                 },
                 "angular-ui-router": {
                     main: './release/angular-ui-router.min.js'
                 },
-                "angular-aria": {
-                    main: './angular-aria.min.js'
+                "jquery": {
+                    main: './dist/jquery.min.js'
                 },
-                "angular-messages": {
-                    main: './angular-messages.min.js'
-                },
-                oclazyload: {
-                    main: './dist/ocLazyLoad.min.js'
-                },
-                moment: {
+                "moment": {
                     main: './min/moment.min.js'
                 },
-                jquery: {
-                    main: './dist/jquery.min.js'
+                "oclazyload": {
+                    main: './dist/ocLazyLoad.min.js'
                 }
             }
         }), {
@@ -122,15 +138,21 @@ gulp.task('bower_components', function () {
         .pipe(gulp.dest('app/bower_components'));
 });
 
-gulp.task('data-dir', function () {
+gulp.task('data-dir', function() {
     gulp.src('../src/data/*.json')
         .pipe(jsonminify())
         .pipe(gulp.dest('app/data'));
 });
 
-gulp.task('node_modules', function () {
+gulp.task('node_modules', function() {
     gulp.src('../src/node_modules/**/*', {
             base: '../src'
         })
         .pipe(gulp.dest('app'));
+});
+
+gulp.task('oauth-dir', function() {
+    gulp.src('../src/oauth/**/*.json')
+        .pipe(jsonminify())
+        .pipe(gulp.dest('app/oauth'));
 });
