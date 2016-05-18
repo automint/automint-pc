@@ -44,7 +44,7 @@
             </tr>
         </thead>
         <tbody md-body>
-            <tr md-row ng-repeat="service in vm.services">
+            <tr md-row ng-repeat="service in vm.services" ng-click="vm.editService(service)" class="am-select-table-row">
                 <td md-cell>{{service.value.name}}</td>
                 <td md-cell>{{service.value.manuf + ' ' + service.value.model}}<span ng-if="service.value.reg">&nbsp;({{service.value.reg}})</span></td>
                 <td md-cell>{{service.value.date}}</td>
@@ -53,9 +53,6 @@
                 <td md-cell class="am-datatable-actions view-all-services">
                     <md-button class="invoice md-accent" ng-click="vm.goToInvoice(service)">
                         <span>Invoice</span>
-                    </md-button>
-                    <md-button class="md-icon-button" ng-click="vm.editService(service)">
-                        <md-icon class="am-icon-button-size">edit</md-icon>
                     </md-button>
                     <md-button class="md-icon-button" ng-click="vm.deleteService(service)">
                         <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>

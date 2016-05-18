@@ -45,6 +45,8 @@
             return total;
             
             function iterateTreatments(treatment) {
+                if (vm.packages[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')] == undefined || vm.packages[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')] == '')
+                    return;
                 total += vm.packages[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')];
             }
         }

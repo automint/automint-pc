@@ -116,6 +116,7 @@
         vm.changeServiceTax = changeServiceTax;
         vm.OnServiceTaxEnabledChange = OnServiceTaxEnabledChange;
         vm.convertPbToTitleCase = convertPbToTitleCase;
+        vm.calculateTax = calculateTax;
 
         //  default execution steps
         // vm.serviceTab = true; //  testing purposes [amTODO: remove it]
@@ -1086,6 +1087,31 @@
                 totalCost += treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
             }
         }
+        
+        function calculateTax() {
+            var totalTax = 0.0;
+            vm.service.problems.forEach(iterateProblems);
+            if (vm.serviceType == vm.serviceTypeList[1])
+                vm.packages.forEach(iteratePackages);
+            return totalTax;
+            
+            function iterateProblems(problem) {
+                if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !problem.tax || !problem.checked)
+                    return;
+                totalTax += parseFloat(problem.tax.toFixed(2));
+            }
+            
+            function iteratePackages(package) {
+                if (!package.checked)
+                    return;
+                package.selectedTreatments.forEach(ipt);
+            }
+            function ipt(treatment) {
+                if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !treatment.tax)
+                    return;
+                totalCost += treatment.tax[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+            }
+        }
 
         function finalizeNewProblem(btnClicked) {
             vm.problem.details = vm.problem.details.trim();
@@ -1112,6 +1138,7 @@
                 vm.problem.details = '';
                 vm.problem.amount = '';
                 vm.problem.rate = '';
+                vm.problem.tax = '';
                 $('#new-problem-details').focus();
             }
             if (btnClicked)
@@ -1238,6 +1265,8 @@
                 });
             }
             function iterateProblems(problem) {
+                if (!vm.sTaxSettings || (vm.sTaxSettings && !vm.sTaxSettings.applyTax))
+                    problem.rate = problem.amount;
                 delete problem.checked;
                 delete problem['amount'];
                 delete problem['$$hashKey'];

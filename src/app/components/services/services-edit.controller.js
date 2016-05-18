@@ -100,6 +100,7 @@
         vm.changeServiceTax = changeServiceTax;
         vm.OnServiceTaxEnabledChange = OnServiceTaxEnabledChange;
         vm.convertPbToTitleCase = convertPbToTitleCase;
+        vm.calculateTax = calculateTax;
 
         //  default execution steps
         getVehicleTypes();
@@ -164,11 +165,17 @@
                 if (vm.service.serviceTax != undefined) {
                     vm.sTaxSettings.applyTax = vm.service.serviceTax.applyTax;
                     vm.sTaxSettings.tax = vm.service.serviceTax.tax;
-                    vm.orgApplyTax = vm.service.serviceTax.applyTax;
+                    if (!res.applyTax)
+                        vm.orgApplyTax = vm.service.serviceTax.applyTax;
                     vm.sTaxSettings.inclusive = (vm.service.serviceTax.taxIncType == 'inclusive') ? true : false;
                 }
+                vm.service.problems.forEach(iterateProblems);
                 changeServiceTax();
                 OnServiceTaxEnabledChange();
+                
+                function iterateProblems(problem) {
+                    delete problem.amount;
+                }
             }
             
             function failure(err) {
@@ -896,12 +903,14 @@
                 if (found.length == 1) {
                     found[0].checked = true;
                     found[0].rate = problem.rate;
+                    found[0].amount = Math.round(problem.rate);
                     found[0].tax = problem.tax;
                     vm.selectedProblems.push(found[0]);
                 } else {
                     vm.service.problems.push({
                         details: problem.details,
                         rate: problem.rate,
+                        amount: Math.round(problem.rate),
                         tax: problem.tax,
                         checked: true
                     });
@@ -959,7 +968,7 @@
             return totalCost;
 
             function iterateProblem(element) {
-                totalCost += parseInt(Math.round(element.rate ? (element.rate * (element.checked ? 1 : 0) + (element.tax && vm.sTaxSettings.applyTax && element.checked ? element.tax : 0)) : 0));
+                totalCost += parseInt(Math.round(element.amount ? (element.amount * (element.checked ? 1 : 0)) : 0));
             }
             function iteratePackages(package) {
                 if (!package.checked)
@@ -981,6 +990,31 @@
             }
         }
         
+        function calculateTax() {
+            var totalTax = 0.0;
+            vm.service.problems.forEach(iterateProblems);
+            if (vm.serviceType == vm.serviceTypeList[1])
+                vm.packages.forEach(iteratePackages);
+            return totalTax;
+            
+            function iterateProblems(problem) {
+                if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !problem.tax || !problem.checked)
+                    return;
+                totalTax += parseFloat(problem.tax.toFixed(2));
+            }
+            
+            function iteratePackages(package) {
+                if (!package.checked)
+                    return;
+                package.selectedTreatments.forEach(ipt);
+            }
+            function ipt(treatment) {
+                if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !treatment.tax)
+                    return;
+                totalCost += treatment.tax[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+            }
+        }
+        
         function finalizeNewProblem() {
             vm.problem.details = vm.problem.details.trim();
             if (vm.problem.details != '') {
@@ -989,14 +1023,14 @@
                 });
                 if (found.length == 1) {
                     found[0].checked = true;
-                    found[0].rate = vm.problem.rate;
+                    found[0].rate = (vm.sTaxSettings && vm.sTaxSettings.applyTax) ? vm.problem.rate : vm.problem.amount;
                     found[0].tax = vm.problem.tax;
                     found[0].amount = vm.problem.amount;
                     vm.selectedProblems.push(found[0]);
                 } else {
                     vm.service.problems.push({
                         details: vm.problem.details,
-                        rate: vm.problem.rate,
+                        rate: (vm.sTaxSettings && vm.sTaxSettings.applyTax) ? vm.problem.rate : vm.problem.amount,
                         tax: vm.problem.tax,
                         amount: vm.problem.amount,
                         checked: true
@@ -1117,6 +1151,8 @@
                 });
             }
             function iterateProblems(problem) {
+                if (!vm.sTaxSettings || (vm.sTaxSettings && !vm.sTaxSettings.applyTax))
+                    problem.rate = problem.amount;
                 delete problem.checked;
                 delete problem['amount'];
                 delete problem['$$hashKey'];

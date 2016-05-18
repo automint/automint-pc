@@ -445,7 +445,11 @@
                         <md-checkbox aria-label="Payment Receieved" ng-model="vm.servicestatus" flex="20" flex-xs>Payment Received</md-checkbox>
                         <md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()"><span class="md-body-1">Service Tax</span></md-checkbox>
                         <div flex></div>
-                        <span><span class="am-form-label">Total Cost:&nbsp;</span>{{vm.calculateCost()}}</span>
+                        <div layout="column" layout-align="center end">
+                            <span><span class="md-body-2">Total Tax:&nbsp;</span>&#x20B9; {{vm.calculateTax()}}</span>
+                            <span style="line-height: 0.5rem">&nbsp;</span>
+                            <span><span class="md-body-2">Total Cost:&nbsp;</span>&#x20B9; {{vm.calculateCost()}}</span>
+                        </div>
                     </div>
                 </div>
                 <div layout="row" layout-align="end center">

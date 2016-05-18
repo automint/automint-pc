@@ -47,7 +47,7 @@
             return total;
             
             function iterateTreatments(treatment) {
-                if (vm.memberships[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')] == undefined)
+                if (vm.memberships[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')] == undefined || vm.memberships[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')] == '')
                     return;
                 total += vm.memberships[index].treatments[treatment].rate[vehicletype.toLowerCase().replace(' ', '-')];
             }
