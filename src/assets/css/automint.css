@@ -215,7 +215,7 @@ md-sidenav.md-closed.md-locked-open-add-active {
     background: transparent;
     z-index: 999;
     position: fixed;
-    top: 2.4rem;
+    top: 0.4rem;
 }
 
 .am-selected-el-item ~ .am-el-item .el-item,

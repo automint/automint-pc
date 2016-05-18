@@ -23,7 +23,7 @@
                     <tbody md-body>
                         <tr md-row ng-repeat="rate in vm.rates" style="border: 0px">
                             <td md-cell>
-                                <input type="text" ng-attr-id="{{'rType' + rate.focusIndex}}" ng-disabled="rate.fromDb" ng-model="rate.type" class="am-table-input" placeholder="Enter Car Type">
+                                <input type="text" ng-attr-id="{{'rType' + rate.focusIndex}}" ng-change="vm.convertVtToTitleCase(rate)" ng-disabled="rate.fromDb" ng-model="rate.type" class="am-table-input" placeholder="Enter Car Type">
                             </td>
                             <td md-cell>
                                 <input type="number" ng-model="rate.value" class="am-table-input" placeholder="Enter Rate">

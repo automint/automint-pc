@@ -35,6 +35,7 @@
         vm.changeNameLabel = changeNameLabel;
         vm.isAddOperation = isAddOperation;
         vm.convertNameToTitleCase = convertNameToTitleCase;
+        vm.convertVtToTitleCase = convertVtToTitleCase;
         
         //  default execution steps
         if (treatmentName == '' || treatmentName == undefined) {
@@ -47,6 +48,10 @@
         getVehicleTypes();
         
         //  function definitions
+        
+        function convertVtToTitleCase(rate) {
+            rate.type = utils.convertToTitleCase(rate.type);
+        }
         
         function convertNameToTitleCase() {
             vm.treatment.name = utils.convertToTitleCase(vm.treatment.name);
