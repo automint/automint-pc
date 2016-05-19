@@ -34,10 +34,10 @@ gulp.task('clean', function() {
 
 gulp.task('root-dir-files', function() {
     gulp.src('../src/index.html')
-        .pipe(minifyInline())
+        /*.pipe(minifyInline())
         .pipe(htmlmin({
             collapseWhitespace: true
-        }))
+        }))*/
         .pipe(gulp.dest('app'));
     gulp.src(['../src/*.json', '!../src/typings.json'])
         .pipe(jsonminify())
@@ -51,10 +51,10 @@ gulp.task('app-dir', function() {
         .pipe(uglify())
         .pipe(gulp.dest('app/app'));
     gulp.src('../src/app/**/*.html')
-        .pipe(minifyInline())
+        /*.pipe(minifyInline())
         .pipe(htmlmin({
             collapseWhitespace: true
-        }))
+        }))*/
         .pipe(gulp.dest('app/app'));
 });
 
@@ -81,10 +81,10 @@ gulp.task('automint-modules', function() {
         .pipe(jsonminify())
         .pipe(gulp.dest('app/automint_modules'));
     gulp.src('../src/automint_modules/**/*.html')
-        .pipe(minifyInline())
+        /*.pipe(minifyInline())
         .pipe(htmlmin({
             collapseWhitespace: true
-        }))
+        }))*/
         .pipe(gulp.dest('app/automint_modules'));
 });
 
