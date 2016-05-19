@@ -145,6 +145,8 @@
                     problem.rate = (problem.amount*100)/(vm.sTaxSettings.tax + 100);
                     problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
                 } else {
+                    if (!problem.rate)
+                        problem.rate = problem.amount;
                     problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
                     problem.amount = Math.round(problem.rate + problem.tax);
                 }
@@ -685,10 +687,8 @@
                             problem.amount = Math.round(problem.rate + problem.tax);
                         }
                     } else {
-                        if (vm.sTaxSettings.inclusive)
-                            problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
-                        else
-                            problem.amount = (rate == '' || rate == undefined ? problem.amount : rate);
+                        problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
+                        problem.amount = (rate == '' || rate == undefined ? problem.rate : rate);
                     }
                 }
             }
@@ -947,8 +947,7 @@
                     break;
             }
             vm.service.problems = vm.selectedProblems;
-            if (vm.membershipChips)
-                vm.user.memberships = vm.membershipChips;
+            vm.user.memberships = vm.membershipChips;
             switch (vm.serviceType) {
                 case vm.serviceTypeList[1]:
                     vm.packages.forEach(addPkToService);

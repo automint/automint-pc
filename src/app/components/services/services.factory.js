@@ -522,7 +522,7 @@
             var newUserId = ((newUser.id == undefined || newUser.id == '') ? utils.generateUUID(prefixUser) : newUser.id);
             var isVehicleBlank = (newVehicle.manuf == undefined || newVehicle.manuf == '') && (newVehicle.model == undefined || newVehicle.model == '') && (newVehicle.reg == undefined || newVehicle.reg == '');
             delete prefixUser, prefixVehicle;
-            if (newUser.memberships) {
+            if (newUser.memberships != undefined) {
                 var smArray = $.extend([], newUser.memberships);
                 newUser.memberships = {};
                 smArray.forEach(addMembershipsToUser);

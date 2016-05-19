@@ -159,6 +159,8 @@
                     problem.rate = (problem.amount*100)/(vm.sTaxSettings.tax + 100);
                     problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
                 } else {
+                    if (!problem.rate)
+                        problem.rate = problem.amount;
                     problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
                     problem.amount = Math.round(problem.rate + problem.tax);
                 }
@@ -657,7 +659,7 @@
                 vm.vehicle.reg = found[0].reg;
                 vm.vehicle.manuf = found[0].manuf;
                 vm.vehicle.model = found[0].model;
-                vm.vehicle.type = (found[0].type == undefined) ? vm.vehicleTypeList[0] : found[0].type;
+                vm.vehicle.type = (found[0].type == undefined || found[0].type == '') ? vm.vehicleTypeList[0] : found[0].type;
                 changeVehicleRegLabel();
                 autofillVehicle = true;
             } else
@@ -788,10 +790,8 @@
                             problem.amount = Math.round(problem.rate + problem.tax);
                         }
                     } else {
-                        if (vm.sTaxSettings.inclusive)
-                            problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
-                        else
-                            problem.amount = (rate == '' || rate == undefined ? problem.amount : rate);
+                        problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
+                        problem.amount = (rate == '' || rate == undefined ? problem.rate : rate);
                     }
                 }
             }
@@ -1052,8 +1052,7 @@
             var options = {
                 isLastInvoiceNoChanged: (vm.service.invoiceno == olInvoiceNo)
             }
-            if (vm.membershipChips)
-                vm.user.memberships = vm.membershipChips;
+            vm.user.memberships = vm.membershipChips;
             switch (vm.serviceType) {
                 case vm.serviceTypeList[1]:
                     vm.packages.forEach(addPkToService);

@@ -117,7 +117,7 @@
                     <div layout="row" layout-align="start center"  layout-margin>
                         <md-icon class="md-accent">card_membership</md-icon>
                         <div layout="column" layout-align="start" flex>
-                            <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-require-match="true">
+                            <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-on-remove="vm.OnRemoveMembershipChip()" md-require-match="true">
                                 <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
                                     <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
                                 </md-autocomplete>

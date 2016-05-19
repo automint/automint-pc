@@ -377,7 +377,7 @@
                 customer.vehicles[utils.generateUUID(prefixVehicle)] = vehicle;
             }
             
-            if (customer.memberships) {
+            if (customer.memberships != undefined) {
                 var smArray = $.extend([], customer.memberships);
                 customer.memberships = {};
                 smArray.forEach(addMembershipsToUser);
