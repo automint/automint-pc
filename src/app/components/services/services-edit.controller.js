@@ -9,9 +9,11 @@
 
 (function() {
     angular.module('automintApp')
-        .controller('amCtrlSeUI', ServiceEditController);
+        .controller('amCtrlSeUI', ServiceEditController)
+        .controller('amCtrlMeD', MembershipEditDialogController);
 
     ServiceEditController.$inject = ['$state', '$q', '$log', '$filter', '$mdEditDialog', '$mdDialog', 'utils', 'amServices'];
+    MembershipEditDialogController.$inject = ['$mdDialog', '$filter', 'membership', 'treatments'];
 
     /*
     ====== NOTE =======
@@ -202,7 +204,7 @@
             if (chipIndex < 0)
                 return;
             $mdDialog.show({
-                controller: MembershipEditDialogController,
+                controller: 'amCtrlMeD',
                 controllerAs: 'vm',
                 templateUrl: 'app/components/services/service_membership.edit-template.html',
                 parent: angular.element(document.body),
@@ -317,7 +319,7 @@
             }
             function IsExpired() {
                 var e = true;
-                membership.treatments.forEach(it);
+                chip.treatments.forEach(it);
                 return e;
                 
                 function it(t) {
@@ -338,142 +340,6 @@
 
             function onTreatmentDeselected(item) {
                 item.checked = false;
-            }
-        }
-
-        function MembershipEditDialogController($mdDialog, membership, treatments) {
-            var editMsVm = this;
-
-            editMsVm.treatment = {
-                details: '',
-                rate: ''
-            };
-            editMsVm.membership = {
-                name: membership.name,
-                occurences: membership.occurences,
-                duration: membership.duration
-            };
-            editMsVm.selectedTreatments = [];
-            editMsVm.treatments = treatments;
-            editMsVm.confirmDialog = confirmDialog;
-            editMsVm.treatmentQuerySearch = treatmentQuerySearch;
-            editMsVm.finalizeNewTreatment = finalizeNewTreatment;
-            editMsVm.updateTreatmentDetails = updateTreatmentDetails;
-
-            loadDefaultOccDur();
-            loadMemberships();
-
-            function loadMemberships() {
-                membership.treatments.forEach(iterateTreatments);
-
-                function iterateTreatments(treatment) {
-                    var found = $filter('filter')(editMsVm.treatments, {
-                        name: treatment.name
-                    }, true);
-
-                    if (found.length == 1) {
-                        found[0].given.occurences = treatment.given.occurences;
-                        found[0].given.duration = treatment.given.duration;
-                        found[0].used.occurences = treatment.used.occurences;
-                        found[0].used.duration = treatment.used.duration;
-                        editMsVm.selectedTreatments.push(found[0]);
-                    } else {
-                        editMsVm.treatments.push(treatment);
-                        editMsVm.selectedTreatments.push(editMsVm.treatments[editMsVm.treatments.length - 1]);
-                    }
-                }
-            }
-            
-            function updateTreatmentDetails() {
-                var found = $filter('filter')(editMsVm.treatments, {
-                    name: editMsVm.treatment.details
-                });
-                if (found.length == 1 && found[0].name == editMsVm.treatment.details) {
-                    editMsVm.treatment.occurences = found[0].given.occurences;
-                    editMsVm.treatment.duration = found[0].given.duration;
-                } else {
-                    editMsVm.treatment.occurences = editMsVm.membership.occurences
-                    editMsVm.treatment.duration = editMsVm.membership.duration;
-                }
-            }
-            
-            //  query search for treatments [autocomplete]
-            function treatmentQuerySearch() {
-                var tracker = $q.defer();
-                var results = (editMsVm.treatment.details ? editMsVm.treatments.filter(createFilterForTreatments(editMsVm.treatment.details)) : editMsVm.treatments);
-
-                return results;
-            }
-
-            //  create filter for users' query list
-            function createFilterForTreatments(query) {
-                var lcQuery = angular.lowercase(query);
-                return function filterFn(item) {
-                    return (angular.lowercase(item.name).indexOf(lcQuery) === 0);
-                }
-            }
-            
-            function finalizeNewTreatment(btnClicked) {
-                editMsVm.treatment.details = editMsVm.treatment.details.trim();
-                if (editMsVm.treatment.details != '') {
-                    var found = $filter('filter')(editMsVm.treatments, {
-                        name: editMsVm.treatment.details
-                    });
-                    if (found.length == 1 && found[0].name == editMsVm.treatment.details) {
-                        found[0].checked = true;
-                        found[0].rate = editMsVm.treatment.rate;
-                        found[0].duration = editMsVm.treatment.duration;
-                        found[0].occurences = editMsVm.treatment.occurences;
-                        editMsVm.selectedTreatments.push(found[0]);
-                    } else {
-                        editMsVm.treatments.push({
-                            name: editMsVm.treatment.details,
-                            duration: editMsVm.treatment.duration,
-                            occurences: editMsVm.treatment.occurences,
-                            checked: true
-                        });
-                        editMsVm.selectedTreatments.push(editMsVm.treatments[editMsVm.treatments.length - 1]);
-                    }
-                    editMsVm.treatment.details = '';
-                    editMsVm.treatment.occurences = editMsVm.membership.occurences;
-                    editMsVm.treatment.duration = editMsVm.membership.duration;
-                    angular.element('#new-treatment-details').find('input')[0].focus();
-                }
-                if (btnClicked)
-                    angular.element('#new-treatment-details').find('input')[0].focus();
-            }
-
-            function loadDefaultOccDur() {
-                editMsVm.treatments.forEach(iterateTreatments);
-
-                function iterateTreatments(treatment) {
-                    if (!treatment.given) {
-                        treatment.given = {
-                            occurences: membership.occurences,
-                            duration: membership.duration
-                        }
-                    }
-                    if (!treatment.used) {
-                        treatment.used = {
-                            occurences: 0,
-                            duration: 0
-                        }
-                    }
-                }
-            }
-            
-            function confirmDialog() {
-                membership.treatments = editMsVm.selectedTreatments;
-                membership.selectedTreatments = [];
-                membership.treatments.forEach(makeSelectedTreatments);
-                $mdDialog.hide();
-                
-                function makeSelectedTreatments(treatment) {
-                    if (membership.calculateTOccurenceLeft(treatment) != 0 && membership.calculateTDurationLeft(treatment) != 0) {
-                        treatment.checked = true;
-                        membership.selectedTreatments.push(treatment);
-                    }
-                }
             }
         }
 
@@ -1173,6 +1039,142 @@
         //  !(save successfull)
         function failure(err) {
             utils.showSimpleToast('Failed to update. Please Try Again!');
+        }
+    }
+    
+    function MembershipEditDialogController($mdDialog, $filter, membership, treatments) {
+        var editMsVm = this;
+
+        editMsVm.treatment = {
+            details: '',
+            rate: ''
+        };
+        editMsVm.membership = {
+            name: membership.name,
+            occurences: membership.occurences,
+            duration: membership.duration
+        };
+        editMsVm.selectedTreatments = [];
+        editMsVm.treatments = treatments;
+        editMsVm.confirmDialog = confirmDialog;
+        editMsVm.treatmentQuerySearch = treatmentQuerySearch;
+        editMsVm.finalizeNewTreatment = finalizeNewTreatment;
+        editMsVm.updateTreatmentDetails = updateTreatmentDetails;
+
+        loadDefaultOccDur();
+        loadMemberships();
+
+        function loadMemberships() {
+            membership.treatments.forEach(iterateTreatments);
+
+            function iterateTreatments(treatment) {
+                var found = $filter('filter')(editMsVm.treatments, {
+                    name: treatment.name
+                }, true);
+
+                if (found.length == 1) {
+                    found[0].given.occurences = treatment.given.occurences;
+                    found[0].given.duration = treatment.given.duration;
+                    found[0].used.occurences = treatment.used.occurences;
+                    found[0].used.duration = treatment.used.duration;
+                    editMsVm.selectedTreatments.push(found[0]);
+                } else {
+                    editMsVm.treatments.push(treatment);
+                    editMsVm.selectedTreatments.push(editMsVm.treatments[editMsVm.treatments.length - 1]);
+                }
+            }
+        }
+        
+        function updateTreatmentDetails() {
+            var found = $filter('filter')(editMsVm.treatments, {
+                name: editMsVm.treatment.details
+            });
+            if (found.length == 1 && found[0].name == editMsVm.treatment.details) {
+                editMsVm.treatment.occurences = found[0].given.occurences;
+                editMsVm.treatment.duration = found[0].given.duration;
+            } else {
+                editMsVm.treatment.occurences = editMsVm.membership.occurences
+                editMsVm.treatment.duration = editMsVm.membership.duration;
+            }
+        }
+        
+        //  query search for treatments [autocomplete]
+        function treatmentQuerySearch() {
+            var tracker = $q.defer();
+            var results = (editMsVm.treatment.details ? editMsVm.treatments.filter(createFilterForTreatments(editMsVm.treatment.details)) : editMsVm.treatments);
+
+            return results;
+        }
+
+        //  create filter for users' query list
+        function createFilterForTreatments(query) {
+            var lcQuery = angular.lowercase(query);
+            return function filterFn(item) {
+                return (angular.lowercase(item.name).indexOf(lcQuery) === 0);
+            }
+        }
+        
+        function finalizeNewTreatment(btnClicked) {
+            editMsVm.treatment.details = editMsVm.treatment.details.trim();
+            if (editMsVm.treatment.details != '') {
+                var found = $filter('filter')(editMsVm.treatments, {
+                    name: editMsVm.treatment.details
+                });
+                if (found.length == 1 && found[0].name == editMsVm.treatment.details) {
+                    found[0].checked = true;
+                    found[0].rate = editMsVm.treatment.rate;
+                    found[0].duration = editMsVm.treatment.duration;
+                    found[0].occurences = editMsVm.treatment.occurences;
+                    editMsVm.selectedTreatments.push(found[0]);
+                } else {
+                    editMsVm.treatments.push({
+                        name: editMsVm.treatment.details,
+                        duration: editMsVm.treatment.duration,
+                        occurences: editMsVm.treatment.occurences,
+                        checked: true
+                    });
+                    editMsVm.selectedTreatments.push(editMsVm.treatments[editMsVm.treatments.length - 1]);
+                }
+                editMsVm.treatment.details = '';
+                editMsVm.treatment.occurences = editMsVm.membership.occurences;
+                editMsVm.treatment.duration = editMsVm.membership.duration;
+                angular.element('#new-treatment-details').find('input')[0].focus();
+            }
+            if (btnClicked)
+                angular.element('#new-treatment-details').find('input')[0].focus();
+        }
+
+        function loadDefaultOccDur() {
+            editMsVm.treatments.forEach(iterateTreatments);
+
+            function iterateTreatments(treatment) {
+                if (!treatment.given) {
+                    treatment.given = {
+                        occurences: membership.occurences,
+                        duration: membership.duration
+                    }
+                }
+                if (!treatment.used) {
+                    treatment.used = {
+                        occurences: 0,
+                        duration: 0
+                    }
+                }
+            }
+        }
+        
+        function confirmDialog() {
+            membership.treatments = editMsVm.selectedTreatments;
+            membership.selectedTreatments = [];
+            membership.treatments.forEach(makeSelectedTreatments);
+            $mdDialog.hide();
+            
+            function makeSelectedTreatments(treatment) {
+                if (membership.calculateTOccurenceLeft(treatment) != 0 && membership.calculateTDurationLeft(treatment) != 0) {
+                    treatment.checked = true;
+                    membership.selectedTreatments.push(treatment);
+                }
+            }
         }
     }
 })();
