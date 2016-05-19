@@ -44,12 +44,12 @@
             </tr>
         </thead>
         <tbody md-body>
-            <tr md-row ng-repeat="service in vm.services" ng-click="vm.editService(service)" class="am-select-table-row">
-                <td md-cell>{{service.value.name}}</td>
-                <td md-cell>{{service.value.manuf + ' ' + service.value.model}}<span ng-if="service.value.reg">&nbsp;({{service.value.reg}})</span></td>
-                <td md-cell>{{service.value.date}}</td>
-                <td md-cell>{{service.value.cost}}</td>
-                <td md-cell>{{service.value.status}}</td>
+            <tr md-row ng-repeat="service in vm.services" class="am-select-table-row">
+                <td md-cell ng-click="vm.editService(service)">{{service.value.name}}</td>
+                <td md-cell ng-click="vm.editService(service)">{{service.value.manuf + ' ' + service.value.model}}<span ng-if="service.value.reg">&nbsp;({{service.value.reg}})</span></td>
+                <td md-cell ng-click="vm.editService(service)">{{service.value.date}}</td>
+                <td md-cell ng-click="vm.editService(service)">{{service.value.cost}}</td>
+                <td md-cell ng-click="vm.editService(service)">{{service.value.status}}</td>
                 <td md-cell class="am-datatable-actions view-all-services">
                     <md-button class="invoice md-accent" ng-click="vm.goToInvoice(service)">
                         <span>Invoice</span>

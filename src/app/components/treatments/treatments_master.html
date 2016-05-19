@@ -36,9 +36,9 @@
                             </tr>
                         </thead>
                         <tbody md-body>
-                            <tr md-row ng-repeat="treatment in trVm.treatments | limitTo: trVm.query.limit: (trVm.query.page - 1)*(trVm.query.limit)" ng-click="trVm.editTreatment(treatment.name)" class="am-select-table-row">
-                                <td md-cell>{{treatment.name}}</td>
-                                <td md-cell ng-repeat="type in trVm.vehicletypes">{{trVm.getRate(treatment.rate, type)}}</td>
+                            <tr md-row ng-repeat="treatment in trVm.treatments | limitTo: trVm.query.limit: (trVm.query.page - 1)*(trVm.query.limit)" class="am-select-table-row">
+                                <td md-cell ng-click="trVm.editTreatment(treatment.name)">{{treatment.name}}</td>
+                                <td md-cell ng-click="trVm.editTreatment(treatment.name)" ng-repeat="type in trVm.vehicletypes">{{trVm.getRate(treatment.rate, type)}}</td>
                                 <td md-cell class="am-datatable-actions view-all-customers">
                                     <md-button class="md-icon-button" ng-click="trVm.deleteTreatment(treatment.name)">
                                         <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
