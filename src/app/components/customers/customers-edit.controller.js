@@ -69,6 +69,7 @@
         vm.OnAddMembershipChip = OnAddMembershipChip;
         vm.changeMembershipTab = changeMembershipTab;
         vm.goBack = goBack;
+        vm.OnRemoveMembershipChip = OnRemoveMembershipChip;
         
         //  default execution steps
         
@@ -167,6 +168,10 @@
             function onTreatmentDeselected(item) {
                 item.checked = false;
             }
+        }
+        
+        function OnRemoveMembershipChip() {
+            isMembershipAltered = true;
         }
 
         function OnAddMembershipChip(chip) {
@@ -528,7 +533,7 @@
             userDbInstance.user.email = vm.user.email;
             userDbInstance.user.address = vm.user.address;
             
-            if (vm.membershipChips) {
+            if (vm.membershipChips != undefined) {
                 var smArray = $.extend([], vm.membershipChips);
                 userDbInstance.user.memberships = {};
                 smArray.forEach(addMembershipsToUser);

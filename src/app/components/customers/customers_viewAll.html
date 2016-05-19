@@ -37,8 +37,8 @@
                 <td md-cell ng-click="vm.editCustomer(customer.id)">{{customer.email}}</td>
                 <td md-cell ng-click="vm.editCustomer(customer.id)"><span ng-repeat="vehicle in customer.vehicles">{{vehicle.manuf + ' ' + vehicle.model}}<span ng-if="vehicle.reg">&nbsp;({{vehicle.reg}})</span><span ng-if="customer.vehicles.length > 1 && $index != customer.vehicles.length-1"></span><br></span></td>
                 <td md-cell class="am-datatable-actions view-all-customers">
-                    <md-button class="md-icon-button" ng-click="vm.editCustomer(customer.id)">
-                        <md-icon class="am-icon-button-size">edit</md-icon>
+                    <md-button class="md-icon-button" ng-click="vm.deleteCustomer(customer, $event)">
+                        <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
                     </md-button>
                 </td>
             </tr>

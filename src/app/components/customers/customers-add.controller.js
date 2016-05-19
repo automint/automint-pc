@@ -357,8 +357,7 @@
         //  save to database
         function save() {
             if (!validate()) return;
-            if (vm.membershipChips)
-                vm.user.memberships = vm.membershipChips;
+            vm.user.memberships = vm.membershipChips;
             if (!(vm.vehicle.reg == '' && vm.vehicle.manuf == '' && vm.vehicle.model == '')) {
                 vm.vehicle.reg = vm.vehicle.reg.replace(/\s/g, '');
                 amCustomers.addNewCustomer(vm.user, vm.vehicle).then(successfullSave).catch(failedSave);
