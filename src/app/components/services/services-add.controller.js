@@ -661,6 +661,7 @@
                 vm.vehicle.model = found[0].model;
                 vm.vehicle.type = (found[0].type == undefined || found[0].type == '') ? vm.vehicleTypeList[0] : found[0].type;
                 changeVehicleRegLabel();
+                changeVehicleType();
                 autofillVehicle = true;
             } else
                 setDefaultVehicle();
@@ -673,8 +674,10 @@
             vm.vehicle.reg = '';
             vm.vehicle.manuf = '';
             vm.vehicle.model = '';
-            if (vm.vehicleTypeList.length > 0)
+            if (vm.vehicleTypeList.length > 0) {
                 vm.vehicle.type = vm.vehicleTypeList[0];
+                changeVehicleType();
+            }
             changeVehicleRegLabel();
             autofillVehicle = false;
         }
