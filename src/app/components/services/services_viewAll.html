@@ -44,15 +44,15 @@
             </tr>
         </thead>
         <tbody md-body>
-            <tr md-row ng-repeat="service in vm.services">
-                <td md-cell>{{service.value.name}}</td>
-                <td md-cell>{{service.value.manuf + ' ' + service.value.model}}<span ng-if="service.value.reg">&nbsp;({{service.value.reg}})</span></td>
-                <td md-cell>{{service.value.date}}</td>
-                <td md-cell>{{service.value.cost}}</td>
-                <td md-cell>{{service.value.status}}</td>
-                <td md-cell>
-                    <md-button class="md-icon-button" ng-click="vm.editService(service)">
-                        <md-icon class="am-icon-button-size">edit</md-icon>
+            <tr md-row ng-repeat="service in vm.services" class="am-select-table-row">
+                <td md-cell ng-click="vm.editService(service)">{{service.value.name}}</td>
+                <td md-cell ng-click="vm.editService(service)">{{service.value.manuf + ' ' + service.value.model}}<span ng-if="service.value.reg">&nbsp;({{service.value.reg}})</span></td>
+                <td md-cell ng-click="vm.editService(service)">{{service.value.date}}</td>
+                <td md-cell ng-click="vm.editService(service)">{{service.value.cost}}</td>
+                <td md-cell ng-click="vm.editService(service)">{{service.value.status}}</td>
+                <td md-cell class="am-datatable-actions view-all-services">
+                    <md-button class="invoice md-accent" ng-click="vm.goToInvoice(service)">
+                        <span>Invoice</span>
                     </md-button>
                     <md-button class="md-icon-button" ng-click="vm.deleteService(service)">
                         <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
@@ -63,6 +63,6 @@
     </table>
 </md-table-container>
 
-<md-table-pagination md-limit="vm.query.limit" ng-show="vm.showPaginationBar" md-limit-options="[5, 10, 15, 20]" md-page="vm.query.page" md-total="{{vm.query.total}}" md-on-paginate="vm.getServices" md-page-select></md-table-pagination>
+<md-table-pagination md-limit="vm.query.limit" ng-show="vm.showPaginationBar" md-limit-options="[10, 20, 50, 100]" md-page="vm.query.page" md-total="{{vm.query.total}}" md-on-paginate="vm.getServices" md-page-select></md-table-pagination>
 
-<md-table-pagination md-limit="vm.query.limit" ng-hide="vm.showPaginationBar" md-limit-options="[5, 10, 15, 20]" md-page="vm.displayItemPage" md-total="{{vm.query.total}}" md-page-select></md-table-pagination>
+<md-table-pagination md-limit="vm.query.limit" ng-hide="vm.showPaginationBar" md-limit-options="[10, 20, 50, 100]" md-page="vm.displayItemPage" md-total="{{vm.query.total}}" md-page-select></md-table-pagination>

@@ -2,7 +2,7 @@
  * Controller for View Services module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -56,6 +56,7 @@
         vm.editService = editService;
         vm.deleteService = deleteService;
         vm.changeQueryMode = changeQueryMode;
+        vm.goToInvoice = goToInvoice;
 
         //  default execution steps
         $scope.$watch('vm.displayDataFor', watchDisplayDataFor);
@@ -74,6 +75,7 @@
             }
         }
         
+        //  toggle boolean to indicate searching operation
         function changeQueryMode(bool) {
             vm.isQueryMode = bool;
             if (vm.isQueryMode)
@@ -88,6 +90,7 @@
             }
         }
         
+        //  fill datatable with list of services
         function getServices() {
             vm.showPaginationBar = (vm.serviceQuery == '');
             vm.promise = amServices.getFilteredServices(vm.query.page, vm.query.limit, vm.filter.month, vm.filter.year, vm.serviceQuery).then(success).catch(failure);
@@ -133,6 +136,15 @@
             function failure(err) {
                 utils.showSimpleToast('Service can not be deleted at moment. Please Try Again!');
             }
+        }
+        
+        //  transit to state to view selected invoice
+        function goToInvoice(service) {
+            $state.go('restricted.invoices.view', {
+                userId: service.id,
+                vehicleId: service.value.vehicleId,
+                serviceId: service.value.id
+            });
         }
     }
 })();

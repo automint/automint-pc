@@ -1,6 +1,6 @@
 {
   "name": "Automint",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "CRM by Automint",
   "main": "main.js",
   "scripts": {
@@ -13,5 +13,11 @@
   "private": true,
   "devDependencies": {
     "electron-squirrel-startup": "^0.1.4"
+  },
+  "dependencies": {
+    "base64url": "^1.0.6",
+    "google-auth-library": "^0.9.7",
+    "googleapis": "^5.2.1",
+    "premailer-api": "^1.0.4"
   }
 }

@@ -2,16 +2,18 @@
  * Controller for Edit Service component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
     angular.module('automintApp')
-        .controller('amCtrlSeUI', ServiceEditController);
+        .controller('amCtrlSeUI', ServiceEditController)
+        .controller('amCtrlMeD', MembershipEditDialogController);
 
     ServiceEditController.$inject = ['$state', '$q', '$log', '$filter', '$mdEditDialog', '$mdDialog', 'utils', 'amServices'];
+    MembershipEditDialogController.$inject = ['$mdDialog', '$filter', 'membership', 'treatments'];
 
     /*
     ====== NOTE =======
@@ -27,7 +29,8 @@
 
         //  vm assignments to keep track of UI related elements
         vm.label_userMobile = 'Enter Mobile Number:';
-        vm.label_userEmail = 'Enter Email Address:';
+        vm.label_userEmail = 'Enter Email:';
+        vm.label_userAddress = 'Enter Address:';
         vm.label_vehicleReg = 'Enter Vehicle Registration Number:';
         vm.label_vehicleManuf = 'Manufacturer:';
         vm.label_vehicleModel = 'Model:';
@@ -36,7 +39,8 @@
             id: '',
             mobile: '',
             name: '',
-            email: ''
+            email: '',
+            address: ''
         };
         vm.vehicle = {
             id: '',
@@ -49,13 +53,24 @@
             date: new Date(),
             odo: 0,
             cost: 0,
+            invoiceno: 1,
             status: '',
             problems: []
-        }
+        };
+        vm.problem = {
+            details: '',
+            rate: '',
+            tax: '',
+            amount: ''
+        };
         vm.manufacturers = [];
         vm.models = [];
         vm.treatments = [];
         vm.selectedProblems = [];
+        vm.selectedPackages = [];
+        vm.allMemberships = [];
+        vm.membershipChips = [];
+        vm.serviceTypeList = ['Treatments', 'Package', 'Membership'];
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -68,21 +83,386 @@
         vm.changeVehicleRegLabel = changeVehicleRegLabel;
         vm.changeVehicleTab = changeVehicleTab;
         vm.changeVehicleType = changeVehicleType;
+        vm.treatmentsQuerySearch = treatmentsQuerySearch;
         vm.onProblemSelected = onProblemSelected;
         vm.onProblemDeselected = onProblemDeselected;
         vm.isAddOperation = isAddOperation;
-        vm.editProblemDetails = editProblemDetails;
-        vm.editProblemRate = editProblemRate;
         vm.changeServiceTab = changeServiceTab;
         vm.updateTreatmentDetails = updateTreatmentDetails;
         vm.finalizeNewProblem = finalizeNewProblem;
         vm.save = save;
+        vm.changeUserAddressLabel = changeUserAddressLabel;
+        vm.queryMembershipChip = queryMembershipChip;
+        vm.OnClickMembershipChip = OnClickMembershipChip;
+        vm.calculateCost = calculateCost;
+        vm.OnAddMembershipChip = OnAddMembershipChip;
+        vm.navigateToSubscriptMembership = navigateToSubscriptMembership;
+        vm.goBack = goBack;
+        vm.changeProblemRate = changeProblemRate;
+        vm.changeServiceTax = changeServiceTax;
+        vm.OnServiceTaxEnabledChange = OnServiceTaxEnabledChange;
+        vm.convertPbToTitleCase = convertPbToTitleCase;
+        vm.calculateTax = calculateTax;
 
         //  default execution steps
         getVehicleTypes();
         changeServiceTab(true);
+        getPackages();
+        getMemberships();
 
         //  function definitions
+        
+        function convertPbToTitleCase() {
+            vm.problem.details = utils.convertToTitleCase(vm.problem.details);
+        }
+        
+        function OnServiceTaxEnabledChange() {
+            vm.service.problems.forEach(iterateProblems);
+            calculatePackageTax();
+            
+            function iterateProblems(problem) {
+                changeProblemRate(problem, true);
+            }
+        }
+        
+        function changeServiceTax() {
+            vm.service.problems.forEach(iterateProblems);
+            calculatePackageTax();
+            changeProblemRate(vm.problem, true);
+            
+            function iterateProblems(problem) {
+                changeProblemRate(problem, true);
+            }
+        }
+        
+        function changeProblemRate(problem, force) {
+            if (vm.sTaxSettings.applyTax) {
+                if (vm.sTaxSettings.inclusive) {
+                    if (!problem.amount) {
+                        var r = parseFloat(problem.rate)
+                        problem.amount = Math.round(r + (r*vm.sTaxSettings.tax/100));
+                    }
+                    problem.rate = (problem.amount*100)/(vm.sTaxSettings.tax + 100);
+                    problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
+                } else {
+                    if (!problem.rate)
+                        problem.rate = problem.amount;
+                    problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
+                    problem.amount = Math.round(problem.rate + problem.tax);
+                }
+            } else if (force) {
+                if (vm.sTaxSettings.inclusive) {
+                    if (!problem.amount)
+                        problem.amount = parseFloat(problem.rate);
+                    problem.rate = problem.amount;
+                } else
+                    problem.amount = problem.rate;
+            }
+        }
+        
+        function getServiceTaxSettings() {
+            amServices.getServiceTaxSettings().then(success).catch(failure);
+            
+            function success(res) {
+                vm.sTaxSettings = res;
+                vm.orgApplyTax = res.applyTax;
+                if (vm.service.serviceTax != undefined) {
+                    vm.sTaxSettings.applyTax = vm.service.serviceTax.applyTax;
+                    vm.sTaxSettings.tax = vm.service.serviceTax.tax;
+                    if (!res.applyTax)
+                        vm.orgApplyTax = vm.service.serviceTax.applyTax;
+                    vm.sTaxSettings.inclusive = (vm.service.serviceTax.taxIncType == 'inclusive') ? true : false;
+                }
+                vm.service.problems.forEach(iterateProblems);
+                changeServiceTax();
+                OnServiceTaxEnabledChange();
+                
+                function iterateProblems(problem) {
+                    if (problem.checked)
+                        delete problem.amount;
+                }
+            }
+            
+            function failure(err) {
+                vm.sTaxSettings = {};
+            }
+        }
+        
+        function goBack() {
+            $state.go('restricted.services.all');
+        }
+        
+        function addMembershipChip(chip) {
+            vm.membershipChips.push(chip);
+            OnAddMembershipChip(chip);
+        }
+        
+        function navigateToSubscriptMembership() {
+            vm.userTab = true;
+        }
+
+        function OnClickMembershipChip(event) {
+            var chipIndex = angular.element(event.currentTarget).controller('mdChips').selectedChip;
+            if (chipIndex < 0)
+                return;
+            $mdDialog.show({
+                controller: 'amCtrlMeD',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/services/service_membership.edit-template.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    membership: vm.membershipChips[chipIndex],
+                    treatments: vm.treatments
+                },
+                clickOutsideToClose: true
+            }).then(changeMembershipChip).catch(changeMembershipChip);
+            
+            function changeMembershipChip(obj) {
+                $log.info('Changes Saved');
+            }
+        }
+        
+        function adjustExistingMembership(membership) {
+            var m = $.extend({}, membership.treatments, false);
+            membership.treatments = [];
+            Object.keys(m).forEach(iterateTreatments);
+            membership.selectedTreatments = [];
+            membership.treatments.forEach(makeSelectedTreatments);
+            membership.expandMembership = expandMembership;
+            membership.onTreatmentSelected = onTreatmentSelected;
+            membership.onTreatmentDeselected = onTreatmentDeselected;
+            membership.calculateTOccurenceLeft = calculateTOccurenceLeft;
+            membership.calculateTDurationLeft = calculateTDurationLeft;
+            membership.IsExpired = IsExpired;
+            delete m;
+            
+            function iterateTreatments(treatment) {
+                delete treatment['$$hashKey'];
+                m[treatment].name = treatment;
+                membership.treatments.push(m[treatment]);
+            }
+            
+            function expandMembership() {
+                membership.expanded = (membership.expanded == undefined ? true : !membership.expanded);
+            }
+            function makeSelectedTreatments(treatment) {
+                if (calculateTOccurenceLeft(treatment) != 0 && calculateTDurationLeft(treatment) != 0) {
+                    treatment.checked = true;
+                    membership.selectedTreatments.push(treatment);
+                }
+            }
+            function IsExpired() {
+                var e = true;
+                membership.treatments.forEach(it);
+                return e;
+                
+                function it(t) {
+                    if (calculateTOccurenceLeft(t) != 0 && calculateTDurationLeft(t) != 0) {
+                        e = false;
+                    }
+                }
+            }
+            function calculateTOccurenceLeft(item) {
+                return (item.given.occurences - item.used.occurences);
+            }
+            function calculateTDurationLeft(item) {
+                return (item.given.duration - item.used.duration);
+            }
+            function onTreatmentSelected(item) {
+                item.checked = true;
+            }
+
+            function onTreatmentDeselected(item) {
+                item.checked = false;
+            }
+        }
+
+        function OnAddMembershipChip(chip) {
+            var m = $.extend({}, chip.treatments, false);
+            chip.treatments = [];
+            Object.keys(m).forEach(iterateTreatments);
+            chip.selectedTreatments = [];
+            chip.startdate = moment().format();
+            chip.treatments.forEach(makeSelectedTreatments);
+            chip.expandMembership = expandMembership;
+            chip.onTreatmentSelected = onTreatmentSelected;
+            chip.onTreatmentDeselected = onTreatmentDeselected;
+            chip.calculateTOccurenceLeft = calculateTOccurenceLeft;
+            chip.calculateTDurationLeft = calculateTDurationLeft;
+            chip.IsExpired = IsExpired;
+            delete m;
+            
+            function iterateTreatments(treatment) {
+                delete treatment['$$hashKey'];
+                m[treatment].given = {
+                    occurences: m[treatment].occurences,
+                    duration: m[treatment].duration
+                }
+                m[treatment].used = {
+                    occurences: 0,
+                    duration: 0
+                }
+                delete m[treatment].occurences;
+                delete m[treatment].duration;
+                m[treatment].name = treatment;
+                m[treatment].checked = false;
+                chip.treatments.push(m[treatment]);
+            }
+
+            function expandMembership() {
+                chip.expanded = (chip.expanded == undefined ? true : !chip.expanded);
+            }
+            function makeSelectedTreatments(treatment) {
+                if (calculateTOccurenceLeft(treatment) != 0 && calculateTDurationLeft(treatment) != 0) {
+                    treatment.checked = true;
+                    chip.selectedTreatments.push(treatment);
+                }
+            }
+            function IsExpired() {
+                var e = true;
+                chip.treatments.forEach(it);
+                return e;
+                
+                function it(t) {
+                    if (calculateTOccurenceLeft(t) != 0 && calculateTDurationLeft(t) != 0) {
+                        e = false;
+                    }
+                }
+            }
+            function calculateTOccurenceLeft(item) {
+                return (item.given.occurences - item.used.occurences);
+            }
+            function calculateTDurationLeft(item) {
+                return (item.given.duration - item.used.duration);
+            }
+            function onTreatmentSelected(item) {
+                item.checked = true;
+            }
+
+            function onTreatmentDeselected(item) {
+                item.checked = false;
+            }
+        }
+
+        function queryMembershipChip() {
+            var tracker = $q.defer();
+            var results = (vm.membershipChipText) ? vm.allMemberships.filter(createFilterForMemberships(vm.membershipChipText)) : vm.allMemberships;
+
+            return results;
+
+            function createFilterForMemberships(query) {
+                var lcQuery = angular.lowercase(query);
+                return function filterFn(item) {
+                    return (angular.lowercase(item.name).indexOf(lcQuery) >= 0);
+                }
+            }
+        }
+        
+        function getMemberships() {
+            amServices.getMemberships().then(success).catch(failure);
+            
+            function success(res) {
+                vm.allMemberships = res.memberships;
+            }
+
+            function failure(error) {
+                vm.allMemberships = [];
+            }
+        }
+        
+        function calculatePackageTax() {
+            if (vm.packages)
+                vm.packages.forEach(iteratePackages);
+                
+            function iteratePackages(package) {
+                package.treatments.forEach(iterateTreatments);
+                
+                function iterateTreatments(treatment) {
+                    package.changeTreatmentTax(treatment, true);
+                }
+            }
+        }
+
+        //  get packages
+        function getPackages() {
+            vm.packagePromise = amServices.getPackages().then(success).catch(failure);
+
+            function success(res) {
+                vm.packages = [];
+                res.forEach(iteratePackages);
+
+                function iteratePackages(package) {
+                    var treatments = [];
+                    Object.keys(package.treatments).forEach(iterateTreatments);
+                    package.treatments = treatments;
+                    package.selectedTreatments = [];
+                    package.onTreatmentSelected = onTreatmentSelected;
+                    package.onTreatmentDeselected = onTreatmentDeselected;
+                    package.calculatePackageTotal = calculatePackageTotal;
+                    package.changeTreatmentTax = changeTreatmentTax;
+                    package.expandPackage = expandPackage;
+                    vm.packages.push(package);
+                    delete treatments;
+
+                    function expandPackage() {
+                        package.expanded = (package.expanded == undefined ? true : !package.expanded);
+                    }
+
+                    function calculatePackageTotal() {
+                        var total = 0;
+                        package.selectedTreatments.forEach(it);
+                        package.total = total;
+                        return total;
+
+                        function it(t) {
+                            total += t.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+                        }
+                    }
+                    
+                    function changeTreatmentTax(treatment, force) {
+                        var cvt = vm.vehicle.type.toLowerCase().replace(' ', '-');
+                        if (vm.sTaxSettings.applyTax) {
+                            if (treatment.tax == undefined)
+                                treatment.tax = {};
+                            if (vm.sTaxSettings.inclusive) {
+                                treatment.rate[cvt] = (treatment.amount[cvt]*100)/(vm.sTaxSettings.tax + 100);
+                                treatment.tax[cvt] = (treatment.rate[cvt]*vm.sTaxSettings.tax/100);
+                            } else {
+                                treatment.tax[cvt] = (treatment.rate[cvt]*vm.sTaxSettings.tax/100);
+                                treatment.amount[cvt] = Math.round(treatment.rate[cvt] + treatment.tax[cvt]);
+                            }
+                        } else if (force) {
+                            if (vm.sTaxSettings.inclusive)
+                                treatment.rate[cvt] = treatment.amount[cvt];
+                            else
+                                treatment.amount[cvt] = treatment.rate[cvt];
+                        }
+                    }
+
+                    function iterateTreatments(treatment) {
+                        treatments.push({
+                            name: treatment,
+                            rate: package.treatments[treatment].rate,
+                            amount: $.extend({}, package.treatments[treatment].rate),
+                            checked: false
+                        });
+                    }
+
+                    function onTreatmentSelected(item) {
+                        item.checked = true;
+                    }
+
+                    function onTreatmentDeselected(item) {
+                        item.checked = false;
+                    }
+                }
+            }
+
+            function failure(err) {
+                vm.packages = [];
+            }
+        }
         
         //  get vehicle types from database
         function getVehicleTypes() {
@@ -98,7 +478,6 @@
             }
             
             function failure(err) {
-                vm.vehicleTypeList.push('Default');
                 getDetails();
             }
         }
@@ -113,21 +492,88 @@
                 vm.user.name = res.name;
                 vm.user.email = res.email;
                 vm.user.mobile = res.mobile;
+                vm.user.address = res.address;
                 changeUserEmailLabel();
                 changeUserMobileLabel();
+                changeUserAddressLabel();
+                if (res.memberships)
+                    Object.keys(res.memberships).forEach(iterateMemberships);
                 vm.vehicle.id = $state.params.vehicleId;
                 vm.vehicle.reg = res.vehicle.reg;
                 changeVehicleRegLabel();
                 vm.vehicle.manuf = res.vehicle.manuf;
                 vm.vehicle.model = res.vehicle.model;
                 vm.vehicle.type = res.vehicle.type;
+                if (res.vehicle.service.packages) {
+                    vm.serviceType = vm.serviceTypeList[1];
+                    Object.keys(res.vehicle.service.packages).forEach(iteratePackages);
+                }
+                if (res.vehicle.service.memberships) {
+                    vm.serviceType = vm.serviceTypeList[2];
+                    Object.keys(res.vehicle.service.memberships).forEach(addMemberships);
+                }
                 vm.service.id = $state.params.serviceId;
                 vm.service.date = new Date(res.vehicle.service.date);
                 vm.service.cost = res.vehicle.service.cost;
                 vm.service.odo = res.vehicle.service.odo;
+                vm.service.invoiceno = res.vehicle.service.invoiceno;
                 vm.service.status = res.vehicle.service.status;
+                if (res.vehicle.service.serviceTax != undefined)
+                    vm.service.serviceTax = res.vehicle.service.serviceTax;
                 vm.servicestatus = (res.vehicle.service.status == 'paid');
                 getRegularTreatments(res.vehicle.service.problems);
+                
+                function iterateMemberships(membership) {
+                    res.memberships[membership].name = membership;
+                    vm.membershipChips.push(res.memberships[membership]);
+                    adjustExistingMembership(res.memberships[membership]);
+                }
+                function iteratePackages(package) {
+                    var found = $filter('filter')(vm.packages, {
+                        name: package
+                    }, true);
+                    
+                    if (found.length == 1) {
+                        found[0].checked = true;
+                        Object.keys(res.vehicle.service.packages[package].treatments).forEach(iterateTreatments);
+                        vm.selectedPackages.push(found[0]);
+                        
+                        function iterateTreatments(treatment) {
+                            var ft = $filter('filter')(found[0].treatments, {
+                                name: treatment
+                            }, true);
+                            
+                            if (ft.length == 1) {
+                                ft[0].checked = true;
+                                found[0].selectedTreatments.push(ft[0]);
+                            }
+                        }
+                    } else {
+                        $log.info('Something with package');
+                    }
+                }
+                function addMemberships(membership) {
+                    var found = $filter('filter')(vm.membershipChips, {
+                        name: membership
+                    }, true);
+                    
+                    if (found.length == 1) {
+                        found[0].checked = true;
+                        Object.keys(res.vehicle.service.memberships[membership].treatments).forEach(iterateTreatments);
+                        
+                        function iterateTreatments(treatment) {
+                            var ft = $filter('filter')(found[0].treatments, {
+                                name: treatment
+                            }, true);
+                            
+                            if (ft.length == 1) {
+                                ft[0].checked = true;
+                                --ft[0].used.occurences;
+                                found[0].selectedTreatments.push(ft[0]);
+                            }
+                        }
+                    }
+                }
             }
             function failure(err) {
                 utils.showSimpleToast('Something went wrong!');
@@ -222,7 +668,7 @@
         //  replace all the treatment values with updated vehicle type
         function changeVehicleType() {
             vm.service.problems.forEach(iterateProblem);
-            updateCost();
+            calculatePackageTax();
             
             function iterateProblem(problem) {
                 var found = $filter('filter')(vm.treatments, {
@@ -230,8 +676,20 @@
                 });
                 if (found.length == 1) {
                     var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
-                    var defaultRate = found[0].rate['default'];
-                    problem.rate = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                    if (vm.sTaxSettings.applyTax) {
+                        if (vm.sTaxSettings.inclusive) {
+                            problem.amount = (rate == '' || rate == undefined ? problem.amount : rate);
+                            problem.rate = (problem.amount*100)/(vm.sTaxSettings.tax + 100);
+                            problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
+                        } else {
+                            problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
+                            problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
+                            problem.amount = Math.round(problem.rate + problem.tax);
+                        }
+                    } else {
+                        problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
+                        problem.amount = (rate == '' || rate == undefined ? problem.rate : rate);
+                    }
                 }
             }
         }
@@ -259,7 +717,11 @@
         }
         function changeUserEmailLabel(force) {
             vm.largeUserEmailLabel = (force != undefined || vm.user.email != ''); 
-            vm.label_userEmail = vm.largeUserEmailLabel ? 'Email:' : 'Enter Email Address:';
+            vm.label_userEmail = vm.largeUserEmailLabel ? 'Email:' : 'Enter Email:';
+        }
+        function changeUserAddressLabel(force) {
+            vm.isUserAddress = (force != undefined || vm.user.address != '');
+            vm.label_userAddress = vm.isUserAddress ? 'Address:' : 'Enter Address:';
         }
         function changeVehicleRegLabel(force) {
             vm.largeVehicleRegLabel = (force != undefined || vm.vehicle.reg != ''); 
@@ -286,6 +748,7 @@
         function loadTreatmentIntoProblems(existingProblems) {
             vm.treatments.forEach(iterateTreatment);
             existingProblems.forEach(iterateProblem);
+            getServiceTaxSettings();
             
             function iterateProblem(problem) {
                 var found = $filter('filter')(vm.service.problems, {
@@ -294,11 +757,15 @@
                 if (found.length == 1) {
                     found[0].checked = true;
                     found[0].rate = problem.rate;
+                    found[0].amount = Math.round(problem.rate);
+                    found[0].tax = problem.tax;
                     vm.selectedProblems.push(found[0]);
                 } else {
                     vm.service.problems.push({
                         details: problem.details,
                         rate: problem.rate,
+                        amount: Math.round(problem.rate),
+                        tax: problem.tax,
                         checked: true
                     });
                     vm.selectedProblems.push(vm.service.problems[vm.service.problems.length - 1]);
@@ -309,6 +776,7 @@
                 vm.service.problems.push({
                     details: treatment.name,
                     rate: treatment.rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')],
+                    amount: treatment.rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')],
                     checked: false
                 });
             }
@@ -317,56 +785,74 @@
         //  problem table listeners [BEGIN]
         function onProblemSelected(item) {
             item.checked = true;
-            updateCost();
+            changeProblemRate(item);
         }
         function onProblemDeselected(item) {
             item.checked = false;
-            updateCost();
+            changeProblemRate(item);
         }
         //  problem table listeners [END]
+        
+        //  query search for problems [autocomplete]
+        function treatmentsQuerySearch() {
+            var tracker = $q.defer();
+            var results = (vm.problem.details ? vm.treatments.filter(createFilterForTreatments(vm.problem.details)) : vm.treatments);
+            
+            return results;
+        }
 
-        //  show edit dialog box to edit problem details in run time
-        function editProblemDetails(event, item) {
-            event.stopPropagation();
-            $mdEditDialog.small({
-                messages: {
-                   test: 'Write your product or issue!'
-                },
-                modelValue: item.details,
-                placeholder: 'Enter Product or Issue',
-                save: function(input) {
-                    item.details = input.$modelValue;
-                },
-                targetEvent: event
-            });
+        //  create filter for treatments' query list
+        function createFilterForTreatments(query) {
+            var lcQuery = angular.lowercase(query);
+            return function filterFn(item) {
+                return (angular.lowercase(item.name).indexOf(lcQuery) >= 0);
+            }
         }
         
-        //  show edit dialog box to edit problem rate in run time
-        function editProblemRate(event, item) {
-            event.stopPropagation();
-            $mdEditDialog.small({
-                messages: {
-                   test: 'Enter Rate for ' + item.details + '!'
-                },
-                modelValue: item.rate,
-                placeholder: 'Enter Rate',
-                save: function(input) {
-                    item.rate = input.$modelValue;
-                    updateCost();                    
-                },
-                type: 'number',
-                targetEvent: event
-            });
-        }
-        
-        //  update cost based on inserted and enabled problems
-        function updateCost() {
+        function calculateCost() {
             var totalCost = 0;
             vm.service.problems.forEach(iterateProblem);
+            if (vm.serviceType == vm.serviceTypeList[1]) {
+                vm.packages.forEach(iteratePackages);
+            }
             vm.service.cost = totalCost;
-            
+            return totalCost;
+
             function iterateProblem(element) {
-                totalCost += (element.rate ? element.rate * (element.checked ? 1 : 0) : 0);
+                totalCost += parseInt(Math.round(element.amount ? (element.amount * (element.checked ? 1 : 0)) : 0));
+            }
+            function iteratePackages(package) {
+                if (!package.checked)
+                    return;
+                package.selectedTreatments.forEach(ipt);
+            }
+            function ipt(treatment) {
+                totalCost += treatment.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+            }
+        }
+        
+        function calculateTax() {
+            var totalTax = 0.0;
+            vm.service.problems.forEach(iterateProblems);
+            if (vm.serviceType == vm.serviceTypeList[1])
+                vm.packages.forEach(iteratePackages);
+            return totalTax;
+            
+            function iterateProblems(problem) {
+                if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !problem.tax || !problem.checked)
+                    return;
+                totalTax += parseFloat(problem.tax.toFixed(2));
+            }
+            
+            function iteratePackages(package) {
+                if (!package.checked)
+                    return;
+                package.selectedTreatments.forEach(ipt);
+            }
+            function ipt(treatment) {
+                if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !treatment.tax)
+                    return;
+                totalTax += parseFloat(treatment.tax[vm.vehicle.type.toLowerCase().replace(' ', '-')].toFixed(2));
             }
         }
         
@@ -378,18 +864,22 @@
                 });
                 if (found.length == 1) {
                     found[0].checked = true;
+                    found[0].rate = (vm.sTaxSettings && vm.sTaxSettings.applyTax) ? vm.problem.rate : vm.problem.amount;
+                    found[0].tax = vm.problem.tax;
+                    found[0].amount = vm.problem.amount;
                     vm.selectedProblems.push(found[0]);
                 } else {
                     vm.service.problems.push({
                         details: vm.problem.details,
-                        rate: vm.problem.rate,
+                        rate: (vm.sTaxSettings && vm.sTaxSettings.applyTax) ? vm.problem.rate : vm.problem.amount,
+                        tax: vm.problem.tax,
+                        amount: vm.problem.amount,
                         checked: true
                     });
                     vm.selectedProblems.push(vm.service.problems[vm.service.problems.length - 1]);
                 }
-                updateCost();
                 vm.problem.details = '';
-                vm.problem.cost = '';
+                vm.problem.amount = '';
                 vm.problem.rate = '';
                 $('#new-problem-details').focus();
             }
@@ -399,21 +889,33 @@
             var found = $filter('filter')(vm.treatments, {
                 name: vm.problem.details
             });
+            vm.problem.amount = (vm.problem.rate == '') ? 0 : vm.problem.rate;
             if (found.length == 1) {
                 var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
-                var defaultRate = found[0].rate['default'];
-                vm.problem.rate = (rate == '' ? (defaultRate == '' ? 0 : defaultRate) : rate);
+                vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
+                if (vm.sTaxSettings.applyTax) {
+                    if (vm.sTaxSettings.inclusive) {
+                        vm.problem.rate = (vm.problem.amount*100)/(vm.sTaxSettings.tax + 100);
+                        vm.problem.tax = (vm.problem.rate*vm.sTaxSettings.tax/100);
+                    } else {
+                        vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
+                        vm.problem.tax = (vm.problem.rate*vm.sTaxSettings.tax/100);
+                        vm.problem.amount = Math.round(vm.problem.rate + vm.problem.tax);
+                    }
+                } else {
+                    if (vm.sTaxSettings.inclusive)
+                        vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
+                    else
+                        vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
+                }
             } else
                 vm.problem.rate = '';
-            vm.problem.cost = (vm.problem.rate == '') ? 0 : vm.problem.rate;
-            updateCost();
         }
         
         function validate() {
             var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
-            var isServiceBlank = (vm.service.problems.length == 0) && (vm.service.cost == undefined || vm.service.cost == 0) && (vm.service.odo == undefined || vm.service.odo == 0);
             
-            if (!isServiceBlank && isVehicleBlank) {
+            if (isVehicleBlank) {
                 changeVehicleTab(true);
                 utils.showSimpleToast('Please Enter At Least One Vehicle Detail');
                 return false;
@@ -424,15 +926,106 @@
         //  save to database
         function save() {
             if (!validate()) return;
-            vm.service.date = moment(vm.service.date).format();
+            switch (vm.serviceType) {
+                case vm.serviceTypeList[0]:
+                    if (checkTreatments() == false) {
+                        utils.showSimpleToast('Please select treatment(s)');
+                        return;
+                    }
+                    break;
+                case vm.serviceTypeList[1]:
+                    if (checkPackage() == false && checkTreatments() == false) {
+                        utils.showSimpleToast('Please select package(s) or treatment(s)');
+                        return;
+                    }
+                    break;
+                case vm.serviceTypeList[2]:
+                    if (checkMembership() == false && checkTreatments() == false) {
+                        utils.showSimpleToast('Please select membership(s) or treatment(s)');
+                        return;
+                    }
+                    break;
+            }
             vm.service.problems = vm.selectedProblems;
-            vm.service.problems.forEach(iterateProblems);
+            vm.user.memberships = vm.membershipChips;
+            switch (vm.serviceType) {
+                case vm.serviceTypeList[1]:
+                    vm.packages.forEach(addPkToService);
+                    break;
+                case vm.serviceTypeList[2]:
+                    vm.membershipChips.forEach(addMsToService);
+                    break;
+            }
             vm.service.status = vm.servicestatus ? 'paid' : 'billed';
+            vm.service.date = moment(vm.service.date).format();
+            vm.service.problems.forEach(iterateProblems);
+            if (vm.sTaxSettings != undefined) {
+                vm.service.serviceTax = {
+                    applyTax: vm.sTaxSettings.applyTax,
+                    taxIncType: (vm.sTaxSettings.inclusive) ? 'inclusive' : 'exclusive',
+                    tax: vm.sTaxSettings.tax
+                };
+            }
             amServices.saveService(vm.user, vm.vehicle, vm.service).then(success).catch(failure);
             
+            function addMsToService(membership) {
+                if (!membership.checked)
+                    return;
+                if (!vm.service.memberships)
+                    vm.service.memberships = [];
+                vm.service.memberships.push({
+                    name: membership.name,
+                    treatments: membership.treatments,
+                    rate: membership.total
+                });
+            }
+            function addPkToService(package) {
+                if (!package.checked)
+                    return;
+                if (!vm.service.packages)
+                    vm.service.packages = [];
+                vm.service.packages.push({
+                    name: package.name,
+                    treatments: package.treatments,
+                    rate: package.total
+                });
+            }
             function iterateProblems(problem) {
+                if (!vm.sTaxSettings || (vm.sTaxSettings && !vm.sTaxSettings.applyTax))
+                    problem.rate = problem.amount;
                 delete problem.checked;
+                delete problem['amount'];
                 delete problem['$$hashKey'];
+            }
+            function checkPackage() {
+                var isPackagesSelected = false;
+                for (var i = 0; i < vm.packages.length; i++) {
+                    if (vm.packages[i].checked) {
+                        isPackagesSelected = true;
+                        break;
+                    }
+                }
+                return isPackagesSelected;
+            }
+            function checkMembership() {
+                var isMembershipsSelected = false;
+                for (var i = 0; i < vm.membershipChips.length; i++) {
+                    if (vm.membershipChips[i].checked) {
+                        isMembershipsSelected = true;
+                        break;
+                    }
+                }
+                return isMembershipsSelected;
+            }
+            function checkTreatments() {
+                var isTreatmentsSelected = false;
+                for (var i = 0; i < vm.service.problems.length; i++) {
+                    if (vm.service.problems[i].checked) {
+                        isTreatmentsSelected = true;
+                        break;
+                    }
+                }
+                return isTreatmentsSelected;
             }
         }
 
@@ -445,6 +1038,142 @@
         //  !(save successfull)
         function failure(err) {
             utils.showSimpleToast('Failed to update. Please Try Again!');
+        }
+    }
+    
+    function MembershipEditDialogController($mdDialog, $filter, membership, treatments) {
+        var editMsVm = this;
+
+        editMsVm.treatment = {
+            details: '',
+            rate: ''
+        };
+        editMsVm.membership = {
+            name: membership.name,
+            occurences: membership.occurences,
+            duration: membership.duration
+        };
+        editMsVm.selectedTreatments = [];
+        editMsVm.treatments = treatments;
+        editMsVm.confirmDialog = confirmDialog;
+        editMsVm.treatmentQuerySearch = treatmentQuerySearch;
+        editMsVm.finalizeNewTreatment = finalizeNewTreatment;
+        editMsVm.updateTreatmentDetails = updateTreatmentDetails;
+
+        loadDefaultOccDur();
+        loadMemberships();
+
+        function loadMemberships() {
+            membership.treatments.forEach(iterateTreatments);
+
+            function iterateTreatments(treatment) {
+                var found = $filter('filter')(editMsVm.treatments, {
+                    name: treatment.name
+                }, true);
+
+                if (found.length == 1) {
+                    found[0].given.occurences = treatment.given.occurences;
+                    found[0].given.duration = treatment.given.duration;
+                    found[0].used.occurences = treatment.used.occurences;
+                    found[0].used.duration = treatment.used.duration;
+                    editMsVm.selectedTreatments.push(found[0]);
+                } else {
+                    editMsVm.treatments.push(treatment);
+                    editMsVm.selectedTreatments.push(editMsVm.treatments[editMsVm.treatments.length - 1]);
+                }
+            }
+        }
+        
+        function updateTreatmentDetails() {
+            var found = $filter('filter')(editMsVm.treatments, {
+                name: editMsVm.treatment.details
+            });
+            if (found.length == 1 && found[0].name == editMsVm.treatment.details) {
+                editMsVm.treatment.occurences = found[0].given.occurences;
+                editMsVm.treatment.duration = found[0].given.duration;
+            } else {
+                editMsVm.treatment.occurences = editMsVm.membership.occurences
+                editMsVm.treatment.duration = editMsVm.membership.duration;
+            }
+        }
+        
+        //  query search for treatments [autocomplete]
+        function treatmentQuerySearch() {
+            var tracker = $q.defer();
+            var results = (editMsVm.treatment.details ? editMsVm.treatments.filter(createFilterForTreatments(editMsVm.treatment.details)) : editMsVm.treatments);
+
+            return results;
+        }
+
+        //  create filter for users' query list
+        function createFilterForTreatments(query) {
+            var lcQuery = angular.lowercase(query);
+            return function filterFn(item) {
+                return (angular.lowercase(item.name).indexOf(lcQuery) === 0);
+            }
+        }
+        
+        function finalizeNewTreatment(btnClicked) {
+            editMsVm.treatment.details = editMsVm.treatment.details.trim();
+            if (editMsVm.treatment.details != '') {
+                var found = $filter('filter')(editMsVm.treatments, {
+                    name: editMsVm.treatment.details
+                });
+                if (found.length == 1 && found[0].name == editMsVm.treatment.details) {
+                    found[0].checked = true;
+                    found[0].rate = editMsVm.treatment.rate;
+                    found[0].duration = editMsVm.treatment.duration;
+                    found[0].occurences = editMsVm.treatment.occurences;
+                    editMsVm.selectedTreatments.push(found[0]);
+                } else {
+                    editMsVm.treatments.push({
+                        name: editMsVm.treatment.details,
+                        duration: editMsVm.treatment.duration,
+                        occurences: editMsVm.treatment.occurences,
+                        checked: true
+                    });
+                    editMsVm.selectedTreatments.push(editMsVm.treatments[editMsVm.treatments.length - 1]);
+                }
+                editMsVm.treatment.details = '';
+                editMsVm.treatment.occurences = editMsVm.membership.occurences;
+                editMsVm.treatment.duration = editMsVm.membership.duration;
+                angular.element('#new-treatment-details').find('input')[0].focus();
+            }
+            if (btnClicked)
+                angular.element('#new-treatment-details').find('input')[0].focus();
+        }
+
+        function loadDefaultOccDur() {
+            editMsVm.treatments.forEach(iterateTreatments);
+
+            function iterateTreatments(treatment) {
+                if (!treatment.given) {
+                    treatment.given = {
+                        occurences: membership.occurences,
+                        duration: membership.duration
+                    }
+                }
+                if (!treatment.used) {
+                    treatment.used = {
+                        occurences: 0,
+                        duration: 0
+                    }
+                }
+            }
+        }
+        
+        function confirmDialog() {
+            membership.treatments = editMsVm.selectedTreatments;
+            membership.selectedTreatments = [];
+            membership.treatments.forEach(makeSelectedTreatments);
+            $mdDialog.hide();
+            
+            function makeSelectedTreatments(treatment) {
+                if (membership.calculateTOccurenceLeft(treatment) != 0 && membership.calculateTDurationLeft(treatment) != 0) {
+                    treatment.checked = true;
+                    membership.selectedTreatments.push(treatment);
+                }
+            }
         }
     }
 })();

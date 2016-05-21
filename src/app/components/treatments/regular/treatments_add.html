@@ -1,13 +1,14 @@
-<style>
-</style>
-
+<md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
+    <md-icon aria-label="Back">arrow_back</md-icon>
+    <md-tooltip md-direction="bottom">Back</md-tooltip>
+</md-button>
 <md-content layout-padding>
     <div layout="column">
         <div layout-gt-xs="row" layout-wrap layout-margin>
             <md-input-container class="md-block" flex>
                 <md-icon class="md-accent">spa</md-icon>
                 <label class="am-form-label" ng-class="{'large': vm.largeNameLabel}">{{vm.label_name}}</label>
-                <input ng-disabled="!vm.isAddOperation()" type="text" ng-model="vm.treatment.name" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
+                <input ng-disabled="!vm.isAddOperation()" type="text" ng-model="vm.treatment.name" ng-change="vm.convertNameToTitleCase()" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
             </md-input-container>
         </div>
         <div layout="column" layout-align="center start">
@@ -15,14 +16,14 @@
                 <table md-table flex>
                     <thead md-head>
                         <tr md-row>
-                            <th md-column><span class="am-table-header">Car Type</span></th>
+                            <th md-column><span class="am-table-header">Vehicle Type</span></th>
                             <th md-column><span class="am-table-header">Rate</span></th>
                         </tr>
                     </thead>
                     <tbody md-body>
                         <tr md-row ng-repeat="rate in vm.rates" style="border: 0px">
                             <td md-cell>
-                                <input type="text" ng-attr-id="{{'rType' + rate.focusIndex}}" ng-disabled="rate.fromDb" ng-model="rate.type" class="am-table-input" placeholder="Enter Car Type">
+                                <input type="text" ng-attr-id="{{'rType' + rate.focusIndex}}" ng-change="vm.convertVtToTitleCase(rate)" ng-disabled="rate.fromDb" ng-model="rate.type" class="am-table-input" placeholder="Enter Car Type">
                             </td>
                             <td md-cell>
                                 <input type="number" ng-model="rate.value" class="am-table-input" placeholder="Enter Rate">

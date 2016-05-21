@@ -2,7 +2,7 @@
  * Controller for View all Customers component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.5.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .controller('amCtrlCuRA', CustomersViewAll);
 
-    CustomersViewAll.$inject = ['$scope', '$state', 'utils', 'amCustomers'];
+    CustomersViewAll.$inject = ['$scope', '$state', '$mdDialog', 'utils', 'amCustomers'];
 
-    function CustomersViewAll($scope, $state, utils, amCustomers) {
+    function CustomersViewAll($scope, $state, $mdDialog, utils, amCustomers) {
         //  initialize view model
         var vm = this;
         
@@ -86,8 +86,24 @@
         }
         
         //  delete particular customer
-        function deleteCustomer(cId) {
-            amCustomers.deleteCustomer(cId).then(success);
+        function deleteCustomer(customer, ev) {
+            var confirm = $mdDialog.confirm()
+                .title('Are you sure you want to delete ?')
+                .textContent('All the services of ' + customer.name + ' will be deleted')
+                .ariaLabel('Delete Customer')
+                .targetEvent(ev)
+                .ok('Yes')
+                .cancel('No');
+            
+            $mdDialog.show(confirm).then(performDelete, ignoreDelete);
+            
+            function performDelete() {
+                amCustomers.deleteCustomer(customer.id).then(success);
+            }
+            
+            function ignoreDelete() {
+                console.log('nope');
+            }
             
             function success(res) {
                 if (res.ok) {

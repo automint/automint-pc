@@ -1,11 +1,11 @@
 /**
- * Controller for View All Treatments components
+ * Controller for View All Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1 
+ * @version 0.5.0
  */
 
-/// <reference path="../../../typings/main.d.ts" />
+/// <reference path="../../../../typings/main.d.ts" />
 
 (function() {
     angular.module('automintApp')
@@ -43,7 +43,7 @@
         getTreatments();
         
         //  watchers
-        $scope.$watch('vm.stgDisplayAsList', listenToDisplayAsList);
+        $scope.$watch('trVm.stgDisplayAsList', listenToDisplayAsList);
         
         //  function definitions
         
@@ -93,7 +93,7 @@
             }
             
             function failure(err) {
-                vm.vehicletypes.push('Default');
+                vm.vehicletypes = [];
             }
         }
         
