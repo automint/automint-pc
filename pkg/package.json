@@ -7,10 +7,10 @@
     "compile": "rimraf src/out",
     "pack": "npm run compile && build",
     "dist": "npm run compile && build",
-    "release": "npm run compile && build",
     "dist:win32-ia32": "./node_modules/.bin/build --platform win32 --arch ia32",
     "dist:win32-x64": "./node_modules/.bin/build --platform win32 --arch x64",
-    "dist:win32": "./node_modules/.bin/build --platform win32 --arch all"
+    "dist:win32": "./node_modules/.bin/build --platform win32 --arch all",
+    "release": "gulp && npm run dist:win32"
   },
   "build": {
     "iconUrl": "http://cruzer.io/automint.ico",
