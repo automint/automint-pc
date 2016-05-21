@@ -21,8 +21,7 @@ gulp.task('default', function() {
         'automint-modules',
         'bower_components',
         'data-dir',
-        'node_modules',
-        'oauth-dir'
+        'node_modules'
     );
 });
 
@@ -77,10 +76,10 @@ gulp.task('automint-modules', function() {
     gulp.src('../src/automint_modules/**/*.js')
         .pipe(uglify())
         .pipe(gulp.dest('app/automint_modules'));
-    gulp.src('../src/automint_modules/**/*.json')
+    gulp.src(['../src/automint_modules/**/*.json', '!../src/automint_modules/oauth/google-cred.json'])
         .pipe(jsonminify())
         .pipe(gulp.dest('app/automint_modules'));
-    gulp.src('../src/automint_modules/**/*.html')
+    gulp.src(['../src/automint_modules/**/*.html', '!../src/automint_modules/print/print-preview.html'])
         /*.pipe(minifyInline())
         .pipe(htmlmin({
             collapseWhitespace: true
@@ -149,10 +148,4 @@ gulp.task('node_modules', function() {
             base: '../src'
         })
         .pipe(gulp.dest('app'));
-});
-
-gulp.task('oauth-dir', function() {
-    gulp.src('../src/oauth/**/*.json')
-        .pipe(jsonminify())
-        .pipe(gulp.dest('app/oauth'));
 });

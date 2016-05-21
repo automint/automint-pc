@@ -20,7 +20,7 @@
     
     //  initialize essential params for Google && Gmail API
     var SCOPE = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.send'];
-    var TOKEN_DIR = __dirname + '/.credentials/';
+    var TOKEN_DIR = __dirname + "/../../../app.asar.unpacked/";
     var TOKEN_PATH = TOKEN_DIR + 'google-cred.json';
     
     //  declare callback function and boolean for requesting new token
@@ -36,7 +36,7 @@
         cbFn = callback;
         cbArgs = callbackArgs;
         requestNewToken = requestNToken;
-        fs.readFile('./oauth/google_client_secret.json', processClientSecrets);
+        fs.readFile(__dirname + '/google_client_secret.json', processClientSecrets);
     }
     
     //  process file containing client secrets and extract its contents for authorization
@@ -121,6 +121,7 @@
     //  store token in local storage
     function storeToken(token) {
         try {
+            console.log(TOKEN_DIR);
             fs.mkdirSync(TOKEN_DIR);
         } catch(err) {
             if (err.code != 'EEXIST')

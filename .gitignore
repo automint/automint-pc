@@ -57,12 +57,9 @@ pkg/app
 
 # TypeScript Dependencies
 src/typings/
+src/automint_modules/oauth/google-cred.json
+src/automint_modules/print/print-preview.html
 
 # Dev Dependencies from @ndkcha
 src/app/automint.js
-src/oauth/
 nd_tests/
-
-# Runtime Dependencies
-.tempdata/
-.credentials/

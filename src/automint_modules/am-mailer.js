@@ -11,7 +11,7 @@
     //  import required modules
     const BrowserWindow = require('electron').remote.BrowserWindow;
     var google = require('googleapis');
-    var gAuth = require('./oAuth/google-auth.js');
+    var gAuth = require('./oauth/google-auth.js');
     var ipc = require('electron').remote.ipcMain;
 
     //  named assignments
