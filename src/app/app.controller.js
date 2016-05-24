@@ -52,9 +52,9 @@
 
         //  objects passed to view model
         vm.items = [{
-            name: 'Services',
-            icon: 'build',
-            state: 'restricted.services.all'
+            name: 'Dashboard',
+            icon: 'dashboard',
+            state: 'restricted.dashboard'
         }, {
             name: 'Customers',
             icon: 'group',

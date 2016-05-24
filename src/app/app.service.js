@@ -65,8 +65,6 @@
             
             //  view service
             function vsuv(cachedoc) {
-                if (blockViews == true && force == undefined)
-                    return;
                 pdbCustomers.getAll().then(success).catch(failure);
                 
                 function success(res) {

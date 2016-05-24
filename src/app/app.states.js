@@ -2,7 +2,7 @@
  * Closure for state definitions and mappings to template files
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -14,7 +14,7 @@
     StateConfigs.$inject = ['$stateProvider', '$urlRouterProvider'];
 
     function StateConfigs($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.when('/', '/services/all').otherwise('/services/all');
+        $urlRouterProvider.when('/dashboard', '/').otherwise('/services/all');
 
         $stateProvider
             .state('restricted', {
@@ -41,6 +41,7 @@
                 url: '/',
                 templateUrl: 'app/components/dashboard/dashboard.html',
                 controller: 'dashboardCtrl',
+                controllerAs: 'vm',
                 resolve: {
                     deps: ['$ocLazyLoad', loadDashboardDeps]
                 },
@@ -313,7 +314,9 @@
 
         function loadDashboardDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/dashboard/dashboard.controller.js'
+                'google-chart',
+                'app/components/dashboard/dashboard.controller.js',
+                'app/components/dashboard/dashboard.factory.js'
             ]);
         }
         function loadCustomersDeps($ocLazyLoad) {

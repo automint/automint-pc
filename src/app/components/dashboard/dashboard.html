@@ -1,5 +1,118 @@
-<div layout="column" layout-fill layout-align="top center">
-    <p>
-        This is Dashboard Page
-    </p>
-</div>
+<style>
+    .am-card-label.small {
+        font-size: small;
+    }
+    
+    .am-card-label.x-small {
+        line-height: 1.8;
+        font-size: x-small;
+    }
+    
+    .am-card-label {
+        font-weight: 500;
+        font-size: medium;
+        color: rgba(30, 30, 30, 0.7);
+    }
+    
+    .am-chart-no-border div {
+        border: 0 !important;
+    }
+    
+    .am-color.bold {
+        font-weight: 600;
+    }
+    
+    .am-color.light-blue {
+        color: #03A9F4;
+    }
+    
+    .am-color.green {
+        color: #4CAF50
+    }
+    
+    .am-color.red {
+        color: #F44336;
+    }
+    
+    .am-color.orange {
+        color: #FF9800;
+    }
+</style>
+<md-content layout="row" layout-xs="column">
+    <md-card flex>
+        <md-card-content>
+            <div layout="row" layout-align="start center">
+                <div layout="column" flex>
+                    <span class="am-card-label">Customers Served</span>
+                    <span class="am-card-label x-small">(This Month)</span>
+                </div>
+                <span class="am-color light-blue bold">{{vm.totalCustomersServed}}</span>
+            </div>
+        </md-card-content>
+    </md-card>
+    <md-card flex>
+        <md-card-content>
+            <div layout="row" layout-align="start center">
+                <div layout="column" flex>
+                    <span class="am-card-label">Total Income</span>
+                    <span class="am-card-label x-small">(This Month)</span>
+                </div>
+                <span class="am-color green bold"><span class="am-card-label small">Rs.</span>&nbsp;{{vm.totalRevenueEarned}}</span>
+            </div>
+        </md-card-content>
+    </md-card>
+    <md-card flex>
+        <md-card-content>
+            <div layout="row" layout-align="start center">
+                <div layout="column" flex>
+                    <span class="am-card-label">Due Payments</span>
+                    <span class="am-card-label x-small">(This Month)</span>
+                </div>
+                <span class="am-color red bold"><span class="am-card-label small">Rs.</span>&nbsp;{{vm.totalPendingPayments}}</span>
+            </div>
+        </md-card-content>
+    </md-card>
+    <md-card flex>
+        <md-card-content>
+            <div layout="row" layout-align="start center">
+                <div layout="column" flex>
+                    <span class="am-card-label">New Customers</span>
+                    <span class="am-card-label x-small">(This Month)</span>
+                </div>
+                <span class="am-color orange bold">{{vm.totalNewCustomers}}</span>
+            </div>
+        </md-card-content>
+    </md-card>
+</md-content>
+<md-content>
+    <md-card>
+        <md-card-content layout="column">
+            <div layout="row" layout-xs="column" layout-align="start center">
+                <span flex><span class="am-card-label">Daily Services</span>&nbsp;<span class="am-card-label small">(This Month)</span></span>
+                <md-button class="md-accent" ng-click="vm.viewAllServices()">
+                    <md-icon>list</md-icon>
+                    <span layout-margin>View All</span>
+                </md-button>
+                <md-button class="md-raised md-accent" ng-click="vm.addNewService()">
+                    <md-icon>add</md-icon>
+                    <span layout-margin>Add New</span>
+                </md-button>
+            </div>
+            <div google-chart chart="vm.perDayServiceChart" class="am-chart-no-border"></div>
+        </md-card-content>
+    </md-card>
+</md-content>
+<md-content layout="row" layout-xs="column">
+    <md-card flex>
+        <md-card-content layout="column">
+            <span><span class="am-card-label">Top Treatments</span>&nbsp;<span class="am-card-label x-small">(This Month)</span></span>
+            <div google-chart chart="vm.topTreatmentsChart" class="am-chart-no-border"></div>
+        </md-card-content>
+    </md-card>
+    <md-card flex>
+        <md-card-content layout="column">
+            <span><span class="am-card-label">Top Vehicle Types</span>&nbsp;<span class="am-card-label x-small">(This Month)</span></span>
+            <div google-chart chart="vm.topVtChart" class="am-chart-no-border"></div>
+        </md-card-content>
+    </md-card>
+</md-content>
