@@ -2,7 +2,7 @@
  * Closure for root level service
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.6.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -11,12 +11,12 @@
     angular.module('automintApp')
         .service('$amRoot', AutomintService);
     
-    AutomintService.$inject = ['$q', '$log', 'constants', 'pdbCustomers', 'pdbConfig', 'pdbCommon', 'amFactory'];
+    AutomintService.$inject = ['$q', '$log', 'utils', 'constants', 'pdbCustomers', 'pdbConfig', 'pdbCommon', 'amFactory', 'pdbCache'];
     
-    // function AutomintService($q:angular.IQService, $log:angular.ILogService,constants, pdbCustomers, pdbConfig, pdbCommon, amFactory) {
-    function AutomintService($q, $log, constants, pdbCustomers, pdbConfig, pdbCommon, amFactory) {
+    function AutomintService($q, $log, utils, constants, pdbCustomers, pdbConfig, pdbCommon, amFactory, pdbCache) {
         //  set up service object
         var sVm = this;
+        var blockViews = true;
         
         //  keep track of current configuration of application
         sVm.docIds = {};
@@ -44,10 +44,173 @@
             pdbConfig.setDatabase(constants.pdb_w_config);
             pdbCustomers.setDatabase(constants.pdb_w_customers);
             pdbCommon.setDatabase(constants.pdb_common);
+            pdbCache.setDatabase(constants.pdb_cache);
+            
+            //  check and create views
+            ccViews();
+            
+            //  listen to changes in local db
+            OnCustomerDbChanged();
+            OnConfigDbChanged();
             
             //  setup server iteraction
             // oneWayReplication();
             // syncDb();
+        }
+        
+        function ccViews(force) {
+            //  service module
+            
+            pdbCache.get(constants.pdb_cache_views.view_services).then(vsuv).catch(vsuv);
+            
+            //  view service
+            function vsuv(cachedoc) {
+                if (blockViews == true && force == undefined)
+                    return;
+                pdbCustomers.getAll().then(success).catch(failure);
+                
+                function success(res) {
+                    var docsToSave = {};
+                    res.rows.forEach(iterateRows);
+                    docsToSave._id = constants.pdb_cache_views.view_services;
+                    if (cachedoc._rev)
+                        docsToSave._rev = cachedoc._rev;
+                    pdbCache.save(docsToSave);
+                    
+                    function iterateRows(row) {
+                        if (row.doc.user.vehicles)
+                            Object.keys(row.doc.user.vehicles).forEach(iterateVehicles);
+                        
+                        function iterateVehicles(vId) {
+                            var vehicle = row.doc.user.vehicles[vId];
+                            if (vehicle.services)
+                                Object.keys(vehicle.services).forEach(iterateServices);
+                            
+                            function iterateServices(sId) {
+                                var service = vehicle.services[sId];
+                                var cd = moment(service.date).format('MMM YYYY');
+                                cd = angular.lowercase(cd).replace(' ', '-');
+                                if (docsToSave[cd] == undefined)
+                                    docsToSave[cd] = {};
+                                docsToSave[cd][sId] = {
+                                    cstmr_id: row.id,
+                                    cstmr_name: row.doc.user.name,
+                                    vhcl_id: vId,
+                                    vhcl_reg: vehicle.reg,
+                                    vhcl_manuf: vehicle.manuf,
+                                    vhcl_model: vehicle.model,
+                                    srvc_date: service.date,
+                                    srvc_cost: service.cost,
+                                    srvc_status: service.status
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+            
+            function failure(err) {
+                console.log(err);
+            }
+        }
+        
+        function OnCustomerDbChanged() {
+            pdbCustomers.OnDbChanged({
+                since: 'now',
+                live: true
+            }).on('change', onChange).on('complete', onComplete).on('error', onError);
+            
+            function onChange(change) {
+                var curdoc;
+                pdbCache.get(constants.pdb_cache_views.view_services).then(vsuv).catch(vsuv);
+                
+                function vsuv(cachedoc) {
+                    if (cachedoc.error == true) {
+                        cachedoc = {
+                            _id: constants.pdb_cache_views.view_services
+                        }
+                    }
+                    
+                    pdbCustomers.get(change.id, {
+                        revs_info: true
+                    }).then(getCurrentVersion);
+                    
+                    function getCurrentVersion(cdoc) {
+                        curdoc = cdoc;
+                        if (cdoc._revs_info.length > 1) {
+                            pdbCustomers.get(change.id, {
+                                rev: cdoc._revs_info[1].rev
+                            }).then(getLastVersion);
+                        } else
+                            getLastVersion();
+                    }
+                    
+                    function getLastVersion(ldoc) {
+                        if (curdoc.user.vehicles)
+                            Object.keys(curdoc.user.vehicles).forEach(iterateVehicles);
+                        pdbCache.save(cachedoc);
+                        
+                        function iterateVehicles(vId) {
+                            var vehicle = curdoc.user.vehicles[vId];
+                            if (vehicle.services)
+                                Object.keys(vehicle.services).forEach(iterateServices);
+                            
+                            function iterateServices(sId) {
+                                var service = vehicle.services[sId];
+                                var cd = moment(service.date).format('MMM YYYY');
+                                if (ldoc && ldoc.user && ldoc.user.vehicles && ldoc.user.vehicles[vId] && ldoc.user.vehicles[vId].services && ldoc.user.vehicles[vId].services[sId]) {
+                                    var lvd = moment(ldoc.user.vehicles[vId].services[sId].date).format('MMM YYYY');
+                                    lvd = angular.lowercase(lvd).replace(' ', '-');
+                                    if (cachedoc[lvd][sId] != undefined)
+                                        delete cachedoc[lvd][sId];
+                                }
+                                cd = angular.lowercase(cd).replace(' ', '-');
+                                if (cachedoc[cd] == undefined)
+                                    cachedoc[cd] = {};
+                                cachedoc[cd][sId] = {
+                                    cstmr_id: change.id,
+                                    cstmr_name: curdoc.user.name,
+                                    vhcl_id: vId,
+                                    vhcl_reg: vehicle.reg,
+                                    vhcl_manuf: vehicle.manuf,
+                                    vhcl_model: vehicle.model,
+                                    srvc_date: service.date,
+                                    srvc_cost: service.cost,
+                                    srvc_status: service.status
+                                };
+                            }
+                        }
+                    }
+                }
+            }
+            
+            function onComplete(info) {
+                // console.log(info);
+            }
+            
+            function onError(error) {
+                // console.log(error);
+            }
+        }
+        
+        function OnConfigDbChanged() {
+            pdbConfig.OnDbChanged({
+                since: 'now',
+                live: true,
+                include_docs: true
+            }).on('change', onChange).on('complete', onComplete).on('error', onError);
+            
+            function onChange(change) {
+                // console.log(change);
+            }
+            
+            function onComplete(info) {
+                // console.log(info);
+            }
+            
+            function onError(error) {
+                // console.log(error);
+            }
         }
         
         function updateConfigReferences() {
@@ -195,7 +358,7 @@
         }
 
         function onPausedDb(err) {
-            //  listen to on pause event
+            //  listen to on pause event\
         }
 
         function onActiveDb() {

@@ -2,7 +2,7 @@
  * Controller for View all Customers component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,11 +11,11 @@
     angular.module('automintApp')
         .controller('amCtrlCuRA', CustomersViewAll);
 
-    CustomersViewAll.$inject = ['$scope', '$state', '$mdDialog', 'utils', 'amCustomers'];
+    CustomersViewAll.$inject = ['$scope', '$state', '$timeout', '$mdDialog', 'utils', 'amCustomers'];
 
-    function CustomersViewAll($scope, $state, $mdDialog, utils, amCustomers) {
+    function CustomersViewAll($scope, $state, $timeout, $mdDialog, utils, amCustomers) {
         //  initialize view model
-        var vm = this;
+        var vm = this, queryChangedPromise;
         
         //  named assginments for tracking UI elements
         vm.selectedCustomers = [];
@@ -37,10 +37,20 @@
         vm.editCustomer = editCustomer;
         vm.changeQueryMode = changeQueryMode;
         
+        //  default watchers
+        $scope.$watch('vm.customerQuery', watchCustomerQuery);
+        
         //  default execution steps
         getCustomers();
         
         //  function definitions
+        
+        function watchCustomerQuery(newValue, oldValue) {
+            if(queryChangedPromise){
+                $timeout.cancel(queryChangedPromise);
+            }
+            queryChangedPromise = $timeout(getCustomers, 800);
+        }
         
         function changeQueryMode(bool) {
             vm.isQueryMode = bool;
