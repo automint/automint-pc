@@ -2,7 +2,7 @@
  * Closure for root level controllers
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.6.0
  */
 
 /// <reference path="../typings/main.d.ts" />

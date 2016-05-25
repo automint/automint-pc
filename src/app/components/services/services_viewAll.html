@@ -1,68 +1,71 @@
-<md-content class="md-table-toolbar md-default" ng-hide="vm.isQueryMode">
-    <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
-        <md-button aria-label="Add Service" class="md-raised md-accent" ng-click="vm.addService()">
-            <md-icon style="color: white">person_add</md-icon>
-            <span style="color: white" layout-padding>Add Service</span>
-        </md-button>
-        <div flex></div>
-        <div layout="row" layout-align="center center">
-            <span class="am-form-label" layout-padding>Display Data For: </span>
-            <md-select ng-model="vm.displayDataFor" aria-label="Display Data For:" style="width: 120px">
-                <md-option ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
-            </md-select>
-            <md-button class="md-icon-button" ng-click="vm.changeQueryMode(true)">
-                <md-icon>search</md-icon>
+<md-content layout-padding>
+    <md-content class="md-table-toolbar md-default" ng-hide="vm.isQueryMode">
+        <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
+            <md-button aria-label="Add Service" class="md-raised md-accent" ng-click="vm.addService()">
+                <md-icon style="color: white">person_add</md-icon>
+                <span style="color: white" layout-padding>Add Service</span>
+            </md-button>
+            <div flex></div>
+            <div layout="row" layout-align="center center">
+                <span class="am-form-label" layout-padding>Display Data For: </span>
+                <md-select ng-model="vm.displayDataFor" aria-label="Display Data For:" style="width: 120px">
+                    <md-option ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
+                </md-select>
+                <md-button class="md-icon-button" ng-click="vm.changeQueryMode(true)">
+                    <md-icon>search</md-icon>
+                </md-button>
+            </div>
+        </div>
+    </md-content>
+    <md-content class="md-table-toolbar md-default" ng-show="vm.isQueryMode">
+        <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
+            <div layout="row" layout-align="center center" layout-margin>
+                <span class="am-form-label" layout-padding>Display Data For: </span>
+                <md-select ng-model="vm.displayDataFor" aria-label="Display Data For:" style="width: 120px">
+                    <md-option ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
+                </md-select>
+            </div>
+            <input type="text" id="am-query-search" ng-model="vm.serviceQuery" placeholder="Search" class="md-block am-table-input search-box" flex>
+            <md-button class="md-icon-button" ng-click="vm.changeQueryMode(false)">
+                <md-icon>close</md-icon>
             </md-button>
         </div>
-    </div>
+    </md-content>
+    <md-content class="md-hue-1">
+        <md-table-container>
+            <table md-table md-progress="vm.promise">
+                <thead md-head>
+                    <tr md-row>
+                        <th md-column><span class="am-table-header">Customer</span></th>
+                        <th md-column><span class="am-table-header">Vehicle</span></th>
+                        <th md-column><span class="am-table-header">Date</span></th>
+                        <th md-column><span class="am-table-header">Cost</span></th>
+                        <th md-column><span class="am-table-header">Payment</span></th>
+                    </tr>
+                </thead>
+                <tbody md-body>
+                    <tr md-row ng-repeat="service in vm.services | limitTo: vm.query.limit: (vm.query.page - 1)*(vm.query.limit)" class="am-select-table-row">
+                        <td md-cell ng-click="vm.editService(service)">{{service.cstmr_name}}</td>
+                        <td md-cell ng-click="vm.editService(service)">{{service.vhcl_manuf + ' ' + service.vhcl_model}}<span ng-if="service.value.reg">&nbsp;({{service.vhcl_reg}})</span></td>
+                        <td md-cell ng-click="vm.editService(service)">{{vm.getServiceDate(service.srvc_date)}}</td>
+                        <td md-cell ng-click="vm.editService(service)">{{service.srvc_cost}}</td>
+                        <td md-cell ng-click="vm.editService(service)">{{service.srvc_status}}</td>
+                        <td md-cell class="am-datatable-actions view-all-services">
+                            <md-button class="invoice md-accent" ng-click="vm.goToInvoice(service)">
+                                <span>Invoice</span>
+                            </md-button>
+                            <md-button class="md-icon-button" ng-click="vm.deleteService(service)">
+                                <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
+                            </md-button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </md-table-container>
+
+        <md-table-pagination md-limit="vm.query.limit" ng-show="vm.showPaginationBar" md-limit-options="[10, 20, 50, 100]" md-page="vm.query.page" md-total="{{vm.query.total}}" md-on-paginate="vm.getServices" md-page-select></md-table-pagination>
+
+        <md-table-pagination md-limit="vm.query.limit" ng-hide="vm.showPaginationBar" md-limit-options="[10, 20, 50, 100]" md-page="vm.displayItemPage" md-total="{{vm.query.total}}" md-page-select></md-table-pagination>
+    </md-content>
+    
 </md-content>
-
-<md-content class="md-table-toolbar md-default" ng-show="vm.isQueryMode">
-    <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
-        <div layout="row" layout-align="center center" layout-margin>
-            <span class="am-form-label" layout-padding>Display Data For: </span>
-            <md-select ng-model="vm.displayDataFor" aria-label="Display Data For:" style="width: 120px">
-                <md-option ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
-            </md-select>
-        </div>
-        <input type="text" id="am-query-search" ng-model="vm.serviceQuery" placeholder="Search" class="md-block am-table-input search-box" flex>
-        <md-button class="md-icon-button" ng-click="vm.changeQueryMode(false)">
-            <md-icon>close</md-icon>
-        </md-button>
-    </div>
-</md-content>
-
-<md-table-container>
-    <table md-table md-progress="vm.promise">
-        <thead md-head>
-            <tr md-row>
-                <th md-column><span class="am-table-header">Customer</span></th>
-                <th md-column><span class="am-table-header">Vehicle</span></th>
-                <th md-column><span class="am-table-header">Date</span></th>
-                <th md-column><span class="am-table-header">Cost</span></th>
-                <th md-column><span class="am-table-header">Payment</span></th>
-            </tr>
-        </thead>
-        <tbody md-body>
-            <tr md-row ng-repeat="service in vm.services | limitTo: vm.query.limit: (vm.query.page - 1)*(vm.query.limit)" class="am-select-table-row">
-                <td md-cell ng-click="vm.editService(service)">{{service.cstmr_name}}</td>
-                <td md-cell ng-click="vm.editService(service)">{{service.vhcl_manuf + ' ' + service.vhcl_model}}<span ng-if="service.value.reg">&nbsp;({{service.vhcl_reg}})</span></td>
-                <td md-cell ng-click="vm.editService(service)">{{vm.getServiceDate(service.srvc_date)}}</td>
-                <td md-cell ng-click="vm.editService(service)">{{service.srvc_cost}}</td>
-                <td md-cell ng-click="vm.editService(service)">{{service.srvc_status}}</td>
-                <td md-cell class="am-datatable-actions view-all-services">
-                    <md-button class="invoice md-accent" ng-click="vm.goToInvoice(service)">
-                        <span>Invoice</span>
-                    </md-button>
-                    <md-button class="md-icon-button" ng-click="vm.deleteService(service)">
-                        <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
-                    </md-button>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</md-table-container>
-
-<md-table-pagination md-limit="vm.query.limit" ng-show="vm.showPaginationBar" md-limit-options="[10, 20, 50, 100]" md-page="vm.query.page" md-total="{{vm.query.total}}" md-on-paginate="vm.getServices" md-page-select></md-table-pagination>
-
-<md-table-pagination md-limit="vm.query.limit" ng-hide="vm.showPaginationBar" md-limit-options="[10, 20, 50, 100]" md-page="vm.displayItemPage" md-total="{{vm.query.total}}" md-page-select></md-table-pagination>

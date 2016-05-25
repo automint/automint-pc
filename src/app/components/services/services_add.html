@@ -19,10 +19,10 @@
     <md-icon aria-label="Back">arrow_back</md-icon>
     <md-tooltip md-direction="bottom">Back</md-tooltip>
 </md-button>
-<md-content>
+<md-content layout-padding>
     <md-tabs md-dynamic-height md-border-bottom>
         <md-tab label="Customer Information" md-active="vm.userTab" md-on-deselect="vm.changeUserTab(false)">
-            <md-content layout-padding>
+            <md-content layout-padding class="md-hue-1">
                 <div layout="column">
                     <div layout="row" layout-align="start center" layout-wrap layout-margin>
                         <md-icon class="md-accent">person_pin</md-icon>
@@ -83,7 +83,7 @@
             </md-content>
         </md-tab>
         <md-tab label="Vehicle Information" md-active="vm.vehicleTab" md-on-deselect="vm.changeVehicleTab(false)">
-            <md-content layout-padding>
+            <md-content layout-padding class="md-hue-1">
                 <div layout="column">
                     <div layout-gt-xs="row" layout-wrap layout-margin ng-if="vm.isAddOperation()">
                         <div layout="column" flex>
@@ -144,7 +144,7 @@
             </md-content>
         </md-tab>
         <md-tab label="Service Information" md-active="vm.serviceTab" md-on-deselect="vm.changeServiceTab(false)">
-            <md-content layout-padding>
+            <md-content layout-padding class="md-hue-1">
                 <div layout="column">
                     <div layout-gt-xs="row" layout-wrap layout-margin layout-align="end">
                         <md-input-container flex-gt-xs="14" ng-show="vm.isAddOperation()">
@@ -167,9 +167,9 @@
                             <label class="am-form-label large" style="font-size: 11pt">Odometer Reading:</label>
                             <input type="number" ng-model="vm.service.odo">
                         </md-input-container>
-                        <md-datepicker flex-gt-xs="19" ng-model="vm.service.date" md-placeholder="Enter Date"></md-datepicker>
+                        <md-datepicker flex-gt-xs="19" class="md-hue-1" ng-model="vm.service.date" md-placeholder="Enter Date"></md-datepicker>
                     </div>
-                    <md-content ng-show="vm.serviceType == vm.serviceTypeList[2]" aria-label="Memberships">
+                    <md-content ng-show="vm.serviceType == vm.serviceTypeList[2]" aria-label="Memberships" class="md-hue-1">
                         <div layout="column">
                             <div layout="row">
                                 <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
@@ -222,7 +222,7 @@
                         </div>
                         <md-divider style="margin-top: 2rem;"></md-divider>
                     </md-content>
-                    <md-content ng-show="vm.serviceType == vm.serviceTypeList[1]" aria-label="Packages">
+                    <md-content ng-show="vm.serviceType == vm.serviceTypeList[1]" aria-label="Packages" class="md-hue-1">
                         <div layout="column">
                             <div layout="row">
                                 <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
@@ -297,7 +297,7 @@
                         </div>
                         <md-divider style="margin-top: 2rem;"></md-divider>
                     </md-content>
-                    <md-content>
+                    <md-content class="md-hue-1">
                         <md-table-container ng-if="!vm.displayTreatmentAsList">
                             <table md-table md-row-select multiple ng-model="vm.selectedProblems" md-progress="vm.problemPromise">
                                 <thead md-head>

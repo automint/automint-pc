@@ -2,10 +2,10 @@
     <md-icon aria-label="Back">arrow_back</md-icon>
     <md-tooltip md-direction="bottom">Back</md-tooltip>
 </md-button>
-<md-content>
+<md-content layout-padding class="md-hue-1">
     <md-tabs md-dynamic-height md-border-bottom>
         <md-tab label="Customer Information" md-active="vm.userTab" md-on-deselect="vm.changeUserTab(false)">
-            <md-content layout-padding>
+            <md-content layout-padding class="md-hue-1">
                 <div layout="column">
                     <div layout-gt-xs="row" layout-wrap layout-margin>
                         <md-input-container class="am-clear-error-spacer"flex-gt-xs>
@@ -47,7 +47,7 @@
             </md-content>
         </md-tab>
         <md-tab label="Vehicle Information" md-active="vm.vehicleTab" md-on-deselect="vm.changeVehicleTab(false)">
-            <md-content layout-padding>
+            <md-content layout-padding class="md-hue-1">
                 <div layout="column">
                     <div layout-gt-xs="row" layout-wrap layout-margin ng-if="!vm.isAddOperation()">
                         <div layout="column" flex>
@@ -112,7 +112,7 @@
             </md-content>
         </md-tab>
         <md-tab label="Membership Information" md-active="vm.membershipTab" md-on-deselect="vm.changeMembershipTab(false)">
-            <md-content>
+            <md-content class="md-hue-1">
                 <div layout="column">
                     <div layout="row" layout-align="start center"  layout-margin>
                         <md-icon class="md-accent">card_membership</md-icon>
