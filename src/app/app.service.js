@@ -7,21 +7,21 @@
 
 /// <reference path="../typings/main.d.ts" />
 
-(function () {
+(function() {
     angular.module('automintApp')
         .service('$amRoot', AutomintService);
-    
+
     AutomintService.$inject = ['$q', '$log', 'utils', 'constants', 'pdbCustomers', 'pdbConfig', 'pdbCommon', 'amFactory', 'pdbCache'];
-    
+
     function AutomintService($q, $log, utils, constants, pdbCustomers, pdbConfig, pdbCommon, amFactory, pdbCache) {
         //  set up service object
         var sVm = this;
         var blockViews = true;
-        
+
         //  keep track of current configuration of application
         sVm.docIds = {};
         sVm.username = '';
-        
+
         //  map functions
         sVm.initDb = initDb;
         sVm.syncDb = syncDb;
@@ -29,7 +29,7 @@
         sVm.isTreatmentId = isTreatmentId;
         sVm.isSettingsId = isSettingsId;
         sVm.updateConfigReferences = updateConfigReferences;
-        
+
         //  named assignments
         var successResponse = {
             success: true
@@ -37,7 +37,7 @@
         var failureResponse = {
             success: false
         }
-        
+
         //  initialize databases
         function initDb() {
             //  setup local databases
@@ -45,45 +45,47 @@
             pdbCustomers.setDatabase(constants.pdb_w_customers);
             pdbCommon.setDatabase(constants.pdb_common);
             pdbCache.setDatabase(constants.pdb_cache);
-            
+
             //  check and create views
             ccViews();
-            
+
             //  listen to changes in local db
             OnCustomerDbChanged();
             OnConfigDbChanged();
-            
+
             //  setup server iteraction
             // oneWayReplication();
             // syncDb();
         }
-        
+
         function ccViews(force) {
             //  service module
-            
+
             pdbCache.get(constants.pdb_cache_views.view_services).then(vsuv).catch(vsuv);
-            
+
             //  view service
             function vsuv(cachedoc) {
                 pdbCustomers.getAll().then(success).catch(failure);
-                
+
                 function success(res) {
-                    var docsToSave = {};
+                    var docsToSave = {}, isChanged = false;
                     res.rows.forEach(iterateRows);
                     docsToSave._id = constants.pdb_cache_views.view_services;
                     if (cachedoc._rev)
                         docsToSave._rev = cachedoc._rev;
-                    pdbCache.save(docsToSave);
                     
+                    if (isChanged)
+                        pdbCache.save(docsToSave);
+
                     function iterateRows(row) {
                         if (row.doc.user.vehicles)
                             Object.keys(row.doc.user.vehicles).forEach(iterateVehicles);
-                        
+
                         function iterateVehicles(vId) {
                             var vehicle = row.doc.user.vehicles[vId];
                             if (vehicle.services)
                                 Object.keys(vehicle.services).forEach(iterateServices);
-                            
+
                             function iterateServices(sId) {
                                 var service = vehicle.services[sId];
                                 var cd = moment(service.date).format('MMM YYYY');
@@ -93,6 +95,7 @@
                                 docsToSave[cd][sId] = {
                                     cstmr_id: row.id,
                                     cstmr_name: row.doc.user.name,
+                                    cstmr_mobile: row.doc.user.mobile,
                                     vhcl_id: vId,
                                     vhcl_reg: vehicle.reg,
                                     vhcl_manuf: vehicle.manuf,
@@ -101,38 +104,51 @@
                                     srvc_cost: service.cost,
                                     srvc_status: service.status
                                 };
+                                if (cachedoc[cd] && cachedoc[cd][sId]) {
+                                    if ((docsToSave[cd][sId].cstmr_id != cachedoc[cd][sId].cstmr_id) ||
+                                        (docsToSave[cd][sId].cstmr_name != cachedoc[cd][sId].cstmr_name) ||
+                                        (docsToSave[cd][sId].cstmr_mobile != cachedoc[cd][sId].cstmr_mobile) ||
+                                        (docsToSave[cd][sId].vhcl_id != cachedoc[cd][sId].vhcl_id) ||
+                                        (docsToSave[cd][sId].vhcl_reg != cachedoc[cd][sId].vhcl_reg) ||
+                                        (docsToSave[cd][sId].vhcl_manuf != cachedoc[cd][sId].vhcl_manuf) ||
+                                        (docsToSave[cd][sId].vhcl_model != cachedoc[cd][sId].vhcl_model) ||
+                                        (docsToSave[cd][sId].srvc_date != cachedoc[cd][sId].srvc_date) ||
+                                        (docsToSave[cd][sId].srvc_cost != cachedoc[cd][sId].srvc_cost) ||
+                                        (docsToSave[cd][sId].srvc_status != cachedoc[cd][sId].srvc_status))
+                                        isChanged = true;
+                                }
                             }
                         }
                     }
                 }
             }
-            
+
             function failure(err) {
                 console.log(err);
             }
         }
-        
+
         function OnCustomerDbChanged() {
             pdbCustomers.OnDbChanged({
                 since: 'now',
                 live: true
             }).on('change', onChange).on('complete', onComplete).on('error', onError);
-            
+
             function onChange(change) {
                 var curdoc;
                 pdbCache.get(constants.pdb_cache_views.view_services).then(vsuv).catch(vsuv);
-                
+
                 function vsuv(cachedoc) {
                     if (cachedoc.error == true) {
                         cachedoc = {
                             _id: constants.pdb_cache_views.view_services
                         }
                     }
-                    
+
                     pdbCustomers.get(change.id, {
                         revs_info: true
                     }).then(getCurrentVersion);
-                    
+
                     function getCurrentVersion(cdoc) {
                         curdoc = cdoc;
                         if (cdoc._revs_info.length > 1) {
@@ -142,17 +158,17 @@
                         } else
                             getLastVersion();
                     }
-                    
+
                     function getLastVersion(ldoc) {
                         if (curdoc.user.vehicles)
                             Object.keys(curdoc.user.vehicles).forEach(iterateVehicles);
                         pdbCache.save(cachedoc);
-                        
+
                         function iterateVehicles(vId) {
                             var vehicle = curdoc.user.vehicles[vId];
                             if (vehicle.services)
                                 Object.keys(vehicle.services).forEach(iterateServices);
-                            
+
                             function iterateServices(sId) {
                                 var service = vehicle.services[sId];
                                 var cd = moment(service.date).format('MMM YYYY');
@@ -168,6 +184,7 @@
                                 cachedoc[cd][sId] = {
                                     cstmr_id: change.id,
                                     cstmr_name: curdoc.user.name,
+                                    cstmr_mobile: curdoc.user.mobile,
                                     vhcl_id: vId,
                                     vhcl_reg: vehicle.reg,
                                     vhcl_manuf: vehicle.manuf,
@@ -181,46 +198,46 @@
                     }
                 }
             }
-            
+
             function onComplete(info) {
                 // console.log(info);
             }
-            
+
             function onError(error) {
                 // console.log(error);
             }
         }
-        
+
         function OnConfigDbChanged() {
             pdbConfig.OnDbChanged({
                 since: 'now',
                 live: true,
                 include_docs: true
             }).on('change', onChange).on('complete', onComplete).on('error', onError);
-            
+
             function onChange(change) {
                 // console.log(change);
             }
-            
+
             function onComplete(info) {
                 // console.log(info);
             }
-            
+
             function onError(error) {
                 // console.log(error);
             }
         }
-        
+
         function updateConfigReferences() {
             var tracker = $q.defer();
             pdbConfig.getAll().then(successQuery).catch(failedQuery);
             return tracker.promise;
-            
+
             //  if promise returns with all documents, update configurations
             function successQuery(res) {
                 res.rows.forEach(iterateDocuments);
                 tracker.resolve(successResponse);
-                
+
                 //  iterate through documents to match id(s) of documents
                 function iterateDocuments(element) {
                     if (element.id.match(/\btrtmnt-/i))
@@ -231,25 +248,25 @@
                         sVm.docIds.settings = element.id;
                 }
             }
-            
+
             //  if promise returns with error
             function failedQuery(err) {
                 tracker.reject(failureResponse);
             }
         }
-        
+
         //  check if database is syncable to remote
         function isSyncable() {
             var tracker = $q.defer();
             var workshopUser = $.extend({}, successResponse);
-            
+
             isWorkshopId().then(setCredentials).catch(noWorkshopUser);
             return tracker.promise;
-            
+
             //  if workshop document is tracker, look for username and password inside document
             function setCredentials(res) {
                 pdbConfig.get(sVm.docIds.workshop).then(setWorkshopUser).catch(noWorkshopUser);
-                
+
                 //  if workshop users existing, return with username and password
                 function setWorkshopUser(res) {
                     if (res.user) {
@@ -260,17 +277,17 @@
                         noWorkshopUser();
                 }
             }
-            
+
             //  if no workshop, return with failed response bool    
             function noWorkshopUser(error) {
                 tracker.reject(failureResponse);
             }
         }
-        
+
         //  setup sync (bidirectional replication)
         function syncDb() {
             isSyncable().then().catch();
-            
+
             //  if sync details found
             function runSync(res) {
                 if (res.success) {
@@ -278,7 +295,7 @@
                     //  construct database url for workshop configuration and customers' db
                     dbConfigUrl = amFactory.generateDbUrl(res.username, res.password, constants.sgw_w_config);
                     dbCustomersUrl = amFactory.generateDbUrl(res.username, res.password, constants.sgw_w_customers);
-                    
+
                     //  sync database
                     pdbConfig.sync(dbConfigUrl)
                         .on('change', onChangedDb)
@@ -297,13 +314,13 @@
                         .on('error', onErrorDb);
                 }
             }
-            
+
             //  no sync details found
             function noSync(error) {
                 $log.debug('cannot sync at moment! no sync details found');
             }
         }
-        
+
         //  setup one-way replication
         function oneWayReplication() {
             //  setup common database replication
@@ -315,22 +332,22 @@
                 .on('complete', onCompleteDb)
                 .on('error', onErrorDb);
         }
-        
+
         //  check if treatment's document id is loaded to current docId object
         function isTreatmentId() {
             return isDocId('trtmnt');
         }
-        
+
         //  check if workshop's document id is loaded to current docId object
         function isWorkshopId() {
             return isDocId('wrkshp');
         }
-        
+
         //  check if settings' document id is loaded to current docId object
         function isSettingsId() {
             return isDocId('sttngs');
         }
-        
+
         //  the check function
         function isDocId(query) {
             var tracker = $q.defer();
@@ -339,16 +356,16 @@
             else
                 updateFailed();
             return tracker.promise;
-                
+
             function configUpdated(res) {
                 tracker.resolve(successResponse);
             }
-            
+
             function updateFailed(err) {
                 tracker.resolve(failureResponse);
             }
         }
-        
+
         //  database listeners
 
         function onChangedDb(info) {

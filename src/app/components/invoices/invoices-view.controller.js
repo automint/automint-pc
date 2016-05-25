@@ -2,7 +2,7 @@
  * Controller for View Invoice component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0 
+ * @version 0.6.0 
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -79,7 +79,8 @@
             $state.go('restricted.services.edit', {
                 userId: $state.params.userId,
                 vehicleId: $state.params.vehicleId,
-                serviceId: $state.params.serviceId
+                serviceId: $state.params.serviceId,
+                fromState: 'invoice'
             });
         }
 

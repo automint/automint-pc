@@ -146,7 +146,7 @@
                             <div layout-xs="column" layout="row" layout-align="center center" layout-fill ng-click="msVm.expandMembership($index)" class="folded" layout-padding>
                                 <span class="membership-name" ng-class="{'md-title': membership.expanded == true, 'md-subhead': membership.expanded != true}">
                                     {{membership.name}}
-                                    <span ng-show="membership.expanded == true && membership.amount != undefinied"><br>&#x20B9; {{membership.amount}}</span>
+                                    <span ng-show="membership.expanded == true && (membership.amount != undefined && membership.amount != '')"><br>&#x20B9; {{membership.amount}}</span>
                                 </span>
                                 <div flex></div>
                                 <div layout="row" layout-align="center center" class="actions" ng-show="membership.expanded == true">

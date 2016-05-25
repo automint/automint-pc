@@ -102,12 +102,11 @@
             return tracker.promise;
             
             function getDoc(res) {
-                var result = [], ub = [];
+                var result = [], ub = [], unbilled = [];
                 var cd = moment().format('MMM YYYY');
                 cd = angular.lowercase(cd).replace(' ', '-');
                 if (res[cd])
                     Object.keys(res[cd]).forEach(iservice);
-                var unbilled = $.extend([], result);
                 unbilled.forEach(iterateUnbilled);
                 delete unbilled;
                 if (res)
@@ -124,15 +123,15 @@
                 
                 function iservice(s) {
                     var target = res[cd][s];
+                    target.srvc_id = s;
+                    target.srvc_status = utils.convertToTitleCase(target.srvc_status);
+                    unbilled.push(target);
                     var found = $filter('filter')(result, {
                         cstmr_id: target.cstmr_id
                     }, true);
                     
-                    if (found == 0) {
-                        target.srvc_id = s;
-                        target.srvc_status = utils.convertToTitleCase(target.srvc_status);
+                    if (found == 0)
                         result.push(target);
-                    }
                 }
                 
                 function iterateDateRange(dr) {

@@ -2,20 +2,25 @@
  * Controller for dashboard view
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
     angular.module('automintApp')
-        .controller('dashboardCtrl', DashboardController);
+        .controller('dashboardCtrl', DashboardController)
+        .controller('amCtrlDashDuPy', DuePaymentsController)
+        .controller('amCtrlDashNwCu', NewCustomerController);
 
-    DashboardController.$inject = ['$state', '$filter', 'amDashboard'];
+    DashboardController.$inject = ['$state', '$filter', '$log', '$mdDialog', 'utils', 'amDashboard'];
+    DuePaymentsController.$inject = ['$state', '$mdDialog', 'unbilledServices'];
+    NewCustomerController.$inject = ['$mdDialog', 'newCustomers'];
 
-    function DashboardController($state, $filter, amDashboard) {
+    function DashboardController($state, $filter, $log, $mdDialog, utils, amDashboard) {
         //  initialize view model
         var vm = this;
+        var ubServices = [], nwCustomers = [];
 
         //  named assignments to keep track of UI
         vm.totalCustomersServed = 0;
@@ -77,6 +82,8 @@
         //  function maps
         vm.addNewService = addNewService;
         vm.viewAllServices = viewAllServices;
+        vm.openDuePayments = openDuePayments;
+        vm.openNewCustomers = openNewCustomers;
 
         //  default execution steps
         amDashboard.getTotalCustomerServed().then(generateTcsData).catch(failure);
@@ -84,7 +91,49 @@
         amDashboard.getProblemsAndVehicleTypes().then(sortProblemsAndVehicleTypes).catch(failure);
 
         //  function definitions
-
+        
+        function openDuePayments() {
+            if (ubServices.length <= 0) {
+                utils.showSimpleToast('No Due Payments');
+                return;
+            }
+                
+            $mdDialog.show({
+                controller: 'amCtrlDashDuPy',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/dashboard/tmpl/dashboard_due-payments.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    unbilledServices: ubServices
+                },
+                clickOutsideToClose: true
+            }).then(OnCloseDialog).catch(OnCloseDialog);
+        }
+        
+        function openNewCustomers() {
+            if (nwCustomers.length <= 0) {
+                utils.showSimpleToast('No Customers');
+                return;
+            }
+                
+            $mdDialog.show({
+                controller: 'amCtrlDashNwCu',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/dashboard/tmpl/dashboard_new-customers.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    newCustomers: nwCustomers
+                },
+                clickOutsideToClose: true
+            }).then(OnCloseDialog).catch(OnCloseDialog);
+        }
+            
+        function OnCloseDialog(obj) {
+            $log.info('will miss you');
+        }
+        
         function addNewService() {
             $state.go('restricted.services.add');
         }
@@ -170,7 +219,11 @@
         function generateNcpData(res) {
             vm.totalNewCustomers = res.newCustomers.length;
             vm.totalPendingPayments = 0;
+            ubServices = $.extend([], res.unbilledServices);
+            nwCustomers = $.extend([], res.newCustomers);
             res.unbilledServices.forEach(iterateUnbilledServices);
+            if ($state.params.openDialog == 'duepayments')
+                openDuePayments();
 
             function iterateUnbilledServices(ubs) {
                 vm.totalPendingPayments += ubs.srvc_cost;
@@ -216,4 +269,73 @@
             console.log(err);
         }
     }
-})();
+    
+    function DuePaymentsController($state, $mdDialog, unbilledServices) {
+        //  initialize view model
+        var vm = this;
+        
+        //  named assignments to keep track of UI
+        vm.query = {
+            limit: 20,
+            page: 1,
+            total: unbilledServices.length
+        };
+        //  function mappings
+        vm.getServiceDate = getServiceDate;
+        vm.services = unbilledServices;
+        vm.editService = editService;
+        vm.closeDialog = closeDialog;
+        
+        //  default execution steps
+        vm.services.sort(sortFunction);
+        
+        //  function definitions
+        
+        function sortFunction(lhs, rhs) {
+            return (rhs.srvc_date.localeCompare(lhs.srvc_date));
+        }
+        
+        function getServiceDate(date) {
+            return moment(date).format('DD MMM YYYY');
+        }
+        
+        //  close dialog box
+        function closeDialog() {
+            $mdDialog.hide();
+        }
+        
+        //  edit service
+        function editService(service) {
+            $mdDialog.hide();
+            $state.go('restricted.services.edit', {
+                serviceId: service.srvc_id,
+                vehicleId: service.vhcl_id,
+                userId: service.cstmr_id,
+                fromState: 'dashboard.duepayments'
+            });
+        }
+    }
+    
+    function NewCustomerController($mdDialog, newCustomers) {
+        //  initialize view model
+        var vm = this;
+        
+        //  named assignments to keep track of UI
+        vm.query = {
+            limit: 20,
+            page: 1,
+            total: newCustomers.length
+        };
+        console.log(newCustomers);
+        //  function mappings
+        vm.customers = newCustomers;
+        vm.closeDialog = closeDialog;
+        
+        //  function definitions
+        
+        //  close dialog box
+        function closeDialog() {
+            $mdDialog.hide();
+        }
+    }
+})();;

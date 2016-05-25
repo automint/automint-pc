@@ -2,7 +2,7 @@
  * Controller for Edit Service component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -189,7 +189,27 @@
         }
         
         function goBack() {
-            $state.go('restricted.services.all');
+            var transitState = 'restricted.services.all';
+            var transitParams = undefined;
+            if ($state.params.fromState != undefined) {
+                switch ($state.params.fromState) {
+                    case 'dashboard.duepayments':
+                        transitState = 'restricted.dashboard';
+                        transitParams = {
+                            openDialog: 'duepayments'
+                        }
+                        break;
+                    case 'invoice':
+                        transitState = 'restricted.invoices.view';
+                        transitParams = {
+                            userId: $state.params.userId,
+                            vehicleId: $state.params.vehicleId,
+                            serviceId: $state.params.serviceId
+                        }
+                        break;
+                }
+            }
+            $state.go(transitState, transitParams);
         }
         
         function addMembershipChip(chip) {
@@ -1031,7 +1051,7 @@
 
         //  (save successfull)
         function success(res) {
-            $state.go('restricted.services.all');
+            setTimeout(goBack, 100);
             utils.showSimpleToast('Successfully Updated!');
         }
 

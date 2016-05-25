@@ -42,6 +42,9 @@
                 templateUrl: 'app/components/dashboard/dashboard.html',
                 controller: 'dashboardCtrl',
                 controllerAs: 'vm',
+                params: {
+                    openDialog: undefined
+                },
                 resolve: {
                     deps: ['$ocLazyLoad', loadDashboardDeps]
                 },
@@ -189,7 +192,8 @@
                 params: {
                     userId: undefined,
                     vehicleId: undefined,
-                    serviceId: undefined
+                    serviceId: undefined,
+                    fromState: undefined
                 },
                 resolve: {
                     deps: ['$ocLazyLoad', loadSeUIDeps]
@@ -314,6 +318,7 @@
 
         function loadDashboardDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
+                'material-datatable',
                 'google-chart',
                 'app/components/dashboard/dashboard.controller.js',
                 'app/components/dashboard/dashboard.factory.js'
