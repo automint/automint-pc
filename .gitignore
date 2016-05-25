@@ -57,8 +57,9 @@ pkg/app
 
 # TypeScript Dependencies
 src/typings/
-src/automint_modules/oauth/google-cred.json
-src/automint_modules/print/print-preview.html
+
+# Runtime Files and Directories
+app.asar.unpacked/
 
 # Dev Dependencies from @ndkcha
 src/app/automint.js

@@ -428,9 +428,9 @@
                         <md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()"><span class="md-body-1">Service Tax</span></md-checkbox>
                         <div flex></div>
                         <div layout="column" layout-align="center end">
-                            <span><span class="md-body-2">Total Tax:&nbsp;</span>&#x20B9; {{vm.calculateTax()}}</span>
+                            <span><span class="md-body-2">Service Tax:&nbsp;</span>Rs. {{vm.calculateTax()}}</span>
                             <span style="line-height: 0.5rem">&nbsp;</span>
-                            <span><span class="md-body-2">Total Cost:&nbsp;</span>&#x20B9; {{vm.calculateCost()}}</span>
+                            <span><span class="md-body-2">Total Cost:&nbsp;</span>Rs. {{vm.calculateCost()}}</span>
                         </div>
                     </div>
                 </div>

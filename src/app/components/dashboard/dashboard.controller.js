@@ -250,7 +250,8 @@
             }
 
             function iterateServices(service) {
-                vm.totalRevenueEarned += service.srvc_cost;
+                if (service.srvc_status == 'Paid')
+                    vm.totalRevenueEarned += service.srvc_cost;
                 var d = moment(service.srvc_date).format('DD MMM YYYY');
                 if (!spd[d]) {
                     spd[d] = 0;
@@ -266,7 +267,7 @@
         }
 
         function failure(err) {
-            console.log(err);
+            // console.log(err);
         }
     }
     
@@ -326,7 +327,6 @@
             page: 1,
             total: newCustomers.length
         };
-        console.log(newCustomers);
         //  function mappings
         vm.customers = newCustomers;
         vm.closeDialog = closeDialog;

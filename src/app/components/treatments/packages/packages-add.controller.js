@@ -2,7 +2,7 @@
  * Controller for Add Package component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -19,6 +19,7 @@
         //  named assignments to keep track of UI elements
         vm.label_name = "Enter Package Name:";
         vm.operationMode = 'add';
+        vm.displayTreatmentAsList = true;
         vm.package = {
             name: ''
         };

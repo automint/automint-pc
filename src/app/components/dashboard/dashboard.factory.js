@@ -78,6 +78,8 @@
                             Object.keys(row.doc.user.vehicles[vId].services).forEach(iterateService);
                             
                         function iterateService(sId) {
+                            if (row.doc.user.vehicles[vId].services[sId]._deleted == true)
+                                return;
                             if (row.doc.user.vehicles[vId].services[sId].problems)
                                 Object.keys(row.doc.user.vehicles[vId].services[sId].problems).forEach(iterateProblems);
                             

@@ -74,8 +74,10 @@
                     if (cachedoc._rev)
                         docsToSave._rev = cachedoc._rev;
                     
-                    if (isChanged)
+                    if (isChanged || (force == true)) {
+                        console.log(docsToSave);
                         pdbCache.save(docsToSave);
+                    }
 
                     function iterateRows(row) {
                         if (row.doc.user.vehicles)
@@ -90,6 +92,11 @@
                                 var service = vehicle.services[sId];
                                 var cd = moment(service.date).format('MMM YYYY');
                                 cd = angular.lowercase(cd).replace(' ', '-');
+                                if (service._deleted == true) {
+                                    if (cachedoc[cd][sId] != undefined)
+                                        isChanged = true;
+                                    return;
+                                }
                                 if (docsToSave[cd] == undefined)
                                     docsToSave[cd] = {};
                                 docsToSave[cd][sId] = {
@@ -135,6 +142,10 @@
             }).on('change', onChange).on('complete', onComplete).on('error', onError);
 
             function onChange(change) {
+                if (change.deleted == true) {
+                    ccViews(true);
+                    return;
+                }
                 var curdoc;
                 pdbCache.get(constants.pdb_cache_views.view_services).then(vsuv).catch(vsuv);
 
@@ -160,6 +171,7 @@
                     }
 
                     function getLastVersion(ldoc) {
+                        console.log(curdoc, ldoc);
                         if (curdoc.user.vehicles)
                             Object.keys(curdoc.user.vehicles).forEach(iterateVehicles);
                         pdbCache.save(cachedoc);
@@ -172,13 +184,18 @@
                             function iterateServices(sId) {
                                 var service = vehicle.services[sId];
                                 var cd = moment(service.date).format('MMM YYYY');
+                                cd = angular.lowercase(cd).replace(' ', '-');
+                                if (service._deleted == true) {
+                                    if (cachedoc[cd] && cachedoc[cd][sId])
+                                        delete cachedoc[cd][sId];
+                                    return;
+                                }
                                 if (ldoc && ldoc.user && ldoc.user.vehicles && ldoc.user.vehicles[vId] && ldoc.user.vehicles[vId].services && ldoc.user.vehicles[vId].services[sId]) {
                                     var lvd = moment(ldoc.user.vehicles[vId].services[sId].date).format('MMM YYYY');
                                     lvd = angular.lowercase(lvd).replace(' ', '-');
                                     if (cachedoc[lvd][sId] != undefined)
                                         delete cachedoc[lvd][sId];
                                 }
-                                cd = angular.lowercase(cd).replace(' ', '-');
                                 if (cachedoc[cd] == undefined)
                                     cachedoc[cd] = {};
                                 cachedoc[cd][sId] = {

@@ -139,17 +139,18 @@
 
         //  delete service from UI
         function deleteService(service) {
-            amServices.deleteService(service.srvc_id, service.vhcl_id, service.cstmr_id).then(success).catch(failure);
+            amServices.deleteService(service.cstmr_id, service.vhcl_id, service.srvc_id).then(success).catch(failure);
 
             function success(res) {
                 if (res.ok) {
                     utils.showSimpleToast('Service has been deleted.');
-                    getServices();
+                    setTimeout(getServices, 200);
                 } else
                     failure();
             }
 
             function failure(err) {
+                console.log(err);
                 utils.showSimpleToast('Service can not be deleted at moment. Please Try Again!');
             }
         }
