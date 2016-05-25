@@ -27,6 +27,7 @@
         vm.totalRevenueEarned = 0;
         vm.totalNewCustomers = 0;
         vm.totalPendingPayments = 0;
+        vm.totalServicesDone = 0;
         vm.perDayServiceChart = {};
         vm.perDayServiceChart.type = "AnnotationChart";
         vm.perDayServiceChart.options = {
@@ -235,6 +236,7 @@
                 spd = {};
             vm.totalCustomersServed = 0;
             vm.totalRevenueEarned = 0;
+            vm.totalServicesDone = 0;
             res.forEach(iterateServices);
             if (spd)
                 Object.keys(spd).forEach(calculateSpd);
@@ -250,6 +252,7 @@
             }
 
             function iterateServices(service) {
+                ++vm.totalServicesDone;
                 if (service.srvc_status == 'Paid')
                     vm.totalRevenueEarned += service.srvc_cost;
                 var d = moment(service.srvc_date).format('DD MMM YYYY');

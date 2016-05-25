@@ -107,7 +107,7 @@
         <md-card flex class="md-hue-1">
             <md-card-content layout="column">
                 <div layout="row" layout-xs="column" layout-align="start center">
-                    <span flex><span class="am-card-label">Daily Services</span>&nbsp;<span class="am-card-label small">(This Month)</span></span>
+                    <span flex><span class="am-card-label">Daily Services</span>&nbsp;<span class="am-card-label small">(This Month: {{vm.totalServicesDone}} Services)</span></span>
                     <md-button class="md-accent" ng-click="vm.viewAllServices()">
                         <md-icon>list</md-icon>
                         <span layout-margin>View All Services</span>
@@ -117,7 +117,10 @@
                         <span layout-margin>Add Service</span>
                     </md-button>
                 </div>
-                <div google-chart chart="vm.perDayServiceChart" style="width: 99%" class="am-chart-no-border"></div>
+                <div ng-if="vm.perDayServiceChart.data.rows.length > 0" google-chart chart="vm.perDayServiceChart" style="width: 99%" class="am-chart-no-border"></div>
+                <div ng-if="vm.perDayServiceChart.data.rows.length == 0" layout="column" layout-align="center center" layout-padding>
+                    <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>No Services Added For This Month</span>
+                </div>
             </md-card-content>
         </md-card>
     </md-content>
