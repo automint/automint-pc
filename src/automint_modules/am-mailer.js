@@ -2,7 +2,7 @@
  * Module to send emails
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -11,7 +11,7 @@
     //  import required modules
     const BrowserWindow = require('electron').remote.BrowserWindow;
     var google = require('googleapis');
-    var gAuth = require('./oauth/google-auth.js');
+    var gAuth = require('./googleoauth/google-auth.js');
     var ipc = require('electron').remote.ipcMain;
 
     //  named assignments

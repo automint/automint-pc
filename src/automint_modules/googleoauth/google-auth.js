@@ -2,7 +2,7 @@
  * Module to authenticate user to Google Server
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../../typings/main.d.ts" />

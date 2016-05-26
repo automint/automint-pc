@@ -1,3 +1,10 @@
+/**
+ * Streaming build system
+ * @author vrlkacha
+ * @since 0.4.1
+ * @version 0.6.0
+ */
+
 var gulp = require('gulp');
 var del = require('del');
 var runSequence = require('run-sequence');
@@ -76,7 +83,7 @@ gulp.task('automint-modules', function() {
     gulp.src('../src/automint_modules/**/*.js')
         .pipe(uglify())
         .pipe(gulp.dest('app/automint_modules'));
-    gulp.src(['../src/automint_modules/**/*.json', '!../src/automint_modules/oauth/google-cred.json'])
+    gulp.src(['../src/automint_modules/**/*.json', '!../src/automint_modules/googleoauth/google-cred.json'])
         .pipe(jsonminify())
         .pipe(gulp.dest('app/automint_modules'));
     gulp.src(['../src/automint_modules/**/*.html', '!../src/automint_modules/print/print-preview.html'])
