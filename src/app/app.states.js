@@ -177,6 +177,9 @@
                 templateUrl: 'app/components/services/services_add.html',
                 controller: 'amCtrlSeCI',
                 controllerAs: 'vm',
+                params: {
+                    fromState: undefined
+                },
                 resolve: {
                     deps: ['$ocLazyLoad', loadSeCIDeps]
                 },
@@ -233,7 +236,8 @@
                 params: {
                     userId: undefined,
                     vehicleId: undefined,
-                    serviceId: undefined
+                    serviceId: undefined,
+                    fromState: undefined
                 },
                 controller: 'amCtrlIvRI',
                 controllerAs: 'vm',

@@ -190,7 +190,16 @@
         }
 
         function goBack() {
-            $state.go('restricted.services.all');
+            var transitState = 'restricted.services.all';
+            var transitParams = undefined;
+            if ($state.params.fromState) {
+                switch ($state.params.fromState) {
+                    case 'dashboard':
+                        transitState = 'restricted.dashboard';
+                        break;
+                }
+            }
+            $state.go(transitState, transitParams);
         }
 
         function addInvoiceWLogo() {

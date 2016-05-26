@@ -75,7 +75,6 @@
                         docsToSave._rev = cachedoc._rev;
                     
                     if (isChanged || (force == true)) {
-                        console.log(docsToSave);
                         pdbCache.save(docsToSave);
                     }
 
@@ -171,7 +170,6 @@
                     }
 
                     function getLastVersion(ldoc) {
-                        console.log(curdoc, ldoc);
                         if (curdoc.user.vehicles)
                             Object.keys(curdoc.user.vehicles).forEach(iterateVehicles);
                         pdbCache.save(cachedoc);

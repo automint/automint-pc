@@ -23,7 +23,7 @@
                         <tr md-row ng-repeat="customer in vm.customers | limitTo: vm.query.limit: (vm.query.page - 1)*(vm.query.limit)" class="am-select-table-row" style="cursor: default">
                             <td md-cell>{{customer.cstmr_name}}</td>
                             <td md-cell>{{customer.cstmr_mobile}}</td>
-                            <td md-cell>{{customer.vhcl_manuf + ' ' + service.vhcl_model}}<span ng-if="customer.vhcl_reg">&nbsp;({{customer.vhcl_reg}})</span></td>
+                            <td md-cell>{{customer.vhcl_manuf + ' ' + customer.vhcl_model}}<span ng-if="customer.vhcl_reg">&nbsp;({{customer.vhcl_reg}})</span></td>
                         </tr>
                     </tbody>
                 </table>

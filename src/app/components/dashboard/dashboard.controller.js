@@ -136,7 +136,9 @@
         }
         
         function addNewService() {
-            $state.go('restricted.services.add');
+            $state.go('restricted.services.add', {
+                fromState: 'dashboard'
+            });
         }
 
         function viewAllServices() {
