@@ -13,11 +13,11 @@
         .controller('amCtrlDashDuPy', DuePaymentsController)
         .controller('amCtrlDashNwCu', NewCustomerController);
 
-    DashboardController.$inject = ['$state', '$filter', '$log', '$mdDialog', 'utils', 'amDashboard'];
+    DashboardController.$inject = ['$state', '$filter', '$log', '$mdDialog', '$amRoot', 'utils', 'amDashboard'];
     DuePaymentsController.$inject = ['$state', '$mdDialog', 'unbilledServices'];
     NewCustomerController.$inject = ['$mdDialog', 'newCustomers'];
 
-    function DashboardController($state, $filter, $log, $mdDialog, utils, amDashboard) {
+    function DashboardController($state, $filter, $log, $mdDialog, $amRoot, utils, amDashboard) {
         //  initialize view model
         var vm = this;
         var ubServices = [], nwCustomers = [];
@@ -87,6 +87,7 @@
         vm.openNewCustomers = openNewCustomers;
 
         //  default execution steps
+        $amRoot.ccViews();
         amDashboard.getTotalCustomerServed().then(generateTcsData).catch(failure);
         amDashboard.getNewCustomers().then(generateNcpData).catch(failure);
         amDashboard.getProblemsAndVehicleTypes().then(sortProblemsAndVehicleTypes).catch(failure);

@@ -25,6 +25,7 @@
         //  map functions
         sVm.initDb = initDb;
         sVm.syncDb = syncDb;
+        sVm.ccViews = ccViews;
         sVm.isWorkshopId = isWorkshopId;
         sVm.isTreatmentId = isTreatmentId;
         sVm.isSettingsId = isSettingsId;
@@ -73,10 +74,7 @@
                     docsToSave._id = constants.pdb_cache_views.view_services;
                     if (cachedoc._rev)
                         docsToSave._rev = cachedoc._rev;
-                    
-                    if (isChanged || (force == true)) {
-                        pdbCache.save(docsToSave);
-                    }
+                    pdbCache.save(docsToSave);
 
                     function iterateRows(row) {
                         if (row.doc.user.vehicles)
@@ -110,19 +108,6 @@
                                     srvc_cost: service.cost,
                                     srvc_status: service.status
                                 };
-                                if (cachedoc[cd] && cachedoc[cd][sId]) {
-                                    if ((docsToSave[cd][sId].cstmr_id != cachedoc[cd][sId].cstmr_id) ||
-                                        (docsToSave[cd][sId].cstmr_name != cachedoc[cd][sId].cstmr_name) ||
-                                        (docsToSave[cd][sId].cstmr_mobile != cachedoc[cd][sId].cstmr_mobile) ||
-                                        (docsToSave[cd][sId].vhcl_id != cachedoc[cd][sId].vhcl_id) ||
-                                        (docsToSave[cd][sId].vhcl_reg != cachedoc[cd][sId].vhcl_reg) ||
-                                        (docsToSave[cd][sId].vhcl_manuf != cachedoc[cd][sId].vhcl_manuf) ||
-                                        (docsToSave[cd][sId].vhcl_model != cachedoc[cd][sId].vhcl_model) ||
-                                        (docsToSave[cd][sId].srvc_date != cachedoc[cd][sId].srvc_date) ||
-                                        (docsToSave[cd][sId].srvc_cost != cachedoc[cd][sId].srvc_cost) ||
-                                        (docsToSave[cd][sId].srvc_status != cachedoc[cd][sId].srvc_status))
-                                        isChanged = true;
-                                }
                             }
                         }
                     }
@@ -142,7 +127,7 @@
 
             function onChange(change) {
                 if (change.deleted == true) {
-                    ccViews(true);
+                    ccViews();
                     return;
                 }
                 var curdoc;

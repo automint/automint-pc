@@ -39,7 +39,9 @@
 
         //  setup database
         function setDatabase(name) {
-            database = new PouchDB(name);
+            database = new PouchDB(name, {
+                auto_compaction: true
+            });
         }
 
         //  save a document in pouchDb database
