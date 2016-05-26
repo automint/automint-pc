@@ -138,8 +138,6 @@
         function loadInvoiceWLogo() {
             var source = localStorage.getItem('invoice-w-pic');
             vm.invoiceWLogo = source;
-            if (vm.invoiceWLogo)
-                addInvoiceWLogo();
         }
 
         //  load display settings
