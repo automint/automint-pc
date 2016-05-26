@@ -1,6 +1,6 @@
 {
   "name": "Automint",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "CRM by Automint",
   "main": "main.js",
   "scripts": {
@@ -9,10 +9,10 @@
   "productName": "Automint",
   "author": "Automint",
   "license": "http://automint.in/licenses",
-  "homepage": "https://automint.in",
+  "homepage": "http://automint.in",
   "private": true,
   "devDependencies": {
-    "electron-squirrel-startup": "^0.1.4"
+    "electron-squirrel-startup": "^1.0.0"
   },
   "dependencies": {
     "base64url": "^1.0.6",

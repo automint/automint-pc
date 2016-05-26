@@ -17,7 +17,7 @@
     // Importing Eelctron Squirrel Startup 
     if(require('electron-squirrel-startup')) return;
     // Module to Auto Update app
-    var autoUpdater = require('auto-updater');  
+    var autoUpdater = electron.autoUpdater;  
     var os = require('os');  
     var feedURL = 'http://updates.automint.in/releases/' + (os.platform()) + '/' + (os.arch());
     autoUpdater.addListener("error", function(error) {});

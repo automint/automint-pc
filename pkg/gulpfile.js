@@ -100,6 +100,9 @@ gulp.task('bower_components', function() {
                 "angular-aria": {
                     main: './angular-aria.min.js'
                 },
+                "angular-google-chart": {
+                    main: './ng-google-chart.min.js'      
+                },
                 "angular-material": {
                     main: [
                         "angular-material.min.css",
