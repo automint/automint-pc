@@ -33,7 +33,7 @@
         <md-tooltip md-direction="top">Edit Service</md-tooltip>
     </md-button>
 </md-content>
-<md-content>
+<md-content class="md-hue-1">
     <div id="am-invoice-mail-body">
         <div id="am-invoice-body" style="box-shadow: 1px 1px 3px rgba(30,30,30,0.3); padding:1rem; margin: 0.1rem;">
             <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -138,7 +138,7 @@
                             <tr class="caption">
                                 <td>
                                     <p style="font-size: large">{{vm.user.name}}</p>
-                                    <span>{{vm.vehicle.manuf + ' ' + vm.vehicle.model}}</span>
+                                    <span><span>{{vm.vehicle.manuf + ' ' + vm.vehicle.model}}</span><br><span style="line-height: 1.4; font-size: smaller; letter-spacing: 0.2px" ng-if="vm.vehicle.reg">{{vm.vehicle.reg}}</span></span>
                                 </td>
                                 <td style="text-align: right">
                                     <p style="text-align: right; font-size: large">Invoice #{{vm.service.invoiceno}}</p>
@@ -170,7 +170,7 @@
                                 <td align="right">Rs. {{problem.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                             </tr>
                             <tr class="tax" ng-if="vm.sTaxSettings.applyTax">
-                                <td>Tax</td>
+                                <td>Service Tax</td>
                                 <td align="right">Rs. {{vm.calculateServiceTax() | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                             </tr>
                             <tr class="total" ng-class="{'tax': !vm.sTaxSettings.applyTax}">

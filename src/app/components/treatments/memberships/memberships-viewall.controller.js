@@ -2,7 +2,7 @@
  * Conroller for View All Memberships component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -34,7 +34,7 @@
         vm.IsMembershipVisible = IsMembershipVisible;
         
         //  default execution steps
-        getMemberships();
+        getMemberships(changeExpandValues);
         
         //  function definitions
         
@@ -69,16 +69,24 @@
         }
         
         function getMemberships() {
+            var callback = arguments[0];
+            var callingFunction = this;
+            var callbackArgs = arguments;
+            
             amTreatments.getMemberships().then(success).catch(failure);
             
             function success(res) {
                 vm.memberships = res.memberships;
                 vm.query.total = res.total;
+                if (callback)
+                    callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
             }
             
             function failure(err) {
                 vm.memberships = [];
                 vm.query.total = 0;
+                if (callback)
+                    callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
             }
         }
         

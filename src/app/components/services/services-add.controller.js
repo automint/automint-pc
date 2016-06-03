@@ -2,7 +2,7 @@
  * Controller for Add Service module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -27,7 +27,9 @@
         //  temporary named assignments
         var autofillVehicle = false,
             flagGetUserBasedOnMobile = true,
-            olInvoiceNo = 1;
+            olInvoiceNo = 1,
+            transitIds = undefined,
+            transitInterState = undefined;
 
         //  vm assignments to keep track of UI related elements
         vm.label_userMobile = 'Enter Mobile Number:';
@@ -190,7 +192,25 @@
         }
         
         function goBack() {
-            $state.go('restricted.services.all');
+            var transitState = 'restricted.services.all';
+            var transitParams = undefined;
+            if ($state.params.fromState != undefined) {
+                switch ($state.params.fromState) {
+                    case 'dashboard':
+                        transitState = 'restricted.dashboard';
+                        break;
+                    case 'invoice':
+                        transitState = 'restricted.invoices.view';
+                        transitParams = {
+                            userId: transitIds.userId,
+                            vehicleId: transitIds.vehicleId,
+                            serviceId: transitIds.serviceId,
+                            fromState: transitInterState
+                        }
+                        break;
+                }
+            }
+            $state.go(transitState, transitParams);
         }
         
         function addMembershipChip(chip) {
@@ -1140,16 +1160,16 @@
             function success(res) {
                 switch (redirect) {
                     case vm.redirect.invoice:
-                        $state.go('restricted.invoices.view', {
+                        transitInterState = $state.params.fromState;
+                        $state.params.fromState = 'invoice';
+                        transitIds = {
                             userId: res.id.userId,
                             vehicleId: res.id.vehicleId,
                             serviceId: res.id.serviceId
-                        });
-                        break;
-                    default:
-                        $state.go('restricted.services.all');
+                        }
                         break;
                 }
+                setTimeout(goBack, 100);
                 utils.showSimpleToast('Successfully Added!');
             }
 

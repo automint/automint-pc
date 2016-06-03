@@ -2,7 +2,7 @@
  * Customised style sheet for Automint App
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0 
+ * @version 0.6.0 
  */
 
 input[type=number]::-webkit-inner-spin-button,
@@ -151,6 +151,7 @@ md-sidenav.md-closed.md-locked-open-add-active {
 }
 
 .am-table-header {
+    color: #212121;
     font-size: 11pt;
 }
 

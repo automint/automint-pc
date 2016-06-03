@@ -2,7 +2,7 @@
  * Controller for View Services module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,11 +11,11 @@
     angular.module('automintApp')
         .controller('amCtrlSeRA', ServiceViewAllController);
 
-    ServiceViewAllController.$inject = ['$scope', '$state', '$filter', 'utils', 'amServices'];
+    ServiceViewAllController.$inject = ['$scope', '$state', '$filter', '$timeout', 'utils', 'amServices'];
 
-    function ServiceViewAllController($scope, $state, $filter, utils, amServices) {
+    function ServiceViewAllController($scope, $state, $filter, $timeout, utils, amServices) {
         //  initialize view model
-        var vm = this;
+        var vm = this, queryChangedPromise, cacheLoadTimeout = false;
 
         //  named assginments for tracking UI elements
         vm.query = {
@@ -24,27 +24,27 @@
             total: 0
         };
         vm.filter = {
-            month: 1,
+            month: 0,
             year: 0
         }
         vm.services = [];
         vm.displayDataOptions = [{
-            name: '1 Month',
-            month: 1,
+            name: 'This Month',
+            month: 0,
             year: 0
         }, {
-            name: '6 Months',
+            name: 'Last 6 Months',
             month: 6,
             year: 0
         }, {
-            name: 'A Year',
+            name: 'Last Year',
             month: 0,
             year: 1
         }, {
             name: 'Everything',
-            month: 0,
-            year: 0
-        }]
+            month: -1,
+            year: -1
+        }];
         vm.displayDataFor = vm.displayDataOptions[0].name;
         vm.serviceQuery = '';
         vm.isQueryMode = false;
@@ -57,11 +57,24 @@
         vm.deleteService = deleteService;
         vm.changeQueryMode = changeQueryMode;
         vm.goToInvoice = goToInvoice;
+        vm.getServiceDate = getServiceDate;
 
         //  default execution steps
         $scope.$watch('vm.displayDataFor', watchDisplayDataFor);
+        $scope.$watch('vm.serviceQuery', watchServiceQuery);
 
         //  function definitions
+        
+        function getServiceDate(date) {
+            return moment(date).format('DD MMM YYYY');
+        }
+        
+        function watchServiceQuery(newValue, oldValue) {
+            if(queryChangedPromise){
+                $timeout.cancel(queryChangedPromise);
+            }
+            queryChangedPromise = $timeout(getServices, 500);
+        }
         
         //  listen to changes in display data settings
         function watchDisplayDataFor(newValue, oldValue) {
@@ -93,15 +106,18 @@
         //  fill datatable with list of services
         function getServices() {
             vm.showPaginationBar = (vm.serviceQuery == '');
-            vm.promise = amServices.getFilteredServices(vm.query.page, vm.query.limit, vm.filter.month, vm.filter.year, vm.serviceQuery).then(success).catch(failure);
+            vm.promise = amServices.getServices(vm.filter.month, vm.filter.year, vm.serviceQuery).then(success).catch(failure);
 
             function success(res) {
-                vm.services = res.services;
-                vm.query.total = res.total;
+                vm.services = res;
+                vm.query.total = res.length;
             }
 
             function failure(err) {
-                console.log(err);
+                if (cacheLoadTimeout == false) {
+                    cacheLoadTimeout = true;
+                    getServices();
+                }
                 vm.services = [];
                 vm.query.total = 0;
             }
@@ -115,25 +131,26 @@
         //  edit service
         function editService(service) {
             $state.go('restricted.services.edit', {
-                serviceId: service.value.id,
-                vehicleId: service.value.vehicleId,
-                userId: service.id
+                serviceId: service.srvc_id,
+                vehicleId: service.vhcl_id,
+                userId: service.cstmr_id
             });
         }
 
         //  delete service from UI
         function deleteService(service) {
-            amServices.deleteService(service.id, service.value.vehicleId, service.value.id).then(success).catch(failure);
+            amServices.deleteService(service.cstmr_id, service.vhcl_id, service.srvc_id).then(success).catch(failure);
 
             function success(res) {
                 if (res.ok) {
                     utils.showSimpleToast('Service has been deleted.');
-                    getServices();
+                    setTimeout(getServices, 200);
                 } else
                     failure();
             }
 
             function failure(err) {
+                console.log(err);
                 utils.showSimpleToast('Service can not be deleted at moment. Please Try Again!');
             }
         }
@@ -141,9 +158,9 @@
         //  transit to state to view selected invoice
         function goToInvoice(service) {
             $state.go('restricted.invoices.view', {
-                userId: service.id,
-                vehicleId: service.value.vehicleId,
-                serviceId: service.value.id
+                userId: service.cstmr_id,
+                vehicleId: service.vhcl_id,
+                serviceId: service.srvc_id
             });
         }
     }

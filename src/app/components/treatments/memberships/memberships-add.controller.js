@@ -2,7 +2,7 @@
  * Controller for Add Membership component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -23,6 +23,7 @@
         vm.label_amount = "Enter Amount:";
         vm.label_description = "Enter Description:";
         vm.operationMode = 'add';
+        vm.displayTreatmentAsList = true;
         vm.membership = {
             name: '',
             occurences: 1,

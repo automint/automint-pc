@@ -2,7 +2,7 @@
  * Factory that handles database interactions between services database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .factory('amServices', ServicesFactory);
 
-    ServicesFactory.$inject = ['$http', '$q', '$log', 'utils', '$amRoot', 'pdbCustomers', 'pdbCommon', 'pdbConfig'];
+    ServicesFactory.$inject = ['$http', '$timeout', '$q', '$log', 'utils', '$amRoot', 'constants', 'pdbCustomers', 'pdbCommon', 'pdbConfig', 'pdbCache'];
 
-    function ServicesFactory($http, $q, $log, utils, $amRoot, pdbCustomers, pdbCommon, pdbConfig) {
+    function ServicesFactory($http, $timeout, $q, $log, utils, $amRoot, constants, pdbCustomers, pdbCommon, pdbConfig, pdbCache) {
         //  initialize factory variable and function maps
         var factory = {
             getManufacturers: getManufacturers,
@@ -22,7 +22,6 @@
             getCustomerChain: getCustomerChain,
             getRegularTreatments: getRegularTreatments,
             saveService: saveService,
-            getFilteredServices: getFilteredServices,
             serviceTree: serviceTree,
             deleteService: deleteService,
             getVehicleTypes: getVehicleTypes,
@@ -31,7 +30,8 @@
             getLastInvoiceNo: getLastInvoiceNo,
             getPackages: getPackages,
             getMemberships: getMemberships,
-            getServiceTaxSettings: getServiceTaxSettings
+            getServiceTaxSettings: getServiceTaxSettings,
+            getServices: getServices
         }
 
         return factory;
@@ -186,100 +186,60 @@
                 tracker.reject(err);
             }
         }
-
-        //  return filtered services
-        function getFilteredServices(page, limit, filterMonth, filterYear, query) {
+        
+        function getServices(filterMonth, filterYear, query) {
+            query = angular.lowercase(query);
+            filterMonth += (12*filterYear);
             var tracker = $q.defer();
-            queryOptions = {
-                limit: limit,
-                skip: --page * limit,
-                descending: true,
-                group: true
-            };
-            var queryDate = moment().subtract({
-                months: filterMonth,
-                years: filterYear
-            });
-            if (query == '' || query == undefined) {
-                pdbCustomers.query(mapFilteredServices, queryOptions).then(success).catch(failure);
-            } else {
-                pdbCustomers.query({
-                    map: mapFilteredServices,
-                    reduce: reduceQuery
-                }, queryOptions).then(success).catch(failure);
-            }
+            pdbCache.get(constants.pdb_cache_views.view_services).then(success).catch(failure);
             return tracker.promise;
-
-            function mapFilteredServices(doc, emit) {
-                view = {};
-                if (doc.user.vehicles)
-                    Object.keys(doc.user.vehicles).forEach(iterateVehicles);
-
-                function iterateVehicles(vId) {
-                    if (doc.user.vehicles[vId].services)
-                        Object.keys(doc.user.vehicles[vId].services).forEach(iterateService);
-
-                    function iterateService(sId) {
-                        if (doc.user.vehicles[vId].services[sId] && !doc.user.vehicles[vId].services[sId]._deleted) {
-                            var date = doc.user.vehicles[vId].services[sId].date;
-                            if ((date <= moment().format && date >= moment(queryDate).format()) || (filterMonth == 0 && filterYear == 0)) {
-                                if (query != undefined)
-                                    view.query = query;
-                                view.id = sId;
-                                view.vehicleId = vId;
-                                view.name = doc.user.name;
-                                view.reg = doc.user.vehicles[vId].reg;
-                                view.manuf = doc.user.vehicles[vId].manuf;
-                                view.model = doc.user.vehicles[vId].model;
-                                view.date = moment(date).format('DD MMM YYYY');
-                                view.cost = doc.user.vehicles[vId].services[sId].cost;
-                                view.status = utils.convertToTitleCase(doc.user.vehicles[vId].services[sId].status);
-                                emit(doc.user.vehicles[vId].services[sId].date, view);
-                            }
-                        }
-                    }
-                }
-            }
-
-            function reduceQuery(keys, values, rereduce) {
-                var result = [];
-                var q = angular.lowercase(values[0].query);
-                values.forEach(iterateValues);
-                return result;
-
-                function iterateValues(value) {
-                    if ((value.name && angular.lowercase(value.name).search(q) > -1) || (value.manuf && angular.lowercase(value.manuf).search(q) > -1) || (value.model && angular.lowercase(value.model).search(q) > -1) || (value.reg && angular.lowercase(value.reg).search(q) > -1) || (value.status && angular.lowercase(value.status).search(q) > -1) || (value.date && angular.lowercase(value.date).search(q) > -1) || (value.cost && value.cost.toString().search(q) > -1)) {
-                        result.push(value);
-                    }
-                }
-            }
-
+            
             function success(res) {
-                var result = [],
-                    total = 0;
-                if (query == '' || query == undefined) {
-                    result = res.rows;
-                    total = res.total_rows;
-                } else {
-                    res.rows.forEach(iterateRows);
-                    total = result.length;
-
-                    function iterateRows(row) {
-                        row.value.forEach(iterateValues);
+                var result = [], ltm = filterMonth, currentRange = '';
+                if (filterMonth < 0 && filterYear < 0) {
+                    Object.keys(res).forEach(iterateDateRange);
+                    
+                    function iterateDateRange(dr) {
+                        currentRange = dr;
+                        if (currentRange.match(/_id|_rev/g))
+                            return;
+                        if (res[currentRange])
+                            Object.keys(res[currentRange]).forEach(iterateService);
                     }
-
-                    function iterateValues(value) {
-                        result.push({
-                            value: value
+                } else {
+                    do {
+                        var queryDate = moment().subtract({
+                            months: ltm
                         });
+                        currentRange = moment(queryDate).format('MMM YYYY');
+                        currentRange = angular.lowercase(currentRange).replace(' ', '-');
+                        if (res[currentRange])
+                            Object.keys(res[currentRange]).forEach(iterateService);
+                        ltm--;
+                    } while(ltm >= 0);
+                }
+                result.sort(dateSort);
+                tracker.resolve(result);
+                
+                function dateSort(lhs, rhs) {
+                    return rhs.srvc_date.localeCompare(lhs.srvc_date);
+                }
+                
+                function iterateService(sId) {
+                    var target = res[currentRange][sId];
+                    if (query != undefined) {
+                        if (query != undefined && (target.cstmr_name && angular.lowercase(target.cstmr_name).search(query) > -1) || (target.srvc_status && angular.lowercase(target.srvc_status).search(query) > -1) || (target.vhcl_manuf && angular.lowercase(target.vhcl_manuf).search(query) > -1) || (target.vhcl_model && angular.lowercase(target.vhcl_model).search(query) > -1) || (target.vhcl_reg && angular.lowercase(target.vhcl_reg).search(query) > -1) || (target.srvc_cost && target.srvc_cost.toString().search(query) > -1) || (target.srvc_date && angular.lowercase(target.srvc_date).search(query) > -1)) {
+                            target.srvc_status = utils.convertToTitleCase(target.srvc_status);
+                            target.srvc_id = sId;
+                            result.push(target);
+                        }
+                    } else {
+                        target.srvc_status = utils.convertToTitleCase(target.srvc_status);
+                        target.srvc_id = sId;
+                        result.push(target);
                     }
                 }
-                tracker.resolve({
-                    services: result,
-                    total: total
-                });
             }
-
             function failure(err) {
                 tracker.reject(err);
             }
@@ -483,7 +443,7 @@
                 var doc = res.rows[0].doc;
                 var response = {};
                 var pvl = [];
-                response.id = doc.id;
+                response.id = doc._id;
                 response.mobile = doc.user.mobile;
                 response.email = doc.user.email;
                 response.name = doc.user.name;

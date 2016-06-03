@@ -2,7 +2,7 @@
  * Controller for View All Packages compoenent
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.6.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -34,7 +34,7 @@
         vm.calculateTotal = calculateTotal;
         
         //  default execution steps
-        getPackages();
+        getPackages(changeExpandValues);
         
         //  function definitions
         
@@ -76,16 +76,24 @@
         }
         
         function getPackages() {
+            var callback = arguments[0];
+            var callingFunction = this;
+            var callbackArgs = arguments;
+            
             amTreatments.getPackages().then(success).catch(failure);
             
             function success(res) {
                 vm.packages = res.packages;
                 vm.query.total = res.total;
+                if (callback)
+                    callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
             }
             
             function failure(err) {
                 vm.packages = [];
                 vm.query.total = 0;
+                if (callback)
+                    callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
             }
         }
         

@@ -2,7 +2,7 @@
  * Controller for View Invoice component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0 
+ * @version 0.6.0 
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -79,7 +79,8 @@
             $state.go('restricted.services.edit', {
                 userId: $state.params.userId,
                 vehicleId: $state.params.vehicleId,
-                serviceId: $state.params.serviceId
+                serviceId: $state.params.serviceId,
+                fromState: 'invoice'
             });
         }
 
@@ -137,8 +138,6 @@
         function loadInvoiceWLogo() {
             var source = localStorage.getItem('invoice-w-pic');
             vm.invoiceWLogo = source;
-            if (vm.invoiceWLogo)
-                addInvoiceWLogo();
         }
 
         //  load display settings
@@ -189,7 +188,16 @@
         }
 
         function goBack() {
-            $state.go('restricted.services.all');
+            var transitState = 'restricted.services.all';
+            var transitParams = undefined;
+            if ($state.params.fromState) {
+                switch ($state.params.fromState) {
+                    case 'dashboard':
+                        transitState = 'restricted.dashboard';
+                        break;
+                }
+            }
+            $state.go(transitState, transitParams);
         }
 
         function addInvoiceWLogo() {

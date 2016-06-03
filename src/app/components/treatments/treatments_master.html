@@ -3,11 +3,11 @@
         margin-top: 1rem;
     }
 </style>
-<md-content>
+<md-content layout-padding>
     <md-tabs md-dynamic-height md-border-bottom>
         <md-tab label="Treatments" md-active="vm.treatmensTab" md-on-deselect="vm.changeTreatmensTab(false)">
             <md-content ng-controller="amCtrlTrRA as trVm">
-                <md-toolbar class="md-table-toolbar md-default">
+                <md-content class="md-table-toolbar md-default">
                     <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
                         <md-button aria-label="Add Treatment" class="md-raised md-accent" ng-click="trVm.addTreatment()">
                             <md-icon style="color: white">add</md-icon>
@@ -20,36 +20,37 @@
                                     <p class="md-body-1">Display as list while adding service</p>
                                 </md-checkbox>
                             </span>
-                            <md-button class="md-icon-button">
+                            <md-button class="md-icon-button" ng-hide="true">
                                 <md-icon>search</md-icon>
                             </md-button>
                         </div>
                     </div>
-                </md-toolbar>
+                </md-content>
+                <md-content class="md-hue-1">
+                    <md-table-container>
+                        <table md-table md-progress="trVm.promise">
+                            <thead md-head>
+                                <tr md-row>
+                                    <th md-column><span class="am-table-header">Treatment</span></th>
+                                    <th md-column ng-repeat="type in trVm.vehicletypes"><span class="am-table-header">{{type}}</span></th>
+                                </tr>
+                            </thead>
+                            <tbody md-body>
+                                <tr md-row ng-repeat="treatment in trVm.treatments | limitTo: trVm.query.limit: (trVm.query.page - 1)*(trVm.query.limit)" class="am-select-table-row">
+                                    <td md-cell ng-click="trVm.editTreatment(treatment.name)">{{treatment.name}}</td>
+                                    <td md-cell ng-click="trVm.editTreatment(treatment.name)" ng-repeat="type in trVm.vehicletypes">{{trVm.getRate(treatment.rate, type)}}</td>
+                                    <td md-cell class="am-datatable-actions view-all-customers">
+                                        <md-button class="md-icon-button" ng-click="trVm.deleteTreatment(treatment.name)">
+                                            <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
+                                        </md-button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </md-table-container>
 
-                <md-table-container>
-                    <table md-table md-progress="trVm.promise">
-                        <thead md-head>
-                            <tr md-row>
-                                <th md-column><span class="am-table-header">Treatment</span></th>
-                                <th md-column ng-repeat="type in trVm.vehicletypes"><span class="am-table-header">{{type}}</span></th>
-                            </tr>
-                        </thead>
-                        <tbody md-body>
-                            <tr md-row ng-repeat="treatment in trVm.treatments | limitTo: trVm.query.limit: (trVm.query.page - 1)*(trVm.query.limit)" class="am-select-table-row">
-                                <td md-cell ng-click="trVm.editTreatment(treatment.name)">{{treatment.name}}</td>
-                                <td md-cell ng-click="trVm.editTreatment(treatment.name)" ng-repeat="type in trVm.vehicletypes">{{trVm.getRate(treatment.rate, type)}}</td>
-                                <td md-cell class="am-datatable-actions view-all-customers">
-                                    <md-button class="md-icon-button" ng-click="trVm.deleteTreatment(treatment.name)">
-                                        <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
-                                    </md-button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </md-table-container>
-
-                <md-table-pagination md-limit="trVm.query.limit" md-limit-options="[10, 20, 50, 100]" md-page="trVm.query.page" md-total="{{trVm.query.total}}" md-page-select></md-table-pagination>
+                    <md-table-pagination md-limit="trVm.query.limit" md-limit-options="[10, 20, 50, 100]" md-page="trVm.query.page" md-total="{{trVm.query.total}}" md-page-select></md-table-pagination>
+                </md-content>
             </md-content>
         </md-tab>
         <md-tab label="Packages" md-active="vm.packagesTab" md-on-deselect="vm.changePackagesTab(false)">
@@ -146,7 +147,7 @@
                             <div layout-xs="column" layout="row" layout-align="center center" layout-fill ng-click="msVm.expandMembership($index)" class="folded" layout-padding>
                                 <span class="membership-name" ng-class="{'md-title': membership.expanded == true, 'md-subhead': membership.expanded != true}">
                                     {{membership.name}}
-                                    <span ng-show="membership.expanded == true && membership.amount != undefinied"><br>&#x20B9; {{membership.amount}}</span>
+                                    <span ng-show="membership.expanded == true && (membership.amount != undefined && membership.amount != '')"><br>Rs. {{membership.amount}}</span>
                                 </span>
                                 <div flex></div>
                                 <div layout="row" layout-align="center center" class="actions" ng-show="membership.expanded == true">
