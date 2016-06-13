@@ -170,7 +170,7 @@
                                 <td align="right">Rs. {{problem.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                             </tr>
                             <tr class="tax" ng-if="vm.sTaxSettings.applyTax">
-                                <td>Service Tax</td>
+                                <td>Service Tax ({{vm.sTaxSettings.tax}}%)</td>
                                 <td align="right">Rs. {{vm.calculateServiceTax() | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                             </tr>
                             <tr class="total" ng-class="{'tax': !vm.sTaxSettings.applyTax}">

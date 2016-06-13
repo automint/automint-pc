@@ -9,7 +9,7 @@
             <div layout="row" layout-align="center center">
                 <span class="am-form-label" layout-padding>Display Data For: </span>
                 <md-select ng-model="vm.displayDataFor" aria-label="Display Data For:" style="width: 120px">
-                    <md-option ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
+                    <md-option class="am-hover-option" ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
                 </md-select>
                 <md-button class="md-icon-button" ng-click="vm.changeQueryMode(true)">
                     <md-icon>search</md-icon>

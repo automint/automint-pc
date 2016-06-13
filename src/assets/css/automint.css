@@ -188,6 +188,15 @@ md-sidenav.md-closed.md-locked-open-add-active {
     max-width: 40px;
 }
 
+.am-hover-option {
+    background: #fff;
+    transition: all 100ms ease;
+}
+
+.am-hover-option:hover {
+    background: #F5F5F5;
+}
+
 .am-table-inline-input {
     border: 0;
     width: 97%;
