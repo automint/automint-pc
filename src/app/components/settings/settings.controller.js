@@ -2,7 +2,7 @@
  * Controller for Settings component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -67,8 +67,9 @@
         vm.saveIvDisplaySettings = saveIvDisplaySettings;
         vm.OnBlurLastInvoiceNumber = OnBlurLastInvoiceNumber;
         vm.saveIvEmailSubject = saveIvEmailSubject;
-        //  service tax settings
+        // tax settings
         vm.saveServiceTaxSettings = saveServiceTaxSettings;
+        vm.saveVatSettings = saveVatSettings;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -87,6 +88,7 @@
         loadInvoiceWLogo();
         //  service tax settings
         getServiceTaxSettings();
+        getVatSettings();
         // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
         //  default execution steps [END]
 
@@ -373,6 +375,33 @@
             
             function failure(err) {
                 utils.showSimpleToast('Failed to save Service Tax Settings. Please Try Again!');
+            }
+        }
+
+        function getVatSettings() {
+            amSeTaxSettings.getVatSettings().then(success).catch(failure);
+
+            function success(res) {
+                vm.vatSettings = res;
+            }
+
+            function failure(err) {
+                vm.vatSettings = {};
+            }
+        }
+
+        function saveVatSettings() {
+            amSeTaxSettings.saveVatSettings(vm.vatSettings).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok)
+                    utils.showSimpleToast('VAT Settings Saved Successfully!');
+                else
+                    failure();
+            }
+            
+            function failure(err) {
+                utils.showSimpleToast('Failed to save VAT Settings. Please Try Again!');
             }
         }
         
