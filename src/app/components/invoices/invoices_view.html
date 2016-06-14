@@ -80,6 +80,11 @@
                         font-weight: 800;
                         padding: 0.5rem 1rem 1rem 1rem !important;
                     }
+
+                    .am-invoice-table .subt td {
+                        border-top: 1px solid #ECEFF1;
+                        padding: 0.5rem 1rem 0.5rem 1rem !important;
+                    }
                     
                     .am-invoice-table .tax td {
                         border-top: 2px solid #37474F;
@@ -170,8 +175,16 @@
                                 <td align="right">Rs. {{problem.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                             </tr>
                             <tr class="tax" ng-if="vm.sTaxSettings.applyTax">
-                                <td>Service Tax ({{vm.sTaxSettings.tax}}%)</td>
-                                <td align="right">Rs. {{vm.calculateServiceTax() | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
+                                <td>Service Tax ({{vm.sTaxSettings.tax}}<small>%</small>)</td>
+                                <td align="right">Rs. {{vm.calculateServiceTax() | number: (vm.sTaxSettings.applyTax) ? 2 : 0}}</td>
+                            </tr>
+                            <tr class="subt" ng-if="vm.isDiscountApplied">
+                                <td>Discount ({{vm.service.discount.percent}}<small>%</small>)</td>
+                                <td align="right">Rs. {{vm.service.discount.amount}}</td>
+                            </tr>
+                            <tr class="subt" ng-if="vm.isRoundOff">
+                                <td>Round Off</td>
+                                <td align="right">Rs. {{vm.service.roundoff}}</td>
                             </tr>
                             <tr class="total" ng-class="{'tax': !vm.sTaxSettings.applyTax}">
                                 <td>Total</td>

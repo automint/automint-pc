@@ -4,15 +4,40 @@
     }
     
     .am-membership-subscribe-button {
-        background: rgba(80,80,80,0.1); 
+        background: rgba(80, 80, 80, 0.1);
         border-radius: 6px;
         cursor: pointer;
         outline: none;
     }
+    
     .am-membership-subscribe-button:hover {
         color: #37474F;
-        background: rgba(100,100,100,0.1); 
-        box-shadow: 1px 1px 3px 1px rgba(200,200,200,0.1);
+        background: rgba(100, 100, 100, 0.1);
+        box-shadow: 1px 1px 3px 1px rgba(200, 200, 200, 0.1);
+    }
+    
+    .am-discount-inline-input {
+        border: 0;
+        width: 56px;
+        font-weight: 400;
+        padding-left: 0.2rem;
+        outline: none;
+        background: transparent;
+        color: rgba(30, 30, 30, 0.7);
+        border-bottom: 1px rgba(30,30,30,0.2) solid;
+        -webkit-transition: background 1s ease 0s, border-bottom 1s ease 0s;
+        -moz-transition: background 1s ease 0s, border-bottom 1s ease 0s;
+        transition: background 1s ease 0s, border-bottom 1s ease 0s;
+    }
+    
+    .am-discount-inline-input:focus {
+        background: white;
+        border-bottom: 1px rgba(30,30,30,0.5) solid;
+    }
+    
+    .am-discount-inline-input:hover {
+        background: white;
+        border-bottom: 1px rgba(30,30,30,0.5) solid;
     }
 </style>
 <md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
@@ -205,7 +230,8 @@
                                                 </tr>
                                             </thead>
                                             <tbody md-body>
-                                                <tr md-row md-select="treatment" ng-disabled="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected" ng-repeat="treatment in membership.treatments">
+                                                <tr md-row md-select="treatment" ng-disabled="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected"
+                                                    ng-repeat="treatment in membership.treatments">
                                                     <td md-cell style="width: auto">{{treatment.name}}</td>
                                                     <td md-cell style="text-align: center">{{membership.calculateTOccurenceLeft(treatment)}}</td>
                                                     <td md-cell style="text-align: center">{{membership.calculateTDurationLeft(treatment)}}</td>
@@ -217,7 +243,7 @@
                                 <md-divider ng-hide="$last"></md-divider>
                             </div>
                             <div layout="column" layout-align="centere center" ng-if="vm.membershipChips.length < 1">
-                                <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>{{vm.user.name || 'Customer'}} has not subscribed to any memberships. <span class="am-membership-subscribe-button" ng-click="vm.navigateToSubscriptMembership()">Click here</span> to subscribe to one</span>
+                                <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>{{vm.user.name || 'Customer'}} has not subscribed to any memberships. <span class="am-membership-subscribe-button" ng-click="vm.navigateToSubscriptMembership()">Click here</span>                                to subscribe to one</span>
                             </div>
                         </div>
                         <md-divider style="margin-top: 2rem;"></md-divider>
@@ -292,7 +318,8 @@
                                 <md-divider ng-hide="$last"></md-divider>
                             </div>
                             <div layout="column" layout-align="centere center" ng-if="vm.packages.length < 1">
-                                <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>No Packages Found! <span ng-hide="true"><span class="am-membership-subscribe-button" ng-click="vm.navigateToSubscriptMembership()">Click here</span> to subscribe to one</span></span>
+                                <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>No Packages Found! <span ng-hide="true"><span class="am-membership-subscribe-button" ng-click="vm.navigateToSubscriptMembership()">Click here</span>                                to subscribe to one</span>
+                                </span>
                             </div>
                         </div>
                         <md-divider style="margin-top: 2rem;"></md-divider>
@@ -315,7 +342,8 @@
                                             </span>
                                         </th>
                                         <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 16%"><span class="am-table-header">Rate</span></th>
-                                        <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 16%"><span class="am-table-header">Tax<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeServiceTax()" ng-model="vm.sTaxSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:56px"></span></span></th>
+                                        <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 16%"><span class="am-table-header">Tax<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeServiceTax()" ng-model="vm.sTaxSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:56px"></span></span>
+                                        </th>
                                         <th md-column md-numeric style="width: 16%"><span class="am-table-header">Amount</span></th>
                                     </tr>
                                 </thead>
@@ -336,7 +364,8 @@
                                     </tr>
                                     <tr md-row>
                                         <td md-cell>
-                                            <md-autocomplete id="new-problem-details" md-autofocus md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()"  md-search-text-change="vm.convertPbToTitleCase()">
+                                            <md-autocomplete id="new-problem-details" md-autofocus md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()"
+                                                md-search-text-change="vm.convertPbToTitleCase()">
                                                 <md-item-template>
                                                     <span md-highlight-text="vm.problem.details">{{treatment.name}}</span>
                                                 </md-item-template>
@@ -348,10 +377,10 @@
                                         </td>
                                         <td md-cell ng-if="vm.sTaxSettings.applyTax">
                                             {{vm.problem.tax | number: 2}}
-                                        <td md-cell>
-                                            <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
-                                            <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{vm.problem.amount}}</span>
-                                        </td>
+                                            <td md-cell>
+                                                <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
+                                                <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{vm.problem.amount}}</span>
+                                            </td>
                                     </tr>
                                 </tbody>
                             </table>
@@ -374,7 +403,8 @@
                                             </span>
                                         </th>
                                         <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 16%"><span class="am-table-header">Rate</span></th>
-                                        <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 16%"><span class="am-table-header">Tax<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeServiceTax()" ng-model="vm.sTaxSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:56px"></span></span></th>
+                                        <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 16%"><span class="am-table-header">Tax<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeServiceTax()" ng-model="vm.sTaxSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:56px"></span></span>
+                                        </th>
                                         <th md-column md-numeric style="width: 16%"><span class="am-table-header">Amount</span></th>
                                     </tr>
                                 </thead>
@@ -391,11 +421,12 @@
                                         <td md-cell>
                                             <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
                                             <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{problem.amount}}</span>
-                                       </td>
+                                        </td>
                                     </tr>
                                     <tr md-row>
                                         <td md-cell>
-                                            <md-autocomplete id="new-problem-details" md-autofocus md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()"  md-search-text-change="vm.convertPbToTitleCase()">
+                                            <md-autocomplete id="new-problem-details" md-autofocus md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()"
+                                                md-search-text-change="vm.convertPbToTitleCase()">
                                                 <md-item-template>
                                                     <span md-highlight-text="vm.problem.details">{{treatment.name}}</span>
                                                 </md-item-template>
@@ -407,6 +438,7 @@
                                         </td>
                                         <td md-cell ng-if="vm.sTaxSettings.applyTax">
                                             {{vm.problem.tax | number: 2}}
+                                        </td>
                                         <td md-cell>
                                             <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
                                             <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{vm.problem.amount}}</span>
@@ -423,13 +455,23 @@
                         </div>
                     </md-content>
                     <md-divider></md-divider>
-                    <div layout-gt-xs="row" layout-align="center center" layout-wrap layout-margin>
-                        <md-checkbox aria-label="Payment Receieved" ng-model="vm.servicestatus" flex="20" flex-xs>Payment Received</md-checkbox>
-                        <md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()"><span class="md-body-1">Service Tax</span></md-checkbox>
-                        <div flex></div>
+                    <div layout-gt-xs="row" layout-align="center start" layout-wrap layout-margin>
+                        <div layout="row" layout-align="start center" flex>
+                            <md-checkbox aria-label="Payment Receieved" ng-model="vm.servicestatus" flex="20" flex-xs><span class="md-body-1">Payment Received</span></md-checkbox>
+                            <md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="20" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox>
+                            <md-checkbox aria-label="Round Off Amount" ng-model="vm.isRoundOffVal" ng-change="vm.calculateCost(undefined, false)" flex="20" flex-xs><span class="md-body-1">Round Off</span></md-checkbox>
+                            <div>
+                                <md-checkbox aria-label="Apply Discount" ng-model="vm.isDiscountApplied" ng-change="vm.calculateCost()"><span class="md-body-1">Discount</span></md-checkbox>
+                                <span ng-show="vm.isDiscountApplied">:&nbsp;<input type="text" ng-change="vm.calculateCost(true)" ng-model="vm.discountPercentage" class="am-discount-inline-input">&nbsp;<span style="font-size: small">%</span></span>
+                            </div>
+                        </div>
                         <div layout="column" layout-align="center end">
-                            <span><span class="md-body-2">Service Tax:&nbsp;</span>Rs. {{vm.calculateTax()}}</span>
-                            <span style="line-height: 0.5rem">&nbsp;</span>
+                            <span ng-if="vm.sTaxSettings.applyTax"><span class="md-body-2">Service Tax:&nbsp;</span>Rs. {{vm.calculateTax()}}</span>
+                            <span ng-if="vm.sTaxSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
+                            <span ng-if="vm.isDiscountApplied"><span class="md-body-2">Discount:&nbsp;</span>Rs. <input type="text" ng-change="vm.calculateCost(false)" ng-model="vm.discountValue" class="am-discount-inline-input"></span>
+                            <span ng-if="vm.isDiscountApplied" style="line-height: 0.5rem">&nbsp;</span>
+                            <span ng-if="vm.isRoundOffVal"><span class="md-body-2">Round Off:&nbsp;</span>Rs. <input type="text" ng-change="vm.calculateCost(undefined, true)" ng-model="vm.roundedOffVal" class="am-discount-inline-input"></span>
+                            <span ng-if="vm.isRoundOffVal" style="line-height: 0.5rem">&nbsp;</span>
                             <span><span class="md-body-2">Total Cost:&nbsp;</span>Rs. {{vm.calculateCost()}}</span>
                         </div>
                     </div>

@@ -2,7 +2,7 @@
  * Controller for View Invoice component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.0 
+ * @version 0.6.1 
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -36,6 +36,8 @@
         vm.closeFab = closeFab;
         vm.calculateServiceTax = calculateServiceTax;
         vm.editService = editService;
+        vm.isRoundOff = false;
+        vm.isDiscountApplied = false;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -99,6 +101,8 @@
                 vm.user = res.user;
                 vm.vehicle = res.vehicle;
                 vm.service = res.service;
+                vm.isRoundOff = (vm.service.roundoff != undefined);
+                vm.isDiscountApplied = (vm.service.discount != undefined);
                 vm.sTaxSettings = {
                     applyTax: res.service.serviceTax.applyTax,
                     inclusive: (res.service.serviceTax.taxIncType == 'inclusive'),
