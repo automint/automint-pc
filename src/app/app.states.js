@@ -2,7 +2,7 @@
  * Closure for state definitions and mappings to template files
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.6.1
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -91,7 +91,8 @@
                 controller: 'amCtrlCuUI',
                 controllerAs: 'vm',
                 params: {
-                    id: undefined
+                    id: undefined,
+                    openTab: undefined
                 },
                 resolve: {
                     deps: ['$ocLazyLoad', loadCuUIDeps]

@@ -2,7 +2,7 @@
  * Controller for Edit Customer component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -47,6 +47,12 @@
         vm.models = [];
         vm.membershipChips = [];
         vm.vehicleTypeList = [];
+        vm.services = [];
+        vm.serviceQuery = {
+            limit: 10,
+            page: 1,
+            total: 0
+        };
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -70,17 +76,85 @@
         vm.changeMembershipTab = changeMembershipTab;
         vm.goBack = goBack;
         vm.OnRemoveMembershipChip = OnRemoveMembershipChip;
+        vm.changeServicesTab = changeServicesTab;
+        vm.getServiceDate = getServiceDate;
+        vm.editService = editService;
+        vm.deleteService = deleteService;
+        vm.goToInvoice = goToInvoice;
         
         //  default execution steps
-        
-        if ($state.params.id != undefined)
+        if ($state.params.id != undefined) {
             getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
-        else {
+            if ($state.params.openTab == 'services')
+                changeServicesTab(true);
+        } else {
             utils.showSimpleToast('Something went wrong!');
             $state.go('restricted.customers.all');
         }
 
         //  function definitions
+
+        //  edit service
+        function editService(service) {
+            $state.go('restricted.services.edit', {
+                serviceId: service.srvc_id,
+                vehicleId: service.vhcl_id,
+                userId: service.cstmr_id,
+                fromState: 'customers.edit.services'
+            });
+        }
+
+        //  delete service from UI
+        function deleteService(service, ev) {
+            var confirm = $mdDialog.confirm()
+                .textContent('Are you sure you want to delete the service ?')
+                .ariaLabel('Delete Customer')
+                .targetEvent(ev)
+                .ok('Yes')
+                .cancel('No');
+
+            $mdDialog.show(confirm).then(performDelete, ignoreDelete);
+
+            function performDelete() {
+                amServices.deleteService(service.cstmr_id, service.vhcl_id, service.srvc_id).then(success).catch(failure);
+            }
+
+            function ignoreDelete() {
+                console.log('nope');
+            }
+            
+
+            function success(res) {
+                if (res.ok) {
+                    utils.showSimpleToast('Service has been deleted.');
+                    setTimeout(getServices, 200);
+                } else
+                    failure();
+            }
+
+            function failure(err) {
+                console.log(err);
+                utils.showSimpleToast('Service can not be deleted at moment. Please Try Again!');
+            }
+        }
+        
+        //  transit to state to view selected invoice
+        function goToInvoice(service) {
+            $state.go('restricted.invoices.view', {
+                userId: service.cstmr_id,
+                vehicleId: service.vhcl_id,
+                serviceId: service.srvc_id,
+                fromState: 'customers.edit.services'
+            });
+        }
+
+        function getServiceDate(date) {
+            return moment(date).format('DD MMM YYYY');
+        }
+
+        function changeServicesTab(bool) {
+            vm.servicesTab = bool;
+        }
         
         function goBack() {
             $state.go('restricted.customers.all');
@@ -340,8 +414,14 @@
                     Object.keys(res.user.memberships).forEach(iterateMemberships);
                 if (res.user.vehicles)
                     Object.keys(res.user.vehicles).forEach(iterateVehicle, this);
+                vm.serviceQuery.total = vm.services.length;
                 vm.possibleVehicleList = pvl;
                 changeVehicle(pvl.length > 0 ? pvl[0].id : undefined);
+                vm.services.sort(dateSort);
+
+                function dateSort(lhs, rhs) {
+                    return rhs.srvc_date.localeCompare(lhs.srvc_date);
+                }
 
                 function iterateVehicle(vId) {
                     var vehicle = res.user.vehicles[vId];
@@ -352,6 +432,23 @@
                         model: vehicle.model,
                         name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg)
                     });
+                    if (vehicle.services)
+                        Object.keys(vehicle.services).forEach(iterateServices);
+
+                    function iterateServices(sId) {
+                        var service = vehicle.services[sId];
+                        vm.services.push({
+                            cstmr_id: res._id,
+                            vhcl_manuf: vehicle.manuf,
+                            vhcl_model: vehicle.model,
+                            vhcl_reg: vehicle.reg,
+                            vhcl_id: vId,
+                            srvc_id: sId,
+                            srvc_date: service.date,
+                            srvc_cost: service.cost,
+                            srvc_status: utils.convertToTitleCase(service.status)
+                        });
+                    }
                 }
                 function iterateMemberships(membership) {
                     res.user.memberships[membership].name = membership;

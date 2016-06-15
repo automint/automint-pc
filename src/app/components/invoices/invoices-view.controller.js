@@ -199,6 +199,13 @@
                     case 'dashboard':
                         transitState = 'restricted.dashboard';
                         break;
+                    case 'customers.edit.services':
+                        transitState = 'restricted.customers.edit';
+                        transitParams = {
+                            id: $state.params.userId,
+                            openTab: 'services'
+                        }
+                        break;
                 }
             }
             $state.go(transitState, transitParams);
