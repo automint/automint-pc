@@ -18,7 +18,7 @@
         var vm = this;
         
         //  temporary named assignments
-        var olino = 0, ivEmailSubject;
+        var olino = 0, ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink;
 
         //  named assignments to keep track of UI [BEGIN]
         //  general settings
@@ -34,7 +34,12 @@
             phone: '',
             address1: '',
             address2: '',
-            city: ''
+            city: '',
+            social: {
+                facebook: undefined,
+                instagram: undefined,
+                twitter: undefined
+            }
         };
         vm.label_workshopName = 'Enter Workshop Name:';
         vm.label_workshopPhone = 'Enter Phone Number:';
@@ -67,6 +72,9 @@
         vm.saveIvDisplaySettings = saveIvDisplaySettings;
         vm.OnBlurLastInvoiceNumber = OnBlurLastInvoiceNumber;
         vm.saveIvEmailSubject = saveIvEmailSubject;
+        vm.saveFacebookLink = saveFacebookLink;
+        vm.saveInstagramLink = saveInstagramLink;
+        vm.saveTwitterLink = saveTwitterLink;
         // tax settings
         vm.saveServiceTaxSettings = saveServiceTaxSettings;
         vm.saveVatSettings = saveVatSettings;
@@ -89,10 +97,28 @@
         //  service tax settings
         getServiceTaxSettings();
         getVatSettings();
-        // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
+        changeInvoiceTab(true)  //  testing purposes amTODO: remove it
         //  default execution steps [END]
 
         //  function definitions
+
+        function saveFacebookLink() {
+            if (oIvFacebookLink == vm.workshop.social.facebook)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveTwitterLink() {
+            if (oIvTwitterLink == vm.workshop.social.twitter)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveInstagramLink() {
+            if (oIvInstagramLink == vm.workshop.social.instagram)
+                return;
+            saveWorkshopDetails();
+        }
         
         //  default tab settings
         function changeInvoiceTab(bool) {
@@ -255,6 +281,9 @@
             
             function getWorkshopObject(res) {
                 vm.workshop = res;
+                oIvFacebookLink = res.social.facebook;
+                oIvTwitterLink = res.social.twitter;
+                oIvInstagramLink = res.social.instagram;
                 changeWorkshopNameLabel();
                 changeWorkshopPhoneLabel();
                 changeWorkshopAddress1Label();
@@ -272,6 +301,9 @@
             amIvSettings.saveWorkshopDetails(vm.workshop).then(success).catch(failure);
             
             function success(res) {
+                oIvFacebookLink = vm.workshop.social.facebook;
+                oIvTwitterLink = vm.workshop.social.twitter;
+                oIvInstagramLink = vm.workshop.social.instagram;
                 utils.showSimpleToast('Workshop details updated successfully!');
             }
             

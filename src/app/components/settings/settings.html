@@ -65,6 +65,40 @@
         background-color: #039BE5;
         /* disabled switch color */
     }
+
+    .am-social-links.edge {
+        margin-top: 0.3rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .am-social-links {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .am-social-links span {
+        font-size: small;
+        padding-left: 0.6rem;
+        color: #616161;
+    }
+
+    .am-social-links input {
+        border: 0;
+        outline: none;
+        border-bottom: 1px solid #ECEFF1;
+        padding-top: 0.3rem;
+        padding-bottom: 0.3rem;
+        padding-left: 0.1rem;
+        transition: all 500ms ease;
+    }
+
+    .am-social-links input:hover {
+        border-bottom: 1px solid #B0BEC5;
+    }
+
+    .am-social-links input:focus {
+        border-bottom: 1px solid #B0BEC5;
+    }
 </style>
 
 <md-content layout-padding>
@@ -246,6 +280,30 @@
                                 <span layout-padding>Save</span>
                             </md-button>
                         </md-card-actions>
+                    </md-card>
+                    <md-card class="md-hue-1">
+                        <md-card-title>
+                            <span class="md-title">Social Links</span>
+                        </md-card-title>
+                        <md-card-content>
+                            <div layout="column">
+                                <div layout="row" layout-align="center center" class="am-social-links edge">
+                                    <md-icon md-svg-src="assets/img/facebook.svg"></md-icon>
+                                    <span style="md-body-1">facebook.com/</span>
+                                    <input type="text" ng-model="vm.workshop.social.facebook" ng-blur="vm.saveFacebookLink()" style="color: #424242" flex>
+                                </div>
+                                <div layout="row" layout-align="center center" class="am-social-links">
+                                    <md-icon md-svg-src="assets/img/instagram.svg"></md-icon>
+                                    <span style="md-body-1">instagram.com/</span>
+                                    <input type="text" ng-model="vm.workshop.social.instagram" ng-blur="vm.saveInstagramLink()" style="color: #424242" flex>
+                                </div>
+                                <div layout="row" layout-align="center center" class="am-social-links edge">
+                                    <md-icon md-svg-src="assets/img/twitter.svg"></md-icon>
+                                    <span style="md-body-1">twitter.com/</span>
+                                    <input type="text" ng-model="vm.workshop.social.twitter" ng-blur="vm.saveTwitterLink()" style="color: #424242" flex>
+                                </div>
+                            </div>
+                        </md-card-content>
                     </md-card>
                 </div>
                 <div flex-xs flex-gt-xs="50" layout="column">
