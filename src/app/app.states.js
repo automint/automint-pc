@@ -14,9 +14,19 @@
     StateConfigs.$inject = ['$stateProvider', '$urlRouterProvider'];
 
     function StateConfigs($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.when('/dashboard', '/').otherwise('/services/all');
+        $urlRouterProvider.when('/dashboard', '/').otherwise('/locked');
 
         $stateProvider
+            .state('locked', {
+                url: '/locked',
+                views: {
+                    'lockscreen': {
+                        templateUrl: 'app/views/lockscreen.html',
+                        controller: 'lockScreenCtrl',
+                        controllerAs: 'vm'
+                    }
+                }
+            })
             .state('restricted', {
                 abstract: true,
                 url: '',

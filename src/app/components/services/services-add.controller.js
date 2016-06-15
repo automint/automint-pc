@@ -128,7 +128,7 @@
         vm.calculateTax = calculateTax;
 
         //  default execution steps
-        vm.serviceTab = true; //  testing purposes [amTODO: remove it]
+        // vm.serviceTab = true; //  testing purposes [amTODO: remove it]
         getTreatmentDisplayFormat();
         getVehicleTypes();
         getRegularTreatments();

@@ -231,6 +231,19 @@
                             </div>
                         </md-card-content>
                     </md-card>
+                    <md-card class="md-hue-1">
+                        <md-card-content style="padding-bottom: 0" layout="row" layout-align="center center">
+                            <md-input-container class="am-clear-error-spacer">
+                                <md-icon class="md-accent">lock_open</md-icon>
+                                <label class="am-form-label large">Passcode</label>
+                                <input type="password" ng-model="vm.passcode" ng-blur="vm.savePasscode()" style="letter-spacing: 1px" aria-label="Email Subject">
+                            </md-input-container>
+                            <div flex></div>
+                            <md-checkbox ng-model="vm.isPasscodeEnabled" ng-change="vm.savePasscode()" aria-label="Enable Passcode">
+                                <span class="md-body-1">Enable Passcode</span>
+                            </md-checkbox>
+                        </md-card-content>
+                    </md-card>
                 </div>
             </md-content>
         </md-tab>

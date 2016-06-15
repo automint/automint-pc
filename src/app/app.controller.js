@@ -2,25 +2,87 @@
  * Closure for root level controllers
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.6.1
  */
 
 /// <reference path="../typings/main.d.ts" />
 
 (function() {
     angular.module('automintApp')
+        .controller('lockScreenCtrl', LockScreenController)
         .controller('appBarHeaderCtrl', HeaderbarController)
         .controller('appSideBarCtrl', SidebarController);
 
-    HeaderbarController.$inject = ['$rootScope', '$scope', '$timeout', '$mdSidenav'];
+    HeaderbarController.$inject = ['$rootScope', '$scope', '$state', '$timeout', '$mdSidenav', 'amRootFactory'];
     SidebarController.$inject = ['$state', '$mdSidenav'];
+    LockScreenController.$inject = ['$rootScope', '$state', '$window', 'amRootFactory', 'utils'];
 
-    function HeaderbarController($rootScope, $scope, $timeout, $mdSidenav) {
+    function LockScreenController($rootScope, $state, $window, amRootFactory, utils) {
+        var vm = this, passcode, skip = true;
+
+        $rootScope.cRootLock = 'active';
+
+        vm.isUnlockButtonDisabled = true;
+        vm.unlock = unlock;
+        vm.OnPasscodeChange = OnPasscodeChange;
+        vm.isMessage = false;
+
+        amRootFactory.getPasscode().then(gps).catch(unlock);
+
+        function gps(res) {
+            if (res.enabled == false) {
+                unlock();
+                skip = true;
+                return;
+            }
+            skip = false;
+            passcode = res.code;
+        }
+
+        function OnPasscodeChange() {
+            vm.isUnlockButtonDisabled = (vm.passcode == '');
+        }
+
+        function unlock() {
+            if (skip == false) {
+                if (vm.passcode != passcode) {
+                    vm.message = "Wrong Passcode!!!";
+                    vm.isMessage = true;
+                    return;
+                }
+            }
+            $rootScope.isAutomintLocked = false;
+            $rootScope.cRootLock = '';
+            if ($window.history.length > 0)
+                $window.history.back();
+            $state.go('restricted.dashboard');
+        }
+    }
+
+    function HeaderbarController($rootScope, $scope, $state, $timeout, $mdSidenav, amRootFactory) {
         var vm = this;
 
         //  map functions to view model
         vm.toggleSideNavbar = buildDelayedToggler('main-nav-left');
+        vm.openLockScreen = openLockScreen;
         $rootScope.setCoverPic();
+
+        amRootFactory.getPasscode().then(gps).catch(failure);
+
+        function gps(res) {
+            $rootScope.isPasscodeEnabled = res.enabled;
+        }
+
+        function failure(err) {
+            $rootScope.isPasscodeEnabled = false;
+        }
+
+        function openLockScreen() {
+            $rootScope.isAutomintLocked = true;
+            $state.go('locked', {
+                fromState: $state.current.name
+            });
+        }
 
         //  Supplies a function that will continue to operate until the time is up.
         function debounce(func, wait, context) {

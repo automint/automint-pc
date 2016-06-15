@@ -2,7 +2,7 @@
  * Closure for root level service
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.6.1
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .service('$amRoot', AutomintService);
 
-    AutomintService.$inject = ['$q', '$log', 'utils', 'constants', 'pdbCustomers', 'pdbConfig', 'pdbCommon', 'amFactory', 'pdbCache'];
+    AutomintService.$inject = ['$rootScope', '$state', '$q', '$log', 'utils', 'constants', 'pdbCustomers', 'pdbConfig', 'pdbCommon', 'amFactory', 'pdbCache'];
 
-    function AutomintService($q, $log, utils, constants, pdbCustomers, pdbConfig, pdbCommon, amFactory, pdbCache) {
+    function AutomintService($rootScope, $state, $q, $log, utils, constants, pdbCustomers, pdbConfig, pdbCommon, amFactory, pdbCache) {
         //  set up service object
         var sVm = this;
         var blockViews = true;

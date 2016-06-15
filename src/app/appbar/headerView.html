@@ -7,5 +7,8 @@
         <div layout="column" layout-align="center center" flex>
             <span class="md-title" style="color: #424242"> {{ module_title }} </span>
         </div>
+        <md-button ng-if="isPasscodeEnabled" aria-label="Lock" class="md-icon-button" ng-click="headerVm.openLockScreen()">
+            <md-icon style="color: #424242">lock</md-icon>
+        </md-button>
     </div>
 </md-toolbar>

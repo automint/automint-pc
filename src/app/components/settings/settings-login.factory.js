@@ -2,7 +2,7 @@
  * Factory to handle login events
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -17,12 +17,70 @@
         //  initialize factory variable and funtion maps
         var factory = {
             login: login,
-            loginDetails: loginDetails
+            loginDetails: loginDetails,
+            getPasscode: getPasscode,
+            savePasscode: savePasscode
         }
         
         return factory;
         
         //  function definitions
+
+        function getPasscode() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
+            }
+
+            function getSettingsObj(res) {
+                tracker.resolve(res.passcode);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function savePasscode(passcode, enabled) {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(writeSettingsObj);
+            }
+
+            function getSettingsObj(res) {
+                res.passcode = {
+                    enabled: enabled,
+                    code: passcode
+                };
+                pdbConfig.save(res).then(success).catch(failure);
+            }
+
+            function writeSettingsObj(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    passcode: {
+                        enabled: enabled,
+                        code: passcode
+                    }
+                }
+                pdbConfig.save(doc).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
         
         //  get login details from database
         function loginDetails() {

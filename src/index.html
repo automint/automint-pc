@@ -54,6 +54,7 @@ Automint CRM Software
 </head>
 
 <body layout="column" ng-cloak>
+    <div class="am-lockscreen {{ cRootLock }}" ui-view="lockscreen"></div>
     <section layout="row" flex>
         <md-sidenav class="md-sidenav-left am-side-nav" md-component-id="main-nav-left" md-is-locked-open="$mdMedia('gt-md')" md-disable-backdrop md-whiteframe="4">
             <md-content>

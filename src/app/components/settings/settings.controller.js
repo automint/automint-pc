@@ -11,14 +11,14 @@
     angular.module('automintApp')
         .controller('amCtrlSettings', SettingsController);
 
-    SettingsController.$inject = ['$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings', 'amSeTaxSettings'];
+    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings', 'amSeTaxSettings'];
 
-    function SettingsController($scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings, amSeTaxSettings) {
+    function SettingsController($rootScope, $scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings, amSeTaxSettings) {
         //  initialize view model
         var vm = this;
         
         //  temporary named assignments
-        var olino = 0, ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink;
+        var olino = 0, ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oPasscode = '1234', oPasscodeEnabled;
 
         //  named assignments to keep track of UI [BEGIN]
         //  general settings
@@ -46,6 +46,7 @@
         vm.label_workshopAddress1 = 'Enter Address Line 1:';
         vm.label_workshopAddress2 = 'Enter Address Line 2:';
         vm.label_workshopCity = 'Enter City:';
+        vm.passcode = '1234';
         //  named assignments to keep track of UI [END]
         
         //  function maps [BEGIN]
@@ -75,9 +76,9 @@
         vm.saveFacebookLink = saveFacebookLink;
         vm.saveInstagramLink = saveInstagramLink;
         vm.saveTwitterLink = saveTwitterLink;
-        // tax settings
         vm.saveServiceTaxSettings = saveServiceTaxSettings;
         vm.saveVatSettings = saveVatSettings;
+        vm.savePasscode = savePasscode;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -90,6 +91,7 @@
         }
         //  general settings
         checkLogin();
+        getPasscode();
         //  invoice settings
         getWorkshopDetails();
         getInvoiceSettings();
@@ -97,10 +99,61 @@
         //  service tax settings
         getServiceTaxSettings();
         getVatSettings();
-        changeInvoiceTab(true)  //  testing purposes amTODO: remove it
+        // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
         //  default execution steps [END]
 
         //  function definitions
+
+        function toggleVisibilityPasscode() {
+            
+        }
+
+        function getPasscode() {
+            amLogin.getPasscode().then(success).catch(failure);
+
+            function success(res) {
+                if (!res) {
+                    failure();
+                    return;
+                }
+                vm.passcode = res.code;
+                vm.isPasscodeEnabled = res.enabled;
+                oPasscode = res.code;
+                oPasscodeEnabled = res.enabled;
+            }
+
+            function failure(err) {
+                vm.passcode = '1234';
+                oPasscode = '1234';
+                vm.isPasscodeEnabled = false;
+                oPasscodeEnabled = false;
+            }
+        }
+
+        function savePasscode() {
+            if (vm.passcode == '' || vm.passcode == undefined) {
+                utils.showSimpleToast('Passcode cannot be blank');
+                vm.passcode = oPasscode;
+                return;
+            }
+            if (vm.passcode == oPasscode && vm.isPasscodeEnabled == oPasscodeEnabled)
+                return;
+            amLogin.savePasscode(vm.passcode, vm.isPasscodeEnabled).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok) {
+                    oPasscode = vm.passcode;
+                    oPasscodeEnabled = vm.isPasscodeEnabled;
+                    $rootScope.isPasscodeEnabled = vm.isPasscodeEnabled;
+                    utils.showSimpleToast('Passcode saved successfully');
+                } else
+                    failure();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Failued to save Passcode');
+            }
+        }
 
         function saveFacebookLink() {
             if (oIvFacebookLink == vm.workshop.social.facebook)
