@@ -86,7 +86,7 @@
         }
 
         function getInventories() {
-            amInventory.getInventories().then(success).catch(failure);
+            vm.promise = amInventory.getInventories().then(success).catch(failure);
 
             function success(res) {
                 vm.inventories = res;

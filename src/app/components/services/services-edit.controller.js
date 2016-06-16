@@ -76,6 +76,14 @@
         vm.roundedOffVal = 0;
         vm.discountPercentage = 0;
         vm.discountValue = 0;
+        vm.inventories = [];
+        vm.selectedInventories = [];
+        vm.inventory = {
+            name: '',
+            rate: '',
+            tax: '',
+            amount: ''
+        }
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -108,6 +116,15 @@
         vm.OnServiceTaxEnabledChange = OnServiceTaxEnabledChange;
         vm.convertPbToTitleCase = convertPbToTitleCase;
         vm.calculateTax = calculateTax;
+        vm.convertInToTitleCase = convertInToTitleCase;
+        vm.changeVat = changeVat;
+        vm.onInventorySelected = onInventorySelected;
+        vm.onInventoryDeselected = onInventoryDeselected;
+        vm.changeInventoryRate = changeInventoryRate;
+        vm.inventoryQuerySearch = inventoryQuerySearch;
+        vm.updateInventoryDetails = updateInventoryDetails;
+        vm.finalizeNewInventory = finalizeNewInventory;
+        vm.calculateVat = calculateVat;
 
         //  default execution steps
         getVehicleTypes();
@@ -116,6 +133,194 @@
         getMemberships();
 
         //  function definitions
+
+        function calculateVat() {
+            var totalTax = 0.0;
+            vm.selectedInventories.forEach(iterateInventories);
+            return totalTax;
+
+            function iterateInventories(element) {
+                if ((vm.vatSettings && !vm.vatSettings.applyTax) || !element.tax || !element.checked)
+                    return;
+                totalTax += parseFloat(element.tax.toFixed(2));
+            }
+        }
+
+        function finalizeNewInventory(btnClicked) {
+            vm.inventory.name = vm.inventory.name.trim();
+            if (vm.inventory.name != '') {
+                var found = $filter('filter')(vm.inventories, {
+                    name: vm.inventory.name
+                }, true);
+                if (found.length == 1) {
+                    found[0].checked = true;
+                    found[0].rate = vm.inventory.rate;
+                    found[0].tax = vm.inventory.tax;
+                    found[0].amount = vm.inventory.amount;
+                    vm.selectedInventories.push(found[0]);
+                } else {
+                    vm.inventories.push({
+                        name: vm.inventory.name,
+                        rate: vm.inventory.rate,
+                        tax: vm.inventory.tax,
+                        amount: vm.inventory.amount,
+                        checked: true
+                    });
+                    vm.selectedInventories.push(vm.inventories[vm.inventories.length - 1]);
+                }
+                vm.inventory.name = '';
+                vm.inventory.amount = '';
+                vm.inventory.rate = '';
+                vm.inventory.tax = '';
+                $('#new-inventory-name').focus();
+            }
+            if (btnClicked)
+                $('#new-inventory-name').focus();
+        }
+
+        function updateInventoryDetails() {
+            var found = $filter('filter')(vm.inventories, {
+                name: vm.inventory.name
+            });
+            vm.inventory.amount = (vm.inventory.rate == '') ? 0 : vm.inventory.rate;
+            if (found.length == 1) {
+                var rate;
+                if (vm.vatSettings.applyTax)
+                    rate = (vm.vatSettings.inclusive) ? found[0].amount : found[0].rate;
+                else
+                    rate = found[0].rate;
+                vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
+                if (vm.vatSettings.applyTax) {
+                    if (vm.vatSettings.inclusive) {
+                        vm.inventory.rate = (vm.inventory.amount * 100) / (vm.vatSettings.tax + 100);
+                        vm.inventory.tax = (vm.inventory.rate * vm.vatSettings.tax / 100);
+                    } else {
+                        vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
+                        vm.inventory.tax = (vm.inventory.rate * vm.vatSettings.tax / 100);
+                        vm.inventory.amount = Math.round(vm.inventory.rate + vm.inventory.tax);
+                    }
+                } else {
+                    if (vm.vatSettings.inclusive)
+                        vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
+                    else
+                        vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
+                }
+            } else
+                vm.inventory.rate = '';
+        }
+
+        function inventoryQuerySearch() {
+            var tracker = $q.defer();
+            var results = (vm.inventory.name ? vm.inventories.filter(createFilterForInventory(vm.inventory.name)) : vm.inventories);
+
+            return results;
+        }
+
+        function createFilterForInventory(query) {
+            var lcQuery = angular.lowercase(query);
+            return function filterFn(item) {
+                return (angular.lowercase(item.name).indexOf(lcQuery) >= 0);
+            }
+        }
+
+        function onInventorySelected(inventory) {
+            inventory.checked = true;
+            changeInventoryRate(inventory);
+        }
+
+        function onInventoryDeselected(inventory) {
+            inventory.checked = false;
+            changeInventoryRate(inventory);
+        }
+
+        function getInventories(existingInventories) {
+            vm.inventoryPromise = amServices.getInventories().then(success).catch(failure);
+
+            function success(res) {
+                vm.inventories = res;
+                existingInventories.forEach(iterateInventories);
+                getVatSettings();
+
+                function iterateInventories(inventory) {
+                    if (inventory.name != '') {
+                        var found = $filter('filter')(vm.inventories, {
+                            name: inventory.name
+                        }, true);
+                        console.log(found);
+                        if (found.length == 1) {
+                            found[0].checked = true;
+                            found[0].amount = inventory.rate;
+                            vm.selectedInventories.push(found[0]);
+                        } else {
+                            vm.inventories.push({
+                                name: vm.inventory.name,
+                                amount: vm.inventory.rate,
+                                checked: true
+                            });
+                            vm.selectedInventories.push(vm.inventories[vm.inventories.length - 1]);
+                        }
+                    }
+                }
+            }
+
+            function failure(err) {
+                vm.inventories = [];
+                getVatSettings();
+            }
+        }
+
+        function getVatSettings() {
+            amServices.getVatSettings().then(success).catch(failure);
+
+            function success(res) {
+                vm.vatSettings = res;
+                vm.orgApplyVat = res.applyTax;
+                if (vm.service.vat != undefined) {
+                    vm.vatSettings.applyTax = vm.service.vat.applyTax;
+                    vm.vatSettings.tax = vm.service.vat.tax;
+                    if (!res.applyTax)
+                        vm.orgApplyVat = vm.service.vat.applyTax;
+                    vm.vatSettings.inclusive = (vm.service.vat.taxIncType == 'inclusive') ? true : false;
+                }
+                changeVat();
+            }
+
+            function failure(err) {
+                vm.vatSettings = {};
+            }
+        }
+
+        function convertInToTitleCase() {
+            vm.inventory.name = utils.convertToTitleCase(vm.inventory.name);
+        }
+
+        function changeVat() {
+            vm.inventories.forEach(iterateInventories);
+            changeInventoryRate(vm.inventory);
+
+            function iterateInventories(inventory) {
+                changeInventoryRate(inventory, true);
+            }
+        }
+
+        function changeInventoryRate(inventory, force) {
+            if (vm.vatSettings.applyTax) {
+                if (vm.vatSettings.inclusive) {
+                    inventory.rate = (inventory.amount * 100) / (vm.vatSettings.tax + 100);
+                    inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
+                } else {
+                    if (!inventory.rate)
+                        inventory.rate = inventory.amount;
+                    inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
+                    inventory.amount = Math.round(inventory.rate + inventory.tax);
+                }
+            } else if (force) {
+                if (vm.vatSettings.inclusive)
+                    inventory.rate = inventory.amount;
+                else
+                    inventory.amount = inventory.rate;
+            }
+        }
 
         function convertPbToTitleCase() {
             vm.problem.details = utils.convertToTitleCase(vm.problem.details);
@@ -571,8 +776,11 @@
                 }
                 if (res.vehicle.service.serviceTax != undefined)
                     vm.service.serviceTax = res.vehicle.service.serviceTax;
+                if (res.vehicle.service.vat != undefined)
+                    vm.service.vat = res.vehicle.service.vat;
                 vm.servicestatus = (res.vehicle.service.status == 'paid');
                 getRegularTreatments(res.vehicle.service.problems);
+                getInventories(res.vehicle.service.inventories);
 
                 function iterateMemberships(membership) {
                     res.memberships[membership].name = membership;
@@ -872,6 +1080,7 @@
             isManualRoundOff = (isMro != undefined) ? isMro : isManualRoundOff;
             var totalCost = 0;
             vm.service.problems.forEach(iterateProblem);
+            vm.selectedInventories.forEach(iterateProblem);
             if (vm.serviceType == vm.serviceTypeList[1]) {
                 vm.packages.forEach(iteratePackages);
             }
@@ -954,7 +1163,7 @@
             if (vm.problem.details != '') {
                 var found = $filter('filter')(vm.service.problems, {
                     details: vm.problem.details
-                });
+                }, true);
                 if (found.length == 1) {
                     found[0].checked = true;
                     found[0].rate = (vm.sTaxSettings && vm.sTaxSettings.applyTax) ? vm.problem.rate : vm.problem.amount;
@@ -1021,19 +1230,19 @@
             if (!validate()) return;
             switch (vm.serviceType) {
                 case vm.serviceTypeList[0]:
-                    if (checkTreatments() == false) {
+                    if (checkBasic() == false) {
                         utils.showSimpleToast('Please select treatment(s)');
                         return;
                     }
                     break;
                 case vm.serviceTypeList[1]:
-                    if (checkPackage() == false && checkTreatments() == false) {
+                    if (checkPackage() == false && checkBasic() == false) {
                         utils.showSimpleToast('Please select package(s) or treatment(s)');
                         return;
                     }
                     break;
                 case vm.serviceTypeList[2]:
-                    if (checkMembership() == false && checkTreatments() == false) {
+                    if (checkMembership() == false && checkBasic() == false) {
                         utils.showSimpleToast('Please select membership(s) or treatment(s)');
                         return;
                     }
@@ -1068,6 +1277,15 @@
                     tax: vm.sTaxSettings.tax
                 };
             }
+            if (vm.vatSettings != undefined) {
+                vm.service.vat = {
+                    applyTax: vm.vatSettings.applyTax,
+                    taxIncType: (vm.vatSettings.inclusive) ? 'inclusive' : 'exclusive',
+                    tax: vm.vatSettings.tax
+                }
+            }
+            vm.selectedInventories.forEach(iterateInventories);
+            vm.service.inventories = vm.selectedInventories;
             amServices.saveService(vm.user, vm.vehicle, vm.service).then(success).catch(failure);
 
             function addMsToService(membership) {
@@ -1102,6 +1320,14 @@
                 delete problem['$$hashKey'];
             }
 
+            function iterateInventories(inventory) {
+                if (!vm.vatSettings || (vm.vatSettings && vm.vatSettings.applyTax))
+                    inventory.rate = inventory.amount;
+                delete inventory.checked;
+                delete inventory['amount'];
+                delete inventory['$$hashKey'];
+            }
+
             function checkPackage() {
                 var isPackagesSelected = false;
                 for (var i = 0; i < vm.packages.length; i++) {
@@ -1124,7 +1350,7 @@
                 return isMembershipsSelected;
             }
 
-            function checkTreatments() {
+            function checkBasic() {
                 var isTreatmentsSelected = false;
                 for (var i = 0; i < vm.service.problems.length; i++) {
                     if (vm.service.problems[i].checked) {
@@ -1132,6 +1358,8 @@
                         break;
                     }
                 }
+                if (vm.selectedInventories.length > 0)
+                    isTreatmentsSelected = true;
                 return isTreatmentsSelected;
             }
         }
@@ -1225,7 +1453,7 @@
             if (editMsVm.treatment.details != '') {
                 var found = $filter('filter')(editMsVm.treatments, {
                     name: editMsVm.treatment.details
-                });
+                }, true);
                 if (found.length == 1 && found[0].name == editMsVm.treatment.details) {
                     found[0].checked = true;
                     found[0].rate = editMsVm.treatment.rate;

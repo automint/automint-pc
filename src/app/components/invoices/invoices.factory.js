@@ -2,7 +2,7 @@
  * Factory that handles database interactions between invoices database and controller
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -38,6 +38,7 @@
                 response.user = res.user;
                 response.service.date = moment(response.service.date).format('MMMM DD YYYY');
                 makeProblemsArray();
+                makeInventoriesArray();
                 if (response.service.packages)
                     makePackageArray();
                 tracker.resolve(response);
@@ -56,6 +57,20 @@
                             delete res.user.vehicles[vId].services[sId];
                         else
                             response.service = res.user.vehicles[vId].services[sId];
+                    }
+                }
+
+                function makeInventoriesArray() {
+                    var inventories = $.extend({}, response.service.inventories);
+                    response.service.inventories = [];
+                    Object.keys(inventories).forEach(iterateInventories);
+                    
+                    function iterateInventories(inventory) {
+                        response.service.inventories.push({
+                            name: inventory,
+                            rate: inventories[inventory].rate,
+                            tax: inventories[inventory].tax
+                        });
                     }
                 }
                 

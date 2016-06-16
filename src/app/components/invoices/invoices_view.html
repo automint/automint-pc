@@ -174,9 +174,17 @@
                                 <td>{{problem.details}}</td>
                                 <td align="right">Rs. {{problem.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                             </tr>
+                            <tr class="row" ng-repeat="inventory in vm.service.inventories">
+                                <td>{{inventory.name}}</td>
+                                <td align="right">Rs. {{inventory.rate | number: (vm.vatSettings.applyTax) ? ((vm.vatSettings.inclusive) ? 2 : 0) : 0}}</td>
+                            </tr>
                             <tr class="tax" ng-if="vm.sTaxSettings.applyTax">
                                 <td>Service Tax ({{vm.sTaxSettings.tax}}<small>%</small>)</td>
-                                <td align="right">Rs. {{vm.calculateServiceTax() | number: (vm.sTaxSettings.applyTax) ? 2 : 0}}</td>
+                                <td align="right">Rs. {{vm.calculateServiceTax()}}</td>
+                            </tr>
+                            <tr ng-class="{'tax': !vm.sTaxSettings.applyTax, 'subt': vm.sTaxSettings.applyTax}" ng-if="vm.vatSettings.applyTax">
+                                <td>VAT ({{vm.vatSettings.tax}}<small>%</small>)</td>
+                                <td align="right">Rs. {{vm.calculateVat()}}</td>
                             </tr>
                             <tr class="subt" ng-if="vm.isDiscountApplied">
                                 <td>Discount ({{vm.service.discount.percent}}<small>%</small>)</td>
@@ -186,7 +194,7 @@
                                 <td>Round Off</td>
                                 <td align="right">Rs. {{vm.service.roundoff}}</td>
                             </tr>
-                            <tr class="total" ng-class="{'tax': !vm.sTaxSettings.applyTax}">
+                            <tr class="total" ng-class="{'tax': !(vm.sTaxSettings.applyTax || vm.vatSettings.applyTax)}">
                                 <td>Total</td>
                                 <td align="right">Rs. {{vm.service.cost | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                             </tr>

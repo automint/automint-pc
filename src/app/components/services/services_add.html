@@ -454,20 +454,157 @@
                             </md-button>
                         </div>
                     </md-content>
+                    <md-content class="md-hue-1">
+                        <md-table-container ng-if="!vm.displayInventoriesAsList">
+                            <table md-table md-row-select multiple ng-model="vm.selectedInventories" md-progress="vm.inventoryPromise">
+                                <thead md-head>
+                                    <tr md-row>
+                                        <th md-column>
+                                            <span class="am-table-header">Inventory</span>
+                                            <span style="margin-left: 1rem;">
+                                                <span class="am-table-header">(</span>
+                                            <md-input-container style="margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0">
+                                                <md-checkbox class="am-checkbox" layout="row" layout-align="center center" ng-model="vm.displayInventoriesAsList" aria-label="Display Treatment As" style="width: 100%">
+                                                    <span class="am-form-label" layout-wrap flex>Show All</span>
+                                                </md-checkbox>
+                                            </md-input-container>
+                                            <span class="am-table-header">)</span>
+                                            </span>
+                                        </th>
+                                        <th md-column ng-if="vm.vatSettings.applyTax" style="width: 16%"><span class="am-table-header">Rate</span></th>
+                                        <th md-column ng-if="vm.vatSettings.applyTax" style="width: 16%"><span class="am-table-header">VAT<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeVat()" ng-model="vm.vatSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:56px"></span></span>
+                                        </th>
+                                        <th md-column md-numeric style="width: 16%"><span class="am-table-header">Amount</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="inventory" md-select-id="details" md-on-select="vm.onInventorySelected" md-on-deselect="vm.onInventoryDeselected" ng-repeat="inventory in vm.selectedInventories" layout-align="center center">
+                                        <td md-cell><input type="text" ng-model="inventory.name" class="am-table-inline-input"></td>
+                                        <td md-cell ng-if="vm.vatSettings.applyTax">
+                                            <span ng-if="vm.vatSettings.inclusive">{{inventory.rate | number: 2}}</span>
+                                            <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-model="inventory.rate" class="am-table-inline-input" ng-change="vm.changeInventoryRate(inventory)">
+                                        </td>
+                                        <td md-cell ng-if="vm.vatSettings.applyTax">
+                                            {{inventory.tax | number: 2}}
+                                        </td>
+                                        <td md-cell>
+                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.amount" class="am-table-inline-input" ng-change="vm.changeInventoryRate(inventory)" style="text-align: right"></span>
+                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{inventory.amount}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr md-row>
+                                        <td md-cell>
+                                            <md-autocomplete id="new-inventory-name" md-autofocus md-search-text="vm.inventory.name" md-items="inventory in vm.inventoryQuerySearch()" md-item-text="inventory.name" placeholder="Enter Inventory" md-selected-item-change="vm.updateInventoryDetails()"
+                                                md-search-text-change="vm.convertInToTitleCase()">
+                                                <md-item-template>
+                                                    <span md-highlight-text="vm.inventory.name">{{inventory.name}}</span>
+                                                </md-item-template>
+                                            </md-autocomplete>
+                                        </td>
+                                        <td md-cell ng-if="vm.vatSettings.applyTax">
+                                            <span ng-if="vm.vatSettings.inclusive">{{vm.inventory.rate | number: 2}}</span>
+                                            <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewInventory()" ng-model="vm.inventory.rate" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Enter Rate" class="am-table-input" style="width: 97%"></span>
+                                        </td>
+                                        <td md-cell ng-if="vm.vatSettings.applyTax">
+                                            {{vm.inventory.tax | number: 2}}
+                                        </td>
+                                        <td md-cell>
+                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryRate(vm.inventory)" type="number" ng-model="vm.inventory.amount" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
+                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{vm.inventory.amount}}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <md-table-container ng-if="vm.displayInventoriesAsList">
+                            <table md-table md-row-select multiple ng-model="vm.selectedInventories" md-progress="vm.inventoryPromise">
+                                <thead md-head>
+                                    <tr md-row>
+                                        <th md-column>
+                                            <span class="am-table-header">Inventory</span>
+                                            <span style="margin-left: 1rem;">
+                                                <span class="am-table-header">(</span>
+                                            <md-input-container style="margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0">
+                                                <md-checkbox class="am-checkbox" layout="row" layout-align="center center" ng-model="vm.displayInventoriesAsList" aria-label="Display Treatment As" style="width: 100%">
+                                                    <span class="am-form-label" layout-wrap flex>Show All</span>
+                                                </md-checkbox>
+                                            </md-input-container>
+                                            <span class="am-table-header">)</span>
+                                            </span>
+                                        </th>
+                                        <th md-column ng-if="vm.vatSettings.applyTax" style="width: 16%"><span class="am-table-header">Rate</span></th>
+                                        <th md-column ng-if="vm.vatSettings.applyTax" style="width: 16%"><span class="am-table-header">VAT<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeVat()" ng-model="vm.vatSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:56px"></span></span>
+                                        </th>
+                                        <th md-column md-numeric style="width: 16%"><span class="am-table-header">Amount</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody md-body>
+                                    <tr md-row md-select="inventory" md-select-id="details" md-on-select="vm.onInventorySelected" md-on-deselect="vm.onInventoryDeselected" ng-repeat="inventory in vm.inventories" layout-align="center center">
+                                        <td md-cell><input type="text" ng-model="inventory.name" class="am-table-inline-input"></td>
+                                        <td md-cell ng-if="vm.vatSettings.applyTax">
+                                            <span ng-if="vm.vatSettings.inclusive">{{inventory.rate | number: 2}}</span>
+                                            <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-model="inventory.rate" class="am-table-inline-input" ng-change="vm.changeInventoryRate(inventory)">
+                                        </td>
+                                        <td md-cell ng-if="vm.vatSettings.applyTax">
+                                            {{inventory.tax | number: 2}}
+                                        </td>
+                                        <td md-cell>
+                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.amount" class="am-table-inline-input" ng-change="vm.changeInventoryRate(inventory)" style="text-align: right"></span>
+                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{inventory.amount}}</span>
+                                        </td>
+                                    </tr>
+                                    <tr md-row>
+                                        <td md-cell>
+                                            <md-autocomplete id="new-inventory-name" md-autofocus md-search-text="vm.inventory.name" md-items="inventory in vm.inventoryQuerySearch()" md-item-text="inventory.name" placeholder="Enter Inventory" md-selected-item-change="vm.updateInventoryDetails()"
+                                                md-search-text-change="vm.convertInToTitleCase()">
+                                                <md-item-template>
+                                                    <span md-highlight-text="vm.inventory.name">{{inventory.name}}</span>
+                                                </md-item-template>
+                                            </md-autocomplete>
+                                        </td>
+                                        <td md-cell ng-if="vm.vatSettings.applyTax">
+                                            <span ng-if="vm.vatSettings.inclusive">{{vm.inventory.rate | number: 2}}</span>
+                                            <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewInventory()" ng-model="vm.inventory.rate" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Enter Rate" class="am-table-input" style="width: 97%"></span>
+                                        </td>
+                                        <td md-cell ng-if="vm.vatSettings.applyTax">
+                                            {{vm.inventory.tax | number: 2}}
+                                        </td>
+                                        <td md-cell>
+                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryRate(vm.inventory)" type="number" ng-model="vm.inventory.amount" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
+                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{vm.inventory.amount}}</span>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </md-table-container>
+                        <div layout-gt-xs="row" layout-wrap layout-margin>
+                            <md-button ng-click="">
+                                <md-icon>add</md-icon>
+                                <span layout-padding>Add More</span>
+                            </md-button>
+                        </div>
+                    </md-content>
                     <md-divider></md-divider>
                     <div layout-gt-xs="row" layout-align="center start" layout-wrap layout-margin>
-                        <div layout="row" layout-align="start center" flex>
-                            <md-checkbox aria-label="Payment Receieved" ng-model="vm.servicestatus" flex="20" flex-xs><span class="md-body-1">Payment Received</span></md-checkbox>
-                            <md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="20" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox>
-                            <md-checkbox aria-label="Round Off Amount" ng-model="vm.isRoundOffVal" ng-change="vm.calculateCost(undefined, false)" flex="20" flex-xs><span class="md-body-1">Round Off</span></md-checkbox>
-                            <div>
-                                <md-checkbox aria-label="Apply Discount" ng-model="vm.isDiscountApplied" ng-change="vm.calculateCost()"><span class="md-body-1">Discount</span></md-checkbox>
-                                <span ng-show="vm.isDiscountApplied">:&nbsp;<input type="text" ng-change="vm.calculateCost(true)" ng-model="vm.discountPercentage" class="am-discount-inline-input">&nbsp;<span style="font-size: small">%</span></span>
+                        <div layout="column" flex>
+                            <div layout="row" layout-align="start center">
+                                <md-checkbox aria-label="Payment Receieved" ng-model="vm.servicestatus" flex="33" flex-xs><span class="md-body-1">Payment Received</span></md-checkbox>
+                                <md-checkbox aria-label="Round Off Amount" ng-model="vm.isRoundOffVal" ng-change="vm.calculateCost(undefined, false)" flex="33" flex-xs><span class="md-body-1">Round Off</span></md-checkbox>
+                                <div>
+                                    <md-checkbox aria-label="Apply Discount" ng-model="vm.isDiscountApplied" ng-change="vm.calculateCost()"><span class="md-body-1">Discount</span></md-checkbox>
+                                    <span ng-show="vm.isDiscountApplied">:&nbsp;<input type="text" ng-change="vm.calculateCost(true)" ng-model="vm.discountPercentage" class="am-discount-inline-input">&nbsp;<span style="font-size: small">%</span></span>
+                                </div>
+                            </div>
+                            <div layout="row" layout-align="start center">
+                                <md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="33" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox>
+                                <md-checkbox ng-if="vm.orgApplyVat" aria-label="VAT" ng-model="vm.vatSettings.applyTax" ng-change="vm.changeVat()" flex="33" flex-xs><span class="md-body-1">VAT</span></md-checkbox>
                             </div>
                         </div>
                         <div layout="column" layout-align="center end">
                             <span ng-if="vm.sTaxSettings.applyTax"><span class="md-body-2">Service Tax:&nbsp;</span>Rs. {{vm.calculateTax()}}</span>
                             <span ng-if="vm.sTaxSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
+                            <span ng-if="vm.vatSettings.applyTax"><span class="md-body-2">VAT:&nbsp;</span>Rs. {{vm.calculateVat()}}</span>
+                            <span ng-if="vm.vatSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
                             <span ng-if="vm.isDiscountApplied"><span class="md-body-2">Discount:&nbsp;</span>Rs. <input type="text" ng-change="vm.calculateCost(false)" ng-model="vm.discountValue" class="am-discount-inline-input"></span>
                             <span ng-if="vm.isDiscountApplied" style="line-height: 0.5rem">&nbsp;</span>
                             <span ng-if="vm.isRoundOffVal"><span class="md-body-2">Round Off:&nbsp;</span>Rs. <input type="text" ng-change="vm.calculateCost(undefined, true)" ng-model="vm.roundedOffVal" class="am-discount-inline-input"></span>

@@ -38,6 +38,7 @@
         vm.editService = editService;
         vm.isRoundOff = false;
         vm.isDiscountApplied = false;
+        vm.calculateVat = calculateVat;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -108,11 +109,29 @@
                     inclusive: (res.service.serviceTax.taxIncType == 'inclusive'),
                     tax: res.service.serviceTax.tax
                 };
+                vm.vatSettings = {
+                    applyTax: res.service.vat.applyTax,
+                    inclusive: (res.service.vat.taxIncType == 'inclusive'),
+                    tax: res.service.vat.tax
+                }
             }
 
             function failure(err) {
                 getDisplaySettings();
                 $log.info('Could not load details');
+            }
+        }
+
+        function calculateVat() {
+            var tax = 0;
+            if (!vm.service.vat.applyTax)
+                return 0;
+            vm.service.inventories.forEach(iterateInventories);
+            tax = (tax % 1 != 0) ? tax.toFixed(2) : tax; 
+            return tax;
+
+            function iterateInventories(inventory) {
+                tax += inventory.tax;
             }
         }
         

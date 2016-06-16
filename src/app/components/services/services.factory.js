@@ -2,7 +2,7 @@
  * Factory that handles database interactions between services database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -31,12 +31,104 @@
             getPackages: getPackages,
             getMemberships: getMemberships,
             getServiceTaxSettings: getServiceTaxSettings,
-            getServices: getServices
+            getServices: getServices,
+            getInventories: getInventories,
+            getVatSettings: getVatSettings,
+            getInventoriesSettings: getInventoriesSettings
         }
 
         return factory;
 
         //  function definitions
+
+        function getInventoriesSettings() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(configFound).catch(failure);
+            return tracker.promise;
+
+            function configFound(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(configDocFound).catch(failure);
+            }
+
+            function configDocFound(res) {
+                if (res.settings && res.settings.inventory)
+                    tracker.resolve(res.settings.inventory.displayAsList);
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'Setting not found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
+
+        function getVatSettings() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+            
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
+            }
+            
+            function getSettingsObj(res) {
+                if (res.settings && res.settings.vat) {
+                    tracker.resolve({
+                        applyTax: res.settings.vat.applyTax,
+                        inclusive: (res.settings.vat.taxIncType == 'inclusive') ? true : false,
+                        tax: res.settings.vat.tax
+                    });
+                } else
+                    failure();
+            }
+            
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'VAT Settings Not Found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
+
+        function getInventories() {
+            var tracker = $q.defer();
+            var response = [];
+            $amRoot.isInventoryId().then(getInventoryDoc).catch(failure);
+            return tracker.promise;
+
+            function getInventoryDoc(res) {
+                pdbConfig.get($amRoot.docIds.inventory).then(getInventoryObj).catch(failure);
+            }
+
+            function getInventoryObj(res) {
+                Object.keys(res).forEach(iterateInventories);
+                tracker.resolve(response);
+
+                function iterateInventories(name) {
+                    if (name.match(/\b_id|\b_rev|\bcreator/i) || res[name]._deleted == true)
+                        return;
+                    var temp = res[name];
+                    temp.name = name;
+                    temp.amount = temp.rate;
+                    temp.tax = '';
+                    response.push(temp);
+                    delete temp;
+                }
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
         
         function getServiceTaxSettings() {
             var tracker = $q.defer();
@@ -146,6 +238,19 @@
                                     delete sourceProblem;
                                 }
                                 service.problems = problemsArray;
+                            }
+                            if (service.inventories) {
+                                var inventoryArray = [];
+                                Object.keys(service.inventories).forEach(iterateInventories);
+
+                                function iterateInventories(inventory) {
+                                    var sourceInventory = $.extend({}, service.inventories[inventory]);
+                                    sourceInventory.name = inventory;
+                                    sourceInventory.checked = true;
+                                    inventoryArray.push(sourceInventory);
+                                    delete sourceInventory;
+                                }
+                                service.inventories = inventoryArray;
                             }
                             vehicle.service = service;
                         }
@@ -487,7 +592,6 @@
                 newUser.memberships = {};
                 smArray.forEach(addMembershipsToUser);
             }
-            var problemsArray = $.extend([], newService.problems);
             if (newService.packages) {
                 var packageArray = $.extend([], newService.packages);
                 newService.packages = {};
@@ -500,10 +604,19 @@
                 membershipArray.forEach(iterateMemberships);
                 delete membershipArray;
             }
-            newService.problems = {};
-            problemsArray.forEach(iterateProblems);
+            if (newService.problems) {
+                var problemsArray = $.extend([], newService.problems);
+                newService.problems = {};
+                problemsArray.forEach(iterateProblems);
+                delete problemsArray;
+            }
+            if (newService.inventories) {
+                var inventoryArray = $.extend([], newService.inventories);
+                newService.inventories = {};
+                inventoryArray.forEach(iterateInventories);
+                delete inventoryArray;
+            }
             delete smArray;
-            delete problemsArray;
             delete newService.id;
             delete newVehicle.id;
             delete newUser.id;
@@ -572,6 +685,14 @@
                 delete finalProblem['$$hashKey'];
                 newService.problems[problem.details] = finalProblem;
                 delete finalProblem;
+            }
+
+            function iterateInventories(inventory) {
+                var finalInventory = $.extend({}, inventory);
+                delete finalInventory.name;
+                delete finalInventory['$$hashKey'];
+                newService.inventories[inventory.name] = finalInventory;
+                delete finalInventory;
             }
             
             function iteratePackages(package) {
