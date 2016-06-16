@@ -29,6 +29,7 @@
         sVm.isWorkshopId = isWorkshopId;
         sVm.isTreatmentId = isTreatmentId;
         sVm.isSettingsId = isSettingsId;
+        sVm.isInventoryId = isInventoryId;
         sVm.updateConfigReferences = updateConfigReferences;
 
         //  named assignments
@@ -246,6 +247,8 @@
                         sVm.docIds.workshop = element.id;
                     if (element.id.match(/\bsttngs-/i))
                         sVm.docIds.settings = element.id;
+                    if (element.id.match(/\binvntry-/i))
+                        sVm.docIds.inventory = element.id;
                 }
             }
 
@@ -346,6 +349,11 @@
         //  check if settings' document id is loaded to current docId object
         function isSettingsId() {
             return isDocId('sttngs');
+        }
+
+        //  check if inventory's document id is loaded to current docId object
+        function isInventoryId() {
+            return isDocId('invntry');
         }
 
         //  the check function

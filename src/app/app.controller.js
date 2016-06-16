@@ -126,6 +126,10 @@
             icon: 'local_car_wash',
             state: 'restricted.treatments.master'
         }, {
+            name: 'Inventory',
+            icon: 'build',
+            state: 'restricted.inventory.all'
+        }, {
             name: 'Settings',
             icon: 'settings',
             state: 'restricted.settings'

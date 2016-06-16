@@ -1,0 +1,47 @@
+<md-content layout-padding layout-wrap>
+    <md-content class="md-table-toolbar md-default">
+        <div class="md-toolbar-tools">
+            <md-button aria-label="Add Inventory" class="md-raised md-accent" ng-click="vm.addInventory()">
+                <md-icon style="color:white">playlist_add</md-icon>
+                <span style="color:white" layout-padding>Add Inventory</span>
+            </md-button>
+            <div flex></div>
+            <div layout="row" layout-align="center center">
+                <span class="toolbar-center">
+                    <md-checkbox class="am-checkbox" ng-model="vm.stgDisplayAsList" ng-change="vm.changeDisplayAsList()" aria-label="Display Treatment As">
+                        <p class="md-body-1">Display as list while adding service</p>
+                    </md-checkbox>
+                </span>
+                <md-button class="md-icon-button" ng-hide="true">
+                    <md-icon>search</md-icon>
+                </md-button>
+            </div>
+        </div>
+    </md-content>
+
+    <md-content class="md-hue-1">
+        <md-table-container>
+            <table md-table ng-model="vm.selectedInventories" md-progress="vm.promise">
+                <thead md-head>
+                    <tr md-row>
+                        <th md-column><span class="am-table-header">Name</span></th>
+                        <th md-column><span class="am-table-header">Rate</span></th>
+                    </tr>
+                </thead>
+                <tbody md-body>
+                    <tr md-row md-auto-select ng-repeat="inventory in vm.inventories | limitTo: vm.query.limit: (vm.query.page-1)*(vm.query.limit)" class="am-select-table-row">
+                        <td md-cell ng-click="vm.editInventory(inventory.name)">{{inventory.name}}</td>
+                        <td md-cell ng-click="vm.editInventory(inventory.name)">{{inventory.rate}}</td>
+                        <td md-cell class="am-datatable-actions view-all-customers">
+                            <md-button class="md-icon-button" ng-click="vm.deleteInventory(inventory.name)">
+                                <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
+                            </md-button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </md-table-container>
+
+        <md-table-pagination md-limit="vm.query.limit" md-limit-options="[10, 20, 50, 100]" md-page="vm.query.page" md-total="{{vm.query.total}}" md-page-select></md-table-pagination>
+    </md-content>
+</md-content>
