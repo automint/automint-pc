@@ -2,7 +2,7 @@
  * Factory to fetch and retrieve invoice settings from database
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -21,7 +21,9 @@
             getInvoiceSettings: getInvoiceSettings,
             changeLastInvoiceNo: changeLastInvoiceNo,
             saveIvDisplaySettings: saveIvDisplaySettings,
-            saveIvEmailSubject: saveIvEmailSubject
+            saveIvEmailSubject: saveIvEmailSubject,
+            saveIvAlignMargins : saveIvAlignMargins,
+            getIvAlignMargins: getIvAlignMargins
         }
         
         return factory;
@@ -234,6 +236,73 @@
             }
             
             function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function saveIvAlignMargins(margin) {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
+            }
+
+            function getSettingsObject(res) {
+                if (!res.settings)
+                    res.settings = {};
+                if (!res.settings.invoices)
+                    res.settings.invoices = {};
+                res.settings.invoices.margin = margin;
+                pdbConfig.save(res).then(success).catch(failure);
+            }
+
+            function writeSettingsDoc(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    settings: {
+                        invoices: {
+                            margin: margin
+                        }
+                    }
+                }
+                pdbConfig.save(doc).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function getIvAlignMargins() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.invoices && res.settings.invoices.margin)
+                    tracker.resolve(res.settings.invoices.margin);
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'No Margin Settings Found!'
+                    }
+                }
                 tracker.reject(err);
             }
         }

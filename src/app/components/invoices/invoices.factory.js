@@ -18,12 +18,40 @@
         var factory = {
             getServiceDetails: getServiceDetails,
             getWorkshopDetails: getWorkshopDetails,
-            getIvSettings: getIvSettings
+            getIvSettings: getIvSettings,
+            getIvAlignMargins: getIvAlignMargins
         }
 
         return factory;
 
         //  function definitions
+
+        function getIvAlignMargins() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.invoices && res.settings.invoices.margin)
+                    tracker.resolve(res.settings.invoices.margin);
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'No Margin Settings Found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
 
         //  get service details from database
         function getServiceDetails(userId, vehicleId, serviceId) {

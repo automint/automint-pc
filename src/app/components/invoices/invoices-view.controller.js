@@ -48,11 +48,28 @@
         }
         fillInvoiceDetails();
         loadInvoiceWLogo();
+        getIvAlignMargins();
     
         //  electron watchers
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
+
+        function getIvAlignMargins() {
+            amInvoices.getIvAlignMargins().then(success).catch(failure);
+
+            function success(res) {
+                if (res.enabled) {
+                    var t = document.getElementById('am-invoice-body');
+                    t.style.paddingTop = res.top + 'cm';
+                    t.style.paddingBottom = res.bottom + 'cm';
+                }
+            }
+
+            function failure(err) {
+                console.log('Cound not find margin settings');
+            }
+        }
         
         function OnInvoiceMailSent(event, arg) {
             var message = (arg) ? 'Mail has been sent!' : 'Could not sent email. Please Try Again!'; 
@@ -128,6 +145,8 @@
                 return 0;
             vm.service.inventories.forEach(iterateInventories);
             tax = (tax % 1 != 0) ? tax.toFixed(2) : tax; 
+            if (tax == 0)
+                vm.vatSettings.applyTax = false;
             return tax;
 
             function iterateInventories(inventory) {
@@ -142,6 +161,8 @@
             vm.service.problems.forEach(iterateProblems);
             if (vm.service.packages)
                 vm.service.packages.forEach(iteratePackages);
+            if (tax == 0)
+                vm.sTaxSettings.applyTax = false;
             return tax;
             
             function iterateProblems(problem) {
@@ -173,7 +194,7 @@
                 }
                 if (res.display.workshopLogo)
                     addInvoiceWLogo();
-                vm.ivSettings = res;
+                vm.ivSettings = res; 
             }
 
             function failure(err) {

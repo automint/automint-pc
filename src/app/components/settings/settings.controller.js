@@ -18,7 +18,7 @@
         var vm = this;
         
         //  temporary named assignments
-        var olino = 0, ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oPasscode = '1234', oPasscodeEnabled;
+        var olino = 0, ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oPasscode = '1234', oPasscodeEnabled, oIvAlignTop = '', oIvAlignBottom = '';
 
         //  named assignments to keep track of UI [BEGIN]
         //  general settings
@@ -47,6 +47,12 @@
         vm.label_workshopAddress2 = 'Enter Address Line 2:';
         vm.label_workshopCity = 'Enter City:';
         vm.passcode = '1234';
+        vm.ivAlign = {
+            top: '',
+            bottom: ''
+        };
+        vm.label_ivAlignTopAlignment = 'Enter Top Margin:';
+        vm.label_ivAlignBottomAlignment = 'Enter Bottom Margin:';
         //  named assignments to keep track of UI [END]
         
         //  function maps [BEGIN]
@@ -79,6 +85,9 @@
         vm.saveServiceTaxSettings = saveServiceTaxSettings;
         vm.saveVatSettings = saveVatSettings;
         vm.savePasscode = savePasscode;
+        vm.changeTopAlignLabel = changeTopAlignLabel;
+        vm.changeBottomAlignLabel = changeBottomAlignLabel;
+        vm.saveIvAlignMargins = saveIvAlignMargins;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -96,16 +105,65 @@
         getWorkshopDetails();
         getInvoiceSettings();
         loadInvoiceWLogo();
+        getIvAlignMargins();
         //  service tax settings
         getServiceTaxSettings();
         getVatSettings();
-        // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
+        changeInvoiceTab(true)  //  testing purposes amTODO: remove it
         //  default execution steps [END]
 
         //  function definitions
 
-        function toggleVisibilityPasscode() {
-            
+        function getIvAlignMargins() {
+            amIvSettings.getIvAlignMargins().then(success).catch(failure);
+
+            function success(res) {
+                vm.ivAlign = res;
+                changeTopAlignLabel();
+                changeBottomAlignLabel();
+                oIvAlignTop = res.top;
+                oIvAlignBottom = res.bottom;
+            }
+
+            function failure(err) {
+                vm.ivAlign = {
+                    top: '',
+                    bottom: ''
+                };
+                oIvAlignTop = '';
+                oIvAlignBottom = '';
+            }
+        }
+
+        function saveIvAlignMargins(force) {
+            if (vm.ivAlign.top == oIvAlignTop && vm.ivAlign.bottom == oIvAlignBottom && !force)
+                return;
+            amIvSettings.saveIvAlignMargins(vm.ivAlign).then(success).catch(failure);
+
+            function success(res) {
+                oIvAlignTop = vm.ivAlign.top;
+                oIvAlignBottom = vm.ivAlign.bottom;
+                utils.showSimpleToast('Settings saved successfully!');
+            }
+
+            function failure(err) {
+                console.log(err);
+                utils.showSimpleToast('Could not save margin! Please Try Again!');
+            }
+        }
+
+        function changeTopAlignLabel(force) {
+            if (vm.ivAlign.top == null)
+                vm.ivAlign.top = '';
+            vm.isTopAlignment = (force != undefined || vm.ivAlign.top != '');
+            vm.label_ivAlignTopAlignment = vm.isTopAlignment ? 'Top:' : 'Enter Top Margin:';
+        }
+
+        function changeBottomAlignLabel(force) {
+            if (vm.ivAlign.bottom == null)
+                vm.ivAlign.bottom = '';
+            vm.isBottomAlignment = (force != undefined || vm.ivAlign.bottom != '');
+            vm.label_ivAlignBottomAlignment = vm.isBottomAlignment ? 'Bottom:' : 'Enter Bottom Margin:';
         }
 
         function getPasscode() {

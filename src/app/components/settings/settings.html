@@ -368,6 +368,27 @@
                             </md-button>
                         </md-card-contnet>
                     </md-card>
+                    <md-card class="md-hue-1">
+                        <md-card-title>
+                            <span class="md-title">Printing Margin&nbsp;<span style="font-size: small">(in cm)</span></span>
+                            <div flex></div>
+                            <md-checkbox ng-model="vm.ivAlign.enabled" ng-change="vm.saveIvAlignMargins(true)" aria-label="Enable Passcode">
+                                <span class="md-body-1">Enable Margins</span>
+                            </md-checkbox>
+                        </md-card-title>
+                        <md-card-content>
+                            <md-input-container class="am-clear-error-spacer" flex>
+                                <md-icon class="md-accent">vertical_align_top</md-icon>
+                                <label class="am-form-label" ng-class="{'large': vm.isTopAlignment}">{{vm.label_ivAlignTopAlignment}}</label>
+                                <input type="number" ng-model="vm.ivAlign.top" ng-focus="vm.changeTopAlignLabel(true)" ng-blur="vm.changeTopAlignLabel(); vm.saveIvAlignMargins()" aria-label="Top Align">
+                            </md-input-container>
+                            <md-input-container class="am-clear-error-spacer" flex>
+                                <md-icon class="md-accent">vertical_align_bottom</md-icon>
+                                <label class="am-form-label" ng-class="{'large': vm.isBottomAlignment}">{{vm.label_ivAlignBottomAlignment}}</label>
+                                <input type="number" ng-model="vm.ivAlign.bottom" ng-focus="vm.changeBottomAlignLabel(true)" ng-blur="vm.changeBottomAlignLabel(); vm.saveIvAlignMargins()" aria-label="Bottom Align">
+                            </md-input-container>
+                        </md-card-content>
+                    </md-card>
                 </div>
             </md-content>
         </md-tab>
