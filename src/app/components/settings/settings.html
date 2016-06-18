@@ -297,6 +297,10 @@
                     <md-card class="md-hue-1">
                         <md-card-title>
                             <span class="md-title">Social Links</span>
+                            <div flex></div>
+                            <md-checkbox ng-model="vm.workshop.social.enabled" ng-change="vm.saveWorkshopDetails()" aria-label="Enable Links">
+                                <span class="md-body-1">Show Links</span>
+                            </md-checkbox>
                         </md-card-title>
                         <md-card-content>
                             <div layout="column">

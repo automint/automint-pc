@@ -59,6 +59,7 @@
             amInvoices.getIvAlignMargins().then(success).catch(failure);
 
             function success(res) {
+                vm.alignmentMargins = res;
                 if (res.enabled) {
                     var t = document.getElementById('am-invoice-body');
                     t.style.paddingTop = res.top + 'cm';
@@ -189,9 +190,6 @@
             amInvoices.getIvSettings().then(success).catch(failure);
 
             function success(res) {
-                if (!res.display.workshopDetails) {
-                    vm.workshop = {};
-                }
                 if (res.display.workshopLogo)
                     addInvoiceWLogo();
                 vm.ivSettings = res; 
@@ -214,21 +212,34 @@
                 utils.showSimpleToast(vm.user.name + '\'s email has not been set. Email can not be sent!');
                 return;
             }
-            removeInvoiceWLogo();
-            var elem = document.getElementsByClassName('am-blank-padding');
-            for (var i = 0; i < elem.length; i++) {
-                var e = elem[i];
-                e.innerHTML = '';
+            var t = document.getElementById('am-invoice-body');
+            if (vm.alignmentMargins.enabled) {
+                t.style.paddingTop = 0;
+                t.style.paddingBottom = 0;
             }
+            var amInScFb = document.getElementById('am-invoice-social-facebook');
+            var amInScIn = document.getElementById('am-invoice-social-instagram');
+            var amInScTw = document.getElementById('am-invoice-social-twitter');
+            if (vm.workshop.social.enabled) {
+                amInScFb.src = 'https://www.facebook.com/images/fb_icon_325x325.png';
+                amInScIn.src = 'http://3835642c2693476aa717-d4b78efce91b9730bcca725cf9bb0b37.r51.cf1.rackcdn.com/Instagram_App_Large_May2016_200.png';
+                amInScTw.src = 'https://g.twimg.com/Twitter_logo_blue.png';
+            }
+            removeInvoiceWLogo();
             var printObj = document.getElementById('am-invoice-mail-body');
             utils.showSimpleToast('Sending Mail...');
             ammMailApi.send(printObj.innerHTML, vm.user, (vm.workshop) ? vm.workshop.name : undefined, (vm.ivSettings) ? vm.ivSettings.emailsubject : undefined);
-            for (var i = 0; i < elem.length; i++) {
-                var e = elem[i];
-                e.innerHTML = '&nbsp;';
+            if (vm.workshop.social.enabled) {
+                amInScFb.src = 'assets/img/facebook.svg';
+                amInScIn.src = 'assets/img/instagram.svg';
+                amInScTw.src = 'assets/img/twitter.svg';
             }
             if (vm.ivSettings.display.workshopLogo)
                 addInvoiceWLogo();
+            if (vm.alignmentMargins.enabled) {
+                t.style.paddingTop = vm.alignmentMargins.top + 'cm';
+                t.style.paddingBottom = vm.alignmentMargins.bottom + 'cm';
+            }
         }
 
         function goBack() {
