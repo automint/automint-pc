@@ -159,57 +159,83 @@
                                     <p style="font-size: large">{{vm.user.name}}</p>
                                     <span><span>{{vm.vehicle.manuf + ' ' + vm.vehicle.model}}</span><br><span style="line-height: 1.4; font-size: smaller; letter-spacing: 0.2px" ng-if="vm.vehicle.reg">{{vm.vehicle.reg}}</span></span>
                                 </td>
-                                <td style="text-align: right">
+                                <td ng-if="vm.service.inventories.length > 0" style="width: 16%"></td>
+                                <td ng-if="vm.service.inventories.length > 0" style="width: 16%"></td>
+                                <td style="text-align: right; width: 16%">
                                     <p style="text-align: right; font-size: large">Invoice #{{vm.service.invoiceno}}</p>
                                     <span>{{vm.service.date}}</span>
                                 </td>
                             </tr>
                             <tr class="caption">
                                 <td><span style="font-weight: 700">Treatments</span></td>
+                                <td ng-if="vm.service.inventories.length > 0"><span style="font-weight: 700">Rate</span></td>
+                                <td ng-if="vm.service.inventories.length > 0"><span style="font-weight: 700">Qty</span></td>
                                 <td style="text-align: right"><span style="font-weight: 700">Amount</span></td>
                             </tr>
                             <tr class="row" ng-repeat-start="(key, membership) in vm.service.memberships">
                                 <td class="m-d">{{key}}</td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right" class="m-d">&nbsp;</td>
                             </tr>
                             <tr ng-repeat-end ng-repeat="(tn, treatment) in membership.treatments">
                                 <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{tn}}</span></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">&nbsp;</td>
                             </tr>
                             <tr class="row" ng-repeat-start="package in vm.service.packages">
                                 <td class="m-d">{{package.name}}</td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td class="m-d" align="right">&nbsp;</td>
                             </tr>
                             <tr ng-repeat-end ng-repeat="treatment in package.treatments">
                                 <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{treatment.name}}</span></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                             </tr>
                             <tr class="row" ng-repeat="problem in vm.service.problems">
                                 <td>{{problem.details}}</td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right">Rs. {{problem.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                             </tr>
                             <tr class="row" ng-repeat="inventory in vm.service.inventories">
                                 <td>{{inventory.name}}</td>
-                                <td align="right">Rs. {{inventory.rate | number: (vm.vatSettings.applyTax) ? ((vm.vatSettings.inclusive) ? 2 : 0) : 0}}</td>
+                                <td ng-if="vm.service.inventories.length > 0">Rs. {{inventory.rate | number: (vm.vatSettings.applyTax) ? ((vm.vatSettings.inclusive) ? 2 : 0) : 0}}</td>
+                                <td ng-if="vm.service.inventories.length > 0">{{inventory.qty}}</td>
+                                <td align="right">Rs. {{inventory.total}}</td>
                             </tr>
                             <tr class="tax" ng-if="vm.sTaxSettings.applyTax">
                                 <td>Service Tax ({{vm.sTaxSettings.tax}}<small>%</small>)</td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right">Rs. {{vm.calculateServiceTax()}}</td>
                             </tr>
                             <tr ng-class="{'tax': !vm.sTaxSettings.applyTax, 'subt': vm.sTaxSettings.applyTax}" ng-if="vm.vatSettings.applyTax">
                                 <td>VAT ({{vm.vatSettings.tax}}<small>%</small>)</td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right">Rs. {{vm.calculateVat()}}</td>
                             </tr>
                             <tr class="subt" ng-if="vm.isDiscountApplied">
                                 <td>Discount ({{vm.service.discount.percent}}<small>%</small>)</td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right">Rs. {{vm.service.discount.amount}}</td>
                             </tr>
                             <tr class="subt" ng-if="vm.isRoundOff">
                                 <td>Round Off</td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right">Rs. {{vm.service.roundoff}}</td>
                             </tr>
                             <tr class="total" ng-class="{'tax': !(vm.sTaxSettings.applyTax || vm.vatSettings.applyTax)}">
                                 <td>Total</td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
+                                <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right">Rs. {{vm.service.cost | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                             </tr>
                         </table>

@@ -88,7 +88,9 @@
             name: '',
             rate: '',
             tax: '',
-            amount: ''
+            qty: 1,
+            amount: '',
+            total: ''
         }
 
         //  named assignments to handle behaviour of UI elements
@@ -143,9 +145,11 @@
         vm.updateInventoryDetails = updateInventoryDetails;
         vm.finalizeNewInventory = finalizeNewInventory;
         vm.calculateVat = calculateVat;
+        vm.changeQty = changeQty;
+        vm.changeInventoryTotal = changeInventoryTotal;
 
         //  default execution steps
-        vm.serviceTab = true; //  testing purposes [amTODO: remove it]
+        // vm.serviceTab = true; //  testing purposes [amTODO: remove it]
         getTreatmentDisplayFormat();
         getInventoriesSettings();
         getVehicleTypes();
@@ -156,15 +160,21 @@
 
         //  function definitions
 
+        function changeInventoryTotal(inventory) {
+            inventory.amount = inventory.total / inventory.qty;
+            changeInventoryRate(inventory);
+        }
+
         function calculateVat() {
             var totalTax = 0.0;
             vm.selectedInventories.forEach(iterateInventories);
+            totalTax = (totalTax % 1 != 0) ? totalTax.toFixed(2) : totalTax;
             return totalTax;
 
             function iterateInventories(element) {
                 if ((vm.vatSettings && !vm.vatSettings.applyTax) || !element.tax || !element.checked)
                     return;
-                totalTax += parseFloat(element.tax.toFixed(2));
+                totalTax += parseFloat(element.tax.toFixed(2) * element.qty);
             }
         }
 
@@ -190,14 +200,18 @@
                     found[0].checked = true;
                     found[0].rate = vm.inventory.rate;
                     found[0].tax = vm.inventory.tax;
+                    found[0].qty = vm.inventory.qty;
                     found[0].amount = vm.inventory.amount;
+                    found[0].total = vm.inventory.total;
                     vm.selectedInventories.push(found[0]);
                 } else {
                     vm.inventories.push({
                         name: vm.inventory.name,
                         rate: vm.inventory.rate,
                         tax: vm.inventory.tax,
+                        qty: vm.inventory.qty,
                         amount: vm.inventory.amount,
+                        total: vm.inventory.total,
                         checked: true
                     });
                     vm.selectedInventories.push(vm.inventories[vm.inventories.length - 1]);
@@ -206,6 +220,8 @@
                 vm.inventory.amount = '';
                 vm.inventory.rate = '';
                 vm.inventory.tax = '';
+                vm.inventory.qty = 1;
+                vm.inventory.total = '';
                 $('#new-inventory-name').focus();
             }
             if (btnClicked)
@@ -239,8 +255,11 @@
                     else
                         vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
                 }
-            } else
+                vm.inventory.total = vm.inventory.amount * vm.inventory.qty;
+            } else {
                 vm.inventory.rate = '';
+                vm.inventory.total = '';
+            }
         }
 
         function inventoryQuerySearch() {
@@ -308,6 +327,10 @@
             }
         }
 
+        function changeQty(inventory) {
+            inventory.total = (inventory.rate * inventory.qty) + (inventory.tax * inventory.qty);
+        }
+
         function changeInventoryRate(inventory, force) {
             if (vm.vatSettings.applyTax) {
                 if (vm.vatSettings.inclusive) {
@@ -325,6 +348,7 @@
                 else
                     inventory.amount = inventory.rate;
             }
+            changeQty(inventory);
         }
 
         function convertPbToTitleCase() {
@@ -1130,7 +1154,7 @@
             isManualRoundOff = (isMro != undefined) ? isMro : isManualRoundOff;
             var totalCost = 0;
             vm.service.problems.forEach(iterateProblem);
-            vm.selectedInventories.forEach(iterateProblem);
+            vm.selectedInventories.forEach(iterateInventories);
             if (vm.serviceType == vm.serviceTypeList[1]) {
                 vm.packages.forEach(iteratePackages);
             }
@@ -1165,7 +1189,11 @@
             return totalCost;
 
             function iterateProblem(element) {
-                totalCost += parseInt(Math.round(element.amount ? (element.amount * (element.checked ? 1 : 0)) : 0));
+                totalCost += parseFloat(element.amount ? (element.amount * (element.checked ? 1 : 0)) : 0);
+            }
+
+            function iterateInventories(element) {
+                totalCost += parseFloat(element.total ? (element.total * (element.checked ? 1 : 0)) : 0);
             }
 
             function iteratePackages(package) {
@@ -1376,7 +1404,7 @@
             }
 
             function iterateProblems(problem) {
-                if (!vm.sTaxSettings || (vm.sTaxSettings && !vm.sTaxSettings.applyTax))
+                if (!vm.sTaxSettings || (vm.sTaxSettings && !vm.sTaxSettings.applyTax && vm.sTaxSettings.inclusive))
                     problem.rate = problem.amount;
                 delete problem.checked;
                 delete problem['amount'];
@@ -1384,9 +1412,10 @@
             }
 
             function iterateInventories(inventory) {
-                if (!vm.vatSettings || (vm.vatSettings && vm.vatSettings.applyTax))
+                if (!vm.vatSettings || (vm.vatSettings && vm.vatSettings.applyTax && vm.vatSettings.inclusive))
                     inventory.rate = inventory.amount;
                 delete inventory.checked;
+                delete inventory['total'];
                 delete inventory['amount'];
                 delete inventory['$$hashKey'];
             }

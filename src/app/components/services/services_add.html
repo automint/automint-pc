@@ -472,8 +472,7 @@
                                             </span>
                                         </th>
                                         <th md-column ng-if="vm.vatSettings.applyTax" style="width: 16%"><span class="am-table-header">Rate</span></th>
-                                        <th md-column ng-if="vm.vatSettings.applyTax" style="width: 16%"><span class="am-table-header">VAT<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeVat()" ng-model="vm.vatSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:56px"></span></span>
-                                        </th>
+                                        <th md-column style="width: 16%"><span class="am-table-header">Qty</span></th>
                                         <th md-column md-numeric style="width: 16%"><span class="am-table-header">Amount</span></th>
                                     </tr>
                                 </thead>
@@ -484,12 +483,12 @@
                                             <span ng-if="vm.vatSettings.inclusive">{{inventory.rate | number: 2}}</span>
                                             <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-model="inventory.rate" class="am-table-inline-input" ng-change="vm.changeInventoryRate(inventory)">
                                         </td>
-                                        <td md-cell ng-if="vm.vatSettings.applyTax">
-                                            {{inventory.tax | number: 2}}
+                                        <td md-cell>
+                                            <input type="number" ng-model="inventory.qty" class="am-table-inline-input" ng-change="vm.changeQty(inventory)">
                                         </td>
                                         <td md-cell>
-                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.amount" class="am-table-inline-input" ng-change="vm.changeInventoryRate(inventory)" style="text-align: right"></span>
-                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{inventory.amount}}</span>
+                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
+                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{inventory.total}}</span>
                                         </td>
                                     </tr>
                                     <tr md-row>
@@ -505,12 +504,12 @@
                                             <span ng-if="vm.vatSettings.inclusive">{{vm.inventory.rate | number: 2}}</span>
                                             <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewInventory()" ng-model="vm.inventory.rate" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Enter Rate" class="am-table-input" style="width: 97%"></span>
                                         </td>
-                                        <td md-cell ng-if="vm.vatSettings.applyTax">
-                                            {{vm.inventory.tax | number: 2}}
+                                        <td md-cell>
+                                            <input type="number" ng-model="vm.inventory.qty" placeholder="Enter Qty" ng-change="vm.changeQty(vm.inventory)" class="am-table-input" style="width: 97%">
                                         </td>
                                         <td md-cell>
-                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryRate(vm.inventory)" type="number" ng-model="vm.inventory.amount" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
-                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{vm.inventory.amount}}</span>
+                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
+                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{vm.inventory.total}}</span>
                                         </td>
                                     </tr>
                                 </tbody>
@@ -533,8 +532,7 @@
                                             </span>
                                         </th>
                                         <th md-column ng-if="vm.vatSettings.applyTax" style="width: 16%"><span class="am-table-header">Rate</span></th>
-                                        <th md-column ng-if="vm.vatSettings.applyTax" style="width: 16%"><span class="am-table-header">VAT<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeVat()" ng-model="vm.vatSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:56px"></span></span>
-                                        </th>
+                                        <th md-column style="width: 16%"><span class="am-table-header">Qty</span></th>
                                         <th md-column md-numeric style="width: 16%"><span class="am-table-header">Amount</span></th>
                                     </tr>
                                 </thead>
@@ -545,12 +543,12 @@
                                             <span ng-if="vm.vatSettings.inclusive">{{inventory.rate | number: 2}}</span>
                                             <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-model="inventory.rate" class="am-table-inline-input" ng-change="vm.changeInventoryRate(inventory)">
                                         </td>
-                                        <td md-cell ng-if="vm.vatSettings.applyTax">
-                                            {{inventory.tax | number: 2}}
+                                        <td md-cell>
+                                            <input type="number" ng-model="inventory.qty" ng-change="vm.changeQty(inventory)" class="am-table-inline-input">
                                         </td>
                                         <td md-cell>
-                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.amount" class="am-table-inline-input" ng-change="vm.changeInventoryRate(inventory)" style="text-align: right"></span>
-                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{inventory.amount}}</span>
+                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
+                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{inventory.total}}</span>
                                         </td>
                                     </tr>
                                     <tr md-row>
@@ -566,12 +564,12 @@
                                             <span ng-if="vm.vatSettings.inclusive">{{vm.inventory.rate | number: 2}}</span>
                                             <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewInventory()" ng-model="vm.inventory.rate" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Enter Rate" class="am-table-input" style="width: 97%"></span>
                                         </td>
-                                        <td md-cell ng-if="vm.vatSettings.applyTax">
-                                            {{vm.inventory.tax | number: 2}}
+                                        <td md-cell>
+                                            <input type="number" ng-model="vm.inventory.qty" ng-change="vm.changeQty(vm.inventory)" placeholder="Enter Qty" class="am-table-input" style="width: 97%">
                                         </td>
                                         <td md-cell>
-                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryRate(vm.inventory)" type="number" ng-model="vm.inventory.amount" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
-                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{vm.inventory.amount}}</span>
+                                            <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Enter Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
+                                            <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{vm.inventory.total}}</span>
                                         </td>
                                     </tr>
                                 </tbody>

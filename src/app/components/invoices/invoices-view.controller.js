@@ -27,7 +27,6 @@
         vm.fabClass = '';
 
         //  function maps
-        vm.test = test;
         vm.printInvoice = printInvoice;
         vm.mailInvoice = mailInvoice;
         vm.goBack = goBack;
@@ -120,6 +119,28 @@
             });
         }
 
+        function calculateInventoryValues() {
+            vm.service.inventories.forEach(iterateInventories);
+
+            function iterateInventories(inventory) {
+                if (inventory.qty == undefined)
+                    inventory.qty = 1;
+                if (vm.vatSettings.applyTax) {
+                    inventory.amount = inventory.rate;
+                    if (vm.vatSettings.inclusive) {
+                        inventory.rate = (inventory.amount * 100) / (vm.vatSettings.tax + 100);
+                        inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
+                    } else {
+                        console.log(inventory.rate);
+                        inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
+                        inventory.amount = Math.round(inventory.rate + inventory.tax);
+                    }
+                }
+                inventory.total = (inventory.rate * inventory.qty) + (inventory.tax * inventory.qty);
+                inventory.total = (inventory.total % 1 != 0) ? inventory.total.toFixed(2) : parseInt(inventory.total);
+            }
+        }
+
         //  fill invoice details
         function fillInvoiceDetails() {
             amInvoices.getWorkshopDetails().then(fillWorkshopDetails).catch(failure);
@@ -147,6 +168,7 @@
                     inclusive: (res.service.vat.taxIncType == 'inclusive'),
                     tax: res.service.vat.tax
                 }
+                calculateInventoryValues();
             }
 
             function failure(err) {
@@ -166,7 +188,7 @@
             return tax;
 
             function iterateInventories(inventory) {
-                tax += inventory.tax;
+                tax += inventory.tax * (inventory.qty ? inventory.qty : 1);
             }
         }
         
@@ -294,11 +316,5 @@
                 elem.removeChild(elem.firstChild);
             }
         }
-
-        //  test zone [BEGIN]
-        function test() {
-            console.log('You have reached test');
-        }
-        //  test zone [END]
     }
 })();

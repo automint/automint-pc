@@ -120,6 +120,8 @@
                     temp.name = name;
                     temp.amount = temp.rate;
                     temp.tax = '';
+                    temp.qty = 1;
+                    temp.total = temp.amount*temp.qty;
                     response.push(temp);
                     delete temp;
                 }

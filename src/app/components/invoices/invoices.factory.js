@@ -97,7 +97,8 @@
                         response.service.inventories.push({
                             name: inventory,
                             rate: inventories[inventory].rate,
-                            tax: inventories[inventory].tax
+                            tax: inventories[inventory].tax,
+                            qty: inventories[inventory].qty
                         });
                     }
                 }

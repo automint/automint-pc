@@ -109,7 +109,7 @@
         //  service tax settings
         getServiceTaxSettings();
         getVatSettings();
-        changeInvoiceTab(true)  //  testing purposes amTODO: remove it
+        // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
         //  default execution steps [END]
 
         //  function definitions
