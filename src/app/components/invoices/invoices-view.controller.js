@@ -39,6 +39,9 @@
         vm.isRoundOff = false;
         vm.isDiscountApplied = false;
         vm.calculateVat = calculateVat;
+        vm.IsSocialFacebook = IsSocialFacebook;
+        vm.IsSocialInstagram = IsSocialInstagram;
+        vm.IsSocialTwitter = IsSocialTwitter;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -54,6 +57,18 @@
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
+
+        function IsSocialFacebook() {
+            return (vm.workshop.social.facebook != undefined || vm.workshop.social.facebook != '')
+        }
+
+        function IsSocialInstagram() {
+            return (vm.workshop.social.instagram != undefined || vm.workshop.social.instagram != '')
+        }
+
+        function IsSocialTwitter() {
+            return (vm.workshop.social.twitter != undefined || vm.workshop.social.twitter != '')
+        }
 
         function getIvAlignMargins() {
             amInvoices.getIvAlignMargins().then(success).catch(failure);
