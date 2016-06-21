@@ -606,11 +606,11 @@
                             <span ng-if="vm.sTaxSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
                             <span ng-if="vm.vatSettings.applyTax"><span class="md-body-2">VAT:&nbsp;</span>Rs. {{vm.calculateVat()}}</span>
                             <span ng-if="vm.vatSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
-                            <span ng-if="vm.isDiscountApplied"><span class="md-body-2">Discount:&nbsp;</span>Rs. <input type="text" ng-change="vm.calculateCost(false)" ng-model="vm.discountValue" class="am-discount-inline-input"></span>
+                            <span ng-if="vm.isDiscountApplied"><span class="md-body-2">Discount:&nbsp;</span>Rs. <input type="text" ng-change="vm.calculateCost(false)" ng-model="vm.discountValue" class="am-discount-inline-input" style="text-align: right"></span>
                             <span ng-if="vm.isDiscountApplied" style="line-height: 0.5rem">&nbsp;</span>
-                            <span ng-if="vm.isRoundOffVal"><span class="md-body-2">Round Off:&nbsp;</span>Rs. <input type="text" ng-change="vm.calculateCost(undefined, true)" ng-model="vm.roundedOffVal" class="am-discount-inline-input"></span>
+                            <span ng-if="vm.isRoundOffVal"><span class="md-body-2">Round Off:&nbsp;</span>Rs. <input type="text" ng-change="vm.calculateCost(undefined, true)" ng-model="vm.roundedOffVal" class="am-discount-inline-input" style="text-align: right"></span>
                             <span ng-if="vm.isRoundOffVal" style="line-height: 0.5rem">&nbsp;</span>
-                            <span><span class="md-body-2">Total Cost:&nbsp;</span>Rs. {{vm.calculateCost()}}</span>
+                            <span><span class="md-body-2">Total Cost:&nbsp;</span>Rs.&nbsp<span ng-if="vm.isRoundOffVal"><input type="text" ng-focus="vm.changeForceStopCalCost(true)" ng-blur="vm.changeForceStopCalCost(false)" ng-change="vm.populateRoundOffVal()" ng-model="vm.service.cost" class="am-discount-inline-input" style="width: 70px; text-align: right"></span><span ng-if="!vm.isRoundOffVal">{{vm.service.cost}}</span></span>
                         </div>
                     </div>
                 </div>

@@ -28,7 +28,9 @@
         var autofillVehicle = false,
             isDiscountByPercent = true,
             isManualRoundOff = false,
-            isFirstTimeLoad = true;
+            isFirstTimeLoad = true,
+            serviceTotalCost = 0,
+            forceStopCalCost = false;
 
         //  vm assignments to keep track of UI related elements
         vm.label_userMobile = 'Enter Mobile Number:';
@@ -86,7 +88,8 @@
             qty: 1,
             amount: '',
             total: ''
-        }
+        };
+        vm.totalCost = 0;
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -130,6 +133,8 @@
         vm.calculateVat = calculateVat;
         vm.changeQty = changeQty;
         vm.changeInventoryTotal = changeInventoryTotal;
+        vm.populateRoundOffVal = populateRoundOffVal;
+        vm.changeForceStopCalCost = changeForceStopCalCost;
 
         //  default execution steps
         getVehicleTypes();
@@ -353,6 +358,7 @@
                     inventory.amount = inventory.rate;
             }
             changeQty(inventory);
+            calculateCost();
         }
 
         function convertPbToTitleCase() {
@@ -401,6 +407,7 @@
                 } else
                     problem.amount = problem.rate;
             }
+            calculateCost();
         }
 
         function getServiceTaxSettings() {
@@ -693,6 +700,7 @@
                         var total = 0;
                         package.selectedTreatments.forEach(it);
                         package.total = total;
+                        calculateCost();
                         return total;
 
                         function it(t) {
@@ -1108,10 +1116,22 @@
             }
         }
 
+        function populateRoundOffVal() {
+            vm.roundedOffVal = vm.service.cost - serviceTotalCost;
+        }
+
+        function changeForceStopCalCost(bool) {
+            forceStopCalCost = bool;
+            isManualRoundOff = true; 
+        }
+
         function calculateCost(isDbp, isMro) {
+            if (forceStopCalCost)
+                return;
             isDiscountByPercent = (isDbp != undefined) ? isDbp : isDiscountByPercent;
             isManualRoundOff = (isMro != undefined) ? isMro : isManualRoundOff;
             var totalCost = 0;
+            serviceTotalCost = 0;
             vm.service.problems.forEach(iterateProblem);
             vm.selectedInventories.forEach(iterateInventories);
             if (vm.serviceType == vm.serviceTypeList[1]) {
@@ -1134,10 +1154,11 @@
                     delete dv;
                 }
             }
+            serviceTotalCost = totalCost;
             if (vm.isRoundOffVal) {
                 if (!isManualRoundOff) {
                     var ot = totalCost;
-                    totalCost = vm.isRoundOffVal ? Math.round(totalCost * 0.1) * 10 : totalCost;
+                    totalCost = vm.isRoundOffVal ? Math.floor(totalCost * 0.1) * 10 : totalCost;
                     vm.roundedOffVal = (totalCost - ot);
                     vm.roundedOffVal = (vm.roundedOffVal % 1 != 0) ? vm.roundedOffVal.toFixed(2) : vm.roundedOffVal;
                     delete ot;
@@ -1148,7 +1169,6 @@
             totalCost = (totalCost % 1 != 0) ? totalCost.toFixed(2) : totalCost;
             totalCost = (totalCost % 1).toFixed(2) == 0.00 ? Math.round(totalCost) : totalCost;
             vm.service.cost = totalCost;
-            return totalCost;
 
             function iterateProblem(element) {
                 totalCost += parseFloat(element.amount ? (element.amount * (element.checked ? 1 : 0)) : 0);
