@@ -595,7 +595,10 @@
                             </div>
                             <div layout="row" layout-align="start center">
                                 <md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="33" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox>
-                                <md-checkbox ng-if="vm.orgApplyVat" aria-label="VAT" ng-model="vm.vatSettings.applyTax" ng-change="vm.changeVat()" flex="33" flex-xs><span class="md-body-1">VAT</span></md-checkbox>
+                                <div>
+                                    <md-checkbox ng-if="vm.orgApplyVat" aria-label="VAT" ng-model="vm.vatSettings.applyTax" ng-change="vm.changeVat()" flex="33" flex-xs><span class="md-body-1">VAT</span></md-checkbox>
+                                    <span ng-show="vm.vatSettings.applyTax">:&nbsp;<input type="number" ng-change="vm.changeVat()" ng-model="vm.vatSettings.tax" class="am-discount-inline-input">&nbsp;<span style="font-size: small">%</span></span>
+                                </div>
                             </div>
                         </div>
                         <div layout="column" layout-align="center end">

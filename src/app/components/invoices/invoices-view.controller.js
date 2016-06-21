@@ -58,15 +58,15 @@
         //  function definitions
 
         function IsSocialFacebook() {
-            return (vm.workshop.social.facebook != undefined || vm.workshop.social.facebook != '')
+            return (vm.workshop.social.facebook != '');
         }
 
         function IsSocialInstagram() {
-            return (vm.workshop.social.instagram != undefined || vm.workshop.social.instagram != '')
+            return (vm.workshop.social.instagram != '');
         }
 
         function IsSocialTwitter() {
-            return (vm.workshop.social.twitter != undefined || vm.workshop.social.twitter != '')
+            return (vm.workshop.social.twitter != '');
         }
 
         function getIvAlignMargins() {
@@ -257,19 +257,40 @@
             var amInScFb = document.getElementById('am-invoice-social-facebook');
             var amInScIn = document.getElementById('am-invoice-social-instagram');
             var amInScTw = document.getElementById('am-invoice-social-twitter');
+            var amInLkFb = document.getElementById('am-invoice-link-facebook');
+            var amInLkIn = document.getElementById('am-invoice-link-instagram');
+            var amInLkTw = document.getElementById('am-invoice-link-twitter');
             if (vm.workshop.social.enabled) {
-                amInScFb.src = 'https://www.facebook.com/images/fb_icon_325x325.png';
-                amInScIn.src = 'http://3835642c2693476aa717-d4b78efce91b9730bcca725cf9bb0b37.r51.cf1.rackcdn.com/Instagram_App_Large_May2016_200.png';
-                amInScTw.src = 'https://g.twimg.com/Twitter_logo_blue.png';
+                if (IsSocialFacebook()) {
+                    amInLkFb.href = 'facebook.com/' + vm.workshop.social.facebook;
+                    amInScFb.src = 'https://www.facebook.com/images/fb_icon_325x325.png';
+                }
+                if (IsSocialInstagram()) {
+                    amInLkIn.href = 'instagram.com/' + vm.workshop.social.instagram;
+                    amInScIn.src = 'http://3835642c2693476aa717-d4b78efce91b9730bcca725cf9bb0b37.r51.cf1.rackcdn.com/Instagram_App_Large_May2016_200.png';
+                }
+                if (IsSocialTwitter()) {
+                    amInLkTw.href = 'twitter.com/' + vm.workshop.social.twitter;
+                    amInScTw.src = 'https://g.twimg.com/Twitter_logo_blue.png';
+                }
             }
             removeInvoiceWLogo();
             var printObj = document.getElementById('am-invoice-mail-body');
             utils.showSimpleToast('Sending Mail...');
             ammMailApi.send(printObj.innerHTML, vm.user, (vm.workshop) ? vm.workshop.name : undefined, (vm.ivSettings) ? vm.ivSettings.emailsubject : undefined);
             if (vm.workshop.social.enabled) {
-                amInScFb.src = 'assets/img/facebook.svg';
-                amInScIn.src = 'assets/img/instagram.svg';
-                amInScTw.src = 'assets/img/twitter.svg';
+                if (IsSocialFacebook()) {
+                    amInLkFb.href = '';
+                    amInScFb.src = 'assets/img/facebook.svg';
+                }
+                if (IsSocialInstagram()) {
+                    amInLkIn.href = '';
+                    amInScIn.src = 'assets/img/instagram.svg';
+                }
+                if (IsSocialTwitter()) {
+                    amInLkTw.href = '';
+                    amInScTw.src = 'assets/img/twitter.svg';                
+                }
             }
             if (vm.ivSettings.display.workshopLogo)
                 addInvoiceWLogo();
