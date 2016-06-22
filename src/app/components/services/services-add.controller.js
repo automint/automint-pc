@@ -325,7 +325,7 @@
 
         function changeVat() {
             vm.inventories.forEach(iterateInventories);
-            changeInventoryRate(vm.inventory);
+            changeInventoryRate(vm.inventory, true);
 
             function iterateInventories(inventory) {
                 changeInventoryRate(inventory, true);
@@ -333,7 +333,7 @@
         }
 
         function changeQty(inventory) {
-            inventory.total = (inventory.rate * inventory.qty) + (inventory.tax * inventory.qty);
+            inventory.total = (inventory.rate * inventory.qty) + (vm.vatSettings.applyTax ? (inventory.tax * inventory.qty) : 0);
         }
 
         function changeInventoryRate(inventory, force) {
