@@ -18,7 +18,7 @@
         var vm = this;
         
         //  temporary named assignments
-        var olino = 0, ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oPasscode = '1234', oPasscodeEnabled, oIvAlignTop = '', oIvAlignBottom = '';
+        var olino = 0, ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oPasscode = '1234', oPasscodeEnabled, oIvAlignTop = '', oIvAlignBottom = '', oIvWorkshopName, oIvWorkshopPhone, oIvWorkshopAddress1, oIvWorkshopAddress2, oIvWorkshopCity;
 
         //  named assignments to keep track of UI [BEGIN]
         //  general settings
@@ -36,9 +36,9 @@
             address2: '',
             city: '',
             social: {
-                facebook: undefined,
-                instagram: undefined,
-                twitter: undefined
+                facebook: '',
+                instagram: '',
+                twitter: ''
             }
         };
         vm.label_workshopName = 'Enter Workshop Name:';
@@ -66,6 +66,7 @@
         vm.uploadCover = uploadCover;
         vm.handleUploadedFile = handleUploadedFile;
         vm.handleUploadedCoverPic = handleUploadedCoverPic;
+        vm.handlePasscodeVisibility = handlePasscodeVisibility;
         //  invoice settings
         vm.changeWorkshopNameLabel = changeWorkshopNameLabel;
         vm.changeWorkshopPhoneLabel = changeWorkshopPhoneLabel;
@@ -88,6 +89,11 @@
         vm.changeTopAlignLabel = changeTopAlignLabel;
         vm.changeBottomAlignLabel = changeBottomAlignLabel;
         vm.saveIvAlignMargins = saveIvAlignMargins;
+        vm.saveWorkshopName = saveWorkshopName;
+        vm.saveWorkshopPhone = saveWorkshopPhone;
+        vm.saveWorkshopAddress1 = saveWorkshopAddress1;
+        vm.saveWorkshopAddress2 = saveWorkshopAddress2;
+        vm.saveWorkshopCity = saveWorkshopCity;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -113,6 +119,10 @@
         //  default execution steps [END]
 
         //  function definitions
+
+        function handlePasscodeVisibility(visible) {
+            document.getElementById('am-passcode').type = (visible) ? 'text' : 'password';
+        }
 
         function getIvAlignMargins() {
             amIvSettings.getIvAlignMargins().then(success).catch(failure);
@@ -392,6 +402,11 @@
             
             function getWorkshopObject(res) {
                 vm.workshop = res;
+                oIvWorkshopName = res.name;
+                oIvWorkshopPhone = res.phone;
+                oIvWorkshopAddress1 = res.address1;
+                oIvWorkshopAddress2 = res.address2;
+                oIvWorkshopCity = res.city;
                 oIvFacebookLink = res.social.facebook;
                 oIvTwitterLink = res.social.twitter;
                 oIvInstagramLink = res.social.instagram;
@@ -406,12 +421,47 @@
                 $log.info('No workshop details found!');
             }
         }
+
+        function saveWorkshopName() {
+            if (oIvWorkshopName == vm.workshop.name)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveWorkshopPhone() {
+            if (oIvWorkshopPhone == vm.workshop.phone)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveWorkshopAddress1() {
+            if (oIvWorkshopAddress1 == vm.workshop.address1)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveWorkshopAddress2() {
+            if (oIvWorkshopAddress2 == vm.workshop.address2)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveWorkshopCity() {
+            if (oIvWorkshopCity == vm.workshop.city)
+                return;
+            saveWorkshopDetails();
+        }
         
         //  save workshop details to database
         function saveWorkshopDetails() {
             amIvSettings.saveWorkshopDetails(vm.workshop).then(success).catch(failure);
             
             function success(res) {
+                oIvWorkshopName = vm.workshop.name;
+                oIvWorkshopPhone = vm.workshop.phone;
+                oIvWorkshopAddress1 = vm.workshop.address1;
+                oIvWorkshopAddress2 = vm.workshop.address2;
+                oIvWorkshopCity = vm.workshop.city;
                 oIvFacebookLink = vm.workshop.social.facebook;
                 oIvTwitterLink = vm.workshop.social.twitter;
                 oIvInstagramLink = vm.workshop.social.instagram;
@@ -549,9 +599,8 @@
         }
         
         function saveIvEmailSubject(es, reset) {
-            if (vm.ivSettings.emailsubject == undefined)
+            if (vm.ivSettings.emailsubject == undefined || ((ivEmailSubject == vm.ivSettings.emailsubject) && !es))
                 return;
-            
             amIvSettings.saveIvEmailSubject((es == undefined) ? vm.ivSettings.emailsubject : es).then(respond).catch(respond);
             
             function respond(res) {
