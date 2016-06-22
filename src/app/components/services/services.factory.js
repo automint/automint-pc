@@ -555,6 +555,7 @@
                 response.email = doc.user.email;
                 response.name = doc.user.name;
                 response.address = doc.user.address;
+                response.memberships = doc.user.memberships;
                 if (doc.user.vehicles)
                     Object.keys(doc.user.vehicles).forEach(iterateVehicle);
                 response.possibleVehicleList = pvl;

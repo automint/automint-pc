@@ -174,8 +174,8 @@
                     <div layout-gt-xs="row" layout-wrap layout-margin layout-align="end">
                         <md-input-container flex-gt-xs="14" ng-show="vm.isAddOperation()">
                             <label class="am-form-label large">Service Type:</label>
-                            <md-select ng-model="vm.serviceType" ng-change="vm.changeServiceType()" flex>
-                                <md-option ng-value="type" ng-repeat="type in vm.serviceTypeList" ng-selected="$first">{{type}}</md-option>
+                            <md-select class="am-select" ng-model="vm.serviceType" ng-change="vm.changeServiceType()" flex>
+                                <md-option class="am-hover-option" ng-value="type" ng-repeat="type in vm.serviceTypeList" ng-selected="$first">{{type}}</md-option>
                             </md-select>
                         </md-input-container>
                         <md-input-container flex-gt-xs="12">
