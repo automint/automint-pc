@@ -199,6 +199,7 @@
             vm.service.problems.forEach(iterateProblems);
             if (vm.service.packages)
                 vm.service.packages.forEach(iteratePackages);
+            tax = (tax % 1 != 0) ? tax.toFixed(2) : parseInt(tax);
             if (tax == 0)
                 vm.sTaxSettings.applyTax = false;
             return tax;
@@ -227,12 +228,13 @@
             amInvoices.getIvSettings().then(success).catch(failure);
 
             function success(res) {
+                vm.ivSettings = res;
                 if (res.display.workshopLogo)
                     addInvoiceWLogo();
-                vm.ivSettings = res; 
             }
 
             function failure(err) {
+                console.log(err);
                 $log.info('Could not load display settings!');
             }
         }

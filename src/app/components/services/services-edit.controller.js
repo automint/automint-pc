@@ -279,12 +279,14 @@
                         }, true);
                         if (found.length == 1) {
                             found[0].checked = true;
+                            found[0].rate = inventory.rate;
                             found[0].amount = inventory.rate;
                             found[0].qty = inventory.qty;
                             vm.selectedInventories.push(found[0]);
                         } else {
                             vm.inventories.push({
                                 name: inventory.name,
+                                rate: inventory.rate,
                                 amount: inventory.rate,
                                 qty: inventory.qty,
                                 checked: true
