@@ -323,7 +323,7 @@
         }
 
         function convertInToTitleCase() {
-            vm.inventory.name = utils.convertToTitleCase(vm.inventory.name);
+            vm.inventory.name = utils.autoCapitalizeWord(vm.inventory.name);
         }
 
         function changeVat() {
@@ -356,13 +356,14 @@
                     inventory.rate = inventory.amount;
                 else
                     inventory.amount = inventory.rate;
-            }
+            } else
+                inventory.rate = inventory.amount;
             changeQty(inventory);
             calculateCost();
         }
 
         function convertPbToTitleCase() {
-            vm.problem.details = utils.convertToTitleCase(vm.problem.details);
+            vm.problem.details = utils.autoCapitalizeWord(vm.problem.details);
         }
 
         function OnServiceTaxEnabledChange() {

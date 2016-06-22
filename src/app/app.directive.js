@@ -2,7 +2,7 @@
  * Closure for root level directives
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -11,9 +11,30 @@
     angular.module('automintApp')
         .directive('pageTitle', PageTitleDirective)
         .directive('amDropFiles', amDropFilesDirective)
-        .directive('amUploadFiles', amUploadFilesDirective);
+        .directive('amUploadFiles', amUploadFilesDirective)
+        .directive('amOnEnter', OnEnterDirective);
 
     PageTitleDirective.$inject = ['$rootScope', '$timeout'];
+
+    function OnEnterDirective() {
+        return onEnter;
+
+        function onEnter(scope, element, attrs) {
+            element.bind("keydown keypress", performAction);
+
+            function performAction() {
+                if(event.which === 13) {
+                    scope.$apply(evaluteScope);
+
+                    event.preventDefault();
+
+                    function evaluteScope() {
+                        scope.$eval(attrs.amOnEnter);
+                    }
+                }
+            }
+        }
+    }
 
     //  directive for updating page title
     function PageTitleDirective($rootScope, $timeout) {

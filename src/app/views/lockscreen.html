@@ -46,7 +46,7 @@
 <md-content class="md-hue-1" layout="column" layout-align="center center" style="height: 100%">
     <div layout="column" layout-align="center center" class="am-passcode-block">
         <img src="assets/img/logo-250x125px.jpg">
-        <input type="password" class="am-passcode" ng-model="vm.passcode" ng-change="vm.OnPasscodeChange()" placeholder="Enter Passcode">
+        <input autofocus type="password" class="am-passcode" ng-model="vm.passcode" ng-change="vm.OnPasscodeChange()" placeholder="Enter Passcode" am-on-enter="vm.unlock()">
         <md-button class="md-raised md-accent am-submit-passcode" ng-disabled="vm.isUnlockButtonDisabled" ng-click="vm.unlock()">
             <span layout-margin>Unlock</span>
         </md-button>

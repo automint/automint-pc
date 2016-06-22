@@ -73,7 +73,7 @@
         }
         
         function convertNameToTitleCase() {
-            vm.inventory.name = utils.convertToTitleCase(vm.inventory.name);
+            vm.inventory.name = utils.autoCapitalizeWord(vm.inventory.name);
         }
         
         function changeNameLabel(force) {

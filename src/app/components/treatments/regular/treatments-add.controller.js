@@ -2,7 +2,7 @@
  * Controller for Add Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -50,7 +50,7 @@
         }
         
         function convertVtToTitleCase(rate) {
-            rate.type = utils.convertToTitleCase(rate.type);
+            rate.type = utils.autoCapitalizeWord(rate.type);
         }
         
         function getVehicleTypes() {

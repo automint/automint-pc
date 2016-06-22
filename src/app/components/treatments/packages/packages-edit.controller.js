@@ -2,7 +2,7 @@
  * Controller for Edit Package component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -46,15 +46,26 @@
         vm.save = save;
         vm.convertNameToTitleCase = convertNameToTitleCase;
         vm.convertTnToTitleCase = convertTnToTitleCase;
+        vm.calculateSubTotal = calculateSubTotal;
 
         //  function definitions
+
+        function calculateSubTotal(type) {
+            var total = 0;
+            vm.selectedTreatments.forEach(iterateTreatments);
+            return total;
+
+            function iterateTreatments(treatment) {
+                total += parseFloat(treatment.rate[type.toLowerCase().replace(' ', '-')]);
+            }
+        }
         
         function convertTnToTitleCase() {
-            vm.treatment.details = utils.convertToTitleCase(vm.treatment.details);
+            vm.treatment.details = utils.autoCapitalizeWord(vm.treatment.details);
         }
         
         function convertNameToTitleCase() {
-            vm.package.name = utils.convertToTitleCase(vm.package.name);
+            vm.package.name = utils.autoCapitalizeWord(vm.package.name);
         }
         
         function goBack() {

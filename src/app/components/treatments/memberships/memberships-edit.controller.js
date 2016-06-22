@@ -2,7 +2,7 @@
  * Controller for Edit Membership component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -68,11 +68,11 @@
         //  function definitions
         
         function convertTnToTitleCase() {
-            vm.treatment.details = utils.convertToTitleCase(vm.treatment.details);
+            vm.treatment.details = utils.autoCapitalizeWord(vm.treatment.details);
         }
         
         function convertNameToTitleCase() {
-            vm.membership.name = utils.convertToTitleCase(vm.membership.name);
+            vm.membership.name = utils.autoCapitalizeWord(vm.membership.name);
         }
         
         function goBack() {

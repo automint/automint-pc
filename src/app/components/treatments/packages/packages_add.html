@@ -35,6 +35,10 @@
                     <td md-cell ng-repeat="type in vm.vehicletypes"><input type="number" ng-model="treatment.rate[type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
                 </tr>
                 <tr md-row>
+                    <td md-cell class="md-body-2"><span style="margin-left: 0.7rem">Total</span></td>
+                    <td md-cell class="md-body-2" ng-repeat="type in vm.vehicletypes"><span style="margin-left: 0.7rem">{{vm.calculateSubTotal(type)}}</span></td>
+                </tr>
+                <tr md-row>
                     <td md-cell>
                         <md-autocomplete id="new-treatment-details" md-autofocus md-search-text="vm.treatment.details" md-items="treatment in vm.treatmentQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()"
                             md-current="vm.currentTreatment" md-search-text-change="vm.convertTnToTitleCase()" md-min-length="1" md-no-cache>

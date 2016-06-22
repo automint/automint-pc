@@ -320,7 +320,7 @@
         }
 
         function convertInToTitleCase() {
-            vm.inventory.name = utils.convertToTitleCase(vm.inventory.name);
+            vm.inventory.name = utils.autoCapitalizeWord(vm.inventory.name);
         }
 
         function changeVat() {
@@ -334,6 +334,8 @@
 
         function changeQty(inventory) {
             inventory.total = (inventory.rate * inventory.qty) + (vm.vatSettings.applyTax ? (inventory.tax * inventory.qty) : 0);
+            if (!vm.vatSettings.applyTax)
+                inventory.amount = inventory.rate;
         }
 
         function changeInventoryRate(inventory, force) {
@@ -352,13 +354,14 @@
                     inventory.rate = inventory.amount;
                 else
                     inventory.amount = inventory.rate;
-            }
+            } else
+                inventory.rate = inventory.amount;
             changeQty(inventory);
             calculateCost();
         }
 
         function convertPbToTitleCase() {
-            vm.problem.details = utils.convertToTitleCase(vm.problem.details);
+            vm.problem.details = utils.autoCapitalizeWord(vm.problem.details);
         }
 
         function OnServiceTaxEnabledChange() {

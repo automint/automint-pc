@@ -53,7 +53,8 @@
             generateUUID: generateUUID,
             convertToTitleCase: convertToTitleCase,
             showSimpleToast: showSimpleToast,
-            showActionToast: showActionToast
+            showActionToast: showActionToast,
+            autoCapitalizeWord: autoCapitalizeWord
         }
         
         return factory;
@@ -78,6 +79,14 @@
             
             function constructReplacement(intermediate) {
                 return intermediate.charAt(0).toUpperCase() + intermediate.substr(1).toLowerCase();
+            }
+        }
+
+        function autoCapitalizeWord(input) {
+            return input.replace(/\w\S*/g, constructReplacement);
+            
+            function constructReplacement(intermediate) {
+                return intermediate.charAt(0).toUpperCase() + intermediate.substr(1);
             }
         }
         
