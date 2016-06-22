@@ -220,19 +220,19 @@
                                 <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right">Rs. {{vm.calculateVat()}}</td>
                             </tr>
-                            <tr class="subt" ng-if="vm.isDiscountApplied">
+                            <tr ng-class="{'tax': !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax, 'subt': vm.sTaxSettings.applyTax || vm.vatSettings.applyTax}" ng-if="vm.isDiscountApplied">
                                 <td>Discount ({{vm.service.discount.percent}}<small>%</small>)</td>
                                 <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right">Rs. {{vm.service.discount.amount}}</td>
                             </tr>
-                            <tr class="subt" ng-if="vm.isRoundOff">
+                            <tr ng-class="{'tax': !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax && !vm.isDiscountApplied, 'subt': vm.sTaxSettings.applyTax || vm.vatSettings.applyTax || vm.isDiscountApplied}" class="subt" ng-if="vm.isRoundOff">
                                 <td>Round Off</td>
                                 <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td align="right">Rs. {{vm.service.roundoff}}</td>
                             </tr>
-                            <tr class="total" ng-class="{'tax': !(vm.sTaxSettings.applyTax || vm.vatSettings.applyTax)}">
+                            <tr class="total" ng-class="{'tax': !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax && !vm.isDiscountApplied && !vm.isRoundOff}">
                                 <td>Total</td>
                                 <td ng-if="vm.service.inventories.length > 0"></td>
                                 <td ng-if="vm.service.inventories.length > 0"></td>

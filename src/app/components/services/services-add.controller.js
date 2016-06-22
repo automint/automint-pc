@@ -1232,6 +1232,7 @@
             vm.service.problems.forEach(iterateProblems);
             if (vm.serviceType == vm.serviceTypeList[1])
                 vm.packages.forEach(iteratePackages);
+            totalTax = (totalTax % 1 != 0) ? totalTax.toFixed(2) : parseInt(totalTax);
             return totalTax;
 
             function iterateProblems(problem) {

@@ -235,7 +235,7 @@
         }
 
         function changeQty(inventory) {
-            inventory.total = (inventory.rate * inventory.qty) + (inventory.tax * inventory.qty);
+            inventory.total = (inventory.rate * inventory.qty) + (vm.vatSettings.applyTax ? (inventory.tax * inventory.qty) : 0);
         }
 
         function inventoryQuerySearch() {

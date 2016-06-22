@@ -1,6 +1,9 @@
 <md-dialog aria-label="Membership" ng-cloak>
     <md-toolbar>
         <div class="md-toolbar-tools">
+            <md-button class="md-icon-button" ng-click="vm.confirmDialog()" style="margin-right: 1rem;">
+                <md-icon>arrow_back</md-icon>
+            </md-button>
             <h3 class="md-subhead">{{vm.membership.name}}</h3>
             <div flex></div>
             <md-button class="md-raised" ng-click="vm.confirmDialog()" style="margin-right: 1rem;">
@@ -113,7 +116,7 @@
                     </tbody>
                 </table>
             </md-table-container>
-            <div layout="column" layout-gt-xs="row" layout-padding layout-margin layout-wrap>
+            <div layout="column" layout-gt-xs="row" layout-margin layout-wrap>
                 <md-button ng-click="vm.finalizeNewTreatment(true)" class="md-raised">
                     <md-icon>add</md-icon>
                     <span layout-padding>Add More</span>
