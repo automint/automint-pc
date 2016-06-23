@@ -7,8 +7,13 @@
         <div layout="column" layout-align="center center" flex>
             <span class="md-title" style="color: #424242"> {{ module_title }} </span>
         </div>
+        <md-button aria-label="Help" class="md-icon-button" ng-click="headerVm.openHelpWindow()">
+            <md-icon style="color: #424242">help</md-icon>
+            <md-tooltip>Open Automint Help</md-tooltip>
+        </md-button>
         <md-button ng-if="isPasscodeEnabled" aria-label="Lock" class="md-icon-button" ng-click="headerVm.openLockScreen()">
             <md-icon style="color: #424242">lock</md-icon>
+            <md-tooltip>Lock Screen</md-tooltip>
         </md-button>
     </div>
 </md-toolbar>

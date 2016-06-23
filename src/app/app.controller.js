@@ -8,6 +8,8 @@
 /// <reference path="../typings/main.d.ts" />
 
 (function() {
+    const ammHelp = require('./automint_modules/am-help.js');
+
     angular.module('automintApp')
         .controller('lockScreenCtrl', LockScreenController)
         .controller('appBarHeaderCtrl', HeaderbarController)
@@ -70,9 +72,15 @@
         //  map functions to view model
         vm.toggleSideNavbar = buildDelayedToggler('main-nav-left');
         vm.openLockScreen = openLockScreen;
+        vm.openHelpWindow = openHelpWindow;
         $rootScope.setCoverPic();
 
         amRootFactory.getPasscode().then(gps).catch(failure);
+
+        function openHelpWindow() {
+            console.log(ammHelp);
+            ammHelp.openHelpWindow();
+        }
 
         function gps(res) {
             $rootScope.isPasscodeEnabled = res.enabled;
