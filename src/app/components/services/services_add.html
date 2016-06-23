@@ -51,8 +51,7 @@
                 <div layout="column">
                     <div layout="row" layout-align="start center" layout-wrap layout-margin>
                         <md-icon class="md-accent">person_pin</md-icon>
-                        <md-autocomplete md-autofocus ng-disabled="!vm.isAddOperation()" flex md-no-cache md-selected-item="vm.currentUser" md-search-text-change="vm.convertNameToTitleCase()" md-search-text="vm.user.name" md-selected-item-change="vm.selectedUserChange()" md-items="user in vm.userQuerySearch()"
-                            md-item-text="user.name" md-min-length="1" placeholder="Enter Full Name" id="ami-user-name">
+                        <md-autocomplete md-autofocus ng-disabled="!vm.isAddOperation()" flex md-no-cache md-selected-item="vm.currentUser" md-search-text-change="vm.convertNameToTitleCase()" md-search-text="vm.user.name" md-selected-item-change="vm.selectedUserChange()" md-items="user in vm.userQuerySearch()" md-item-text="user.name" md-min-length="1" placeholder="Enter Full Name" id="ami-user-name">
                             <md-item-template>
                                 <span md-highlight-text="vm.user.name" md-highlight-flags="^i">{{user.name}}</span>
                             </md-item-template>
@@ -481,7 +480,7 @@
                                     <tr md-row md-select="inventory" md-select-id="details" md-on-select="vm.onInventorySelected" md-on-deselect="vm.onInventoryDeselected" ng-repeat="inventory in vm.selectedInventories" layout-align="center center">
                                         <td md-cell><input type="text" ng-model="inventory.name" class="am-table-inline-input"></td>
                                         <td md-cell ng-if="vm.vatSettings.applyTax">
-                                            <span ng-if="vm.vatSettings.inclusive">{{inventory.rate | number: 2}}</span>
+                                            <span ng-if="vm.vatSettings.inclusive"><input type="number" ng-model="inventory.amount" class="am-table-inline-input" ng-change="vm.changeInventoryRate(inventory)"></span>
                                             <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-model="inventory.rate" class="am-table-inline-input" ng-change="vm.changeInventoryRate(inventory)"></span>
                                         </td>
                                         <td md-cell ng-if="!vm.vatSettings.applyTax">
@@ -508,7 +507,7 @@
                                             </md-autocomplete>
                                         </td>
                                         <td md-cell ng-if="vm.vatSettings.applyTax">
-                                            <span ng-if="vm.vatSettings.inclusive">{{vm.inventory.rate | number: 2}}</span>
+                                            <span ng-if="vm.vatSettings.inclusive"><input type="number" ng-model="vm.inventory.amount" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Enter Rate" class="am-table-input" style="width: 97%"></span>
                                             <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewInventory()" ng-model="vm.inventory.rate" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Enter Rate" class="am-table-input" style="width: 97%"></span>
                                         </td>
                                         <td md-cell ng-if="!vm.vatSettings.applyTax">
@@ -642,7 +641,7 @@
                         <md-icon>done</md-icon>
                         <span layout-padding>Save</span>
                     </md-button>
-                    <md-button class="md-raised md-accent" ng-click="vm.save(vm.redirect.invoice)" ng-show="vm.isAddOperation()">
+                    <md-button class="md-raised md-accent" ng-click="vm.save(vm.redirect.invoice)" ng-show="vm.isAddOperation()" ng-if="!isAutomintLocked">
                         <md-icon>receipt</md-icon>
                         <span layout-padding>Invoice</span>
                     </md-button>

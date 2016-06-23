@@ -50,7 +50,7 @@
         }
         
         function convertVtToTitleCase(rate) {
-            rate.type = utils.autoCapitalizeWord(rate.type);
+            rate.type = utils.convertToTitleCase(rate.type);
         }
         
         function getVehicleTypes() {
@@ -94,7 +94,7 @@
         }
         
         function convertNameToTitleCase() {
-            vm.treatment.name = utils.convertToTitleCase(vm.treatment.name);
+            vm.treatment.name = utils.autoCapitalizeWord(vm.treatment.name);
         }
         
         function changeNameLabel(force) {

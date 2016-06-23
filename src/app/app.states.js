@@ -25,6 +25,9 @@
                         controller: 'lockScreenCtrl',
                         controllerAs: 'vm'
                     }
+                },
+                params: {
+                    fromState: undefined
                 }
             })
             .state('restricted', {
@@ -378,31 +381,34 @@
                 }
             });
 
+        function loadAddServiceDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'material-datatable',
+                'app/components/services/services.factory.js',
+                'app/components/services/services-add.controller.js'
+            ])
+        }
         function loadInUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'app/components/inventory/inventory-edit.controller.js'
             ]);
         }
-
         function loadInCIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'app/components/inventory/inventory-add.controller.js'
             ]);
         }
-
         function loadInRADeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
                 'app/components/inventory/inventory-viewall.controller.js'
             ]);
         }
-
         function loadInventoryDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'app/components/inventory/inventory.factory.js'
             ]);
         }
-
         function loadDashboardDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',

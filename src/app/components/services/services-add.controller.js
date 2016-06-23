@@ -437,6 +437,9 @@
                             fromState: transitInterState
                         }
                         break;
+                    case 'locked':
+                        transitState = 'locked';
+                        break;
                 }
             }
             $state.go(transitState, transitParams);
@@ -789,8 +792,10 @@
             return tracker.promise;
 
             function populateUserList(res) {
+                console.log(res);
                 vm.possibleUserList = res;
                 results = (vm.user.name ? vm.possibleUserList.filter(createFilterForUsers(vm.user.name)) : vm.possibleUserList);
+                console.log(results);
                 tracker.resolve(results);
             }
 

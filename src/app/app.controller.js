@@ -22,12 +22,19 @@
 
         $rootScope.cRootLock = 'active';
 
-        vm.isUnlockButtonDisabled = true;
         vm.unlock = unlock;
-        vm.OnPasscodeChange = OnPasscodeChange;
         vm.isMessage = false;
+        vm.addService = addService;
+        
 
         amRootFactory.getPasscode().then(gps).catch(unlock);
+
+        function addService() {
+            $rootScope.cRootLock = '';
+            $state.go('restricted.services.add', {
+                fromState: 'locked'
+            });
+        }
 
         function gps(res) {
             if (res.enabled == false) {
@@ -39,11 +46,8 @@
             passcode = res.code;
         }
 
-        function OnPasscodeChange() {
-            vm.isUnlockButtonDisabled = (vm.passcode == '');
-        }
-
         function unlock() {
+            var transitState = 'restricted.dashboard';
             if (skip == false) {
                 if (vm.passcode != passcode) {
                     vm.message = "Wrong Passcode!!!";
@@ -53,9 +57,9 @@
             }
             $rootScope.isAutomintLocked = false;
             $rootScope.cRootLock = '';
-            if ($window.history.length > 0)
-                $window.history.back();
-            $state.go('restricted.dashboard');
+            if ($state.params.fromState != undefined)
+                transitState = $state.params.fromState;
+            $state.go(transitState);
         }
     }
 
