@@ -3,15 +3,15 @@
         margin-top: 1rem;
     }
 </style>
-<md-content layout-padding>
-    <md-tabs md-dynamic-height md-border-bottom>
+<md-content>
+    <md-tabs md-dynamic-height md-border-bottom class="am-tab-margin">
         <md-tab label="Treatments" md-active="vm.treatmensTab" md-on-deselect="vm.changeTreatmensTab(false)">
             <md-content ng-controller="amCtrlTrRA as trVm">
-                <md-content class="md-table-toolbar md-default">
+                <md-content class="md-table-toolbar md-default am-toolbar-strip">
                     <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
                         <md-button aria-label="Add Treatment" class="md-raised md-accent" ng-click="trVm.addTreatment()">
                             <md-icon style="color: white">add</md-icon>
-                            <span style="color: white" layout-padding>Add Treatment</span>
+                            <span style="color: white" layout-margin>Add Treatment</span>
                         </md-button>
                         <div flex></div>
                         <div layout="row" layout-align="center center">
@@ -26,7 +26,7 @@
                         </div>
                     </div>
                 </md-content>
-                <md-content class="md-hue-1">
+                <md-content class="md-hue-1 am-box-shadow">
                     <md-table-container>
                         <table md-table md-progress="trVm.promise">
                             <thead md-head>
@@ -55,7 +55,7 @@
         </md-tab>
         <md-tab label="Packages" md-active="vm.packagesTab" md-on-deselect="vm.changePackagesTab(false)">
             <md-content ng-controller="amCtrlPkRA as pkVm">
-                <md-content toolbar class="md-table-toolbar md-default">
+                <md-content toolbar class="md-table-toolbar md-default am-toolbar-strip">
                     <div layout-gt-xs="row" layout-xs="column" layout-align="center center" style="margin-top: 1rem;">
                         <md-button aria-label="Add Package" class="md-raised md-accent" ng-click="pkVm.addPackage()">
                             <md-icon style="color: white">add</md-icon>
@@ -123,7 +123,7 @@
         </md-tab>
         <md-tab label="Memberships" md-active="vm.membershipsTab" md-on-deselect="vm.changeMembershipsTab(false)">
             <md-content ng-controller="amCtrlMsRA as msVm">
-                <md-content toolbar class="md-table-toolbar md-default">
+                <md-content toolbar class="md-table-toolbar md-default am-toolbar-strip">
                     <div layout-gt-xs="row" layout-xs="column" layout-align="center center" style="margin-top: 1rem;">
                         <md-button aria-label="Add Membership" class="md-raised md-accent" ng-click="msVm.addMembership()">
                             <md-icon style="color: white">add</md-icon>

@@ -58,7 +58,7 @@
 </style>
 <md-content layout-padding layout="column" ng-init="vm.displayIncome = false">
     <md-content layout="row" layout-xs="column">
-        <md-card flex class="md-hue-1">
+        <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content>
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
@@ -69,7 +69,7 @@
                 </div>
             </md-card-content>
         </md-card>
-        <md-card flex class="md-hue-1">
+        <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content>
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
@@ -80,7 +80,7 @@
                 </div>
             </md-card-content>
         </md-card>
-        <md-card flex class="md-hue-1 am-clickable-card" ng-click="vm.openDuePayments()">
+        <md-card flex class="md-hue-1 am-clickable-card am-box-shadow" ng-click="vm.openDuePayments()">
             <md-card-content>
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
@@ -91,7 +91,7 @@
                 </div>
             </md-card-content>
         </md-card>
-        <md-card flex class="md-hue-1 am-clickable-card" ng-click="vm.openNewCustomers()">
+        <md-card flex class="md-hue-1 am-clickable-card am-box-shadow" ng-click="vm.openNewCustomers()">
             <md-card-content>
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
@@ -104,7 +104,7 @@
         </md-card>
     </md-content>
     <md-content layout="row" layout-xs="column">
-        <md-card flex class="md-hue-1">
+        <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content layout="column">
                 <div layout="row" layout-xs="column" layout-align="start center">
                     <span flex><span class="am-card-label">Daily Services</span>&nbsp;<span class="am-card-label small">(This Month: {{vm.totalServicesDone}} Services)</span></span>
@@ -125,13 +125,13 @@
         </md-card>
     </md-content>
     <md-content layout="row" layout-xs="column">
-        <md-card flex class="md-hue-1">
+        <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content layout="column">
                 <span><span class="am-card-label">Top Treatments</span>&nbsp;<span class="am-card-label x-small">(Overall)</span></span>
                 <div google-chart chart="vm.topTreatmentsChart" class="am-chart-no-border"></div>
             </md-card-content>
         </md-card>
-        <md-card flex class="md-hue-1">
+        <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content layout="column">
                 <span><span class="am-card-label">Top Vehicle Types</span>&nbsp;<span class="am-card-label x-small">(Overall)</span></span>
                 <div google-chart chart="vm.topVtChart" class="am-chart-no-border"></div>

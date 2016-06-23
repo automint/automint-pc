@@ -26,7 +26,8 @@
         vm.isMessage = false;
         vm.addService = addService;
         
-
+        var source = localStorage.getItem('cover-pic');
+        $('#am-lockscreen-img').attr('src', (source) ? source : 'assets/img/logo-250x125px.png').width(250).height(125);
         amRootFactory.getPasscode().then(gps).catch(unlock);
 
         function addService() {

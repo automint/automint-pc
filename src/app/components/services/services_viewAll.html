@@ -1,5 +1,5 @@
-<md-content layout-padding>
-    <md-content class="md-table-toolbar md-default" ng-hide="vm.isQueryMode">
+<md-content>
+    <md-content class="md-table-toolbar md-default am-toolbar-strip" ng-hide="vm.isQueryMode">
         <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
             <md-button aria-label="Add Service" class="md-raised md-accent" ng-click="vm.addService()">
                 <md-icon style="color: white">person_add</md-icon>
@@ -31,7 +31,7 @@
             </md-button>
         </div>
     </md-content>
-    <md-content class="md-hue-1">
+    <md-content class="md-hue-1 am-box-shadow">
         <md-table-container>
             <table md-table md-progress="vm.promise">
                 <thead md-head>

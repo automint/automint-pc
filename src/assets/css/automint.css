@@ -11,6 +11,23 @@ input[type=number]::-webkit-outer-spin-button {
     margin: 0;
 }
 
+.am-tab-margin {
+    margin-top: 0.4rem;
+}
+
+.am-toolbar-strip {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.am-headerbar-shadow {
+    box-shadow: 0px 1px 3px 1px #9E9E9E;
+}
+
+.am-box-shadow {
+    box-shadow: 0px 1px 3px 1px #BDBDBD;
+}
+
 .am-select-table-row {
     outline: none;
     cursor: pointer;
@@ -139,7 +156,7 @@ md-sidenav.md-closed.md-locked-open-add-active {
 }
 
 .am-side-nav {
-    background: #263238;
+    background: #212121;
 }
 
 .am-side-nav .item-color {
