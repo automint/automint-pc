@@ -7,7 +7,7 @@
         <md-input-container class="md-block" flex>
             <md-icon class="md-accent">local_parking</md-icon>
             <label class="am-form-label" ng-class="{'large': vm.isName}">{{vm.label_name}}</label>
-            <input ng-disabled="!vm.isAddOperation()" type="text" ng-change="vm.convertNameToTitleCase()" ng-model="vm.package.name" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
+            <input type="text" ng-change="vm.convertNameToTitleCase()" ng-model="vm.package.name" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
         </md-input-container>
     </div>
     <md-table-container ng-if="vm.displayTreatmentAsList">

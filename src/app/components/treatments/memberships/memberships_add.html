@@ -7,7 +7,7 @@
         <md-input-container class="am-clear-error-spacer" flex>
             <md-icon class="md-accent">card_membership</md-icon>
             <label class="am-form-label" ng-class="{'large': vm.isName}">{{vm.label_name}}</label>
-            <input ng-disabled="!vm.isAddOperation()" autofocus type="text" ng-change="vm.convertNameToTitleCase()" ng-model="vm.membership.name" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
+            <input autofocus type="text" ng-change="vm.convertNameToTitleCase()" ng-model="vm.membership.name" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
         </md-input-container>
         <md-input-container class="am-clear-error-spacer" flex-gt-xs="20">
             <md-icon class="md-accent">repeat</md-icon>

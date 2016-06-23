@@ -674,6 +674,73 @@
             }
         }
 
+        function generatePackage(package) {
+            var treatments = [];
+            Object.keys(package.treatments).forEach(iterateTreatments);
+            package.treatments = treatments;
+            package.selectedTreatments = [];
+            package.onTreatmentSelected = onTreatmentSelected;
+            package.onTreatmentDeselected = onTreatmentDeselected;
+            package.calculatePackageTotal = calculatePackageTotal;
+            package.changeTreatmentTax = changeTreatmentTax;
+            package.expandPackage = expandPackage;
+            delete treatments;
+            return package;
+
+            function expandPackage() {
+                package.expanded = (package.expanded == undefined ? true : !package.expanded);
+            }
+
+            function calculatePackageTotal() {
+                var total = 0;
+                package.selectedTreatments.forEach(it);
+                package.total = total;
+                calculateCost();
+                return total;
+
+                function it(t) {
+                    total += t.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+                }
+            }
+
+            function changeTreatmentTax(treatment, force) {
+                var cvt = vm.vehicle.type.toLowerCase().replace(' ', '-');
+                if (vm.sTaxSettings.applyTax) {
+                    if (treatment.tax == undefined)
+                        treatment.tax = {};
+                    if (vm.sTaxSettings.inclusive) {
+                        treatment.rate[cvt] = (treatment.amount[cvt] * 100) / (vm.sTaxSettings.tax + 100);
+                        treatment.tax[cvt] = (treatment.rate[cvt] * vm.sTaxSettings.tax / 100);
+                    } else {
+                        treatment.tax[cvt] = (treatment.rate[cvt] * vm.sTaxSettings.tax / 100);
+                        treatment.amount[cvt] = Math.round(treatment.rate[cvt] + treatment.tax[cvt]);
+                    }
+                } else if (force) {
+                    if (vm.sTaxSettings.inclusive)
+                        treatment.rate[cvt] = treatment.amount[cvt];
+                    else
+                        treatment.amount[cvt] = treatment.rate[cvt];
+                }
+            }
+
+            function iterateTreatments(treatment) {
+                treatments.push({
+                    name: treatment,
+                    rate: package.treatments[treatment].rate,
+                    amount: $.extend({}, package.treatments[treatment].rate),
+                    checked: false
+                });
+            }
+
+            function onTreatmentSelected(item) {
+                item.checked = true;
+            }
+
+            function onTreatmentDeselected(item) {
+                item.checked = false;
+            }
+        }
+
         //  get packages
         function getPackages() {
             vm.packagePromise = amServices.getPackages().then(success).catch(failure);
@@ -683,70 +750,7 @@
                 res.forEach(iteratePackages);
 
                 function iteratePackages(package) {
-                    var treatments = [];
-                    Object.keys(package.treatments).forEach(iterateTreatments);
-                    package.treatments = treatments;
-                    package.selectedTreatments = [];
-                    package.onTreatmentSelected = onTreatmentSelected;
-                    package.onTreatmentDeselected = onTreatmentDeselected;
-                    package.calculatePackageTotal = calculatePackageTotal;
-                    package.changeTreatmentTax = changeTreatmentTax;
-                    package.expandPackage = expandPackage;
-                    vm.packages.push(package);
-                    delete treatments;
-
-                    function expandPackage() {
-                        package.expanded = (package.expanded == undefined ? true : !package.expanded);
-                    }
-
-                    function calculatePackageTotal() {
-                        var total = 0;
-                        package.selectedTreatments.forEach(it);
-                        package.total = total;
-                        calculateCost();
-                        return total;
-
-                        function it(t) {
-                            total += t.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')];
-                        }
-                    }
-
-                    function changeTreatmentTax(treatment, force) {
-                        var cvt = vm.vehicle.type.toLowerCase().replace(' ', '-');
-                        if (vm.sTaxSettings.applyTax) {
-                            if (treatment.tax == undefined)
-                                treatment.tax = {};
-                            if (vm.sTaxSettings.inclusive) {
-                                treatment.rate[cvt] = (treatment.amount[cvt] * 100) / (vm.sTaxSettings.tax + 100);
-                                treatment.tax[cvt] = (treatment.rate[cvt] * vm.sTaxSettings.tax / 100);
-                            } else {
-                                treatment.tax[cvt] = (treatment.rate[cvt] * vm.sTaxSettings.tax / 100);
-                                treatment.amount[cvt] = Math.round(treatment.rate[cvt] + treatment.tax[cvt]);
-                            }
-                        } else if (force) {
-                            if (vm.sTaxSettings.inclusive)
-                                treatment.rate[cvt] = treatment.amount[cvt];
-                            else
-                                treatment.amount[cvt] = treatment.rate[cvt];
-                        }
-                    }
-
-                    function iterateTreatments(treatment) {
-                        treatments.push({
-                            name: treatment,
-                            rate: package.treatments[treatment].rate,
-                            amount: $.extend({}, package.treatments[treatment].rate),
-                            checked: false
-                        });
-                    }
-
-                    function onTreatmentSelected(item) {
-                        item.checked = true;
-                    }
-
-                    function onTreatmentDeselected(item) {
-                        item.checked = false;
-                    }
+                    vm.packages.push(generatePackage(package));
                 }
             }
 
@@ -843,17 +847,28 @@
                         vm.selectedPackages.push(found[0]);
 
                         function iterateTreatments(treatment) {
+                            var t = res.vehicle.service.packages[package].treatments[treatment];
                             var ft = $filter('filter')(found[0].treatments, {
                                 name: treatment
                             }, true);
 
                             if (ft.length == 1) {
                                 ft[0].checked = true;
+                                if (!angular.isObject(ft[0].rate))
+                                    ft[0].rate = {};
+                                ft[0].rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] = t.rate;
+                                ft[0].amount[vm.vehicle.type.toLowerCase().replace(' ', '-')] = t.rate + ((res.vehicle.service.serviceTax && res.vehicle.service.serviceTax.applyTax) ? t.tax : 0);
+                                console.log(ft[0]);
                                 found[0].selectedTreatments.push(ft[0]);
                             }
                         }
                     } else {
                         $log.info('Something with package');
+                        var tp = $.extend({}, res.vehicle.service.packages[package]);
+                        tp.name = package;
+                        vm.packages.push(generatePackage(tp));
+                        delete tp;
+                        iteratePackages(package);
                     }
                 }
 
@@ -1018,13 +1033,13 @@
 
         //  listen to changes in input fields [BEGIN]
         function changeUserMobileLabel(force) {
-            vm.largeUserMobileLabel = (force != undefined || vm.user.mobile != '');
-            vm.label_userMobile = vm.largeUserMobileLabel ? 'Mobile:' : 'Enter Mobile Number:';
+            vm.isUserMobile = (force != undefined || vm.user.mobile != '');
+            vm.label_userMobile = vm.isUserMobile ? 'Mobile:' : 'Enter Mobile Number:';
         }
 
         function changeUserEmailLabel(force) {
-            vm.largeUserEmailLabel = (force != undefined || vm.user.email != '');
-            vm.label_userEmail = vm.largeUserEmailLabel ? 'Email:' : 'Enter Email:';
+            vm.isUserEmail = (force != undefined || vm.user.email != '');
+            vm.label_userEmail = vm.isUserEmail ? 'Email:' : 'Enter Email:';
         }
 
         function changeUserAddressLabel(force) {

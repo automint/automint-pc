@@ -14,7 +14,7 @@
 
     function PackageAddController($q, $filter, $state, utils, amTreatments) {
         //  initialize view model
-        var vm = this;
+        var vm = this, oPackageName;
 
         //  named assignments to keep track of UI elements
         vm.label_name = "Enter Package Name:";
@@ -88,6 +88,7 @@
             
             function success(res) {
                 vm.package.name = res.name;
+                oPackageName = res.name;
                 changeNameLabel();
                 Object.keys(res.treatments).forEach(itreateTreatments);
                 
@@ -228,7 +229,7 @@
             }
                 
             vm.selectedTreatments.forEach(iterateTreatments);
-            amTreatments.savePackage(vm.package).then(success).catch(failure);
+            amTreatments.savePackage(vm.package, oPackageName).then(success).catch(failure);
 
             function iterateTreatments(treatment) {
                 vm.package[treatment.name] = treatment;

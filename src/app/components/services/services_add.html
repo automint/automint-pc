@@ -290,7 +290,7 @@
                                             <thead md-head>
                                                 <tr md-row>
                                                     <th md-column><span class="am-table-header">Treatments</span></th>
-                                                    <th md-column ng-if="vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive" style="width: 16%"><span class="am-table-header">Rate</span></th>
+                                                    <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 16%"><span class="am-table-header">Rate</span></th>
                                                     <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 16%"><span class="am-table-header">Tax</span></th>
                                                     <th md-column md-numeric style="width: 16%"><span class="am-table-header">Amount</span></th>
                                                 </tr>
@@ -298,7 +298,7 @@
                                             <tbody md-body>
                                                 <tr md-row md-select="treatment" md-select-id="key" md-on-select="package.onTreatmentSelected" md-on-deselect="package.onTreatmentDeselected" ng-repeat="treatment in package.treatments">
                                                     <td md-cell>{{treatment.name}}</td>
-                                                    <td md-cell ng-if="vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive">
+                                                    <td md-cell ng-if="vm.sTaxSettings.applyTax">
                                                         <span ng-if="vm.sTaxSettings.inclusive">{{treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] | number: 2}}</span>
                                                         <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-model="treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]" class="am-table-inline-input" ng-change="package.changeTreatmentTax(treatment)">
                                                     </td>

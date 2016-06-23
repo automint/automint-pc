@@ -2,7 +2,7 @@
  * Factory that handles database interactions between treatments database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0 
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -376,7 +376,7 @@
             }
         }
         
-        function savePackage(package) {
+        function savePackage(package, oldName) {
             var tracker = $q.defer();
             $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
             return tracker.promise;
@@ -388,6 +388,8 @@
             function getTreatmentObject(res) {
                 if (!res.packages)
                     res.packages = {};
+                if (res.packages[oldName])
+                    delete res.packages[oldName];
                 res.packages[package.name] = package;
                 delete res.packages[package.name].name;
                 pdbConfig.save(res).then(success).catch(failure);
@@ -525,7 +527,7 @@
             }
         }
         
-        function saveMembership(membership) {
+        function saveMembership(membership, oldName) {
             var tracker = $q.defer();
             $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
             return tracker.promise;
@@ -537,6 +539,8 @@
             function getTreatmentObject(res) {
                 if (!res.memberships)
                     res.memberships = {};
+                if (res.memberships[oldName])
+                    delete res.memberships[oldName];
                 res.memberships[membership.name] = membership;
                 delete res.memberships[membership.name].name;
                 pdbConfig.save(res).then(success).catch(failure);

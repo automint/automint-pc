@@ -14,7 +14,7 @@
 
     function MembershipEditController($q, $filter, $state, utils, amTreatments) {
         //  initialize view model
-        var vm = this;
+        var vm = this, oMembershipName;
 
         //  named assignments to keep track of UI elements
         vm.label_name = "Enter Membership Name:";
@@ -143,6 +143,7 @@
             
             function success(res) {
                 vm.membership.name = res.name;
+                oMembershipName = res.name;
                 vm.membership.occurences = res.occurences;
                 vm.membership.duration = res.duration;
                 vm.membership.amount = res.amount;
@@ -272,7 +273,7 @@
 
         function save() {
             vm.selectedTreatments.forEach(iterateTreatments);
-            amTreatments.saveMembership(vm.membership).then(success).catch(failure);
+            amTreatments.saveMembership(vm.membership, oMembershipName).then(success).catch(failure);
 
             function iterateTreatments(treatment) {
                 vm.membership[treatment.name] = treatment;
