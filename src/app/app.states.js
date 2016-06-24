@@ -14,7 +14,7 @@
     StateConfigs.$inject = ['$stateProvider', '$urlRouterProvider'];
 
     function StateConfigs($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.when('/dashboard', '/').otherwise('/locked');
+        $urlRouterProvider.when('/', '/locked').otherwise('/locked');
 
         $stateProvider
             .state('locked', {
@@ -51,7 +51,7 @@
             })
             //  dashboard
             .state('restricted.dashboard', {
-                url: '/',
+                url: '/dashboard',
                 templateUrl: 'app/components/dashboard/dashboard.html',
                 controller: 'dashboardCtrl',
                 controllerAs: 'vm',

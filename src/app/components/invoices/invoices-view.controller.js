@@ -131,7 +131,6 @@
                         inventory.rate = (inventory.amount * 100) / (vm.vatSettings.tax + 100);
                         inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
                     } else {
-                        console.log(inventory.rate);
                         inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
                         inventory.amount = Math.round(inventory.rate + inventory.tax);
                     }
