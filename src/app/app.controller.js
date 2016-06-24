@@ -73,9 +73,14 @@
         vm.toggleSideNavbar = buildDelayedToggler('main-nav-left');
         vm.openLockScreen = openLockScreen;
         vm.openHelpWindow = openHelpWindow;
+        vm.addService = addService;
         $rootScope.setCoverPic();
 
         amRootFactory.getPasscode().then(gps).catch(failure);
+
+        function addService() {
+            $state.go('restricted.services.add');
+        }
 
         function openHelpWindow() {
             console.log(ammHelp);

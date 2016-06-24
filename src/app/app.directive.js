@@ -12,9 +12,26 @@
         .directive('pageTitle', PageTitleDirective)
         .directive('amDropFiles', amDropFilesDirective)
         .directive('amUploadFiles', amUploadFilesDirective)
-        .directive('amOnEnter', OnEnterDirective);
+        .directive('amOnEnter', OnEnterDirective)
+        .directive('amOffsetFromTop', OffsetFromTopDirective);
 
     PageTitleDirective.$inject = ['$rootScope', '$timeout'];
+
+    function OffsetFromTopDirective() {
+        return {
+            restrict: 'A',
+            scope: {
+                callback: '&amOffsetFromTop'
+            },
+            link: link
+        }
+
+        function link(scope, elem, attr) {
+            var callbackFunction = scope.callback();
+            
+            callbackFunction(elem);
+        }
+    }
 
     function OnEnterDirective() {
         return onEnter;

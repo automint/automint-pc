@@ -152,6 +152,7 @@
         vm.changeInventoryTotal = changeInventoryTotal;
         vm.populateRoundOffVal = populateRoundOffVal;
         vm.changeForceStopCalCost = changeForceStopCalCost;
+        vm.calculateViewportHeight = calculateViewportHeight;
 
         //  default execution steps
         // vm.serviceTab = true; //  testing purposes [amTODO: remove it]
@@ -163,7 +164,13 @@
         getMemberships();
         getLastInvoiceNo();
 
+        vm.serviceViewportHeight = $(window).height();
+
         //  function definitions
+
+        function calculateViewportHeight(element) {
+            vm.serviceViewportHeight = $(window).height() - (2*element[0].offsetTop + 0.45*element[0].offsetTop);
+        }
 
         function changeInventoryTotal(inventory) {
             inventory.amount = inventory.total / inventory.qty;
@@ -227,10 +234,14 @@
                 vm.inventory.tax = '';
                 vm.inventory.qty = 1;
                 vm.inventory.total = '';
-                $('#new-inventory-name').focus();
+                setTimeout(focusNewInventoryName, 300);
             }
             if (btnClicked)
-                $('#new-inventory-name').focus();
+                setTimeout(focusNewInventoryName, 300);
+
+            function focusNewInventoryName() {
+                $('#new-inventory-name input').focus();
+            }
         }
 
         function updateInventoryDetails() {
@@ -1286,10 +1297,14 @@
                 vm.problem.amount = '';
                 vm.problem.rate = '';
                 vm.problem.tax = '';
-                $('#new-problem-details').focus();
+                setTimeout(focusNewProblemDetails, 300);
             }
             if (btnClicked)
-                $('#new-problem-details').focus();
+                setTimeout(focusNewProblemDetails, 300);
+
+            function focusNewProblemDetails() {
+                $('#new-problem-details input').focus();
+            }
         }
 
         function updateTreatmentDetails() {
