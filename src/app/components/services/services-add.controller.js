@@ -344,7 +344,7 @@
         }
 
         function changeQty(inventory) {
-            inventory.total = (inventory.amount * inventory.qty);
+            inventory.total = ((vm.vatSettings.applyTax ? inventory.amount : inventory.rate) * inventory.qty);
 
             if (!vm.vatSettings.applyTax)
                 inventory.amount = inventory.rate;
@@ -361,7 +361,7 @@
                     inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
                     inventory.amount = inventory.rate + inventory.tax;
                     if (inventory.amount % 1 != 0)
-                        inventory.amount = inventory.amount.toFixed(2);
+                        inventory.amount = parseFloat(inventory.amount).toFixed(2);
                 }
             } else if (force) {
                 if (vm.vatSettings.inclusive)
