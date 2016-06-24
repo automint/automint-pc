@@ -645,13 +645,13 @@
                         <div layout="column" layout-align="start">
                             <div class="am-toolbar-strip am-tab-margin" layout="column">
                                 <span><md-checkbox aria-label="Payment Receieved" ng-model="vm.servicestatus" flex="33" flex-xs><span class="md-body-1">Payment Received</span></md-checkbox></span>
+                                <span><md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="33" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox></span>
+                                <span><md-checkbox ng-if="vm.orgApplyVat" aria-label="VAT" ng-model="vm.vatSettings.applyTax" ng-change="vm.changeVat()" flex="33" flex-xs><span class="md-body-1">VAT</span></md-checkbox></span>
                                 <span><md-checkbox aria-label="Round Off Amount" ng-model="vm.isRoundOffVal" ng-change="vm.calculateCost(undefined, false)" flex="33" flex-xs><span class="md-body-1">Round Off</span></md-checkbox></span>
                                 <span>
                                     <md-checkbox aria-label="Apply Discount" ng-model="vm.isDiscountApplied" ng-change="vm.calculateCost()"><span class="md-body-1">Discount</span></md-checkbox>
                                     <span ng-show="vm.isDiscountApplied">:&nbsp;<input type="text" ng-change="vm.calculateCost(true)" ng-model="vm.discountPercentage" class="am-discount-inline-input" style="width: 32px;">&nbsp;<span style="font-size: small">%</span></span>
                                 </span>
-                                <span><md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="33" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox></span>
-                                <span><md-checkbox ng-if="vm.orgApplyVat" aria-label="VAT" ng-model="vm.vatSettings.applyTax" ng-change="vm.changeVat()" flex="33" flex-xs><span class="md-body-1">VAT</span></md-checkbox></span>
                             </div>
                             <div flex></div>
                             <div layout="column" class="am-toolbar-strip">
@@ -663,7 +663,7 @@
                                 <span ng-if="vm.isDiscountApplied" style="line-height: 0.5rem">&nbsp;</span>
                                 <span ng-if="vm.isRoundOffVal" layout="row"><span class="md-body-2">Round Off:&nbsp;</span><span flex></span><span>Rs. <input type="text" ng-change="vm.calculateCost(undefined, true)" ng-model="vm.roundedOffVal" class="am-discount-inline-input" style="text-align: right"></span></span>
                                 <span ng-if="vm.isRoundOffVal" style="line-height: 0.5rem">&nbsp;</span>
-                                <span layout="row"><span class="md-body-2">Total Cost:&nbsp;</span><span flex></span><span>Rs.&nbsp<span ng-if="vm.isRoundOffVal"><input type="text" ng-focus="vm.changeForceStopCalCost(true)" ng-blur="vm.changeForceStopCalCost(false)" ng-change="vm.populateRoundOffVal()" ng-model="vm.service.cost" class="am-discount-inline-input" style="width: 70px; text-align: right; font-size: x-large; color: #000"></span><span ng-if="!vm.isRoundOffVal" style="font-size: x-large">{{vm.service.cost}}</span> </span></span>
+                                <span layout="row" layout-align="end end"><span class="md-body-2">Total Cost:&nbsp;</span><span flex></span><span>Rs.&nbsp<span ng-if="vm.isRoundOffVal"><input type="text" ng-focus="vm.changeForceStopCalCost(true)" ng-blur="vm.changeForceStopCalCost(false)" ng-change="vm.populateRoundOffVal()" ng-model="vm.service.cost" class="am-discount-inline-input" style="width: 70px; text-align: right; font-size: x-large; color: #000"></span><span ng-if="!vm.isRoundOffVal" style="font-size: x-large">{{vm.service.cost}}</span> </span></span>
                             </div>
                             <md-divider class="am-tab-margin"></md-divider>
                             <div layout="row" class="am-tab-margin">
