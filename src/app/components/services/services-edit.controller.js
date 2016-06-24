@@ -135,6 +135,7 @@
         vm.changeInventoryTotal = changeInventoryTotal;
         vm.populateRoundOffVal = populateRoundOffVal;
         vm.changeForceStopCalCost = changeForceStopCalCost;
+        vm.calculateViewportHeight = calculateViewportHeight;
 
         //  default execution steps
         getVehicleTypes();
@@ -143,6 +144,10 @@
         getMemberships();
 
         //  function definitions
+
+        function calculateViewportHeight(element) {
+            vm.serviceViewportHeight = $(window).height() - (2*element[0].offsetTop + 0.45*element[0].offsetTop);
+        }
 
         function changeInventoryTotal(inventory) {
             inventory.amount = inventory.total / inventory.qty;
@@ -235,7 +240,7 @@
         }
 
         function changeQty(inventory) {
-            inventory.total = (inventory.rate * inventory.qty) + (vm.vatSettings.applyTax ? (inventory.tax * inventory.qty) : 0);
+            inventory.total = (inventory.amount * inventory.qty);
         }
 
         function inventoryQuerySearch() {
@@ -351,7 +356,9 @@
                     if (!inventory.rate)
                         inventory.rate = inventory.amount;
                     inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
-                    inventory.amount = Math.round(inventory.rate + inventory.tax);
+                    inventory.amount = inventory.rate + inventory.tax;
+                    if (inventory.amount % 1 != 0)
+                        inventory.amount = inventory.amount.toFixed(2);
                 }
             } else if (force) {
                 if (vm.vatSettings.inclusive)

@@ -39,6 +39,21 @@
         background: white;
         border-bottom: 1px rgba(30, 30, 30, 0.5) solid;
     }
+
+    .am-display-as {
+        cursor: pointer;
+        outline: none;
+        color: #03A9F4;
+        transition: all 700ms ease;
+    }
+
+    .am-display-as:hover {
+        color: #0288D1;
+    }
+
+    .am-display-as-brackets {
+        color: #039BE5
+    }
 </style>
 <md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
     <md-icon aria-label="Back">arrow_back</md-icon>
@@ -194,7 +209,6 @@
                         </md-input-container>
                         <md-datepicker flex-gt-xs="19" class="md-hue-1" ng-model="vm.service.date" md-placeholder="Enter Date"></md-datepicker>
                     </div>
-                    <md-divider style="margin-bottom: 0.4rem"></md-divider>
                     <div layout="row">
                         <div layout="column" flex="80" id="am-service-viewport" style="height: {{vm.serviceViewportHeight}}px" am-offset-from-top="vm.calculateViewportHeight">
                             <md-content ng-show="vm.serviceType == vm.serviceTypeList[2]" aria-label="Memberships" class="md-hue-1">
@@ -332,14 +346,10 @@
                                             <tr md-row>
                                                 <th md-column>
                                                     <span class="am-table-header">Treatments</span>
-                                                    <span style="margin-left: 1rem;">
-                                                        <span class="am-table-header">(</span>
-                                                    <md-input-container style="margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0">
-                                                        <md-checkbox class="am-checkbox" layout="row" layout-align="center center" ng-model="vm.displayTreatmentAsList" aria-label="Display Treatment As" style="width: 100%">
-                                                            <span class="am-form-label" layout-wrap flex>Show All</span>
-                                                        </md-checkbox>
-                                                    </md-input-container>
-                                                    <span class="am-table-header">)</span>
+                                                    <span style="margin-left: 0.6rem;">
+                                                        <span class="am-table-header am-display-as-brackets">(</span>
+                                                        <span ng-click="vm.displayTreatmentAsList = true" class="am-display-as">Show All</span>
+                                                        <span class="am-table-header am-display-as-brackets">)</span>
                                                     </span>
                                                 </th>
                                                 <th md-column ng-if="vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive" style="width: 13%"><span class="am-table-header">Rate</span></th>
@@ -405,14 +415,10 @@
                                             <tr md-row>
                                                 <th md-column>
                                                     <span class="am-table-header">Treatments</span>
-                                                    <span style="margin-left: 1rem;">
-                                                        <span class="am-table-header">(</span>
-                                                    <md-input-container style="margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0">
-                                                        <md-checkbox class="am-checkbox" layout="row" layout-align="center center" ng-model="vm.displayTreatmentAsList" aria-label="Display Treatment As" style="width: 100%">
-                                                            <span class="am-form-label" layout-wrap flex>Show All</span>
-                                                        </md-checkbox>
-                                                    </md-input-container>
-                                                    <span class="am-table-header">)</span>
+                                                    <span style="margin-left: 0.6rem;">
+                                                        <span class="am-table-header am-display-as-brackets">(</span>
+                                                        <span ng-click="vm.displayTreatmentAsList = false" class="am-display-as">Show Few</span>
+                                                        <span class="am-table-header am-display-as-brackets">)</span>
                                                     </span>
                                                 </th>
                                                 <th md-column ng-if="vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive" style="width: 13%"><span class="am-table-header">Rate</span></th>
@@ -477,14 +483,10 @@
                                             <tr md-row>
                                                 <th md-column>
                                                     <span class="am-table-header">Parts</span>
-                                                    <span style="margin-left: 1rem;">
-                                                        <span class="am-table-header">(</span>
-                                                    <md-input-container style="margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0">
-                                                        <md-checkbox class="am-checkbox" layout="row" layout-align="center center" ng-model="vm.displayInventoriesAsList" aria-label="Display Treatment As" style="width: 100%">
-                                                            <span class="am-form-label" layout-wrap flex>Show All</span>
-                                                        </md-checkbox>
-                                                    </md-input-container>
-                                                    <span class="am-table-header">)</span>
+                                                    <span style="margin-left: 0.6rem;">
+                                                        <span class="am-table-header am-display-as-brackets">(</span>
+                                                        <span ng-click="vm.displayInventoriesAsList = true" class="am-display-as">Show All</span>
+                                                        <span class="am-table-header am-display-as-brackets">)</span>
                                                     </span>
                                                 </th>
                                                 <th md-column style="width: 13%"><span class="am-table-header">Rate</span></th>
@@ -562,14 +564,10 @@
                                             <tr md-row>
                                                 <th md-column>
                                                     <span class="am-table-header">Parts</span>
-                                                    <span style="margin-left: 1rem;">
-                                                        <span class="am-table-header">(</span>
-                                                    <md-input-container style="margin-left: 0; margin-right: 0; padding-left: 0; padding-right: 0">
-                                                        <md-checkbox class="am-checkbox" layout="row" layout-align="center center" ng-model="vm.displayInventoriesAsList" aria-label="Display Treatment As" style="width: 100%">
-                                                            <span class="am-form-label" layout-wrap flex>Show All</span>
-                                                        </md-checkbox>
-                                                    </md-input-container>
-                                                    <span class="am-table-header">)</span>
+                                                    <span style="margin-left: 0.6rem;">
+                                                        <span class="am-table-header am-display-as-brackets">(</span>
+                                                        <span ng-click="vm.displayInventoriesAsList = false" class="am-display-as">Show Few</span>
+                                                        <span class="am-table-header am-display-as-brackets">)</span>
                                                     </span>
                                                 </th>
                                                 <th md-column style="width: 13%"><span class="am-table-header">Rate</span></th>
@@ -650,7 +648,7 @@
                                 <span><md-checkbox aria-label="Round Off Amount" ng-model="vm.isRoundOffVal" ng-change="vm.calculateCost(undefined, false)" flex="33" flex-xs><span class="md-body-1">Round Off</span></md-checkbox></span>
                                 <span>
                                     <md-checkbox aria-label="Apply Discount" ng-model="vm.isDiscountApplied" ng-change="vm.calculateCost()"><span class="md-body-1">Discount</span></md-checkbox>
-                                    <span ng-show="vm.isDiscountApplied">:&nbsp;<input type="text" ng-change="vm.calculateCost(true)" ng-model="vm.discountPercentage" class="am-discount-inline-input" style="width: 24px;">&nbsp;<span style="font-size: small">%</span></span>
+                                    <span ng-show="vm.isDiscountApplied">:&nbsp;<input type="text" ng-change="vm.calculateCost(true)" ng-model="vm.discountPercentage" class="am-discount-inline-input" style="width: 32px;">&nbsp;<span style="font-size: small">%</span></span>
                                 </span>
                                 <span><md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="33" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox></span>
                                 <span><md-checkbox ng-if="vm.orgApplyVat" aria-label="VAT" ng-model="vm.vatSettings.applyTax" ng-change="vm.changeVat()" flex="33" flex-xs><span class="md-body-1">VAT</span></md-checkbox></span>
