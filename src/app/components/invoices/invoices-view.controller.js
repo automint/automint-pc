@@ -58,14 +58,20 @@
         //  function definitions
 
         function IsSocialFacebook() {
+            if (vm.workshop.social.facebook == undefined)
+                return false;
             return (vm.workshop.social.facebook != '');
         }
 
         function IsSocialInstagram() {
+            if (vm.workshop.social.instagram == undefined)
+                return false;
             return (vm.workshop.social.instagram != '');
         }
 
         function IsSocialTwitter() {
+            if (vm.workshop.social.twitter == undefined)
+                return false;
             return (vm.workshop.social.twitter != '');
         }
 
