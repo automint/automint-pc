@@ -28,13 +28,18 @@
             year: 0
         }
         vm.services = [];
+        //  month indexes will start from zero
         vm.displayDataOptions = [{
             name: 'This Month',
             month: 0,
             year: 0
         }, {
+            name: 'Last 2 Months',
+            month: 1,
+            year: 0
+        }, {
             name: 'Last 6 Months',
-            month: 6,
+            month: 5,
             year: 0
         }, {
             name: 'Last Year',
