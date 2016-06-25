@@ -65,14 +65,48 @@
         background-color: #039BE5;
         /* disabled switch color */
     }
+
+    .am-social-links.edge {
+        margin-top: 0.3rem;
+        margin-bottom: 0.3rem;
+    }
+
+    .am-social-links {
+        margin-top: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .am-social-links span {
+        font-size: small;
+        padding-left: 0.6rem;
+        color: #616161;
+    }
+
+    .am-social-links input {
+        border: 0;
+        outline: none;
+        border-bottom: 1px solid #ECEFF1;
+        padding-top: 0.3rem;
+        padding-bottom: 0.3rem;
+        padding-left: 0.1rem;
+        transition: all 500ms ease;
+    }
+
+    .am-social-links input:hover {
+        border-bottom: 1px solid #B0BEC5;
+    }
+
+    .am-social-links input:focus {
+        border-bottom: 1px solid #B0BEC5;
+    }
 </style>
 
-<md-content layout-padding>
-    <md-tabs md-dynamic-height md-border-bottom>
+<md-content>
+    <md-tabs md-dynamic-height md-border-bottom class="am-tab-margin">
         <md-tab label="General Settings">
             <md-content class="md-padding" layout-xs="column" layout="row">
                 <div flex-xs flex-gt-xs="50" layout="column">
-                    <md-card class="md-hue-1">
+                    <md-card class="md-hue-1 am-box-shadow">
                         <md-card-title>
                             <md-card-title-text>
                                 <span class="md-title">Import</span>
@@ -93,9 +127,22 @@
                             </div>
                         </md-card-content>
                     </md-card>
+                    <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-content style="padding-bottom: 0" layout="row" layout-align="center center">
+                            <md-input-container class="am-clear-error-spacer">
+                                <md-icon class="md-accent" style="cursor: pointer" ng-mouseup="vm.handlePasscodeVisibility(false)" ng-mousedown="vm.handlePasscodeVisibility(true)">lock_open<md-tooltip>See Passcode</md-tooltip></md-icon>
+                                <label class="am-form-label large">Passcode</label>
+                                <input type="password" ng-model="vm.passcode" ng-blur="vm.savePasscode()" style="letter-spacing: 1px" aria-label="Email Subject" id="am-passcode">
+                            </md-input-container>
+                            <div flex></div>
+                            <md-checkbox ng-model="vm.isPasscodeEnabled" ng-change="vm.savePasscode()" aria-label="Enable Passcode">
+                                <span class="md-body-1">Enable Passcode</span>
+                            </md-checkbox>
+                        </md-card-content>
+                    </md-card>
                 </div>
                 <div flex-xs flex-gt-xs="50" layout="column">
-                    <md-card class="md-hue-1">
+                    <md-card class="md-hue-1 am-box-shadow">
                         <md-card-content>
                             <div layout-xs="column" layout="row" layout-align="center center">
                                 <span class="md-title">Backup Your Data</span>
@@ -134,7 +181,7 @@
                             </div>
                         </md-card-content>
                     </md-card>
-                    <md-card class="md-hue-1">
+                    <md-card class="md-hue-1 am-box-shadow">
                         <md-card-content>
                             <div layout-xs="column" layout="row">
                                 <div layout="column">
@@ -149,7 +196,7 @@
                             </div>
                         </md-card-content>
                     </md-card>
-                    <md-card class="md-hue-1">
+                    <md-card class="md-hue-1 am-box-shadow">
                         <md-card-title>
                             <md-card-title-text>
                                 <span class="md-title">Service Tax</span>
@@ -173,6 +220,30 @@
                             </div>
                         </md-card-content>
                     </md-card>
+                    <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-title>
+                            <md-card-title-text>
+                                <span class="md-title">VAT</span>
+                            </md-card-title-text>
+                            <md-checkbox ng-model="vm.vatSettings.applyTax" ng-click="vm.vatSettings.inclusive = (vm.vatSettings.inclusive == undefined) ? true : vm.vatSettings.inclusive" ng-change="vm.saveVatSettings()" aria-label="Apply VAT">
+                                <span class="md-body-1">Apply VAT</span>
+                            </md-checkbox>
+                        </md-card-title>
+                        <md-card-content ng-show="vm.vatSettings.applyTax">
+                            <div layout="row" layout-xs="column">
+                                <div layout="row" layout-align="start center" class="am-tax-adjust">
+                                    <span class="md-body-1 am-pt-cursor" layout-padding ng-click="vm.vatSettings.inclusive = false">Exclusive</span>
+                                    <md-switch aria-label="Adjust VAT" ng-change="vm.saveVatSettings()" ng-model="vm.vatSettings.inclusive"></md-switch>
+                                    <span class="md-body-1 am-pt-cursor" ng-click="vm.vatSettings.inclusive = true">Inclusive</span>
+                                </div>
+                                <div flex></div>
+                                <div layout="row" layout-align="center center" flex="40">
+                                    <span class="md-body-1">VAT <small>(%)</small>:</span>
+                                    <input type="number" ng-blur="vm.saveVatSettings()" ng-model="vm.vatSettings.tax" class="am-tax-inline-input" value="0" flex>
+                                </div>
+                            </div>
+                        </md-card-content>
+                    </md-card>
                 </div>
             </md-content>
         </md-tab>
@@ -180,7 +251,7 @@
         <md-tab label="Invoice Settings" md-active="vm.invoiceTab" md-on-deselect="vm.changeInvoiceTab(false)">
             <md-content class="md-padding" layout-xs="column" layout="row">
                 <div flex-xs flex-gt-xs="50" layout="column">
-                    <md-card class="md-hue-1">
+                    <md-card class="md-hue-1 am-box-shadow">
                         <md-card-title layout-xs="column">
                             <md-card-title-text>
                                 <span class="md-title">Workshop Details</span>
@@ -190,42 +261,66 @@
                             <md-input-container flex-gt-xs>
                                 <md-icon class="md-accent">domain</md-icon>
                                 <label class="am-form-label" ng-class="{'large': vm.isWorkshopName}">{{vm.label_workshopName}}</label>
-                                <input class="md-body-1" type="text" ng-model="vm.workshop.name" ng-blur="vm.changeWorkshopNameLabel()" ng-focus="vm.changeWorkshopNameLabel(true)">
+                                <input class="md-body-1" type="text" ng-model="vm.workshop.name" ng-blur="vm.changeWorkshopNameLabel(); vm.saveWorkshopName()" ng-focus="vm.changeWorkshopNameLabel(true)">
                             </md-input-container>
                             <md-input-container flex-gt-xs>
                                 <md-icon class="md-accent">phone</md-icon>
                                 <label class="am-form-label" ng-class="{'large': vm.isWorkshopPhone}">{{vm.label_workshopPhone}}</label>
-                                <input class="md-body-1" type="text" ng-model="vm.workshop.phone" ng-blur="vm.changeWorkshopPhoneLabel();" ng-focus="vm.changeWorkshopPhoneLabel(true)">
+                                <input class="md-body-1" type="text" ng-model="vm.workshop.phone" ng-blur="vm.changeWorkshopPhoneLabel(); vm.saveWorkshopPhone()" ng-focus="vm.changeWorkshopPhoneLabel(true)">
                             </md-input-container>
                             <md-input-container flex="100">
                                 <md-icon class="md-accent">location_on</md-icon>
                                 <label class="am-form-label" ng-class="{'large': vm.isWorkshopAddress1}">{{vm.label_workshopAddress1}}</label>
-                                <input class="md-body-1" type="text" ng-model="vm.workshop.address1" ng-blur="vm.changeWorkshopAddress1Label();" ng-focus="vm.changeWorkshopAddress1Label(true)">
+                                <input class="md-body-1" type="text" ng-model="vm.workshop.address1" ng-blur="vm.changeWorkshopAddress1Label(); vm.saveWorkshopAddress1()" ng-focus="vm.changeWorkshopAddress1Label(true)">
                             </md-input-container>
                             <md-input-container flex="100">
                                 <md-icon class="md-accent">location_on</md-icon>
                                 <label class="am-form-label" ng-class="{'large': vm.isWorkshopAddress2}">{{vm.label_workshopAddress2}}</label>
-                                <input class="md-body-1" type="text" ng-model="vm.workshop.address2" ng-blur="vm.changeWorkshopAddress2Label();" ng-focus="vm.changeWorkshopAddress2Label(true)">
+                                <input class="md-body-1" type="text" ng-model="vm.workshop.address2" ng-blur="vm.changeWorkshopAddress2Label(); vm.saveWorkshopAddress2()" ng-focus="vm.changeWorkshopAddress2Label(true)">
                             </md-input-container>
-                            <md-input-container flex="100">
+                            <md-input-container class="am-clear-error-spacer" flex="100">
                                 <md-icon class="md-accent">location_city</md-icon>
                                 <label class="am-form-label" ng-class="{'large': vm.isWorkshopCity}">{{vm.label_workshopCity}}</label>
-                                <input class="md-body-1" type="text" ng-model="vm.workshop.city" ng-blur="vm.changeWorkshopCityLabel();" ng-focus="vm.changeWorkshopCityLabel(true)">
+                                <input class="md-body-1" type="text" ng-model="vm.workshop.city" ng-blur="vm.changeWorkshopCityLabel(); vm.saveWorkshopCity()" ng-focus="vm.changeWorkshopCityLabel(true)">
                             </md-input-container>
                         </md-card-content>
-                        <md-card-actions layout="row" layout-align="end center">
+                        <md-card-actions layout="row" layout-align="end center" style="margin-top: 0">
                             <md-switch dir="rtl" ng-model="vm.ivSettings.display.workshopDetails" ng-change="vm.saveIvDisplaySettings()">
                                 <span layout-padding class="am-form-label">Display in Invoice</span>
                             </md-switch>
-                            <md-button class="md-warn" ng-click="vm.saveWorkshopDetails()">
-                                <md-icon>done</md-icon>
-                                <span layout-padding>Save</span>
-                            </md-button>
                         </md-card-actions>
+                    </md-card>
+                    <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-title>
+                            <span class="md-title">Social Links</span>
+                            <div flex></div>
+                            <md-checkbox ng-model="vm.workshop.social.enabled" ng-change="vm.saveWorkshopDetails()" aria-label="Enable Links">
+                                <span class="md-body-1">Show Links</span>
+                            </md-checkbox>
+                        </md-card-title>
+                        <md-card-content>
+                            <div layout="column">
+                                <div layout="row" layout-align="center center" class="am-social-links edge">
+                                    <md-icon md-svg-src="assets/img/facebook.svg"></md-icon>
+                                    <span style="md-body-1">facebook.com/</span>
+                                    <input type="text" ng-model="vm.workshop.social.facebook" ng-blur="vm.saveFacebookLink()" style="color: #424242" flex>
+                                </div>
+                                <div layout="row" layout-align="center center" class="am-social-links">
+                                    <md-icon md-svg-src="assets/img/instagram.svg"></md-icon>
+                                    <span style="md-body-1">instagram.com/</span>
+                                    <input type="text" ng-model="vm.workshop.social.instagram" ng-blur="vm.saveInstagramLink()" style="color: #424242" flex>
+                                </div>
+                                <div layout="row" layout-align="center center" class="am-social-links edge">
+                                    <md-icon md-svg-src="assets/img/twitter.svg"></md-icon>
+                                    <span style="md-body-1">twitter.com/</span>
+                                    <input type="text" ng-model="vm.workshop.social.twitter" ng-blur="vm.saveTwitterLink()" style="color: #424242" flex>
+                                </div>
+                            </div>
+                        </md-card-content>
                     </md-card>
                 </div>
                 <div flex-xs flex-gt-xs="50" layout="column">
-                    <md-card class="md-hue-1">
+                    <md-card class="md-hue-1 am-box-shadow">
                         <md-card-content>
                             <div layout="row" layout-xs="column">
                                 <div layout="row" layout-align="center center" flex="70">
@@ -240,7 +335,7 @@
                             </div>
                         </md-card-content>
                     </md-card>
-                    <md-card class="md-hue-1">
+                    <md-card class="md-hue-1 am-box-shadow">
                         <md-card-title layout-xs="column" layout-align="center center" layout-wrap>
                             <md-card-title-text>
                                 <span class="md-title">Workshop Logo</span>
@@ -260,18 +355,35 @@
                             </md-button>
                         </md-card-actions>
                     </md-card>
-                    <md-card class="md-hue-1">
+                    <md-card class="md-hue-1 am-box-shadow">
                         <md-card-contnet layout="row" layout-align="center center" layout-margin layout-wrap>
                             <span class="md-title" flex="100">Email Subject</span>
                             <md-input-container class="am-clear-error-spacer" flex>
                                 <md-icon class="md-accent">subject</md-icon>
-                                <input type="text" ng-model="vm.ivSettings.emailsubject" style="width: 100%" aria-label="Email Subject">
+                                <input type="text" ng-model="vm.ivSettings.emailsubject" ng-blur="vm.saveIvEmailSubject()" style="width: 100%" aria-label="Email Subject">
                             </md-input-container>
-                            <md-button class="md-warn" ng-click="vm.saveIvEmailSubject()">
-                                <md-icon>done</md-icon>
-                                <span layout-padding>Save</span>
-                            </md-button>
                         </md-card-contnet>
+                    </md-card>
+                    <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-title>
+                            <span class="md-title">Printing Margin&nbsp;<span style="font-size: small">(in cm)</span></span>
+                            <div flex></div>
+                            <md-checkbox ng-model="vm.ivAlign.enabled" ng-change="vm.saveIvAlignMargins(true)" aria-label="Enable Margins">
+                                <span class="md-body-1">Enable Margins</span>
+                            </md-checkbox>
+                        </md-card-title>
+                        <md-card-content>
+                            <md-input-container class="am-clear-error-spacer" flex>
+                                <md-icon class="md-accent">vertical_align_top</md-icon>
+                                <label class="am-form-label" ng-class="{'large': vm.isTopAlignment}">{{vm.label_ivAlignTopAlignment}}</label>
+                                <input type="number" ng-model="vm.ivAlign.top" ng-focus="vm.changeTopAlignLabel(true)" ng-blur="vm.changeTopAlignLabel(); vm.saveIvAlignMargins()" aria-label="Top Align">
+                            </md-input-container>
+                            <md-input-container class="am-clear-error-spacer" flex>
+                                <md-icon class="md-accent">vertical_align_bottom</md-icon>
+                                <label class="am-form-label" ng-class="{'large': vm.isBottomAlignment}">{{vm.label_ivAlignBottomAlignment}}</label>
+                                <input type="number" ng-model="vm.ivAlign.bottom" ng-focus="vm.changeBottomAlignLabel(true)" ng-blur="vm.changeBottomAlignLabel(); vm.saveIvAlignMargins()" aria-label="Bottom Align">
+                            </md-input-container>
+                        </md-card-content>
                     </md-card>
                 </div>
             </md-content>

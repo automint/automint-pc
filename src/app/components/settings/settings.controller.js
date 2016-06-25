@@ -2,7 +2,7 @@
  * Controller for Settings component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,14 +11,14 @@
     angular.module('automintApp')
         .controller('amCtrlSettings', SettingsController);
 
-    SettingsController.$inject = ['$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings', 'amSeTaxSettings'];
+    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings', 'amSeTaxSettings'];
 
-    function SettingsController($scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings, amSeTaxSettings) {
+    function SettingsController($rootScope, $scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings, amSeTaxSettings) {
         //  initialize view model
         var vm = this;
         
         //  temporary named assignments
-        var olino = 0, ivEmailSubject;
+        var olino = 0, ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oPasscode = '1234', oPasscodeEnabled, oIvAlignTop = '', oIvAlignBottom = '', oIvWorkshopName, oIvWorkshopPhone, oIvWorkshopAddress1, oIvWorkshopAddress2, oIvWorkshopCity;
 
         //  named assignments to keep track of UI [BEGIN]
         //  general settings
@@ -34,13 +34,25 @@
             phone: '',
             address1: '',
             address2: '',
-            city: ''
+            city: '',
+            social: {
+                facebook: '',
+                instagram: '',
+                twitter: ''
+            }
         };
         vm.label_workshopName = 'Enter Workshop Name:';
         vm.label_workshopPhone = 'Enter Phone Number:';
         vm.label_workshopAddress1 = 'Enter Address Line 1:';
         vm.label_workshopAddress2 = 'Enter Address Line 2:';
         vm.label_workshopCity = 'Enter City:';
+        vm.passcode = '1234';
+        vm.ivAlign = {
+            top: '',
+            bottom: ''
+        };
+        vm.label_ivAlignTopAlignment = 'Enter Top Margin:';
+        vm.label_ivAlignBottomAlignment = 'Enter Bottom Margin:';
         //  named assignments to keep track of UI [END]
         
         //  function maps [BEGIN]
@@ -54,6 +66,7 @@
         vm.uploadCover = uploadCover;
         vm.handleUploadedFile = handleUploadedFile;
         vm.handleUploadedCoverPic = handleUploadedCoverPic;
+        vm.handlePasscodeVisibility = handlePasscodeVisibility;
         //  invoice settings
         vm.changeWorkshopNameLabel = changeWorkshopNameLabel;
         vm.changeWorkshopPhoneLabel = changeWorkshopPhoneLabel;
@@ -67,8 +80,20 @@
         vm.saveIvDisplaySettings = saveIvDisplaySettings;
         vm.OnBlurLastInvoiceNumber = OnBlurLastInvoiceNumber;
         vm.saveIvEmailSubject = saveIvEmailSubject;
-        //  service tax settings
+        vm.saveFacebookLink = saveFacebookLink;
+        vm.saveInstagramLink = saveInstagramLink;
+        vm.saveTwitterLink = saveTwitterLink;
         vm.saveServiceTaxSettings = saveServiceTaxSettings;
+        vm.saveVatSettings = saveVatSettings;
+        vm.savePasscode = savePasscode;
+        vm.changeTopAlignLabel = changeTopAlignLabel;
+        vm.changeBottomAlignLabel = changeBottomAlignLabel;
+        vm.saveIvAlignMargins = saveIvAlignMargins;
+        vm.saveWorkshopName = saveWorkshopName;
+        vm.saveWorkshopPhone = saveWorkshopPhone;
+        vm.saveWorkshopAddress1 = saveWorkshopAddress1;
+        vm.saveWorkshopAddress2 = saveWorkshopAddress2;
+        vm.saveWorkshopCity = saveWorkshopCity;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -81,16 +106,140 @@
         }
         //  general settings
         checkLogin();
+        getPasscode();
         //  invoice settings
         getWorkshopDetails();
         getInvoiceSettings();
         loadInvoiceWLogo();
+        getIvAlignMargins();
         //  service tax settings
         getServiceTaxSettings();
+        getVatSettings();
         // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
         //  default execution steps [END]
 
         //  function definitions
+
+        function handlePasscodeVisibility(visible) {
+            document.getElementById('am-passcode').type = (visible) ? 'text' : 'password';
+        }
+
+        function getIvAlignMargins() {
+            amIvSettings.getIvAlignMargins().then(success).catch(failure);
+
+            function success(res) {
+                vm.ivAlign = res;
+                changeTopAlignLabel();
+                changeBottomAlignLabel();
+                oIvAlignTop = res.top;
+                oIvAlignBottom = res.bottom;
+            }
+
+            function failure(err) {
+                vm.ivAlign = {
+                    top: '',
+                    bottom: ''
+                };
+                oIvAlignTop = '';
+                oIvAlignBottom = '';
+            }
+        }
+
+        function saveIvAlignMargins(force) {
+            if (vm.ivAlign.top == oIvAlignTop && vm.ivAlign.bottom == oIvAlignBottom && !force)
+                return;
+            amIvSettings.saveIvAlignMargins(vm.ivAlign).then(success).catch(failure);
+
+            function success(res) {
+                oIvAlignTop = vm.ivAlign.top;
+                oIvAlignBottom = vm.ivAlign.bottom;
+                utils.showSimpleToast('Settings saved successfully!');
+            }
+
+            function failure(err) {
+                console.log(err);
+                utils.showSimpleToast('Could not save margin! Please Try Again!');
+            }
+        }
+
+        function changeTopAlignLabel(force) {
+            if (vm.ivAlign.top == null)
+                vm.ivAlign.top = '';
+            vm.isTopAlignment = (force != undefined || vm.ivAlign.top != '');
+            vm.label_ivAlignTopAlignment = vm.isTopAlignment ? 'Top:' : 'Enter Top Margin:';
+        }
+
+        function changeBottomAlignLabel(force) {
+            if (vm.ivAlign.bottom == null)
+                vm.ivAlign.bottom = '';
+            vm.isBottomAlignment = (force != undefined || vm.ivAlign.bottom != '');
+            vm.label_ivAlignBottomAlignment = vm.isBottomAlignment ? 'Bottom:' : 'Enter Bottom Margin:';
+        }
+
+        function getPasscode() {
+            amLogin.getPasscode().then(success).catch(failure);
+
+            function success(res) {
+                if (!res) {
+                    failure();
+                    return;
+                }
+                vm.passcode = res.code;
+                vm.isPasscodeEnabled = res.enabled;
+                oPasscode = res.code;
+                oPasscodeEnabled = res.enabled;
+            }
+
+            function failure(err) {
+                vm.passcode = '1234';
+                oPasscode = '1234';
+                vm.isPasscodeEnabled = false;
+                oPasscodeEnabled = false;
+            }
+        }
+
+        function savePasscode() {
+            if (vm.passcode == '' || vm.passcode == undefined) {
+                utils.showSimpleToast('Passcode cannot be blank');
+                vm.passcode = oPasscode;
+                return;
+            }
+            if (vm.passcode == oPasscode && vm.isPasscodeEnabled == oPasscodeEnabled)
+                return;
+            amLogin.savePasscode(vm.passcode, vm.isPasscodeEnabled).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok) {
+                    oPasscode = vm.passcode;
+                    oPasscodeEnabled = vm.isPasscodeEnabled;
+                    $rootScope.isPasscodeEnabled = vm.isPasscodeEnabled;
+                    utils.showSimpleToast('Passcode saved successfully');
+                } else
+                    failure();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Failued to save Passcode');
+            }
+        }
+
+        function saveFacebookLink() {
+            if (oIvFacebookLink == vm.workshop.social.facebook)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveTwitterLink() {
+            if (oIvTwitterLink == vm.workshop.social.twitter)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveInstagramLink() {
+            if (oIvInstagramLink == vm.workshop.social.instagram)
+                return;
+            saveWorkshopDetails();
+        }
         
         //  default tab settings
         function changeInvoiceTab(bool) {
@@ -253,6 +402,14 @@
             
             function getWorkshopObject(res) {
                 vm.workshop = res;
+                oIvWorkshopName = res.name;
+                oIvWorkshopPhone = res.phone;
+                oIvWorkshopAddress1 = res.address1;
+                oIvWorkshopAddress2 = res.address2;
+                oIvWorkshopCity = res.city;
+                oIvFacebookLink = res.social.facebook;
+                oIvTwitterLink = res.social.twitter;
+                oIvInstagramLink = res.social.instagram;
                 changeWorkshopNameLabel();
                 changeWorkshopPhoneLabel();
                 changeWorkshopAddress1Label();
@@ -264,12 +421,50 @@
                 $log.info('No workshop details found!');
             }
         }
+
+        function saveWorkshopName() {
+            if (oIvWorkshopName == vm.workshop.name)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveWorkshopPhone() {
+            if (oIvWorkshopPhone == vm.workshop.phone)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveWorkshopAddress1() {
+            if (oIvWorkshopAddress1 == vm.workshop.address1)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveWorkshopAddress2() {
+            if (oIvWorkshopAddress2 == vm.workshop.address2)
+                return;
+            saveWorkshopDetails();
+        }
+
+        function saveWorkshopCity() {
+            if (oIvWorkshopCity == vm.workshop.city)
+                return;
+            saveWorkshopDetails();
+        }
         
         //  save workshop details to database
         function saveWorkshopDetails() {
             amIvSettings.saveWorkshopDetails(vm.workshop).then(success).catch(failure);
             
             function success(res) {
+                oIvWorkshopName = vm.workshop.name;
+                oIvWorkshopPhone = vm.workshop.phone;
+                oIvWorkshopAddress1 = vm.workshop.address1;
+                oIvWorkshopAddress2 = vm.workshop.address2;
+                oIvWorkshopCity = vm.workshop.city;
+                oIvFacebookLink = vm.workshop.social.facebook;
+                oIvTwitterLink = vm.workshop.social.twitter;
+                oIvInstagramLink = vm.workshop.social.instagram;
                 utils.showSimpleToast('Workshop details updated successfully!');
             }
             
@@ -375,11 +570,37 @@
                 utils.showSimpleToast('Failed to save Service Tax Settings. Please Try Again!');
             }
         }
+
+        function getVatSettings() {
+            amSeTaxSettings.getVatSettings().then(success).catch(failure);
+
+            function success(res) {
+                vm.vatSettings = res;
+            }
+
+            function failure(err) {
+                vm.vatSettings = {};
+            }
+        }
+
+        function saveVatSettings() {
+            amSeTaxSettings.saveVatSettings(vm.vatSettings).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok)
+                    utils.showSimpleToast('VAT Settings Saved Successfully!');
+                else
+                    failure();
+            }
+            
+            function failure(err) {
+                utils.showSimpleToast('Failed to save VAT Settings. Please Try Again!');
+            }
+        }
         
         function saveIvEmailSubject(es, reset) {
-            if (vm.ivSettings.emailsubject == undefined)
+            if (vm.ivSettings.emailsubject == undefined || ((ivEmailSubject == vm.ivSettings.emailsubject) && !es))
                 return;
-            
             amIvSettings.saveIvEmailSubject((es == undefined) ? vm.ivSettings.emailsubject : es).then(respond).catch(respond);
             
             function respond(res) {

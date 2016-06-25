@@ -2,13 +2,30 @@
  * Customised style sheet for Automint App
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0 
+ * @version 0.6.1
  */
 
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+.am-tab-margin {
+    margin-top: 0.4rem;
+}
+
+.am-toolbar-strip {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.am-headerbar-shadow {
+    box-shadow: 0px 1px 3px 1px #9E9E9E;
+}
+
+.am-box-shadow {
+    box-shadow: 0px 1px 3px 1px #BDBDBD;
 }
 
 .am-select-table-row {
@@ -139,7 +156,7 @@ md-sidenav.md-closed.md-locked-open-add-active {
 }
 
 .am-side-nav {
-    background: #263238;
+    background: #212121;
 }
 
 .am-side-nav .item-color {
@@ -188,6 +205,15 @@ md-sidenav.md-closed.md-locked-open-add-active {
     max-width: 40px;
 }
 
+.am-hover-option {
+    background: #fff;
+    transition: all 100ms ease;
+}
+
+.am-hover-option:hover {
+    background: #F5F5F5;
+}
+
 .am-table-inline-input {
     border: 0;
     width: 97%;
@@ -219,7 +245,7 @@ md-sidenav.md-closed.md-locked-open-add-active {
     top: 0.4rem;
 }
 
-.am-selected-el-item ~ .am-el-item .el-item,
+.am-selected-el-item~ .am-el-item .el-item,
 .am-el-item:first-child .el-item {
     border-top-left-radius: 2px;
     border-top-right-radius: 2px;
@@ -229,7 +255,7 @@ md-sidenav.md-closed.md-locked-open-add-active {
     margin: 1px;
 }
 
-.am-selected-el-item ~ .am-el-item .el-item.selected,
+.am-selected-el-item~ .am-el-item .el-item.selected,
 .am-el-item:first-child .el-item.selected {
     margin-top: 0;
 }
@@ -273,7 +299,7 @@ md-sidenav.md-closed.md-locked-open-add-active {
 }
 
 .am-el-item .el-item.selected .expanded,
-.am-el-item .el-item.selected .expanded > * {
+.am-el-item .el-item.selected .expanded> * {
     max-height: 700px;
     opacity: 1;
 }
@@ -287,8 +313,50 @@ md-sidenav.md-closed.md-locked-open-add-active {
 }
 
 .am-el-item .el-item .expanded,
-.am-el-item .el-item .expanded > * {
+.am-el-item .el-item .expanded> * {
     max-height: 0;
     opacity: 0;
     transition: all 200ms;
+}
+
+.am-lockscreen {
+    z-index: 9999;
+    display: none;
+    width: 100%;
+    height: 100%;
+}
+
+.am-lockscreen.active {
+    display: block;
+}
+
+.am-lockscreen.ng-enter {
+    animation: fadeIn 0.5s both ease-in;
+}
+
+.am-lockscreen.ng-leave {
+    transform-origin: 0% 0%;
+    animation: fadeOut 1s both ease-in;
+}
+
+
+/* ANIMATIONS
+============================================================================= */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
 }

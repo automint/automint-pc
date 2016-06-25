@@ -2,7 +2,7 @@
  * Controller for View Invoice component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.0 
+ * @version 0.6.1 
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -27,7 +27,6 @@
         vm.fabClass = '';
 
         //  function maps
-        vm.test = test;
         vm.printInvoice = printInvoice;
         vm.mailInvoice = mailInvoice;
         vm.goBack = goBack;
@@ -36,6 +35,12 @@
         vm.closeFab = closeFab;
         vm.calculateServiceTax = calculateServiceTax;
         vm.editService = editService;
+        vm.isRoundOff = false;
+        vm.isDiscountApplied = false;
+        vm.calculateVat = calculateVat;
+        vm.IsSocialFacebook = IsSocialFacebook;
+        vm.IsSocialInstagram = IsSocialInstagram;
+        vm.IsSocialTwitter = IsSocialTwitter;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -45,11 +50,42 @@
         }
         fillInvoiceDetails();
         loadInvoiceWLogo();
+        getIvAlignMargins();
     
         //  electron watchers
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
+
+        function IsSocialFacebook() {
+            if (vm.workshop.social.facebook == undefined)
+                return false;
+            return (vm.workshop.social.facebook != '');
+        }
+
+        function IsSocialInstagram() {
+            if (vm.workshop.social.instagram == undefined)
+                return false;
+            return (vm.workshop.social.instagram != '');
+        }
+
+        function IsSocialTwitter() {
+            if (vm.workshop.social.twitter == undefined)
+                return false;
+            return (vm.workshop.social.twitter != '');
+        }
+
+        function getIvAlignMargins() {
+            amInvoices.getIvAlignMargins().then(success).catch(failure);
+
+            function success(res) {
+                vm.alignmentMargins = res;
+            }
+
+            function failure(err) {
+                console.log('Cound not find margin settings');
+            }
+        }
         
         function OnInvoiceMailSent(event, arg) {
             var message = (arg) ? 'Mail has been sent!' : 'Could not sent email. Please Try Again!'; 
@@ -84,6 +120,27 @@
             });
         }
 
+        function calculateInventoryValues() {
+            vm.service.inventories.forEach(iterateInventories);
+
+            function iterateInventories(inventory) {
+                if (inventory.qty == undefined)
+                    inventory.qty = 1;
+                if (vm.vatSettings.applyTax) {
+                    inventory.amount = inventory.rate;
+                    if (vm.vatSettings.inclusive) {
+                        inventory.rate = (inventory.amount * 100) / (vm.vatSettings.tax + 100);
+                        inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
+                    } else {
+                        inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
+                        inventory.amount = Math.round(inventory.rate + inventory.tax);
+                    }
+                }
+                inventory.total = (inventory.rate * inventory.qty) + (inventory.tax * inventory.qty);
+                inventory.total = (inventory.total % 1 != 0) ? inventory.total.toFixed(2) : parseInt(inventory.total);
+            }
+        }
+
         //  fill invoice details
         function fillInvoiceDetails() {
             amInvoices.getWorkshopDetails().then(fillWorkshopDetails).catch(failure);
@@ -99,16 +156,39 @@
                 vm.user = res.user;
                 vm.vehicle = res.vehicle;
                 vm.service = res.service;
+                vm.isRoundOff = (vm.service.roundoff != undefined);
+                vm.isDiscountApplied = (vm.service.discount != undefined);
                 vm.sTaxSettings = {
                     applyTax: res.service.serviceTax.applyTax,
                     inclusive: (res.service.serviceTax.taxIncType == 'inclusive'),
                     tax: res.service.serviceTax.tax
                 };
+                vm.vatSettings = {
+                    applyTax: res.service.vat.applyTax,
+                    inclusive: (res.service.vat.taxIncType == 'inclusive'),
+                    tax: res.service.vat.tax
+                }
+                calculateInventoryValues();
             }
 
             function failure(err) {
                 getDisplaySettings();
                 $log.info('Could not load details');
+            }
+        }
+
+        function calculateVat() {
+            var tax = 0;
+            if (!vm.service.vat.applyTax)
+                return 0;
+            vm.service.inventories.forEach(iterateInventories);
+            tax = (tax % 1 != 0) ? tax.toFixed(2) : tax; 
+            if (tax == 0)
+                vm.vatSettings.applyTax = false;
+            return tax;
+
+            function iterateInventories(inventory) {
+                tax += inventory.tax * (inventory.qty ? inventory.qty : 1);
             }
         }
         
@@ -119,6 +199,9 @@
             vm.service.problems.forEach(iterateProblems);
             if (vm.service.packages)
                 vm.service.packages.forEach(iteratePackages);
+            tax = (tax % 1 != 0) ? tax.toFixed(2) : parseInt(tax);
+            if (tax == 0)
+                vm.sTaxSettings.applyTax = false;
             return tax;
             
             function iterateProblems(problem) {
@@ -145,15 +228,13 @@
             amInvoices.getIvSettings().then(success).catch(failure);
 
             function success(res) {
-                if (!res.display.workshopDetails) {
-                    vm.workshop = {};
-                }
+                vm.ivSettings = res;
                 if (res.display.workshopLogo)
                     addInvoiceWLogo();
-                vm.ivSettings = res;
             }
 
             function failure(err) {
+                console.log(err);
                 $log.info('Could not load display settings!');
             }
         }
@@ -170,21 +251,55 @@
                 utils.showSimpleToast(vm.user.name + '\'s email has not been set. Email can not be sent!');
                 return;
             }
-            removeInvoiceWLogo();
-            var elem = document.getElementsByClassName('am-blank-padding');
-            for (var i = 0; i < elem.length; i++) {
-                var e = elem[i];
-                e.innerHTML = '';
+            var t = document.getElementById('am-invoice-body');
+            if (vm.alignmentMargins.enabled) {
+                t.style.paddingTop = 0;
+                t.style.paddingBottom = 0;
             }
+            var amInScFb = document.getElementById('am-invoice-social-facebook');
+            var amInScIn = document.getElementById('am-invoice-social-instagram');
+            var amInScTw = document.getElementById('am-invoice-social-twitter');
+            var amInLkFb = document.getElementById('am-invoice-link-facebook');
+            var amInLkIn = document.getElementById('am-invoice-link-instagram');
+            var amInLkTw = document.getElementById('am-invoice-link-twitter');
+            if (vm.workshop.social.enabled) {
+                if (IsSocialFacebook()) {
+                    amInLkFb.href = 'facebook.com/' + vm.workshop.social.facebook;
+                    amInScFb.src = 'https://www.facebook.com/images/fb_icon_325x325.png';
+                }
+                if (IsSocialInstagram()) {
+                    amInLkIn.href = 'instagram.com/' + vm.workshop.social.instagram;
+                    amInScIn.src = 'http://3835642c2693476aa717-d4b78efce91b9730bcca725cf9bb0b37.r51.cf1.rackcdn.com/Instagram_App_Large_May2016_200.png';
+                }
+                if (IsSocialTwitter()) {
+                    amInLkTw.href = 'twitter.com/' + vm.workshop.social.twitter;
+                    amInScTw.src = 'https://g.twimg.com/Twitter_logo_blue.png';
+                }
+            }
+            removeInvoiceWLogo();
             var printObj = document.getElementById('am-invoice-mail-body');
             utils.showSimpleToast('Sending Mail...');
             ammMailApi.send(printObj.innerHTML, vm.user, (vm.workshop) ? vm.workshop.name : undefined, (vm.ivSettings) ? vm.ivSettings.emailsubject : undefined);
-            for (var i = 0; i < elem.length; i++) {
-                var e = elem[i];
-                e.innerHTML = '&nbsp;';
+            if (vm.workshop.social.enabled) {
+                if (IsSocialFacebook()) {
+                    amInLkFb.href = '';
+                    amInScFb.src = 'assets/img/facebook.svg';
+                }
+                if (IsSocialInstagram()) {
+                    amInLkIn.href = '';
+                    amInScIn.src = 'assets/img/instagram.svg';
+                }
+                if (IsSocialTwitter()) {
+                    amInLkTw.href = '';
+                    amInScTw.src = 'assets/img/twitter.svg';                
+                }
             }
             if (vm.ivSettings.display.workshopLogo)
                 addInvoiceWLogo();
+            if (vm.alignmentMargins.enabled) {
+                t.style.paddingTop = vm.alignmentMargins.top + 'cm';
+                t.style.paddingBottom = vm.alignmentMargins.bottom + 'cm';
+            }
         }
 
         function goBack() {
@@ -194,6 +309,13 @@
                 switch ($state.params.fromState) {
                     case 'dashboard':
                         transitState = 'restricted.dashboard';
+                        break;
+                    case 'customers.edit.services':
+                        transitState = 'restricted.customers.edit';
+                        transitParams = {
+                            id: $state.params.userId,
+                            openTab: 'services'
+                        }
                         break;
                 }
             }
@@ -217,11 +339,5 @@
                 elem.removeChild(elem.firstChild);
             }
         }
-
-        //  test zone [BEGIN]
-        function test() {
-            console.log('You have reached test');
-        }
-        //  test zone [END]
     }
 })();

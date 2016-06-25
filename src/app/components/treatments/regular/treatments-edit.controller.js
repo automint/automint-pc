@@ -2,7 +2,7 @@
  * Controller for Edit Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -54,7 +54,7 @@
         }
         
         function convertNameToTitleCase() {
-            vm.treatment.name = utils.convertToTitleCase(vm.treatment.name);
+            vm.treatment.name = utils.autoCapitalizeWord(vm.treatment.name);
         }
         
         function goBack() {

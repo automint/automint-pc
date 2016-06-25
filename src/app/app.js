@@ -2,7 +2,7 @@
  * Automint Application
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -58,7 +58,7 @@
         //  set cover photo
         function setCoverPic() {
             var source = localStorage.getItem('cover-pic');
-            $('#am-cover-pic').attr('src', (source) ? source : 'assets/img/logo-250x125px.jpg').width(250).height(125);
+            $('#am-cover-pic').attr('src', (source) ? source : 'assets/img/logo-250x125px.png').width(250).height(125);
         }
     }
 

@@ -2,7 +2,7 @@
  * Closure for state definitions and mappings to template files
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.6.1
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -14,9 +14,22 @@
     StateConfigs.$inject = ['$stateProvider', '$urlRouterProvider'];
 
     function StateConfigs($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.when('/dashboard', '/').otherwise('/services/all');
+        $urlRouterProvider.when('/', '/locked').otherwise('/locked');
 
         $stateProvider
+            .state('locked', {
+                url: '/locked',
+                views: {
+                    'lockscreen': {
+                        templateUrl: 'app/views/lockscreen.html',
+                        controller: 'lockScreenCtrl',
+                        controllerAs: 'vm'
+                    }
+                },
+                params: {
+                    fromState: undefined
+                }
+            })
             .state('restricted', {
                 abstract: true,
                 url: '',
@@ -38,7 +51,7 @@
             })
             //  dashboard
             .state('restricted.dashboard', {
-                url: '/',
+                url: '/dashboard',
                 templateUrl: 'app/components/dashboard/dashboard.html',
                 controller: 'dashboardCtrl',
                 controllerAs: 'vm',
@@ -91,7 +104,8 @@
                 controller: 'amCtrlCuUI',
                 controllerAs: 'vm',
                 params: {
-                    id: undefined
+                    id: undefined,
+                    openTab: undefined
                 },
                 resolve: {
                     deps: ['$ocLazyLoad', loadCuUIDeps]
@@ -318,8 +332,83 @@
                 data: {
                     pageTitle: 'Edit Membership'
                 }
+            })
+            .state('restricted.inventory', {
+                url: '/inventory',
+                template: '<div ui-view autoscroll="false"></div>',
+                abstract: true,
+                resolve: {
+                    deps: ['$ocLazyLoad', loadInventoryDeps]
+                }
+            })
+            .state('restricted.inventory.all', {
+                url: '/all',
+                templateUrl: 'app/components/inventory/inventory_viewall.html',
+                controller: 'amCtrlInRA',
+                controllerAs: 'vm',
+                resolve: {
+                    deps: ['$ocLazyLoad', loadInRADeps]
+                },
+                data: {
+                    pageTitle: 'All Inventories'
+                }
+            })
+            .state('restricted.inventory.add', {
+                url: '/add',
+                templateUrl: 'app/components/inventory/inventory_add.html',
+                controller: 'amCtrlInCI',
+                controllerAs: 'vm',
+                resolve: {
+                    deps: ['$ocLazyLoad', loadInCIDeps]
+                },
+                data: {
+                    pageTitle: 'Add Inventory'
+                }
+            })
+            .state('restricted.inventory.edit', {
+                url: '/edit',
+                templateUrl: 'app/components/inventory/inventory_add.html',
+                controller: 'amCtrlInUI',
+                controllerAs: 'vm',
+                params: {
+                    name: undefined
+                },
+                resolve: {
+                    deps: ['$ocLazyLoad', loadInUIDeps]
+                },
+                data: {
+                    pageTitle: 'Edit Inventory'
+                }
             });
 
+        function loadAddServiceDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'material-datatable',
+                'app/components/services/services.factory.js',
+                'app/components/services/services-add.controller.js'
+            ])
+        }
+        function loadInUIDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'app/components/inventory/inventory-edit.controller.js'
+            ]);
+        }
+        function loadInCIDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'app/components/inventory/inventory-add.controller.js'
+            ]);
+        }
+        function loadInRADeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'material-datatable',
+                'app/components/inventory/inventory-viewall.controller.js'
+            ]);
+        }
+        function loadInventoryDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'app/components/inventory/inventory.factory.js'
+            ]);
+        }
         function loadDashboardDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',

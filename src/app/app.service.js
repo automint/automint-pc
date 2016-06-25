@@ -2,7 +2,7 @@
  * Closure for root level service
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.6.1
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .service('$amRoot', AutomintService);
 
-    AutomintService.$inject = ['$q', '$log', 'utils', 'constants', 'pdbCustomers', 'pdbConfig', 'pdbCommon', 'amFactory', 'pdbCache'];
+    AutomintService.$inject = ['$rootScope', '$state', '$q', '$log', 'utils', 'constants', 'pdbCustomers', 'pdbConfig', 'pdbCommon', 'amFactory', 'pdbCache'];
 
-    function AutomintService($q, $log, utils, constants, pdbCustomers, pdbConfig, pdbCommon, amFactory, pdbCache) {
+    function AutomintService($rootScope, $state, $q, $log, utils, constants, pdbCustomers, pdbConfig, pdbCommon, amFactory, pdbCache) {
         //  set up service object
         var sVm = this;
         var blockViews = true;
@@ -29,6 +29,7 @@
         sVm.isWorkshopId = isWorkshopId;
         sVm.isTreatmentId = isTreatmentId;
         sVm.isSettingsId = isSettingsId;
+        sVm.isInventoryId = isInventoryId;
         sVm.updateConfigReferences = updateConfigReferences;
 
         //  named assignments
@@ -246,6 +247,8 @@
                         sVm.docIds.workshop = element.id;
                     if (element.id.match(/\bsttngs-/i))
                         sVm.docIds.settings = element.id;
+                    if (element.id.match(/\binvntry-/i))
+                        sVm.docIds.inventory = element.id;
                 }
             }
 
@@ -346,6 +349,11 @@
         //  check if settings' document id is loaded to current docId object
         function isSettingsId() {
             return isDocId('sttngs');
+        }
+
+        //  check if inventory's document id is loaded to current docId object
+        function isInventoryId() {
+            return isDocId('invntry');
         }
 
         //  the check function

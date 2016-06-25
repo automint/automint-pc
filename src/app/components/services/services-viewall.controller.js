@@ -2,7 +2,7 @@
  * Controller for View Services module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .controller('amCtrlSeRA', ServiceViewAllController);
 
-    ServiceViewAllController.$inject = ['$scope', '$state', '$filter', '$timeout', 'utils', 'amServices'];
+    ServiceViewAllController.$inject = ['$scope', '$state', '$filter', '$timeout', '$mdDialog', 'utils', 'amServices'];
 
-    function ServiceViewAllController($scope, $state, $filter, $timeout, utils, amServices) {
+    function ServiceViewAllController($scope, $state, $filter, $timeout, $mdDialog, utils, amServices) {
         //  initialize view model
         var vm = this, queryChangedPromise, cacheLoadTimeout = false;
 
@@ -28,13 +28,18 @@
             year: 0
         }
         vm.services = [];
+        //  month indexes will start from zero
         vm.displayDataOptions = [{
             name: 'This Month',
             month: 0,
             year: 0
         }, {
+            name: 'Last 2 Months',
+            month: 1,
+            year: 0
+        }, {
             name: 'Last 6 Months',
-            month: 6,
+            month: 5,
             year: 0
         }, {
             name: 'Last Year',
@@ -138,8 +143,24 @@
         }
 
         //  delete service from UI
-        function deleteService(service) {
-            amServices.deleteService(service.cstmr_id, service.vhcl_id, service.srvc_id).then(success).catch(failure);
+        function deleteService(service, ev) {
+            var confirm = $mdDialog.confirm()
+                .textContent('Are you sure you want to delete the service ?')
+                .ariaLabel('Delete Customer')
+                .targetEvent(ev)
+                .ok('Yes')
+                .cancel('No');
+
+            $mdDialog.show(confirm).then(performDelete, ignoreDelete);
+
+            function performDelete() {
+                amServices.deleteService(service.cstmr_id, service.vhcl_id, service.srvc_id).then(success).catch(failure);
+            }
+
+            function ignoreDelete() {
+                console.log('nope');
+            }
+            
 
             function success(res) {
                 if (res.ok) {

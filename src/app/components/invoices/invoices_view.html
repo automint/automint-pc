@@ -80,6 +80,11 @@
                         font-weight: 800;
                         padding: 0.5rem 1rem 1rem 1rem !important;
                     }
+
+                    .am-invoice-table .subt td {
+                        border-top: 1px solid #ECEFF1;
+                        padding: 0.5rem 1rem 0.5rem 1rem !important;
+                    }
                     
                     .am-invoice-table .tax td {
                         border-top: 2px solid #37474F;
@@ -114,72 +119,158 @@
                     .am-invoice-w-area .parent .right {
                         padding-right: 2rem;
                     }
+
+                    a {
+                        text-decoration: none;
+                        color: #757575;
+                        padding-left: 2rem;
+                        padding-right: 2rem;
+                        text-align: center;
+                        display: table;
+                        transition: all 500ms ease;
+                    }
+
+                    a:hover {
+                        color: #424242;
+                    }
                 </style>
             </head>
 
             <body style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;">
-                <section class="am-invoice-w-area">
-                    <div class="parent">
-                        <div class="left">
-                            <h2 style="margin-bottom: 0.3rem; margin: 1px;">{{vm.workshop.name}}</span><span class="am-blank-padding">&nbsp;</span></h2>
-                            <span class="am-invoice-workshop-detail">{{vm.workshop.address1}}<span class="am-blank-padding">&nbsp;</span></span><br>
-                            <span class="am-invoice-workshop-detail">{{vm.workshop.address2}}<span class="am-blank-padding">&nbsp;</span></span><br>
-                            <span class="am-invoice-workshop-detail">{{vm.workshop.city}}<span class="am-blank-padding">&nbsp;</span></span><br>
-                            <span class="am-invoice-workshop-detail"><span style="font-size: x-small;">{{vm.workshop.label_phone}}</span> {{vm.workshop.phone}}<span class="am-blank-padding">&nbsp;</span></span>
+                <div id="am-invoice-body" style="margin-top: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.top : 0}}cm; margin-bottom: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.bottom : 0}}cm">
+                    <section class="am-invoice-w-area">
+                        <div class="parent">
+                            <div class="left" ng-if="vm.ivSettings.display.workshopDetails">
+                                <h2 style="margin-bottom: 0.3rem; margin: 1px;">{{vm.workshop.name}}</span></h2>
+                                <span class="am-invoice-workshop-detail">{{vm.workshop.address1}}</span><br>
+                                <span class="am-invoice-workshop-detail">{{vm.workshop.address2}}</span><br>
+                                <span class="am-invoice-workshop-detail">{{vm.workshop.city}}</span><br>
+                                <span class="am-invoice-workshop-detail"><span style="font-size: x-small;">{{vm.workshop.label_phone}}</span> {{vm.workshop.phone}}</span>
+                            </div>
+                            <div style="flex-grow: 1"></div>
+                            <div class="right" id="am-invoice-w-logo-holder"></div>
                         </div>
-                        <div style="flex-grow: 1"></div>
-                        <div class="right" id="am-invoice-w-logo-holder"></div>
-                    </div>
-                </section>
-                <hr style="margin-top: 1.6rem; margin-bottom: 1rem; opacity: 0.3">
-                <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; margin: 1rem;">
-                    <center>
-                        <table class="am-invoice-table">
-                            <tr class="caption">
-                                <td>
-                                    <p style="font-size: large">{{vm.user.name}}</p>
-                                    <span><span>{{vm.vehicle.manuf + ' ' + vm.vehicle.model}}</span><br><span style="line-height: 1.4; font-size: smaller; letter-spacing: 0.2px" ng-if="vm.vehicle.reg">{{vm.vehicle.reg}}</span></span>
-                                </td>
-                                <td style="text-align: right">
-                                    <p style="text-align: right; font-size: large">Invoice #{{vm.service.invoiceno}}</p>
-                                    <span>{{vm.service.date}}</span>
-                                </td>
-                            </tr>
-                            <tr class="caption">
-                                <td><span style="font-weight: 700">Treatments</span></td>
-                                <td style="text-align: right"><span style="font-weight: 700">Amount</span></td>
-                            </tr>
-                            <tr class="row" ng-repeat-start="(key, membership) in vm.service.memberships">
-                                <td class="m-d">{{key}}</td>
-                                <td align="right" class="m-d">&nbsp;</td>
-                            </tr>
-                            <tr ng-repeat-end ng-repeat="(tn, treatment) in membership.treatments">
-                                <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{tn}}</span></td>
-                                <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">&nbsp;</td>
-                            </tr>
-                            <tr class="row" ng-repeat-start="package in vm.service.packages">
-                                <td class="m-d">{{package.name}}</td>
-                                <td class="m-d" align="right">&nbsp;</td>
-                            </tr>
-                            <tr ng-repeat-end ng-repeat="treatment in package.treatments">
-                                <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{treatment.name}}</span></td>
-                                <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
-                            </tr>
-                            <tr class="row" ng-repeat="problem in vm.service.problems">
-                                <td>{{problem.details}}</td>
-                                <td align="right">Rs. {{problem.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
-                            </tr>
-                            <tr class="tax" ng-if="vm.sTaxSettings.applyTax">
-                                <td>Service Tax</td>
-                                <td align="right">Rs. {{vm.calculateServiceTax() | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
-                            </tr>
-                            <tr class="total" ng-class="{'tax': !vm.sTaxSettings.applyTax}">
-                                <td>Total</td>
-                                <td align="right">Rs. {{vm.service.cost | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
-                            </tr>
-                        </table>
-                    </center>
-                </section>
+                    </section>
+                    <hr style="margin-top: 1.6rem; margin-bottom: 1rem; opacity: 0.3">
+                    <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; margin: 1rem;">
+                        <center>
+                            <table class="am-invoice-table">
+                                <tr class="caption">
+                                    <td>
+                                        <p style="font-size: large">{{vm.user.name}}</p>
+                                        <span><span>{{vm.vehicle.manuf + ' ' + vm.vehicle.model}}</span><br><span style="line-height: 1.4; font-size: smaller; letter-spacing: 0.2px" ng-if="vm.vehicle.reg">{{vm.vehicle.reg}}</span></span>
+                                    </td>
+                                    <td ng-if="vm.service.inventories.length > 0" style="width: 16%"></td>
+                                    <td ng-if="vm.service.inventories.length > 0" style="width: 16%"></td>
+                                    <td style="text-align: right; width: 16%">
+                                        <p style="text-align: right; font-size: large">Invoice #{{vm.service.invoiceno}}</p>
+                                        <span>{{vm.service.date}}</span>
+                                    </td>
+                                </tr>
+                                <tr class="caption">
+                                    <td><span style="font-weight: 700">Treatments & Parts</span></td>
+                                    <td ng-if="vm.service.inventories.length > 0"><span style="font-weight: 700">Rate</span></td>
+                                    <td ng-if="vm.service.inventories.length > 0"><span style="font-weight: 700">Qty</span></td>
+                                    <td style="text-align: right"><span style="font-weight: 700">Amount</span></td>
+                                </tr>
+                                <tr class="row" ng-repeat-start="(key, membership) in vm.service.memberships">
+                                    <td class="m-d">{{key}}</td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td align="right" class="m-d">&nbsp;</td>
+                                </tr>
+                                <tr ng-repeat-end ng-repeat="(tn, treatment) in membership.treatments">
+                                    <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{tn}}</span></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">&nbsp;</td>
+                                </tr>
+                                <tr class="row" ng-repeat-start="package in vm.service.packages">
+                                    <td class="m-d">{{package.name}}</td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td class="m-d" align="right">&nbsp;</td>
+                                </tr>
+                                <tr ng-repeat-end ng-repeat="treatment in package.treatments">
+                                    <td ng-class="{'m-dt': !$last, 'm-dtl': $last}"><span style="margin-left: 1rem;"> - {{treatment.name}}</span></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
+                                </tr>
+                                <tr class="row" ng-repeat="problem in vm.service.problems">
+                                    <td>{{problem.details}}</td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td align="right">Rs. {{problem.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
+                                </tr>
+                                <tr class="row" ng-repeat="inventory in vm.service.inventories">
+                                    <td>{{inventory.name}}</td>
+                                    <td ng-if="vm.service.inventories.length > 0">Rs. {{inventory.rate | number: (vm.vatSettings.applyTax) ? ((vm.vatSettings.inclusive) ? 2 : 0) : 0}}</td>
+                                    <td ng-if="vm.service.inventories.length > 0">{{inventory.qty}}</td>
+                                    <td align="right">Rs. {{inventory.total}}</td>
+                                </tr>
+                                <tr class="tax" ng-if="vm.sTaxSettings.applyTax">
+                                    <td>Service Tax ({{vm.sTaxSettings.tax}}<small>%</small>)</td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td align="right">Rs. {{vm.calculateServiceTax()}}</td>
+                                </tr>
+                                <tr ng-class="{'tax': !vm.sTaxSettings.applyTax, 'subt': vm.sTaxSettings.applyTax}" ng-if="vm.vatSettings.applyTax">
+                                    <td>VAT ({{vm.vatSettings.tax}}<small>%</small>)</td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td align="right">Rs. {{vm.calculateVat()}}</td>
+                                </tr>
+                                <tr ng-class="{'tax': !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax, 'subt': vm.sTaxSettings.applyTax || vm.vatSettings.applyTax}" ng-if="vm.isDiscountApplied">
+                                    <td>Discount ({{vm.service.discount.percent}}<small>%</small>)</td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td align="right">Rs. {{vm.service.discount.amount}}</td>
+                                </tr>
+                                <tr ng-class="{'tax': !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax && !vm.isDiscountApplied, 'subt': vm.sTaxSettings.applyTax || vm.vatSettings.applyTax || vm.isDiscountApplied}" class="subt" ng-if="vm.isRoundOff">
+                                    <td>Round Off</td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td align="right">Rs. {{vm.service.roundoff}}</td>
+                                </tr>
+                                <tr class="total" ng-class="{'tax': !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax && !vm.isDiscountApplied && !vm.isRoundOff}">
+                                    <td>Total</td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td align="right">Rs. {{vm.service.cost | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
+                                </tr>
+                            </table>
+                        </center>
+                    </section>
+                    <hr style="margin-top: 1.6rem; margin-bottom: 1rem; opacity: 0.3">
+                    <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; margin-top: 1rem; margin-bottomt: 1rem; margin-left: 4rem; margin-right: 4rem;" ng-if="vm.workshop.social.enabled">
+                        <center><span class="md-body-2">Follow Us:</span></center>
+                        <center>
+                            <div style="margin-top: 0.6rem; display: table;">
+                                <div style="display: table-row">
+                                    <div style="display: table-cell">
+                                        <a href="" ng-if="vm.IsSocialFacebook()" id="am-invoice-link-facebook">
+                                            <img src="assets/img/facebook.svg" width="20" height="20" id="am-invoice-social-facebook">
+                                            <span class="md-body-1" style="vertical-align: middle; display: table-cell">&nbsp;/{{vm.workshop.social.facebook}}</span>
+                                        </a>
+                                    </div>
+                                    <div style="display: table-cell">
+                                        <a href="" ng-if="vm.IsSocialInstagram()" id="am-invoice-link-instagram">
+                                            <img src="assets/img/instagram.svg" width="20" height="20" id="am-invoice-social-instagram">
+                                            <span class="md-body-1" style="vertical-align: middle; display: table-cell">&nbsp;/{{vm.workshop.social.instagram}}</span>
+                                        </a>
+                                    </div>
+                                    <div style="display: table-cell">
+                                        <a href="" ng-if="vm.IsSocialTwitter()" id="am-invoice-link-twitter">
+                                            <img src="assets/img/twitter.svg" width="20" height="20" id="am-invoice-social-twitter">
+                                            <span class="md-body-1" style="vertical-align: middle; display: table-cell">&nbsp;/{{vm.workshop.social.twitter}}</span>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </center>
+                    </section>
+                </div>
             </body>
 
             </html>

@@ -1,5 +1,5 @@
-<md-content layout-padding>
-    <md-content class="md-table-toolbar md-default" ng-hide="vm.isQueryMode">
+<md-content>
+    <md-content class="md-table-toolbar md-default am-toolbar-strip" ng-hide="vm.isQueryMode">
         <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
             <md-button aria-label="Add Service" class="md-raised md-accent" ng-click="vm.addService()">
                 <md-icon style="color: white">person_add</md-icon>
@@ -9,7 +9,7 @@
             <div layout="row" layout-align="center center">
                 <span class="am-form-label" layout-padding>Display Data For: </span>
                 <md-select ng-model="vm.displayDataFor" aria-label="Display Data For:" style="width: 120px">
-                    <md-option ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
+                    <md-option class="am-hover-option" ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
                 </md-select>
                 <md-button class="md-icon-button" ng-click="vm.changeQueryMode(true)">
                     <md-icon>search</md-icon>
@@ -31,7 +31,7 @@
             </md-button>
         </div>
     </md-content>
-    <md-content class="md-hue-1">
+    <md-content class="md-hue-1 am-box-shadow">
         <md-table-container>
             <table md-table md-progress="vm.promise">
                 <thead md-head>
@@ -54,7 +54,7 @@
                             <md-button class="invoice md-accent" ng-click="vm.goToInvoice(service)">
                                 <span>Invoice</span>
                             </md-button>
-                            <md-button class="md-icon-button" ng-click="vm.deleteService(service)">
+                            <md-button class="md-icon-button" ng-click="vm.deleteService(service, $event)">
                                 <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
                             </md-button>
                         </td>

@@ -2,7 +2,7 @@
  * Controller for Edit Package component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -14,7 +14,7 @@
 
     function PackageAddController($q, $filter, $state, utils, amTreatments) {
         //  initialize view model
-        var vm = this;
+        var vm = this, oPackageName;
 
         //  named assignments to keep track of UI elements
         vm.label_name = "Enter Package Name:";
@@ -46,15 +46,26 @@
         vm.save = save;
         vm.convertNameToTitleCase = convertNameToTitleCase;
         vm.convertTnToTitleCase = convertTnToTitleCase;
+        vm.calculateSubTotal = calculateSubTotal;
 
         //  function definitions
+
+        function calculateSubTotal(type) {
+            var total = 0;
+            vm.selectedTreatments.forEach(iterateTreatments);
+            return total;
+
+            function iterateTreatments(treatment) {
+                total += parseFloat(treatment.rate[type.toLowerCase().replace(' ', '-')]);
+            }
+        }
         
         function convertTnToTitleCase() {
-            vm.treatment.details = utils.convertToTitleCase(vm.treatment.details);
+            vm.treatment.details = utils.autoCapitalizeWord(vm.treatment.details);
         }
         
         function convertNameToTitleCase() {
-            vm.package.name = utils.convertToTitleCase(vm.package.name);
+            vm.package.name = utils.autoCapitalizeWord(vm.package.name);
         }
         
         function goBack() {
@@ -77,6 +88,7 @@
             
             function success(res) {
                 vm.package.name = res.name;
+                oPackageName = res.name;
                 changeNameLabel();
                 Object.keys(res.treatments).forEach(itreateTreatments);
                 
@@ -217,7 +229,7 @@
             }
                 
             vm.selectedTreatments.forEach(iterateTreatments);
-            amTreatments.savePackage(vm.package).then(success).catch(failure);
+            amTreatments.savePackage(vm.package, oPackageName).then(success).catch(failure);
 
             function iterateTreatments(treatment) {
                 vm.package[treatment.name] = treatment;

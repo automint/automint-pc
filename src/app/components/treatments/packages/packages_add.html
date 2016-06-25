@@ -2,12 +2,12 @@
     <md-icon aria-label="Back">arrow_back</md-icon>
     <md-tooltip md-direction="bottom">Back</md-tooltip>
 </md-button>
-<md-content layout-padding layot="column" class="md-hue-1">
+<md-content layout-padding layot="column" class="md-hue-1 am-box-shadow">
     <div layout-gt-xs="row" layout-wrap layout-margin>
         <md-input-container class="md-block" flex>
             <md-icon class="md-accent">local_parking</md-icon>
             <label class="am-form-label" ng-class="{'large': vm.isName}">{{vm.label_name}}</label>
-            <input ng-disabled="!vm.isAddOperation()" type="text" ng-change="vm.convertNameToTitleCase()" ng-model="vm.package.name" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
+            <input type="text" ng-change="vm.convertNameToTitleCase()" ng-model="vm.package.name" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
         </md-input-container>
     </div>
     <md-table-container ng-if="vm.displayTreatmentAsList">
@@ -33,6 +33,10 @@
                 <tr md-row md-select="treatment" md-select-id="name" md-on-select="vm.onTreatmentSelected" md-on-deselect="vm.onTreatmentDeselected" ng-repeat="treatment in vm.treatments">
                     <td md-cell><input type="text" ng-model="treatment.name" placeholder="Enter Details" class="am-table-inline-input"><md-tooltip md-direction="top">{{treatment.name}}</md-tooltip></td>
                     <td md-cell ng-repeat="type in vm.vehicletypes"><input type="number" ng-model="treatment.rate[type.toLowerCase().replace(' ', '-')]" placeholder="Enter Rate" class="am-table-inline-input"></td>
+                </tr>
+                <tr md-row>
+                    <td md-cell class="md-body-2"><span style="margin-left: 0.7rem">Total</span></td>
+                    <td md-cell class="md-body-2" ng-repeat="type in vm.vehicletypes"><span style="margin-left: 0.7rem">{{vm.calculateSubTotal(type)}}</span></td>
                 </tr>
                 <tr md-row>
                     <td md-cell>

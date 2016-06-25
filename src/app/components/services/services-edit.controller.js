@@ -2,7 +2,7 @@
  * Controller for Edit Service component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -25,7 +25,12 @@
         var vm = this;
 
         //  temporary named assignments
-        var autofillVehicle = false;
+        var autofillVehicle = false,
+            isDiscountByPercent = true,
+            isManualRoundOff = false,
+            isFirstTimeLoad = true,
+            serviceTotalCost = 0,
+            forceStopCalCost = false;
 
         //  vm assignments to keep track of UI related elements
         vm.label_userMobile = 'Enter Mobile Number:';
@@ -71,6 +76,25 @@
         vm.allMemberships = [];
         vm.membershipChips = [];
         vm.serviceTypeList = ['Treatments', 'Package', 'Membership'];
+        vm.roundedOffVal = 0;
+        vm.discountPercentage = 0;
+        vm.discountValue = 0;
+        vm.inventories = [];
+        vm.selectedInventories = [];
+        vm.inventory = {
+            name: '',
+            rate: '',
+            tax: '',
+            qty: 1,
+            amount: '',
+            total: ''
+        };
+        vm.totalCost = 0;
+
+        //  named assignments to handle behaviour of UI elements
+        vm.redirect = {
+            invoice: 'invoice'
+        }
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -103,6 +127,20 @@
         vm.OnServiceTaxEnabledChange = OnServiceTaxEnabledChange;
         vm.convertPbToTitleCase = convertPbToTitleCase;
         vm.calculateTax = calculateTax;
+        vm.convertInToTitleCase = convertInToTitleCase;
+        vm.changeVat = changeVat;
+        vm.onInventorySelected = onInventorySelected;
+        vm.onInventoryDeselected = onInventoryDeselected;
+        vm.changeInventoryRate = changeInventoryRate;
+        vm.inventoryQuerySearch = inventoryQuerySearch;
+        vm.updateInventoryDetails = updateInventoryDetails;
+        vm.finalizeNewInventory = finalizeNewInventory;
+        vm.calculateVat = calculateVat;
+        vm.changeQty = changeQty;
+        vm.changeInventoryTotal = changeInventoryTotal;
+        vm.populateRoundOffVal = populateRoundOffVal;
+        vm.changeForceStopCalCost = changeForceStopCalCost;
+        vm.calculateViewportHeight = calculateViewportHeight;
 
         //  default execution steps
         getVehicleTypes();
@@ -111,43 +149,269 @@
         getMemberships();
 
         //  function definitions
-        
-        function convertPbToTitleCase() {
-            vm.problem.details = utils.convertToTitleCase(vm.problem.details);
+
+        function calculateViewportHeight(element) {
+            vm.serviceViewportHeight = $(window).height() - (2*element[0].offsetTop + 0.45*element[0].offsetTop);
         }
-        
+
+        function changeInventoryTotal(inventory) {
+            inventory.amount = inventory.total / inventory.qty;
+            changeInventoryRate(inventory);
+        }
+
+        function calculateVat() {
+            var totalTax = 0.0;
+            vm.selectedInventories.forEach(iterateInventories);
+            totalTax = (totalTax % 1 != 0) ? totalTax.toFixed(2) : totalTax;
+            return totalTax;
+
+            function iterateInventories(element) {
+                if ((vm.vatSettings && !vm.vatSettings.applyTax) || !element.tax || !element.checked)
+                    return;
+                totalTax += parseFloat(element.tax.toFixed(2) * (element.qty ? element.qty : 1));
+            }
+        }
+
+        function finalizeNewInventory(btnClicked) {
+            vm.inventory.name = vm.inventory.name.trim();
+            if (vm.inventory.name != '') {
+                var found = $filter('filter')(vm.inventories, {
+                    name: vm.inventory.name
+                }, true);
+                if (found.length == 1) {
+                    found[0].checked = true;
+                    found[0].rate = vm.inventory.rate;
+                    found[0].tax = vm.inventory.tax;
+                    found[0].qty = vm.inventory.qty;
+                    found[0].amount = vm.inventory.amount;
+                    found[0].total = vm.inventory.total;
+                    vm.selectedInventories.push(found[0]);
+                } else {
+                    vm.inventories.push({
+                        name: vm.inventory.name,
+                        rate: vm.inventory.rate,
+                        tax: vm.inventory.tax,
+                        qty: vm.inventory.qty,
+                        amount: vm.inventory.amount,
+                        total: vm.inventory.total,
+                        checked: true
+                    });
+                    vm.selectedInventories.push(vm.inventories[vm.inventories.length - 1]);
+                }
+                vm.inventory.name = '';
+                vm.inventory.amount = '';
+                vm.inventory.rate = '';
+                vm.inventory.tax = '';
+                vm.inventory.qty = 1;
+                vm.inventory.total = '';
+                $('#new-inventory-name').focus();
+            }
+            if (btnClicked)
+                $('#new-inventory-name').focus();
+        }
+
+        function updateInventoryDetails() {
+            var found = $filter('filter')(vm.inventories, {
+                name: vm.inventory.name
+            });
+            vm.inventory.amount = (vm.inventory.rate == '') ? 0 : vm.inventory.rate;
+            if (found.length == 1) {
+                var rate;
+                if (vm.vatSettings.applyTax)
+                    rate = (vm.vatSettings.inclusive) ? found[0].amount : found[0].rate;
+                else
+                    rate = found[0].rate;
+                vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
+                if (vm.vatSettings.applyTax) {
+                    if (vm.vatSettings.inclusive) {
+                        vm.inventory.rate = (vm.inventory.amount * 100) / (vm.vatSettings.tax + 100);
+                        vm.inventory.tax = (vm.inventory.rate * vm.vatSettings.tax / 100);
+                    } else {
+                        vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
+                        vm.inventory.tax = (vm.inventory.rate * vm.vatSettings.tax / 100);
+                        vm.inventory.amount = Math.round(vm.inventory.rate + vm.inventory.tax);
+                    }
+                } else {
+                    if (vm.vatSettings.inclusive)
+                        vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
+                    else
+                        vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
+                }
+                vm.inventory.total = vm.inventory.amount * vm.inventory.qty;
+            } else {
+                vm.inventory.rate = '';
+                vm.inventory.total = '';
+            }
+        }
+
+        function changeQty(inventory) {
+            inventory.total = ((vm.vatSettings.applyTax ? inventory.amount : inventory.rate) * inventory.qty);
+        }
+
+        function inventoryQuerySearch() {
+            var tracker = $q.defer();
+            var results = (vm.inventory.name ? vm.inventories.filter(createFilterForInventory(vm.inventory.name)) : vm.inventories);
+
+            return results;
+        }
+
+        function createFilterForInventory(query) {
+            var lcQuery = angular.lowercase(query);
+            return function filterFn(item) {
+                return (angular.lowercase(item.name).indexOf(lcQuery) >= 0);
+            }
+        }
+
+        function onInventorySelected(inventory) {
+            inventory.checked = true;
+            changeInventoryRate(inventory);
+        }
+
+        function onInventoryDeselected(inventory) {
+            inventory.checked = false;
+            changeInventoryRate(inventory);
+        }
+
+        function getInventories(existingInventories) {
+            vm.inventoryPromise = amServices.getInventories().then(success).catch(failure);
+
+            function success(res) {
+                vm.inventories = res;
+                existingInventories.forEach(iterateInventories);
+                getVatSettings();
+
+                function iterateInventories(inventory) {
+                    if (inventory.name != '') {
+                        if (inventory.qty == undefined)
+                            inventory.qty = 1;
+                        var found = $filter('filter')(vm.inventories, {
+                            name: inventory.name
+                        }, true);
+                        if (found.length == 1) {
+                            found[0].checked = true;
+                            found[0].rate = inventory.rate;
+                            found[0].amount = inventory.rate;
+                            found[0].qty = inventory.qty;
+                            vm.selectedInventories.push(found[0]);
+                        } else {
+                            vm.inventories.push({
+                                name: inventory.name,
+                                rate: inventory.rate,
+                                amount: inventory.rate,
+                                qty: inventory.qty,
+                                checked: true
+                            });
+                            vm.selectedInventories.push(vm.inventories[vm.inventories.length - 1]);
+                        }
+                    }
+                }
+            }
+
+            function failure(err) {
+                vm.inventories = [];
+                getVatSettings();
+            }
+        }
+
+        function getVatSettings() {
+            amServices.getVatSettings().then(success).catch(failure);
+
+            function success(res) {
+                vm.vatSettings = res;
+                vm.orgApplyVat = res.applyTax;
+                if (vm.service.vat != undefined) {
+                    vm.vatSettings.applyTax = vm.service.vat.applyTax;
+                    vm.vatSettings.tax = vm.service.vat.tax;
+                    if (!res.applyTax)
+                        vm.orgApplyVat = vm.service.vat.applyTax;
+                    vm.vatSettings.inclusive = (vm.service.vat.taxIncType == 'inclusive') ? true : false;
+                }
+                changeVat();
+            }
+
+            function failure(err) {
+                vm.vatSettings = {};
+            }
+        }
+
+        function convertInToTitleCase() {
+            vm.inventory.name = utils.autoCapitalizeWord(vm.inventory.name);
+        }
+
+        function changeVat() {
+            vm.inventories.forEach(iterateInventories);
+            changeInventoryRate(vm.inventory);
+            if (isFirstTimeLoad == true)
+                changeQty(vm.inventory);
+            isFirstTimeLoad = false;
+
+            function iterateInventories(inventory) {
+                changeInventoryRate(inventory, true);
+                if (isFirstTimeLoad == true)
+                    changeQty(inventory);
+            }
+        }
+
+        function changeInventoryRate(inventory, force) {
+            if (vm.vatSettings.applyTax) {
+                if (vm.vatSettings.inclusive) {
+                    inventory.rate = (inventory.amount * 100) / (vm.vatSettings.tax + 100);
+                    inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
+                } else {
+                    if (!inventory.rate)
+                        inventory.rate = inventory.amount;
+                    inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
+                    inventory.amount = inventory.rate + inventory.tax;
+                    if (inventory.amount % 1 != 0)
+                        inventory.amount = parseFloat(inventory.amount).toFixed(2);
+                }
+            } else if (force) {
+                if (vm.vatSettings.inclusive)
+                    inventory.rate = inventory.amount;
+                else
+                    inventory.amount = inventory.rate;
+            } else
+                inventory.rate = inventory.amount;
+            changeQty(inventory);
+            calculateCost();
+        }
+
+        function convertPbToTitleCase() {
+            vm.problem.details = utils.autoCapitalizeWord(vm.problem.details);
+        }
+
         function OnServiceTaxEnabledChange() {
             vm.service.problems.forEach(iterateProblems);
             calculatePackageTax();
-            
+
             function iterateProblems(problem) {
                 changeProblemRate(problem, true);
             }
         }
-        
+
         function changeServiceTax() {
             vm.service.problems.forEach(iterateProblems);
             calculatePackageTax();
             changeProblemRate(vm.problem, true);
-            
+
             function iterateProblems(problem) {
                 changeProblemRate(problem, true);
             }
         }
-        
+
         function changeProblemRate(problem, force) {
             if (vm.sTaxSettings.applyTax) {
                 if (vm.sTaxSettings.inclusive) {
                     if (!problem.amount) {
                         var r = parseFloat(problem.rate)
-                        problem.amount = Math.round(r + (r*vm.sTaxSettings.tax/100));
+                        problem.amount = Math.round(r + (r * vm.sTaxSettings.tax / 100));
                     }
-                    problem.rate = (problem.amount*100)/(vm.sTaxSettings.tax + 100);
-                    problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
+                    problem.rate = (problem.amount * 100) / (vm.sTaxSettings.tax + 100);
+                    problem.tax = (problem.rate * vm.sTaxSettings.tax / 100);
                 } else {
                     if (!problem.rate)
                         problem.rate = problem.amount;
-                    problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
+                    problem.tax = (problem.rate * vm.sTaxSettings.tax / 100);
                     problem.amount = Math.round(problem.rate + problem.tax);
                 }
             } else if (force) {
@@ -158,11 +422,12 @@
                 } else
                     problem.amount = problem.rate;
             }
+            calculateCost();
         }
-        
+
         function getServiceTaxSettings() {
             amServices.getServiceTaxSettings().then(success).catch(failure);
-            
+
             function success(res) {
                 vm.sTaxSettings = res;
                 vm.orgApplyTax = res.applyTax;
@@ -176,18 +441,18 @@
                 vm.service.problems.forEach(iterateProblems);
                 changeServiceTax();
                 OnServiceTaxEnabledChange();
-                
+
                 function iterateProblems(problem) {
                     if (problem.checked)
                         delete problem.amount;
                 }
             }
-            
+
             function failure(err) {
                 vm.sTaxSettings = {};
             }
         }
-        
+
         function goBack() {
             var transitState = 'restricted.services.all';
             var transitParams = undefined;
@@ -207,16 +472,23 @@
                             serviceId: $state.params.serviceId
                         }
                         break;
+                    case 'customers.edit.services':
+                        transitState = 'restricted.customers.edit';
+                        transitParams = {
+                            id: $state.params.userId,
+                            openTab: 'services'
+                        }
+                        break;
                 }
             }
             $state.go(transitState, transitParams);
         }
-        
+
         function addMembershipChip(chip) {
             vm.membershipChips.push(chip);
             OnAddMembershipChip(chip);
         }
-        
+
         function navigateToSubscriptMembership() {
             vm.userTab = true;
         }
@@ -237,12 +509,12 @@
                 },
                 clickOutsideToClose: true
             }).then(changeMembershipChip).catch(changeMembershipChip);
-            
+
             function changeMembershipChip(obj) {
                 $log.info('Changes Saved');
             }
         }
-        
+
         function adjustExistingMembership(membership) {
             var m = $.extend({}, membership.treatments, false);
             membership.treatments = [];
@@ -256,39 +528,44 @@
             membership.calculateTDurationLeft = calculateTDurationLeft;
             membership.IsExpired = IsExpired;
             delete m;
-            
+
             function iterateTreatments(treatment) {
                 delete treatment['$$hashKey'];
                 m[treatment].name = treatment;
                 membership.treatments.push(m[treatment]);
             }
-            
+
             function expandMembership() {
                 membership.expanded = (membership.expanded == undefined ? true : !membership.expanded);
             }
+
             function makeSelectedTreatments(treatment) {
                 if (calculateTOccurenceLeft(treatment) != 0 && calculateTDurationLeft(treatment) != 0) {
                     treatment.checked = true;
                     membership.selectedTreatments.push(treatment);
                 }
             }
+
             function IsExpired() {
                 var e = true;
                 membership.treatments.forEach(it);
                 return e;
-                
+
                 function it(t) {
                     if (calculateTOccurenceLeft(t) != 0 && calculateTDurationLeft(t) != 0) {
                         e = false;
                     }
                 }
             }
+
             function calculateTOccurenceLeft(item) {
                 return (item.given.occurences - item.used.occurences);
             }
+
             function calculateTDurationLeft(item) {
                 return (item.given.duration - item.used.duration);
             }
+
             function onTreatmentSelected(item) {
                 item.checked = true;
             }
@@ -312,7 +589,7 @@
             chip.calculateTDurationLeft = calculateTDurationLeft;
             chip.IsExpired = IsExpired;
             delete m;
-            
+
             function iterateTreatments(treatment) {
                 delete treatment['$$hashKey'];
                 m[treatment].given = {
@@ -333,29 +610,34 @@
             function expandMembership() {
                 chip.expanded = (chip.expanded == undefined ? true : !chip.expanded);
             }
+
             function makeSelectedTreatments(treatment) {
                 if (calculateTOccurenceLeft(treatment) != 0 && calculateTDurationLeft(treatment) != 0) {
                     treatment.checked = true;
                     chip.selectedTreatments.push(treatment);
                 }
             }
+
             function IsExpired() {
                 var e = true;
                 chip.treatments.forEach(it);
                 return e;
-                
+
                 function it(t) {
                     if (calculateTOccurenceLeft(t) != 0 && calculateTDurationLeft(t) != 0) {
                         e = false;
                     }
                 }
             }
+
             function calculateTOccurenceLeft(item) {
                 return (item.given.occurences - item.used.occurences);
             }
+
             function calculateTDurationLeft(item) {
                 return (item.given.duration - item.used.duration);
             }
+
             function onTreatmentSelected(item) {
                 item.checked = true;
             }
@@ -378,10 +660,10 @@
                 }
             }
         }
-        
+
         function getMemberships() {
             amServices.getMemberships().then(success).catch(failure);
-            
+
             function success(res) {
                 vm.allMemberships = res.memberships;
             }
@@ -390,17 +672,84 @@
                 vm.allMemberships = [];
             }
         }
-        
+
         function calculatePackageTax() {
             if (vm.packages)
                 vm.packages.forEach(iteratePackages);
-                
+
             function iteratePackages(package) {
                 package.treatments.forEach(iterateTreatments);
-                
+
                 function iterateTreatments(treatment) {
                     package.changeTreatmentTax(treatment, true);
                 }
+            }
+        }
+
+        function generatePackage(package) {
+            var treatments = [];
+            Object.keys(package.treatments).forEach(iterateTreatments);
+            package.treatments = treatments;
+            package.selectedTreatments = [];
+            package.onTreatmentSelected = onTreatmentSelected;
+            package.onTreatmentDeselected = onTreatmentDeselected;
+            package.calculatePackageTotal = calculatePackageTotal;
+            package.changeTreatmentTax = changeTreatmentTax;
+            package.expandPackage = expandPackage;
+            delete treatments;
+            return package;
+
+            function expandPackage() {
+                package.expanded = (package.expanded == undefined ? true : !package.expanded);
+            }
+
+            function calculatePackageTotal() {
+                var total = 0;
+                package.selectedTreatments.forEach(it);
+                package.total = total;
+                calculateCost();
+                return total;
+
+                function it(t) {
+                    total += t.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+                }
+            }
+
+            function changeTreatmentTax(treatment, force) {
+                var cvt = vm.vehicle.type.toLowerCase().replace(' ', '-');
+                if (vm.sTaxSettings.applyTax) {
+                    if (treatment.tax == undefined)
+                        treatment.tax = {};
+                    if (vm.sTaxSettings.inclusive) {
+                        treatment.rate[cvt] = (treatment.amount[cvt] * 100) / (vm.sTaxSettings.tax + 100);
+                        treatment.tax[cvt] = (treatment.rate[cvt] * vm.sTaxSettings.tax / 100);
+                    } else {
+                        treatment.tax[cvt] = (treatment.rate[cvt] * vm.sTaxSettings.tax / 100);
+                        treatment.amount[cvt] = Math.round(treatment.rate[cvt] + treatment.tax[cvt]);
+                    }
+                } else if (force) {
+                    if (vm.sTaxSettings.inclusive)
+                        treatment.rate[cvt] = treatment.amount[cvt];
+                    else
+                        treatment.amount[cvt] = treatment.rate[cvt];
+                }
+            }
+
+            function iterateTreatments(treatment) {
+                treatments.push({
+                    name: treatment,
+                    rate: package.treatments[treatment].rate,
+                    amount: $.extend({}, package.treatments[treatment].rate),
+                    checked: false
+                });
+            }
+
+            function onTreatmentSelected(item) {
+                item.checked = true;
+            }
+
+            function onTreatmentDeselected(item) {
+                item.checked = false;
             }
         }
 
@@ -413,69 +762,7 @@
                 res.forEach(iteratePackages);
 
                 function iteratePackages(package) {
-                    var treatments = [];
-                    Object.keys(package.treatments).forEach(iterateTreatments);
-                    package.treatments = treatments;
-                    package.selectedTreatments = [];
-                    package.onTreatmentSelected = onTreatmentSelected;
-                    package.onTreatmentDeselected = onTreatmentDeselected;
-                    package.calculatePackageTotal = calculatePackageTotal;
-                    package.changeTreatmentTax = changeTreatmentTax;
-                    package.expandPackage = expandPackage;
-                    vm.packages.push(package);
-                    delete treatments;
-
-                    function expandPackage() {
-                        package.expanded = (package.expanded == undefined ? true : !package.expanded);
-                    }
-
-                    function calculatePackageTotal() {
-                        var total = 0;
-                        package.selectedTreatments.forEach(it);
-                        package.total = total;
-                        return total;
-
-                        function it(t) {
-                            total += t.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')];
-                        }
-                    }
-                    
-                    function changeTreatmentTax(treatment, force) {
-                        var cvt = vm.vehicle.type.toLowerCase().replace(' ', '-');
-                        if (vm.sTaxSettings.applyTax) {
-                            if (treatment.tax == undefined)
-                                treatment.tax = {};
-                            if (vm.sTaxSettings.inclusive) {
-                                treatment.rate[cvt] = (treatment.amount[cvt]*100)/(vm.sTaxSettings.tax + 100);
-                                treatment.tax[cvt] = (treatment.rate[cvt]*vm.sTaxSettings.tax/100);
-                            } else {
-                                treatment.tax[cvt] = (treatment.rate[cvt]*vm.sTaxSettings.tax/100);
-                                treatment.amount[cvt] = Math.round(treatment.rate[cvt] + treatment.tax[cvt]);
-                            }
-                        } else if (force) {
-                            if (vm.sTaxSettings.inclusive)
-                                treatment.rate[cvt] = treatment.amount[cvt];
-                            else
-                                treatment.amount[cvt] = treatment.rate[cvt];
-                        }
-                    }
-
-                    function iterateTreatments(treatment) {
-                        treatments.push({
-                            name: treatment,
-                            rate: package.treatments[treatment].rate,
-                            amount: $.extend({}, package.treatments[treatment].rate),
-                            checked: false
-                        });
-                    }
-
-                    function onTreatmentSelected(item) {
-                        item.checked = true;
-                    }
-
-                    function onTreatmentDeselected(item) {
-                        item.checked = false;
-                    }
+                    vm.packages.push(generatePackage(package));
                 }
             }
 
@@ -483,29 +770,29 @@
                 vm.packages = [];
             }
         }
-        
+
         //  get vehicle types from database
         function getVehicleTypes() {
             amServices.getVehicleTypes().then(success).catch(failure);
-            
+
             function success(res) {
                 res.forEach(iterateVehicleType);
                 getDetails();
-                
+
                 function iterateVehicleType(type) {
                     vm.vehicleTypeList.push(utils.convertToTitleCase(type.replace(/-/g, ' ')));
                 }
             }
-            
+
             function failure(err) {
                 getDetails();
             }
         }
-        
+
         //  fill details
         function getDetails() {
             amServices.serviceTree($state.params.userId, $state.params.vehicleId, $state.params.serviceId).then(success).catch(failure);
-            
+
             function success(res) {
                 autofillVehicle = true;
                 vm.user.id = $state.params.userId;
@@ -538,54 +825,77 @@
                 vm.service.odo = res.vehicle.service.odo;
                 vm.service.invoiceno = res.vehicle.service.invoiceno;
                 vm.service.status = res.vehicle.service.status;
+                if (res.vehicle.service.discount) {
+                    vm.isDiscountApplied = true;
+                    vm.discountPercentage = res.vehicle.service.discount.percent;
+                    vm.discountValue = res.vehicle.service.discount.amount;
+                }
+                if (res.vehicle.service.roundoff) {
+                    vm.isRoundOffVal = true;
+                    vm.roundedOffVal = res.vehicle.service.roundoff;
+                }
                 if (res.vehicle.service.serviceTax != undefined)
                     vm.service.serviceTax = res.vehicle.service.serviceTax;
+                if (res.vehicle.service.vat != undefined)
+                    vm.service.vat = res.vehicle.service.vat;
                 vm.servicestatus = (res.vehicle.service.status == 'paid');
                 getRegularTreatments(res.vehicle.service.problems);
-                
+                getInventories(res.vehicle.service.inventories);
+
                 function iterateMemberships(membership) {
                     res.memberships[membership].name = membership;
                     vm.membershipChips.push(res.memberships[membership]);
                     adjustExistingMembership(res.memberships[membership]);
                 }
+
                 function iteratePackages(package) {
                     var found = $filter('filter')(vm.packages, {
                         name: package
                     }, true);
-                    
+
                     if (found.length == 1) {
                         found[0].checked = true;
                         Object.keys(res.vehicle.service.packages[package].treatments).forEach(iterateTreatments);
                         vm.selectedPackages.push(found[0]);
-                        
+
                         function iterateTreatments(treatment) {
+                            var t = res.vehicle.service.packages[package].treatments[treatment];
                             var ft = $filter('filter')(found[0].treatments, {
                                 name: treatment
                             }, true);
-                            
+
                             if (ft.length == 1) {
                                 ft[0].checked = true;
+                                if (!angular.isObject(ft[0].rate))
+                                    ft[0].rate = {};
+                                ft[0].rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] = t.rate;
+                                ft[0].amount[vm.vehicle.type.toLowerCase().replace(' ', '-')] = t.rate + ((res.vehicle.service.serviceTax && res.vehicle.service.serviceTax.applyTax) ? t.tax : 0);
                                 found[0].selectedTreatments.push(ft[0]);
                             }
                         }
                     } else {
-                        $log.info('Something with package');
+                        var tp = $.extend({}, res.vehicle.service.packages[package]);
+                        tp.name = package;
+                        vm.packages.push(generatePackage(tp));
+                        delete tp;
+                        iteratePackages(package);
                     }
                 }
+
                 function addMemberships(membership) {
                     var found = $filter('filter')(vm.membershipChips, {
                         name: membership
                     }, true);
-                    
+
                     if (found.length == 1) {
                         found[0].checked = true;
                         Object.keys(res.vehicle.service.memberships[membership].treatments).forEach(iterateTreatments);
-                        
+
                         function iterateTreatments(treatment) {
                             var ft = $filter('filter')(found[0].treatments, {
                                 name: treatment
                             }, true);
-                            
+
                             if (ft.length == 1) {
                                 ft[0].checked = true;
                                 --ft[0].used.occurences;
@@ -595,6 +905,7 @@
                     }
                 }
             }
+
             function failure(err) {
                 utils.showSimpleToast('Something went wrong!');
                 $state.go('restricted.services.all');
@@ -689,7 +1000,7 @@
         function changeVehicleType() {
             vm.service.problems.forEach(iterateProblem);
             calculatePackageTax();
-            
+
             function iterateProblem(problem) {
                 var found = $filter('filter')(vm.treatments, {
                     name: problem.details
@@ -699,11 +1010,11 @@
                     if (vm.sTaxSettings.applyTax) {
                         if (vm.sTaxSettings.inclusive) {
                             problem.amount = (rate == '' || rate == undefined ? problem.amount : rate);
-                            problem.rate = (problem.amount*100)/(vm.sTaxSettings.tax + 100);
-                            problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
+                            problem.rate = (problem.amount * 100) / (vm.sTaxSettings.tax + 100);
+                            problem.tax = (problem.rate * vm.sTaxSettings.tax / 100);
                         } else {
                             problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
-                            problem.tax = (problem.rate*vm.sTaxSettings.tax/100);
+                            problem.tax = (problem.rate * vm.sTaxSettings.tax / 100);
                             problem.amount = Math.round(problem.rate + problem.tax);
                         }
                     } else {
@@ -724,7 +1035,7 @@
         function changeVehicleTab(bool) {
             vm.vehicleTab = bool;
         }
-        
+
         //  change service tab selector variable
         function changeServiceTab(bool) {
             vm.serviceTab = bool;
@@ -732,19 +1043,22 @@
 
         //  listen to changes in input fields [BEGIN]
         function changeUserMobileLabel(force) {
-            vm.largeUserMobileLabel = (force != undefined || vm.user.mobile != ''); 
-            vm.label_userMobile = vm.largeUserMobileLabel ? 'Mobile:' : 'Enter Mobile Number:';
+            vm.isUserMobile = (force != undefined || vm.user.mobile != '');
+            vm.label_userMobile = vm.isUserMobile ? 'Mobile:' : 'Enter Mobile Number:';
         }
+
         function changeUserEmailLabel(force) {
-            vm.largeUserEmailLabel = (force != undefined || vm.user.email != ''); 
-            vm.label_userEmail = vm.largeUserEmailLabel ? 'Email:' : 'Enter Email:';
+            vm.isUserEmail = (force != undefined || vm.user.email != '');
+            vm.label_userEmail = vm.isUserEmail ? 'Email:' : 'Enter Email:';
         }
+
         function changeUserAddressLabel(force) {
             vm.isUserAddress = (force != undefined || vm.user.address != '');
             vm.label_userAddress = vm.isUserAddress ? 'Address:' : 'Enter Address:';
         }
+
         function changeVehicleRegLabel(force) {
-            vm.largeVehicleRegLabel = (force != undefined || vm.vehicle.reg != ''); 
+            vm.largeVehicleRegLabel = (force != undefined || vm.vehicle.reg != '');
             vm.label_vehicleReg = vm.largeVehicleRegLabel ? 'Vehicle Registration Number:' : 'Enter Vehicle Registration Number:';
         }
         //  listen to changes in input fields [END]
@@ -769,7 +1083,7 @@
             vm.treatments.forEach(iterateTreatment);
             existingProblems.forEach(iterateProblem);
             getServiceTaxSettings();
-            
+
             function iterateProblem(problem) {
                 var found = $filter('filter')(vm.service.problems, {
                     details: problem.details
@@ -807,17 +1121,18 @@
             item.checked = true;
             changeProblemRate(item);
         }
+
         function onProblemDeselected(item) {
             item.checked = false;
             changeProblemRate(item);
         }
         //  problem table listeners [END]
-        
+
         //  query search for problems [autocomplete]
         function treatmentsQuerySearch() {
             var tracker = $q.defer();
             var results = (vm.problem.details ? vm.treatments.filter(createFilterForTreatments(vm.problem.details)) : vm.treatments);
-            
+
             return results;
         }
 
@@ -828,60 +1143,113 @@
                 return (angular.lowercase(item.name).indexOf(lcQuery) >= 0);
             }
         }
-        
-        function calculateCost() {
+
+        function populateRoundOffVal() {
+            vm.roundedOffVal = vm.service.cost - serviceTotalCost;
+        }
+
+        function changeForceStopCalCost(bool) {
+            forceStopCalCost = bool;
+            isManualRoundOff = true; 
+        }
+
+        function calculateCost(isDbp, isMro) {
+            if (forceStopCalCost)
+                return;
+            isDiscountByPercent = (isDbp != undefined) ? isDbp : isDiscountByPercent;
+            isManualRoundOff = (isMro != undefined) ? isMro : isManualRoundOff;
             var totalCost = 0;
+            serviceTotalCost = 0;
             vm.service.problems.forEach(iterateProblem);
+            vm.selectedInventories.forEach(iterateInventories);
             if (vm.serviceType == vm.serviceTypeList[1]) {
                 vm.packages.forEach(iteratePackages);
             }
+            if (vm.isDiscountApplied) {
+                if (isDiscountByPercent) {
+                    var dv = totalCost * parseFloat(vm.discountPercentage) / 100;
+                    totalCost = vm.isDiscountApplied && !isNaN(dv) ? totalCost - dv : totalCost;
+                    vm.discountValue = (dv % 1 != 0) ? dv.toFixed(2) : dv;
+                    vm.discountValue = (vm.discountValue % 1).toFixed(2) == 0.00 ? Math.round(vm.discountValue) : vm.discountValue;
+                    vm.discountValue = (isNaN(vm.discountValue) || vm.discountValue == null) ? '' : vm.discountValue;
+                    totalCost = (totalCost % 1).toFixed(2) == 0.00 ? Math.round(totalCost) : totalCost;
+                    delete dv;
+                } else if (vm.discountValue != '') {
+                    var dv = parseFloat(vm.discountValue);
+                    vm.discountPercentage = 100 * dv / totalCost;
+                    vm.discountPercentage = (vm.discountPercentage % 1 != 0) ? vm.discountPercentage.toFixed(2) : vm.discountPercentage;
+                    totalCost -= dv;
+                    delete dv;
+                }
+            }
+            serviceTotalCost = totalCost;
+            if (vm.isRoundOffVal) {
+                if (!isManualRoundOff) {
+                    var ot = totalCost;
+                    totalCost = vm.isRoundOffVal ? Math.floor(totalCost * 0.1) * 10 : totalCost;
+                    vm.roundedOffVal = (totalCost - ot);
+                    vm.roundedOffVal = (vm.roundedOffVal % 1 != 0) ? vm.roundedOffVal.toFixed(2) : vm.roundedOffVal;
+                    delete ot;
+                } else {
+                    totalCost += parseFloat(vm.roundedOffVal);
+                }
+            }
+            totalCost = (totalCost % 1 != 0) ? totalCost.toFixed(2) : totalCost;
+            totalCost = (totalCost % 1).toFixed(2) == 0.00 ? Math.round(totalCost) : totalCost;
             vm.service.cost = totalCost;
-            return totalCost;
 
             function iterateProblem(element) {
-                totalCost += parseInt(Math.round(element.amount ? (element.amount * (element.checked ? 1 : 0)) : 0));
+                totalCost += parseFloat(element.amount ? (element.amount * (element.checked ? 1 : 0)) : 0);
             }
+
+            function iterateInventories(element) {
+                totalCost += parseFloat(element.total ? (element.total * (element.checked ? 1 : 0)) : 0);
+            }
+
             function iteratePackages(package) {
                 if (!package.checked)
                     return;
                 package.selectedTreatments.forEach(ipt);
             }
+
             function ipt(treatment) {
                 totalCost += treatment.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')];
             }
         }
-        
+
         function calculateTax() {
             var totalTax = 0.0;
             vm.service.problems.forEach(iterateProblems);
             if (vm.serviceType == vm.serviceTypeList[1])
                 vm.packages.forEach(iteratePackages);
+            totalTax = (totalTax % 1 != 0) ? totalTax.toFixed(2) : parseInt(totalTax);
             return totalTax;
-            
+
             function iterateProblems(problem) {
                 if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !problem.tax || !problem.checked)
                     return;
                 totalTax += parseFloat(problem.tax.toFixed(2));
             }
-            
+
             function iteratePackages(package) {
                 if (!package.checked)
                     return;
                 package.selectedTreatments.forEach(ipt);
             }
+
             function ipt(treatment) {
                 if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !treatment.tax)
                     return;
                 totalTax += parseFloat(treatment.tax[vm.vehicle.type.toLowerCase().replace(' ', '-')].toFixed(2));
             }
         }
-        
+
         function finalizeNewProblem() {
             vm.problem.details = vm.problem.details.trim();
             if (vm.problem.details != '') {
                 var found = $filter('filter')(vm.service.problems, {
                     details: vm.problem.details
-                });
+                }, true);
                 if (found.length == 1) {
                     found[0].checked = true;
                     found[0].rate = (vm.sTaxSettings && vm.sTaxSettings.applyTax) ? vm.problem.rate : vm.problem.amount;
@@ -915,11 +1283,11 @@
                 vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
                 if (vm.sTaxSettings.applyTax) {
                     if (vm.sTaxSettings.inclusive) {
-                        vm.problem.rate = (vm.problem.amount*100)/(vm.sTaxSettings.tax + 100);
-                        vm.problem.tax = (vm.problem.rate*vm.sTaxSettings.tax/100);
+                        vm.problem.rate = (vm.problem.amount * 100) / (vm.sTaxSettings.tax + 100);
+                        vm.problem.tax = (vm.problem.rate * vm.sTaxSettings.tax / 100);
                     } else {
                         vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
-                        vm.problem.tax = (vm.problem.rate*vm.sTaxSettings.tax/100);
+                        vm.problem.tax = (vm.problem.rate * vm.sTaxSettings.tax / 100);
                         vm.problem.amount = Math.round(vm.problem.rate + vm.problem.tax);
                     }
                 } else {
@@ -931,10 +1299,10 @@
             } else
                 vm.problem.rate = '';
         }
-        
+
         function validate() {
             var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
-            
+
             if (isVehicleBlank) {
                 changeVehicleTab(true);
                 utils.showSimpleToast('Please Enter At Least One Vehicle Detail');
@@ -942,25 +1310,25 @@
             }
             return true;
         }
-        
+
         //  save to database
-        function save() {
+        function save(redirect) {
             if (!validate()) return;
             switch (vm.serviceType) {
                 case vm.serviceTypeList[0]:
-                    if (checkTreatments() == false) {
+                    if (checkBasic() == false) {
                         utils.showSimpleToast('Please select treatment(s)');
                         return;
                     }
                     break;
                 case vm.serviceTypeList[1]:
-                    if (checkPackage() == false && checkTreatments() == false) {
+                    if (checkPackage() == false && checkBasic() == false) {
                         utils.showSimpleToast('Please select package(s) or treatment(s)');
                         return;
                     }
                     break;
                 case vm.serviceTypeList[2]:
-                    if (checkMembership() == false && checkTreatments() == false) {
+                    if (checkMembership() == false && checkBasic() == false) {
                         utils.showSimpleToast('Please select membership(s) or treatment(s)');
                         return;
                     }
@@ -979,6 +1347,15 @@
             vm.service.status = vm.servicestatus ? 'paid' : 'billed';
             vm.service.date = moment(vm.service.date).format();
             vm.service.problems.forEach(iterateProblems);
+            if (vm.isDiscountApplied) {
+                vm.service['discount'] = {
+                    percent: parseFloat(vm.discountPercentage),
+                    amount: parseFloat(vm.discountValue)
+                }
+            }
+            if (vm.isRoundOffVal) {
+                vm.service['roundoff'] = vm.roundedOffVal;
+            }
             if (vm.sTaxSettings != undefined) {
                 vm.service.serviceTax = {
                     applyTax: vm.sTaxSettings.applyTax,
@@ -986,8 +1363,17 @@
                     tax: vm.sTaxSettings.tax
                 };
             }
+            if (vm.vatSettings != undefined) {
+                vm.service.vat = {
+                    applyTax: vm.vatSettings.applyTax,
+                    taxIncType: (vm.vatSettings.inclusive) ? 'inclusive' : 'exclusive',
+                    tax: vm.vatSettings.tax
+                }
+            }
+            vm.selectedInventories.forEach(iterateInventories);
+            vm.service.inventories = vm.selectedInventories;
             amServices.saveService(vm.user, vm.vehicle, vm.service).then(success).catch(failure);
-            
+
             function addMsToService(membership) {
                 if (!membership.checked)
                     return;
@@ -999,6 +1385,7 @@
                     rate: membership.total
                 });
             }
+
             function addPkToService(package) {
                 if (!package.checked)
                     return;
@@ -1010,13 +1397,24 @@
                     rate: package.total
                 });
             }
+
             function iterateProblems(problem) {
-                if (!vm.sTaxSettings || (vm.sTaxSettings && !vm.sTaxSettings.applyTax))
+                if (!vm.sTaxSettings || (vm.sTaxSettings && !vm.sTaxSettings.applyTax && vm.sTaxSettings.inclusive))
                     problem.rate = problem.amount;
                 delete problem.checked;
                 delete problem['amount'];
                 delete problem['$$hashKey'];
             }
+
+            function iterateInventories(inventory) {
+                if (!vm.vatSettings || (vm.vatSettings && vm.vatSettings.applyTax && vm.vatSettings.inclusive))
+                    inventory.rate = inventory.amount;
+                delete inventory.checked;
+                delete inventory['total'];
+                delete inventory['amount'];
+                delete inventory['$$hashKey'];
+            }
+
             function checkPackage() {
                 var isPackagesSelected = false;
                 for (var i = 0; i < vm.packages.length; i++) {
@@ -1027,6 +1425,7 @@
                 }
                 return isPackagesSelected;
             }
+
             function checkMembership() {
                 var isMembershipsSelected = false;
                 for (var i = 0; i < vm.membershipChips.length; i++) {
@@ -1037,7 +1436,8 @@
                 }
                 return isMembershipsSelected;
             }
-            function checkTreatments() {
+
+            function checkBasic() {
                 var isTreatmentsSelected = false;
                 for (var i = 0; i < vm.service.problems.length; i++) {
                     if (vm.service.problems[i].checked) {
@@ -1045,22 +1445,35 @@
                         break;
                     }
                 }
+                if (vm.selectedInventories.length > 0)
+                    isTreatmentsSelected = true;
                 return isTreatmentsSelected;
             }
-        }
 
-        //  (save successfull)
-        function success(res) {
-            setTimeout(goBack, 100);
-            utils.showSimpleToast('Successfully Updated!');
-        }
+            //  (save successfull)
+            function success(res) {
+                switch (redirect) {
+                    case vm.redirect.invoice:
+                        $state.params.fromState = 'invoice';
+                        transitIds = {
+                            userId: res.id.userId,
+                            vehicleId: res.id.vehicleId,
+                            serviceId: res.id.serviceId
+                        }
+                        break;
+                }
+                setTimeout(goBack, 100);
+                utils.showSimpleToast('Successfully Updated!');
+            }
 
-        //  !(save successfull)
-        function failure(err) {
-            utils.showSimpleToast('Failed to update. Please Try Again!');
+            //  !(save successfull)
+            function failure(err) {
+                console.log(err);
+                utils.showSimpleToast('Failed to update. Please Try Again!');
+            }
         }
     }
-    
+
     function MembershipEditDialogController($mdDialog, $filter, membership, treatments) {
         var editMsVm = this;
 
@@ -1103,7 +1516,7 @@
                 }
             }
         }
-        
+
         function updateTreatmentDetails() {
             var found = $filter('filter')(editMsVm.treatments, {
                 name: editMsVm.treatment.details
@@ -1116,7 +1529,7 @@
                 editMsVm.treatment.duration = editMsVm.membership.duration;
             }
         }
-        
+
         //  query search for treatments [autocomplete]
         function treatmentQuerySearch() {
             var tracker = $q.defer();
@@ -1132,13 +1545,13 @@
                 return (angular.lowercase(item.name).indexOf(lcQuery) === 0);
             }
         }
-        
+
         function finalizeNewTreatment(btnClicked) {
             editMsVm.treatment.details = editMsVm.treatment.details.trim();
             if (editMsVm.treatment.details != '') {
                 var found = $filter('filter')(editMsVm.treatments, {
                     name: editMsVm.treatment.details
-                });
+                }, true);
                 if (found.length == 1 && found[0].name == editMsVm.treatment.details) {
                     found[0].checked = true;
                     found[0].rate = editMsVm.treatment.rate;
@@ -1181,13 +1594,13 @@
                 }
             }
         }
-        
+
         function confirmDialog() {
             membership.treatments = editMsVm.selectedTreatments;
             membership.selectedTreatments = [];
             membership.treatments.forEach(makeSelectedTreatments);
             $mdDialog.hide();
-            
+
             function makeSelectedTreatments(treatment) {
                 if (membership.calculateTOccurenceLeft(treatment) != 0 && membership.calculateTDurationLeft(treatment) != 0) {
                     treatment.checked = true;

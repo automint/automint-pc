@@ -2,7 +2,7 @@
  * Factory that handles database interactions between invoices database and controller
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -18,12 +18,40 @@
         var factory = {
             getServiceDetails: getServiceDetails,
             getWorkshopDetails: getWorkshopDetails,
-            getIvSettings: getIvSettings
+            getIvSettings: getIvSettings,
+            getIvAlignMargins: getIvAlignMargins
         }
 
         return factory;
 
         //  function definitions
+
+        function getIvAlignMargins() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.invoices && res.settings.invoices.margin)
+                    tracker.resolve(res.settings.invoices.margin);
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'No Margin Settings Found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
 
         //  get service details from database
         function getServiceDetails(userId, vehicleId, serviceId) {
@@ -38,6 +66,7 @@
                 response.user = res.user;
                 response.service.date = moment(response.service.date).format('MMMM DD YYYY');
                 makeProblemsArray();
+                makeInventoriesArray();
                 if (response.service.packages)
                     makePackageArray();
                 tracker.resolve(response);
@@ -56,6 +85,21 @@
                             delete res.user.vehicles[vId].services[sId];
                         else
                             response.service = res.user.vehicles[vId].services[sId];
+                    }
+                }
+
+                function makeInventoriesArray() {
+                    var inventories = $.extend({}, response.service.inventories);
+                    response.service.inventories = [];
+                    Object.keys(inventories).forEach(iterateInventories);
+                    
+                    function iterateInventories(inventory) {
+                        response.service.inventories.push({
+                            name: inventory,
+                            rate: inventories[inventory].rate,
+                            tax: inventories[inventory].tax,
+                            qty: inventories[inventory].qty
+                        });
                     }
                 }
                 

@@ -1,5 +1,5 @@
 <div style="box-shadow: 0px 1px 3px 1px #E0E0E0; z-index: 999; height: 1px; width: 100%; position: absolute"></div>
-<md-toolbar class="md-default" style="background: #FFF; box-shadow: 0px 1px 3px 1px #E0E0E0;">
+<md-toolbar class="md-default am-headerbar-shadow" style="background: #FFF;">
     <div class="md-toolbar-tools">
         <md-button aria-label="Go Back" ng-click="headerVm.toggleSideNavbar()" hide-gt-md>
             <md-icon style="color: #424242">menu</md-icon>
@@ -7,5 +7,17 @@
         <div layout="column" layout-align="center center" flex>
             <span class="md-title" style="color: #424242"> {{ module_title }} </span>
         </div>
+        <md-button aria-label="Help" class="md-icon-button" ng-click="headerVm.addService()">
+            <md-icon style="color: #424242">add</md-icon>
+            <md-tooltip>Add Service</md-tooltip>
+        </md-button>
+        <md-button aria-label="Help" class="md-icon-button" ng-click="headerVm.openHelpWindow()">
+            <md-icon style="color: #424242">help</md-icon>
+            <md-tooltip>Open Automint Help</md-tooltip>
+        </md-button>
+        <md-button ng-if="isPasscodeEnabled" aria-label="Lock" class="md-icon-button" ng-click="headerVm.openLockScreen()">
+            <md-icon style="color: #424242">lock</md-icon>
+            <md-tooltip>Lock Screen</md-tooltip>
+        </md-button>
     </div>
 </md-toolbar>

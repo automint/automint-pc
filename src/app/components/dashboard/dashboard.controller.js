@@ -2,7 +2,7 @@
  * Controller for dashboard view
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.6.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -241,6 +241,8 @@
             vm.totalRevenueEarned = 0;
             vm.totalServicesDone = 0;
             res.forEach(iterateServices);
+            vm.totalRevenueEarned = parseFloat(vm.totalRevenueEarned);
+            vm.totalRevenueEarned = (vm.totalRevenueEarned % 1 != 0) ? vm.totalRevenueEarned.toFixed(2) : parseInt(vm.totalRevenueEarned);
             if (spd)
                 Object.keys(spd).forEach(calculateSpd);
 
@@ -257,7 +259,7 @@
             function iterateServices(service) {
                 ++vm.totalServicesDone;
                 if (service.srvc_status == 'Paid')
-                    vm.totalRevenueEarned += service.srvc_cost;
+                    vm.totalRevenueEarned += parseFloat(service.srvc_cost);
                 var d = moment(service.srvc_date).format('DD MMM YYYY');
                 if (!spd[d]) {
                     spd[d] = 0;

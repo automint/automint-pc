@@ -2,8 +2,8 @@
     <md-icon aria-label="Back">arrow_back</md-icon>
     <md-tooltip md-direction="bottom">Back</md-tooltip>
 </md-button>
-<md-content layout-padding class="md-hue-1">
-    <md-tabs md-dynamic-height md-border-bottom>
+<md-content class="md-hue-1 am-box-shadow">
+    <md-tabs md-dynamic-height md-border-bottom class="am-tab-margin">
         <md-tab label="Customer Information" md-active="vm.userTab" md-on-deselect="vm.changeUserTab(false)">
             <md-content layout-padding class="md-hue-1">
                 <div layout="column">
@@ -110,6 +110,37 @@
                     </md-button>
                 </div>
             </md-content>
+        </md-tab>
+        <md-tab label="Services" md-active="vm.servicesTab" md-on-deselect="vm.changeServicesTab(false)" ng-if="!vm.isAddOperation()">
+            <md-table-container>
+                <table md-table md-progress="vm.promise">
+                    <thead md-head>
+                        <tr md-row>
+                            <th md-column><span class="am-table-header">Vehicle</span></th>
+                            <th md-column><span class="am-table-header">Date</span></th>
+                            <th md-column><span class="am-table-header">Amount</span><br>(Rs.)</th>
+                            <th md-column><span class="am-table-header">Payment</span></th>
+                        </tr>
+                    </thead>
+                    <tbody md-body>
+                        <tr md-row ng-repeat="service in vm.services | limitTo: vm.serviceQuery.limit: (vm.serviceQuery.page - 1)*(vm.serviceQuery.limit)" class="am-select-table-row">
+                            <td md-cell ng-click="vm.editService(service)">{{service.vhcl_manuf + ' ' + service.vhcl_model}}<span ng-if="service.vhcl_reg">&nbsp;({{service.vhcl_reg}})</span></td>
+                            <td md-cell ng-click="vm.editService(service)">{{vm.getServiceDate(service.srvc_date)}}</td>
+                            <td md-cell ng-click="vm.editService(service)">{{service.srvc_cost}}</td>
+                            <td md-cell ng-click="vm.editService(service)">{{service.srvc_status}}</td>
+                            <td md-cell class="am-datatable-actions view-all-services">
+                                <md-button class="invoice md-accent" ng-click="vm.goToInvoice(service)">
+                                    <span>Invoice</span>
+                                </md-button>
+                                <md-button class="md-icon-button" ng-click="vm.deleteService(service, $event)">
+                                    <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
+                                </md-button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+            <md-table-pagination md-limit="vm.serviceQuery.limit" md-limit-options="[10, 20, 50, 100]" md-page="vm.serviceQuery.page" md-total="{{vm.serviceQuery.total}}" md-page-select></md-table-pagination>
         </md-tab>
         <md-tab label="Membership Information" md-active="vm.membershipTab" md-on-deselect="vm.changeMembershipTab(false)">
             <md-content class="md-hue-1">
