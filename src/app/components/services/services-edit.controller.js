@@ -91,6 +91,11 @@
         };
         vm.totalCost = 0;
 
+        //  named assignments to handle behaviour of UI elements
+        vm.redirect = {
+            invoice: 'invoice'
+        }
+
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
         vm.convertRegToCaps = convertRegToCaps;
@@ -865,12 +870,10 @@
                                     ft[0].rate = {};
                                 ft[0].rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] = t.rate;
                                 ft[0].amount[vm.vehicle.type.toLowerCase().replace(' ', '-')] = t.rate + ((res.vehicle.service.serviceTax && res.vehicle.service.serviceTax.applyTax) ? t.tax : 0);
-                                console.log(ft[0]);
                                 found[0].selectedTreatments.push(ft[0]);
                             }
                         }
                     } else {
-                        $log.info('Something with package');
                         var tp = $.extend({}, res.vehicle.service.packages[package]);
                         tp.name = package;
                         vm.packages.push(generatePackage(tp));
@@ -1219,6 +1222,7 @@
             vm.service.problems.forEach(iterateProblems);
             if (vm.serviceType == vm.serviceTypeList[1])
                 vm.packages.forEach(iteratePackages);
+            totalTax = (totalTax % 1 != 0) ? totalTax.toFixed(2) : parseInt(totalTax);
             return totalTax;
 
             function iterateProblems(problem) {
@@ -1308,7 +1312,7 @@
         }
 
         //  save to database
-        function save() {
+        function save(redirect) {
             if (!validate()) return;
             switch (vm.serviceType) {
                 case vm.serviceTypeList[0]:
@@ -1445,17 +1449,28 @@
                     isTreatmentsSelected = true;
                 return isTreatmentsSelected;
             }
-        }
 
-        //  (save successfull)
-        function success(res) {
-            setTimeout(goBack, 100);
-            utils.showSimpleToast('Successfully Updated!');
-        }
+            //  (save successfull)
+            function success(res) {
+                switch (redirect) {
+                    case vm.redirect.invoice:
+                        $state.params.fromState = 'invoice';
+                        transitIds = {
+                            userId: res.id.userId,
+                            vehicleId: res.id.vehicleId,
+                            serviceId: res.id.serviceId
+                        }
+                        break;
+                }
+                setTimeout(goBack, 100);
+                utils.showSimpleToast('Successfully Updated!');
+            }
 
-        //  !(save successfull)
-        function failure(err) {
-            utils.showSimpleToast('Failed to update. Please Try Again!');
+            //  !(save successfull)
+            function failure(err) {
+                console.log(err);
+                utils.showSimpleToast('Failed to update. Please Try Again!');
+            }
         }
     }
 

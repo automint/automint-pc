@@ -139,7 +139,7 @@
             <body style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;" id="am-invoice-body">
                 <section class="am-invoice-w-area">
                     <div class="parent">
-                        <div class="left">
+                        <div class="left" ng-if="vm.ivSettings.display.workshopDetails">
                             <h2 style="margin-bottom: 0.3rem; margin: 1px;">{{vm.workshop.name}}</span></h2>
                             <span class="am-invoice-workshop-detail">{{vm.workshop.address1}}</span><br>
                             <span class="am-invoice-workshop-detail">{{vm.workshop.address2}}</span><br>
