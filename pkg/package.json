@@ -10,14 +10,14 @@
     "dist:win32-ia32": "./node_modules/.bin/build --platform win32 --arch ia32",
     "dist:win32-x64": "./node_modules/.bin/build --platform win32 --arch x64",
     "dist:win32": "./node_modules/.bin/build --platform win32 --arch all",
-    "release": "gulp && npm run dist:win32"
+    "release": "gulp && npm run dist:win32-ia32"
   },
   "build": {
     "iconUrl": "http://cruzer.io/automint.ico",
     "win": {
       "authors": "Automint Pvt. Ltd.",
       "loadingGif": "build/installer.gif",
-      "remoteReleases": "http://updates.automint.in/releases/win32/x64/"
+      "remoteReleases": "http://updates.automint.in/releases/win32/ia32/"
     }
   },
   "devDependencies": {
