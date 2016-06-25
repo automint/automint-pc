@@ -80,11 +80,6 @@
 
             function success(res) {
                 vm.alignmentMargins = res;
-                if (res.enabled) {
-                    var t = document.getElementById('am-invoice-body');
-                    t.style.paddingTop = res.top + 'cm';
-                    t.style.paddingBottom = res.bottom + 'cm';
-                }
             }
 
             function failure(err) {
