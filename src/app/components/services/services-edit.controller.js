@@ -141,6 +141,7 @@
         vm.populateRoundOffVal = populateRoundOffVal;
         vm.changeForceStopCalCost = changeForceStopCalCost;
         vm.calculateViewportHeight = calculateViewportHeight;
+        vm.unsubscribeMembership = unsubscribeMembership;
 
         //  default execution steps
         getVehicleTypes();
@@ -149,6 +150,25 @@
         getMemberships();
 
         //  function definitions
+
+        function unsubscribeMembership(ev, chip) {
+            var confirm = $mdDialog.confirm()
+                .textContent('Unsubscribe to ' + chip.name + ' ?')
+                .ariaLabel('Unsubscribe to ' + chip.name)
+                .targetEvent(ev)
+                .ok('Yes')
+                .cancel('No');
+
+            $mdDialog.show(confirm).then(performDelete, ignoreDelete);
+
+            function performDelete() {
+                console.log('deleted');
+            }
+
+            function ignoreDelete() {
+                vm.membershipChips.push(chip);
+            }
+        }
 
         function calculateViewportHeight(element) {
             vm.serviceViewportHeight = $(window).height() - (2*element[0].offsetTop + 0.45*element[0].offsetTop);
