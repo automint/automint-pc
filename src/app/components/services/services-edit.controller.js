@@ -421,7 +421,8 @@
                     problem.rate = problem.amount;
                 } else
                     problem.amount = problem.rate;
-            }
+            } else
+                problem.rate = problem.amount;
             calculateCost();
         }
 
@@ -1000,6 +1001,7 @@
         function changeVehicleType() {
             vm.service.problems.forEach(iterateProblem);
             calculatePackageTax();
+            calculateCost();
 
             function iterateProblem(problem) {
                 var found = $filter('filter')(vm.treatments, {
