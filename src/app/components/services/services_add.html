@@ -132,16 +132,15 @@
                                 <md-button aria-label="Choose from existing vehicles" class="md-raised md-accent" ng-click="vm.chooseVehicle($mdOpenMenu, $event)">
                                     <span layout-padding>{{vm.currentVehicle}}</span>
                                 </md-button>
-                                <md-menu-content width="6">
-                                    <md-menu-item ng-repeat="vehicle in vm.possibleVehicleList" ng-hide="vm.possibleVehicleList.length == 0">
-                                        <md-button ng-click="vm.changeVehicle(vehicle.id)">
-                                            <span>{{vehicle.name}}</span>
-                                        </md-button>
-                                    </md-menu-item>
-                                    <md-menu-divider ng-hide="vm.possibleVehicleList.length == 0"></md-menu-divider>
+                                <md-menu-content width="6" class="md-hue-1">
                                     <md-menu-item>
                                         <md-button ng-click="vm.changeVehicle()">
                                             <span>New Vehicle</span>
+                                        </md-button>
+                                    </md-menu-item>
+                                    <md-menu-item ng-repeat="vehicle in vm.possibleVehicleList" ng-hide="vm.possibleVehicleList.length == 0">
+                                        <md-button ng-click="vm.changeVehicle(vehicle.id)">
+                                            <span>{{vehicle.name}}</span>
                                         </md-button>
                                     </md-menu-item>
                                 </md-menu-content>
