@@ -198,6 +198,7 @@
                     });
                     vm.selectedInventories.push(vm.inventories[vm.inventories.length - 1]);
                 }
+                calculateCost();
                 vm.inventory.name = '';
                 vm.inventory.amount = '';
                 vm.inventory.rate = '';
@@ -1277,6 +1278,7 @@
                     });
                     vm.selectedProblems.push(vm.service.problems[vm.service.problems.length - 1]);
                 }
+                calculateCost();
                 vm.problem.details = '';
                 vm.problem.amount = '';
                 vm.problem.rate = '';

@@ -74,6 +74,10 @@
                     .am-invoice-table .row td {
                         border-top: 1px solid #ECEFF1;
                     }
+
+                    .am-invoice-table .dark-line td {
+                        border-top: 2px solid #37474F;
+                    }
                     
                     .am-invoice-table .total td {
                         border-top: 1px solid #ECEFF1;
@@ -160,9 +164,9 @@
                                         <p style="font-size: large">{{vm.user.name}}</p>
                                         <span><span>{{vm.vehicle.manuf + ' ' + vm.vehicle.model}}</span><br><span style="line-height: 1.4; font-size: smaller; letter-spacing: 0.2px" ng-if="vm.vehicle.reg">{{vm.vehicle.reg}}</span></span>
                                     </td>
-                                    <td ng-if="vm.service.inventories.length > 0" style="width: 16%"></td>
-                                    <td ng-if="vm.service.inventories.length > 0" style="width: 16%"></td>
-                                    <td style="text-align: right; width: 16%">
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td ng-if="vm.service.inventories.length > 0"></td>
+                                    <td style="text-align: right;">
                                         <p style="text-align: right; font-size: large">Invoice #{{vm.service.invoiceno}}</p>
                                         <span>{{vm.service.date}}</span>
                                     </td>
@@ -173,7 +177,7 @@
                                     <td ng-if="vm.service.inventories.length > 0"><span style="font-weight: 700">Qty</span></td>
                                     <td style="text-align: right"><span style="font-weight: 700">Amount</span></td>
                                 </tr>
-                                <tr class="row" ng-repeat-start="(key, membership) in vm.service.memberships">
+                                <tr class="row dark-line" ng-repeat-start="(key, membership) in vm.service.memberships">
                                     <td class="m-d">{{key}}</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
@@ -185,7 +189,7 @@
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">&nbsp;</td>
                                 </tr>
-                                <tr class="row" ng-repeat-start="package in vm.service.packages">
+                                <tr class="row" ng-class="{'dark-line': $first && !vm.service.memberships}" ng-repeat-start="package in vm.service.packages">
                                     <td class="m-d">{{package.name}}</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
@@ -197,7 +201,7 @@
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">Rs. {{treatment.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                                 </tr>
-                                <tr class="row" ng-repeat="problem in vm.service.problems">
+                                <tr class="row" ng-class="{'dark-line': $first && !vm.service.packages && !vm.service.memberships}" ng-repeat="problem in vm.service.problems">
                                     <td>{{problem.details}}</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
