@@ -246,6 +246,7 @@
 
         function changeQty(inventory) {
             inventory.total = ((vm.vatSettings.applyTax ? inventory.amount : inventory.rate) * inventory.qty);
+            calculateCost();
         }
 
         function inventoryQuerySearch() {
@@ -331,6 +332,11 @@
 
             function failure(err) {
                 vm.vatSettings = {};
+                vm.inventories.forEach(iterateInventories);
+
+                function iterateInventories(inventory) {
+                    changeQty(inventory);
+                }
             }
         }
 
@@ -828,12 +834,15 @@
                 vm.service.status = res.vehicle.service.status;
                 if (res.vehicle.service.discount) {
                     vm.isDiscountApplied = true;
-                    vm.discountPercentage = res.vehicle.service.discount.percent;
-                    vm.discountValue = res.vehicle.service.discount.amount;
+                    isDiscountByPercent = false;
+                    vm.discountPercentage = parseFloat(res.vehicle.service.discount.percent);
+                    vm.discountValue = parseFloat(res.vehicle.service.discount.amount);
+                    console.log(res.vehicle.service.discount.amount);
                 }
                 if (res.vehicle.service.roundoff) {
                     vm.isRoundOffVal = true;
-                    vm.roundedOffVal = res.vehicle.service.roundoff;
+                    isManualRoundOff = vm.isRoundOffVal;
+                    vm.roundedOffVal = parseFloat(res.vehicle.service.roundoff);
                 }
                 if (res.vehicle.service.serviceTax != undefined)
                     vm.service.serviceTax = res.vehicle.service.serviceTax;

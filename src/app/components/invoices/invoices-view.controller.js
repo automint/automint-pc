@@ -136,7 +136,7 @@
                         inventory.amount = Math.round(inventory.rate + inventory.tax);
                     }
                 }
-                inventory.total = (inventory.rate * inventory.qty) + (inventory.tax * inventory.qty);
+                inventory.total = (inventory.rate * inventory.qty) + ((inventory.tax ? inventory.tax : 0) * inventory.qty);
                 inventory.total = (inventory.total % 1 != 0) ? inventory.total.toFixed(2) : parseInt(inventory.total);
             }
         }
@@ -241,8 +241,49 @@
 
         //  print receipt
         function printInvoice() {
+            var amInScFb = document.getElementById('am-invoice-social-facebook');
+            var amInScIn = document.getElementById('am-invoice-social-instagram');
+            var amInScTw = document.getElementById('am-invoice-social-twitter');
+
+            if (vm.workshop && vm.workshop.social && vm.workshop.social.enabled) {
+                if (IsSocialFacebook()) {
+                    var ic = document.createElement('canvas'),
+                        icontext = ic.getContext('2d');
+                    ic.width = amInScFb.width;
+                    ic.height = amInScFb.height;
+                    icontext.drawImage(amInScFb, 0, 0, amInScFb.width, amInScFb.height);
+                    amInScFb.src = ic.toDataURL();
+                }
+                if (IsSocialInstagram()) {
+                    var ic = document.createElement('canvas'),
+                        icontext = ic.getContext('2d');
+                    ic.width = amInScIn.width;
+                    ic.height = amInScIn.height;
+                    icontext.drawImage(amInScIn, 0, 0, amInScIn.width, amInScIn.height);
+                    amInScIn.src = ic.toDataURL();
+                }
+                if (IsSocialTwitter()) {
+                    var ic = document.createElement('canvas'),
+                        icontext = ic.getContext('2d');
+                    ic.width = amInScTw.width;
+                    ic.height = amInScTw.height;
+                    icontext.drawImage(amInScTw, 0, 0, amInScTw.width, amInScTw.height);
+                    amInScTw.src = ic.toDataURL();
+                }
+            }
             var printObj = document.getElementById('am-invoice-body');
             ammPrint.doPrint(printObj.innerHTML);
+            if (vm.workshop && vm.workshop.social && vm.workshop.social.enabled) {
+                if (IsSocialFacebook()) {
+                    amInScFb.src = 'assets/img/facebook.svg';
+                }
+                if (IsSocialInstagram()) {
+                    amInScIn.src = 'assets/img/instagram.svg';
+                }
+                if (IsSocialTwitter()) {
+                    amInScTw.src = 'assets/img/twitter.svg';                
+                }
+            }
         }
 
         //  send email
@@ -252,7 +293,7 @@
                 return;
             }
             var t = document.getElementById('am-invoice-body');
-            if (vm.alignmentMargins.enabled) {
+            if (vm.alignmentMargins && vm.alignmentMargins.enabled) {
                 t.style.paddingTop = 0;
                 t.style.paddingBottom = 0;
             }
@@ -262,7 +303,7 @@
             var amInLkFb = document.getElementById('am-invoice-link-facebook');
             var amInLkIn = document.getElementById('am-invoice-link-instagram');
             var amInLkTw = document.getElementById('am-invoice-link-twitter');
-            if (vm.workshop.social.enabled) {
+            if (vm.workshop && vm.workshop.social && vm.workshop.social.enabled) {
                 if (IsSocialFacebook()) {
                     amInLkFb.href = 'facebook.com/' + vm.workshop.social.facebook;
                     amInScFb.src = 'https://www.facebook.com/images/fb_icon_325x325.png';
@@ -280,7 +321,7 @@
             var printObj = document.getElementById('am-invoice-mail-body');
             utils.showSimpleToast('Sending Mail...');
             ammMailApi.send(printObj.innerHTML, vm.user, (vm.workshop) ? vm.workshop.name : undefined, (vm.ivSettings) ? vm.ivSettings.emailsubject : undefined);
-            if (vm.workshop.social.enabled) {
+            if (vm.workshop && vm.workshop.social && vm.workshop.social.enabled) {
                 if (IsSocialFacebook()) {
                     amInLkFb.href = '';
                     amInScFb.src = 'assets/img/facebook.svg';
@@ -296,7 +337,7 @@
             }
             if (vm.ivSettings.display.workshopLogo)
                 addInvoiceWLogo();
-            if (vm.alignmentMargins.enabled) {
+            if (vm.alignmentMargins && vm.alignmentMargins.enabled) {
                 t.style.paddingTop = vm.alignmentMargins.top + 'cm';
                 t.style.paddingBottom = vm.alignmentMargins.bottom + 'cm';
             }

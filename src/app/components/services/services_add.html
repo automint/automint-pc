@@ -509,7 +509,7 @@
                                                     <input type="number" ng-model="inventory.qty" class="am-table-inline-input" ng-change="vm.changeQty(inventory)">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{inventory.tax | number: 2}}
+                                                    {{inventory.tax * (inventory.qty ? inventory.qty : 1) | number: 2}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
@@ -536,7 +536,7 @@
                                                     <input type="number" ng-model="vm.inventory.qty" placeholder="Qty" ng-change="vm.changeQty(vm.inventory)" class="am-table-input" style="width: 97%">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{vm.inventory.tax | number: 2}}
+                                                    {{vm.inventory.tax * (vm.inventory.qty ? vm.inventory.qty : 1) | number: 2}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
@@ -590,7 +590,7 @@
                                                     <input type="number" ng-model="inventory.qty" ng-change="vm.changeQty(inventory)" class="am-table-inline-input">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{inventory.tax | number: 2}}
+                                                    {{inventory.tax * (inventory.qty ? inventory.qty : 1) | number: 2}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
@@ -617,7 +617,7 @@
                                                     <input type="number" ng-model="vm.inventory.qty" ng-change="vm.changeQty(vm.inventory)" placeholder="Qty" class="am-table-input" style="width: 97%">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{vm.inventory.tax | number: 2}}
+                                                    {{vm.inventory.tax * (vm.inventory.qty ? vm.inventory.qty : 1) | number: 2}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
