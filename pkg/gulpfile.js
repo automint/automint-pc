@@ -69,9 +69,6 @@ gulp.task('assets-dir', function() {
         .pipe(cleanCSS())
         .pipe(gulp.dest('app/assets/css'));
     gulp.src('../src/assets/img/*')
-        .pipe(imagemin({
-            progressive: true
-        }))
         .pipe(gulp.dest('app/assets/img'));
     gulp.src('../src/assets/js/*')
         .pipe(gulp.dest('app/assets/js'));
