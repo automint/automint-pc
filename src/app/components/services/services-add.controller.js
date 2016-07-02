@@ -189,7 +189,7 @@
         }
 
         function calculateViewportHeight(element) {
-            vm.serviceViewportHeight = $(window).height() - (2*element[0].offsetTop + 0.45*element[0].offsetTop);
+            vm.serviceViewportHeight = $(window).height() - (2*element[0].offsetTop + 0.6*element[0].offsetTop);
         }
 
         function changeInventoryTotal(inventory) {
@@ -254,6 +254,7 @@
                 vm.inventory.tax = '';
                 vm.inventory.qty = 1;
                 vm.inventory.total = '';
+                calculateCost();
                 setTimeout(focusNewInventoryName, 300);
             }
             if (btnClicked)
@@ -288,8 +289,10 @@
                 } else {
                     if (vm.vatSettings.inclusive)
                         vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
-                    else
+                    else {
                         vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
+                        vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
+                    }
                 }
                 vm.inventory.total = vm.inventory.amount * vm.inventory.qty;
             } else {
@@ -365,6 +368,7 @@
 
         function changeQty(inventory) {
             inventory.total = ((vm.vatSettings.applyTax ? inventory.amount : inventory.rate) * inventory.qty);
+            calculateCost();
 
             if (!vm.vatSettings.applyTax)
                 inventory.amount = inventory.rate;
@@ -1324,6 +1328,7 @@
                 vm.problem.amount = '';
                 vm.problem.rate = '';
                 vm.problem.tax = '';
+                calculateCost();
                 setTimeout(focusNewProblemDetails, 300);
             }
             if (btnClicked)

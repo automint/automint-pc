@@ -210,8 +210,8 @@
                     </div>
                     <div layout="row">
                         <div layout="column" flex="80" id="am-service-viewport" style="height: {{vm.serviceViewportHeight}}px" am-offset-from-top="vm.calculateViewportHeight">
-                            <md-content ng-show="vm.serviceType == vm.serviceTypeList[2]" aria-label="Memberships" class="md-hue-1">
-                                <div layout="column">
+                            <md-content class="md-hue-1">        
+                                <div layout="column" ng-show="vm.serviceType == vm.serviceTypeList[2]" aria-label="Memberships" class="md-hue-1">
                                     <div layout="row">
                                         <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
                                             <md-checkbox aria-label="Check All" style="opacity: 0; cursor: default"></md-checkbox>
@@ -261,10 +261,8 @@
                                         <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>{{vm.user.name || 'Customer'}} has not subscribed to any memberships. <span class="am-membership-subscribe-button" ng-click="vm.navigateToSubscriptMembership()">Click here</span> to subscribe to one</span>
                                     </div>
                                 </div>
-                                <md-divider style="margin-top: 2rem;"></md-divider>
-                            </md-content>
-                            <md-content ng-show="vm.serviceType == vm.serviceTypeList[1]" aria-label="Packages" class="md-hue-1">
-                                <div layout="column">
+                                <md-divider style="margin-top: 2rem;" ng-show="vm.serviceType == vm.serviceTypeList[2]"></md-divider>
+                                <div layout="column" ng-show="vm.serviceType == vm.serviceTypeList[1]" aria-label="Packages" class="md-hue-1">
                                     <div layout="row">
                                         <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
                                             <md-checkbox aria-label="Check All" style="opacity: 0; cursor: default"></md-checkbox>
@@ -301,7 +299,7 @@
                                             </div>
                                         </div>
                                         <div layout="column" style="font-size: small" ng-show="package.expanded == true">
-                                            <md-table-container style="margin-left: 8rem">
+                                            <md-table-container style="margin-left: 5rem">
                                                 <table md-table md-row-select multiple ng-model="package.selectedTreatments">
                                                     <thead md-head>
                                                         <tr md-row>
@@ -336,9 +334,7 @@
                                         <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>No Packages Found!</span>
                                     </div>
                                 </div>
-                                <md-divider style="margin-top: 2rem;"></md-divider>
-                            </md-content>
-                            <md-content class="md-hue-1">
+                                <md-divider style="margin-top: 2rem;" ng-show="vm.serviceType == vm.serviceTypeList[1]"></md-divider>
                                 <md-table-container ng-if="!vm.displayTreatmentAsList">
                                     <table md-table md-row-select multiple ng-model="vm.selectedProblems" md-progress="vm.problemPromise">
                                         <thead md-head>
@@ -509,7 +505,7 @@
                                                     <input type="number" ng-model="inventory.qty" class="am-table-inline-input" ng-change="vm.changeQty(inventory)">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{inventory.tax | number: 2}}
+                                                    {{inventory.tax * (inventory.qty ? inventory.qty : 1) | number: 2}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
@@ -536,7 +532,7 @@
                                                     <input type="number" ng-model="vm.inventory.qty" placeholder="Qty" ng-change="vm.changeQty(vm.inventory)" class="am-table-input" style="width: 97%">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{vm.inventory.tax | number: 2}}
+                                                    {{vm.inventory.tax * (vm.inventory.qty ? vm.inventory.qty : 1) | number: 2}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
@@ -590,7 +586,7 @@
                                                     <input type="number" ng-model="inventory.qty" ng-change="vm.changeQty(inventory)" class="am-table-inline-input">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{inventory.tax | number: 2}}
+                                                    {{inventory.tax * (inventory.qty ? inventory.qty : 1) | number: 2}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
@@ -617,7 +613,7 @@
                                                     <input type="number" ng-model="vm.inventory.qty" ng-change="vm.changeQty(vm.inventory)" placeholder="Qty" class="am-table-input" style="width: 97%">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{vm.inventory.tax | number: 2}}
+                                                    {{vm.inventory.tax * (vm.inventory.qty ? vm.inventory.qty : 1) | number: 2}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
@@ -677,9 +673,6 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div layout="row" layout-align="end center">
-                    
                 </div>
             </md-content>
         </md-tab>
