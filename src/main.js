@@ -2,7 +2,7 @@
  * Entrance file for Atom Electron App
  * @author ndkcha
  * @since 0.1.0
- * @version 0.1.0
+ * @version 0.6.4 by @vrlkacha
  */
 
 'use strict';
@@ -19,7 +19,8 @@
     // Module to Auto Update app
     var autoUpdater = electron.autoUpdater;  
     var os = require('os');  
-    var feedURL = 'http://updates.automint.in/releases/' + (os.platform()) + '/' + (os.arch());
+    // var feedURL = 'http://updates.automint.in/releases/' + (os.platform()) + '/' + (os.arch());
+    var feedURL = 'http://updates.automint.in/releases/win32/ia32';
     autoUpdater.addListener("error", function(error) {});
     autoUpdater.setFeedURL(feedURL);
     if (process.argv[1] == '--squirrel-firstrun') {
