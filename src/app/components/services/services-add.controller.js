@@ -2,7 +2,7 @@
  * Controller for Add Service module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.x
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -12,7 +12,7 @@
         .controller('amCtrlSeCI', ServiceAddController)
         .controller('amCtrlMeD', MembershipEditDialogController);
 
-    ServiceAddController.$inject = ['$state', '$q', '$log', '$filter', '$mdEditDialog', '$mdDialog', 'utils', 'amServices'];
+    ServiceAddController.$inject = ['$scope', '$state', '$q', '$log', '$filter', '$timeout', '$mdEditDialog', '$mdDialog', '$mdSidenav', 'utils', 'amServices'];
     MembershipEditDialogController.$inject = ['$mdDialog', '$filter', 'membership', 'treatments'];
 
     /*
@@ -20,7 +20,7 @@
     > Do not create new method named moment() since it is used by moment.js
     */
 
-    function ServiceAddController($state, $q, $log, $filter, $mdEditDialog, $mdDialog, utils, amServices) {
+    function ServiceAddController($scope, $state, $q, $log, $filter, $timeout, $mdEditDialog, $mdDialog, $mdSidenav, utils, amServices) {
         //  initialize view model
         var vm = this;
 
@@ -36,12 +36,6 @@
             forceStopCalCost = false;
 
         //  vm assignments to keep track of UI related elements
-        vm.label_userMobile = 'Enter Mobile Number:';
-        vm.label_userEmail = 'Enter Email:';
-        vm.label_userAddress = 'Enter Address:';
-        vm.label_vehicleReg = 'Enter Vehicle Reg Number:';
-        vm.label_vehicleManuf = 'Manufacturer:';
-        vm.label_vehicleModel = 'Model:';
         vm.vehicleTypeList = [];
         vm.user = {
             id: '',
@@ -95,6 +89,10 @@
             total: ''
         };
         vm.totalCost = 0;
+        vm.isUserInfoExpanded = true;
+        vm.isVehicleInfoExpanded = false;
+        vm.isServiceInfoExpanded = false;
+        vm.serviceViewportHeight = $(window).height();
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -107,11 +105,6 @@
         vm.searchVehicleChange = searchVehicleChange;
         vm.manufacturersQuerySearch = manufacturersQuerySearch;
         vm.modelQuerySearch = modelQuerySearch;
-        vm.changeUserMobileLabel = changeUserMobileLabel;
-        vm.changeUserEmailLabel = changeUserEmailLabel;
-        vm.changeVehicleRegLabel = changeVehicleRegLabel;
-        vm.changeVehicleTab = changeVehicleTab;
-        vm.changeUserTab = changeUserTab;
         vm.changeVehicle = changeVehicle;
         vm.isAddOperation = isAddOperation;
         vm.chooseVehicle = chooseVehicle;
@@ -123,16 +116,14 @@
         vm.treatmentsQuerySearch = treatmentsQuerySearch;
         vm.onProblemSelected = onProblemSelected;
         vm.onProblemDeselected = onProblemDeselected;
-        vm.changeServiceTab = changeServiceTab;
         vm.updateTreatmentDetails = updateTreatmentDetails;
         vm.finalizeNewProblem = finalizeNewProblem;
         vm.save = save;
-        vm.changeUserAddressLabel = changeUserAddressLabel;
         vm.queryMembershipChip = queryMembershipChip;
         vm.OnClickMembershipChip = OnClickMembershipChip;
         vm.calculateCost = calculateCost;
         vm.OnAddMembershipChip = OnAddMembershipChip;
-        vm.navigateToSubscriptMembership = navigateToSubscriptMembership;
+        vm.navigateToSubscribeMembership = navigateToSubscribeMembership;
         vm.goBack = goBack;
         vm.changeProblemRate = changeProblemRate;
         vm.changeServiceTax = changeServiceTax;
@@ -154,9 +145,32 @@
         vm.changeForceStopCalCost = changeForceStopCalCost;
         vm.calculateViewportHeight = calculateViewportHeight;
         vm.unsubscribeMembership = unsubscribeMembership;
+        vm.label_titleCustomerMoreInfo = label_titleCustomerMoreInfo;
+        vm.changeUserInfoState = changeUserInfoState;
+        vm.changeVehicleInfoState = changeVehicleInfoState;
+        vm.changeServiceInfoState = changeServiceInfoState;
+        vm.openCustomerMoreDetails = buildDelayedToggler('customer-more-right');
+        vm.closeCustomerMoreDetails = closeCustomerMoreDetails;
+        vm.openServiceDetailsPanel = buildDelayedToggler('service-details-left');
+        vm.fetchFocusItemAfterVT = fetchFocusItemAfterVT;
+        vm.lockServiceNavbar = lockServiceNavbar;
+        vm.IsMembershipTreatmentsDisabled = IsMembershipTreatmentsDisabled;
+        vm.IsNoMembershipSubscribed = IsNoMembershipSubscribed;
+        vm.IsMembershipEnabled = IsMembershipEnabled;
+        vm.IsPackageEnabled = IsPackageEnabled;
+        vm.convertVehicleTypeToAF = convertVehicleTypeToAF;
+        vm.IsTreatmentAmountEditable = IsTreatmentAmountEditable;
+        vm.IsTreatmentAmountText = IsTreatmentAmountText;
+        vm.IsPackageEnabled = IsPackageEnabled;
+        vm.changeDisplayAsList = changeDisplayAsList;
+        vm.IsTreatmentRateDisplayed = IsTreatmentRateDisplayed;
+        vm.changeInventoryAsList = changeInventoryAsList;
+        vm.IsInventoryTotalEditable = IsInventoryTotalEditable;
+        vm.IsInventoryTotalText = IsInventoryTotalText;
 
         //  default execution steps
-        // vm.serviceTab = true; //  testing purposes [amTODO: remove it]
+        setCoverPic();
+        changeUserInfoState(true);
         getTreatmentDisplayFormat();
         getInventoriesSettings();
         getVehicleTypes();
@@ -165,9 +179,162 @@
         getMemberships();
         getLastInvoiceNo();
 
-        vm.serviceViewportHeight = $(window).height();
-
         //  function definitions
+
+        function focusShowAllInventoriesButton() {
+            $('#ami-display-inventory-as').focus();
+        }
+
+        function focusShowAllTreatmentsButton() {
+            $('#ami-display-as').focus();
+        }
+
+        function IsInventoryTotalText() {
+            return (vm.vatSettings && !vm.vatSettings.inclusive && vm.vatSettings.applyTax);
+        }
+
+        function IsInventoryTotalEditable() {
+            return (vm.vatSettings && (vm.vatSettings.inclusive || !vm.vatSettings.applyTax));
+        }
+
+        function changeInventoryAsList(bool) {
+            vm.displayInventoriesAsList = bool;
+            setTimeout(focusShowAllInventoriesButton, 300);
+        }
+
+        function IsTreatmentRateDisplayed() {
+            return (vm.sTaxSettings && vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive);
+        }
+
+        function changeDisplayAsList(bool) {
+            vm.displayTreatmentAsList = bool;
+            setTimeout(focusShowAllTreatmentsButton, 300);
+        }
+
+        function IsPackageEnabled() {
+            return (vm.packages.length < 1);
+        }
+
+        function IsTreatmentAmountText() {
+            return (vm.sTaxSettings && !vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax);
+        }
+
+        function IsTreatmentAmountEditable() {
+            return (vm.sTaxSettings && (vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax));
+        }
+
+        function convertVehicleTypeToAF() {
+            return (vm.vehicle.type.toLowerCase().replace(' ', '-'));
+        }
+
+        function IsPackageEnabled() {
+            return (vm.serviceType == vm.serviceTypeList[1]);
+        }
+
+        function IsMembershipEnabled() {
+            return (vm.serviceType == vm.serviceTypeList[2]);
+        }
+
+        function IsNoMembershipSubscribed() {
+            return (vm.membershipChips.length < 1);
+        }
+
+        function IsMembershipTreatmentsDisabled(membership, treatment) {
+            return (membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0);
+        }
+
+        function lockServiceNavbar() {
+            return $mdMedia('gt-md');
+        }
+
+        function fetchFocusItemAfterVT() {
+            changeServiceInfoState(true, null, true);
+        }
+
+        function setCoverPic() {
+            var source = localStorage.getItem('cover-pic');
+            $('#am-sp-cover-pic').attr('src', (source) ? source : 'assets/img/logo-250x125px.png').width(250).height(125);
+        }
+
+        function label_titleCustomerMoreInfo() {
+            return (vm.user.name ? vm.user.name + "'s" : "Customer");
+        }
+
+        function closeCustomerMoreDetails() {
+            $mdSidenav('customer-more-right').close();
+            setTimeout(cvis, 800);
+
+            function cvis() {
+                changeVehicleInfoState(true);
+            }
+        }
+
+        //  Supplies a function that will continue to operate until the time is up.
+        function debounce(func, wait, context) {
+            var timer;
+            return function debounced() {
+                var context = $scope,
+                    args = Array.prototype.slice.call(arguments);
+                $timeout.cancel(timer);
+                timer = $timeout(function() {
+                    timer = undefined;
+                    func.apply(context, args);
+                }, wait || 10);
+            };
+        }
+
+        //  Build handler to open/close a SideNav; when animation finishes report completion in console
+        function buildDelayedToggler(navID) {
+            return debounce(function() {
+                $mdSidenav(navID).toggle();
+            }, 200);
+        }
+
+        function focusInvoiceNo() {
+            $('#ami-service-invoice-no').focus();
+        }
+
+        function focusUserName() {
+            $('#ami-user-name input').focus();
+        }
+
+        function focusVehicleManuf() {
+            $('#ami-vehicle-manuf input').focus();
+        }
+
+        function changeUserInfoState(expanded) {
+            vm.isUserInfoExpanded = expanded;
+            if (expanded)
+                setTimeout(focusUserName, 300);
+            vm.isVehicleInfoExpanded = true;
+            vm.isServiceInfoExpanded = false;
+        }
+
+        function changeVehicleInfoState(expanded, event) {
+            if (event != undefined) {
+                if (event.keyCode != 9)
+                    return;
+            }
+            vm.isVehicleInfoExpanded = expanded;
+            if (expanded)
+                setTimeout(focusVehicleManuf, 300);
+            vm.isUserInfoExpanded = true;
+            vm.isServiceInfoExpanded = false;
+        }
+
+        function changeServiceInfoState(expanded, event, isAlreadyThere) {
+            vm.openServiceDetailsPanel();
+            if (event != undefined) {
+                if (event.keyCode != 9)
+                    return;
+            }
+            if (expanded && !isAlreadyThere)
+                setTimeout(focusInvoiceNo, 1300);
+            vm.isServiceInfoExpanded = expanded;
+            
+            vm.isUserInfoExpanded = false;
+            vm.isVehicleInfoExpanded = false;
+        }
 
         function unsubscribeMembership(ev, chip) {
             var confirm = $mdDialog.confirm()
@@ -189,7 +356,7 @@
         }
 
         function calculateViewportHeight(element) {
-            vm.serviceViewportHeight = $(window).height() - (2*element[0].offsetTop + 0.6*element[0].offsetTop);
+            vm.serviceViewportHeight = $(window).height() - (element[0].offsetTop * 2.4);
         }
 
         function changeInventoryTotal(inventory) {
@@ -489,8 +656,9 @@
             OnAddMembershipChip(chip);
         }
 
-        function navigateToSubscriptMembership() {
-            vm.userTab = true;
+        function navigateToSubscribeMembership() {
+            changeUserInfoState(true);
+            vm.openCustomerMoreDetails();
         }
 
         function OnClickMembershipChip(event) {
@@ -578,8 +746,7 @@
         }
 
         function OnAddMembershipChip(chip) {
-            if (vm.membershipChips.length > 0)
-                vm.serviceType = vm.serviceTypeList[2];
+            vm.serviceType = (vm.membershipChips.length > 0) ? vm.serviceTypeList[2] : vm.serviceTypeList[0];
             var m = $.extend({}, chip.treatments, false);
             if (!angular.isArray(chip.treatments)) {
                 chip.treatments = [];
@@ -867,13 +1034,9 @@
                 vm.user.name = res.name;
                 vm.user.address = (res.address == undefined) ? '' : res.address;
                 if (res.memberships) {
-                    if (Object.keys(res.memberships).length > 0)
-                        vm.serviceType = vm.serviceTypeList[2];
+                    vm.serviceType = (Object.keys(res.memberships).length > 0) ? vm.serviceTypeList[2] : vm.serviceTypeList[0];
                     Object.keys(res.memberships).forEach(iterateMemberships);
                 }
-                changeUserMobileLabel();
-                changeUserEmailLabel();
-                changeUserAddressLabel();
                 vm.possibleVehicleList = res.possibleVehicleList;
                 vm.changeUserMobile(false);
                 changeVehicle(vm.possibleVehicleList.length > 0 ? vm.possibleVehicleList[0].id : undefined);
@@ -892,9 +1055,6 @@
                 vm.user.email = '';
                 vm.user.address = '';
                 vm.membershipChips = [];
-                changeUserMobileLabel();
-                changeUserEmailLabel();
-                changeUserAddressLabel();
                 vm.possibleVehicleList = [];
                 changeVehicle();
             }
@@ -925,9 +1085,6 @@
                         vm.serviceType = vm.serviceTypeList[2];
                     Object.keys(res.memberships).forEach(iterateMemberships);
                 }
-                changeUserMobileLabel();
-                changeUserEmailLabel();
-                changeUserAddressLabel();
                 vm.possibleVehicleList = res.possibleVehicleList;
                 changeVehicle(vm.possibleVehicleList.length > 0 ? vm.possibleVehicleList[0].id : undefined);
 
@@ -941,29 +1098,30 @@
             function failure(err) {
                 vm.loadingBasedOnMobile = false;
                 vm.user.id = '';
-                changeUserMobileLabel();
                 vm.possibleVehicleList = [];
                 changeVehicle();
             }
         }
 
         //  change vehicle related details when changed from UI
-        function changeVehicle(id) {
+        function changeVehicle(id, manual) {
             if (!id) {
                 setDefaultVehicle();
+                setTimeout(focusVehicleManuf, 500);
                 return;
             }
             var found = $filter('filter')(vm.possibleVehicleList, {
                 id: id
             }, true);
             if (found.length > 0) {
+                if (manual)
+                    changeServiceInfoState(true);
                 vm.currentVehicle = found[0].name;
                 vm.vehicle.id = found[0].id;
                 vm.vehicle.reg = found[0].reg;
                 vm.vehicle.manuf = found[0].manuf;
                 vm.vehicle.model = found[0].model;
                 vm.vehicle.type = (found[0].type == undefined || found[0].type == '') ? vm.vehicleTypeList[0] : found[0].type;
-                changeVehicleRegLabel();
                 changeVehicleType();
                 autofillVehicle = true;
             } else
@@ -981,7 +1139,6 @@
                 vm.vehicle.type = vm.vehicleTypeList[0];
                 changeVehicleType();
             }
-            changeVehicleRegLabel();
             autofillVehicle = false;
         }
 
@@ -1110,43 +1267,6 @@
         }
         //  return boolean response to different configurations [END]
 
-        //  change user tab selector variable
-        function changeUserTab(bool) {
-            vm.userTab = bool;
-        }
-
-        //  change vehicle tab selector variable
-        function changeVehicleTab(bool) {
-            vm.vehicleTab = bool;
-        }
-
-        //  change service tab selector variable
-        function changeServiceTab(bool) {
-            vm.serviceTab = bool;
-        }
-
-        //  listen to changes in input fields [BEGIN]
-        function changeUserMobileLabel(force) {
-            vm.isUserMobile = (force != undefined || vm.user.mobile != '');
-            vm.label_userMobile = vm.isUserMobile ? 'Mobile:' : 'Enter Mobile Number:';
-        }
-
-        function changeUserEmailLabel(force) {
-            vm.isUserEmail = (force != undefined || vm.user.email != '');
-            vm.label_userEmail = vm.isUserEmail ? 'Email:' : 'Enter Email:';
-        }
-
-        function changeUserAddressLabel(force) {
-            vm.isUserAddress = (force != undefined || vm.user.address != '');
-            vm.label_userAddress = vm.isUserAddress ? 'Address:' : 'Enter Address:';
-        }
-
-        function changeVehicleRegLabel(force) {
-            vm.isVehicleReg = (force != undefined || vm.vehicle.reg != '');
-            vm.label_vehicleReg = vm.isVehicleReg ? 'Vehicle Registration Number:' : 'Enter Vehicle Reg Number:';
-        }
-        //  listen to changes in input fields [END]
-
         //  populate regular treatment list
         function getRegularTreatments() {
             vm.problemPromise = amServices.getRegularTreatments().then(success).catch(failure);
@@ -1211,7 +1331,7 @@
 
         function changeForceStopCalCost(bool) {
             forceStopCalCost = bool;
-            isManualRoundOff = true; 
+            isManualRoundOff = true;
         }
 
         function calculateCost(isDbp, isMro) {

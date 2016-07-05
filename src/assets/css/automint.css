@@ -2,13 +2,26 @@
  * Customised style sheet for Automint App
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.x
  */
 
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+.am-service-details-panel.ng-hide {
+    opacity: 0;
+}
+
+.am-service-details-panel.ng-show {
+    opacity: 1;
+}
+
+.am-service-details-panel {
+    opacity: 1;
+    transition: left 600ms ease, opacity 1s ease;
 }
 
 .am-tab-margin {
@@ -275,8 +288,12 @@ md-sidenav.md-closed.md-locked-open-add-active {
     transition: all 200ms;
 }
 
-.am-el-item .el-item * {
-    transition: all 200ms;
+.am-el-item .el-item.service-form {
+    padding: 0.4rem 0.8rem;
+    margin: 0.4rem 0;
+}
+.am-el-item .el-item.service-form.first {
+    margin: 0.8rem 0 0.4rem 0;
 }
 
 .am-el-item .el-item .actions {
@@ -292,6 +309,14 @@ md-sidenav.md-closed.md-locked-open-add-active {
 .am-el-item .el-item.selected {
     margin: 30px 2px;
     border-radius: 2px;
+}
+
+.am-el-item .el-item.selected.service-form {
+    margin: 2px 2px;
+    border-radius: 2px;
+}
+.am-el-item .el-item.selected.service-form.first {
+    margin: 0.8rem 0 0.4rem 0;
 }
 
 .am-el-item .el-item.selected .expanded {
