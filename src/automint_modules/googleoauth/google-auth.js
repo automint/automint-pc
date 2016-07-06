@@ -2,7 +2,7 @@
  * Module to authenticate user to Google Server
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.6.4
  */
 
 /// <reference path="../../typings/main.d.ts" />
@@ -121,7 +121,6 @@
     //  store token in local storage
     function storeToken(token) {
         try {
-            console.log(TOKEN_DIR);
             fs.mkdirSync(TOKEN_DIR);
         } catch(err) {
             if (err.code != 'EEXIST')

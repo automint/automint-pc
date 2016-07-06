@@ -2,7 +2,7 @@
  * Controller for View Invoice component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.1 
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -14,11 +14,14 @@
     const eIpc = require("electron").ipcRenderer;
 
     //  angular code 
-    angular.module('automintApp').controller('amCtrlIvRI', InvoicesViewController);
+    angular.module('automintApp')
+        .controller('amCtrlIvRI', InvoicesViewController)
+        .controller('amCtrlCmI', ConfirmMailController);
 
-    InvoicesViewController.$inject = ['$q', '$log', '$state', '$window', 'utils', 'amInvoices'];
+    InvoicesViewController.$inject = ['$q', '$log', '$state', '$window', '$mdDialog', 'utils', 'amInvoices'];
+    ConfirmMailController.$inject = ['$mdDialog', 'utils', 'user'];
 
-    function InvoicesViewController($q, $log, $state, $window, utils, amInvoices) {
+    function InvoicesViewController($q, $log, $state, $window, $mdDialog, utils, amInvoices) {
         //  initialize view model
         var vm = this;
 
@@ -41,6 +44,7 @@
         vm.IsSocialFacebook = IsSocialFacebook;
         vm.IsSocialInstagram = IsSocialInstagram;
         vm.IsSocialTwitter = IsSocialTwitter;
+        vm.initiateMailInvoiceProcess = initiateMailInvoiceProcess;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -286,6 +290,30 @@
             }
         }
 
+        function initiateMailInvoiceProcess(ev) {
+            $mdDialog.show({
+                controller: 'amCtrlCmI',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/invoices/invoices_confirmmail.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    utils: utils,
+                    user: vm.user
+                },
+                clickOutsideToClose: true
+            }).then(doMailInvoice).catch(cancelMailInvoice);
+
+            function doMailInvoice(result) {
+                vm.user.email = result;
+                mailInvoice();
+            }
+
+            function cancelMailInvoice() {
+                console.log('cancelled');
+            }
+        }
+
         //  send email
         function mailInvoice() {
             if (vm.user.email == undefined || vm.user.email == '') {
@@ -379,6 +407,26 @@
             while (elem.firstChild) {
                 elem.removeChild(elem.firstChild);
             }
+        }
+    }
+
+    function ConfirmMailController($mdDialog, utils, user) {
+        var vm = this;
+
+        vm.user = user;
+        vm.sendInvoice = sendInvoice;
+        vm.cancelInvoice = cancelInvoice;
+
+        function sendInvoice() {
+            if (vm.user.email == '' || vm.user.email == undefined) {
+                utils.showSimpleToast('Please Enter Email Address');
+                return;
+            }
+            $mdDialog.hide(vm.user.email);
+        }
+
+        function cancelInvoice() {
+            $mdDialog.cancel();
         }
     }
 })();
