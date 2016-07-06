@@ -2,7 +2,7 @@
  * Factory to fetch and retrieve invoice settings from database
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.x
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
