@@ -2,7 +2,7 @@
  * Controller for Settings component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.x
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -18,7 +18,7 @@
         var vm = this;
         
         //  temporary named assignments
-        var olino = 0, ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oPasscode = '1234', oPasscodeEnabled, oIvAlignTop = '', oIvAlignBottom = '', oIvWorkshopName, oIvWorkshopPhone, oIvWorkshopAddress1, oIvWorkshopAddress2, oIvWorkshopCity;
+        var olino = 0, oljbno = 0, oleno = 0, ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oPasscode = '1234', oPasscodeEnabled, oIvAlignTop = '', oIvAlignBottom = '', oIvWorkshopName, oIvWorkshopPhone, oIvWorkshopAddress1, oIvWorkshopAddress2, oIvWorkshopCity;
 
         //  named assignments to keep track of UI [BEGIN]
         //  general settings
@@ -94,6 +94,10 @@
         vm.saveWorkshopAddress1 = saveWorkshopAddress1;
         vm.saveWorkshopAddress2 = saveWorkshopAddress2;
         vm.saveWorkshopCity = saveWorkshopCity;
+        vm.resetLastEstimateNo = resetLastEstimateNo;
+        vm.OnBlurLastEstimateNo = OnBlurLastEstimateNo;
+        vm.resetLastJobCardNo = resetLastJobCardNo;
+        vm.OnBlurLastJobCardNo = OnBlurLastJobCardNo;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -115,10 +119,46 @@
         //  service tax settings
         getServiceTaxSettings();
         getVatSettings();
-        // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
+        changeInvoiceTab(true)  //  testing purposes amTODO: remove it
         //  default execution steps [END]
 
         //  function definitions
+
+        function OnBlurLastJobCardNo() {
+            if (vm.ivSettings.lastJobCardNo == '' || vm.ivSettings.lastJobCardNo == null || vm.ivSettings.lastJobCardNo == undefined)
+                vm.ivSettings.lastJobCardNo = 0;
+            if (vm.ivSettings.lastJobCardNo == oljbno)
+                return;
+            resetLastJobCardNo(vm.ivSettings.lastJobCardNo);
+        }
+
+        function resetLastJobCardNo(jobcardno, reset) {
+            amIvSettings.changeLastJobCardNo((jobcardno == undefined) ? 0 : jobcardno).then(respond).catch(respond);
+
+            function respond(res) {
+                getInvoiceSettings();
+                if (reset != true)
+                    utils.showActionToast('Job Card Number has been ' + ((jobcardno == undefined) ? 'reset' : 'changed'), 'Undo', resetLastJobCardNo, oljbno, true);
+            }
+        }
+
+        function OnBlurLastEstimateNo() {
+            if (vm.ivSettings.lastEstimateNo == '' || vm.ivSettings.lastEstimateNo == null || vm.ivSettings.lastEstimateNo == undefined)
+                vm.ivSettings.lastEstimateNo = 0;
+            if (vm.ivSettings.lastEstimateNo == oleno)
+                return;
+            resetLastEstimateNo(vm.ivSettings.lastEstimateNo);
+        }
+
+        function resetLastEstimateNo(estimateno, reset) {
+            amIvSettings.changeLastEstimateNo((estimateno == undefined) ? 0 : estimateno).then(respond).catch(respond);
+            
+            function respond(res) {
+                getInvoiceSettings();
+                if (reset != true)
+                    utils.showActionToast('Estimate number has been ' + ((estimateno == undefined) ? 'reset' : 'changed'), 'Undo', resetLastEstimateNo, oleno, true);
+            }
+        }
 
         function handlePasscodeVisibility(visible) {
             document.getElementById('am-passcode').type = (visible) ? 'text' : 'password';
@@ -479,7 +519,16 @@
             
             function success(res) {
                 vm.ivSettings = res;
+                if (!vm.ivSettings.lastJobCardNo)
+                    vm.ivSettings.lastJobCardNo = 0;
+                if (!vm.ivSettings.lastEstimateNo)
+                    vm.ivSettings.lastEstimateNo = 0;
+                if (!vm.ivSettings.lastInvoiceNumber)
+                    vm.ivSettings.lastInvoiceNumber = 0;
+                
                 olino = res.lastInvoiceNumber;
+                oljbno = res.lastJobCardNo;
+                oleno = res.lastEstimateNo;
                 ivEmailSubject = res.emailsubject;
             }
             

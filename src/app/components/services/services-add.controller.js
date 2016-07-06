@@ -28,6 +28,8 @@
         var autofillVehicle = false,
             flagGetUserBasedOnMobile = true,
             olInvoiceNo = 1,
+            olJobCardNo = 1,
+            olEstimateNo = 1,
             transitIds = undefined,
             transitInterState = undefined,
             isDiscountByPercent = true,
@@ -56,7 +58,10 @@
             odo: 0,
             cost: 0,
             status: '',
+            state: '',
             invoiceno: 1,
+            jobcardno: 1,
+            estimateno: 1,
             problems: []
         };
         vm.problem = {
@@ -93,6 +98,8 @@
         vm.isVehicleInfoExpanded = false;
         vm.isServiceInfoExpanded = false;
         vm.serviceViewportHeight = $(window).height();
+        vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
+        vm.service.state = vm.serviceStateList[0];
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -167,10 +174,15 @@
         vm.changeInventoryAsList = changeInventoryAsList;
         vm.IsInventoryTotalEditable = IsInventoryTotalEditable;
         vm.IsInventoryTotalText = IsInventoryTotalText;
+        vm.IsServiceStateSelected = IsServiceStateSelected;
+        vm.selectServiceState = selectServiceState;
+        vm.WhichServiceStateEnabled = WhichServiceStateEnabled;
 
         //  default execution steps
         setCoverPic();
-        changeUserInfoState(true);
+        changeUserInfoState(true);   //  ammToDo: Enable this while commiting
+        // changeServiceInfoState(true);   //  ammToDo: Testing Purpose, Disable while commiting
+        buildDelayedToggler('service-details-left');
         getTreatmentDisplayFormat();
         getInventoriesSettings();
         getVehicleTypes();
@@ -178,8 +190,22 @@
         getInventories();
         getMemberships();
         getLastInvoiceNo();
+        getLastEstimateNo();
+        getLastJobCardNo();
 
         //  function definitions
+
+        function WhichServiceStateEnabled(index) {
+            return (IsServiceStateSelected(vm.serviceStateList[index]));
+        }
+
+        function selectServiceState(state) {
+            vm.service.state = state;
+        }
+
+        function IsServiceStateSelected(state) {
+            return (vm.service.state == state);
+        }
 
         function focusShowAllInventoriesButton() {
             $('#ami-display-inventory-as').focus();
@@ -290,6 +316,10 @@
             }, 200);
         }
 
+        function focusServiceState() {
+            $('#ami-service-state').focus();
+        }
+
         function focusInvoiceNo() {
             $('#ami-service-invoice-no').focus();
         }
@@ -323,15 +353,17 @@
         }
 
         function changeServiceInfoState(expanded, event, isAlreadyThere) {
-            vm.openServiceDetailsPanel();
             if (event != undefined) {
                 if (event.keyCode != 9)
                     return;
             }
-            if (expanded && !isAlreadyThere)
-                setTimeout(focusInvoiceNo, 1300);
+            if (expanded) {
+                if (!isAlreadyThere)
+                    setTimeout(focusInvoiceNo, 300);
+                else
+                    setTimeout(focusServiceState, 300);
+            }
             vm.isServiceInfoExpanded = expanded;
-            
             vm.isUserInfoExpanded = false;
             vm.isVehicleInfoExpanded = false;
         }
@@ -942,6 +974,34 @@
             }
         }
 
+        function getLastJobCardNo() {
+            amServices.getLastJobCardNo().then(success).catch(failure);
+
+            function success(res) {
+                vm.service.jobcardno = ++res;
+                olJobCardNo = res;
+            }
+
+            function failure(err) {
+                vm.service.jobcardno = 1;
+                olJobCardNo = 1;
+            }
+        }
+
+        function getLastEstimateNo() {
+            amServices.getLastEstimateNo().then(success).catch(failure);
+
+            function success(res) {
+                vm.service.estimateno = ++res;
+                olEstimateNo = res;
+            }
+
+            function failure(err) {
+                vm.service.estimateno = 1;
+                olEstimateNo = 1;
+            }
+        }
+
         //  get last invoice number from database
         function getLastInvoiceNo() {
             amServices.getLastInvoiceNo().then(success).catch(failure);
@@ -1488,7 +1548,7 @@
 
         function validate() {
             if (vm.user.name == '') {
-                changeUserTab(true);
+                changeUserInfoState(true);
                 setTimeout(doFocus, 300);
                 utils.showSimpleToast('Please Enter Name');
 
@@ -1500,7 +1560,7 @@
             var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
 
             if (isVehicleBlank) {
-                changeVehicleTab(true);
+                changeVehicleInfoState(true);
                 utils.showSimpleToast('Please Enter At Least One Vehicle Detail');
                 return false;
             }
@@ -1532,7 +1592,9 @@
             }
             vm.service.problems = vm.selectedProblems;
             var options = {
-                isLastInvoiceNoChanged: (vm.service.invoiceno == olInvoiceNo)
+                isLastInvoiceNoChanged: (vm.service.invoiceno == olInvoiceNo),
+                isLastEstimateNoChanged: (vm.service.estimateno == olEstimateNo),
+                isLastJobCardNoChanged: (vm.service.jobcardno == olJobCardNo)
             }
             vm.user.memberships = vm.membershipChips;
             switch (vm.serviceType) {
@@ -1571,6 +1633,20 @@
             }
             vm.selectedInventories.forEach(iterateInventories);
             vm.service.inventories = vm.selectedInventories;
+            switch (vm.service.state) {
+                case vm.serviceStateList[0]:
+                    delete vm.service.invoiceno;
+                    delete vm.service.estimateno;
+                    break;
+                case vm.serviceStateList[1]:
+                    delete vm.service.jobcardno;
+                    delete vm.service.invoiceno;
+                    break;
+                case vm.serviceStateList[2]:
+                    delete vm.service.jobcardno;
+                    delete vm.service.estimateno;
+                    break;
+            }
             amServices.saveService(vm.user, vm.vehicle, vm.service, options).then(success).catch(failure);
 
             function addMsToService(membership) {

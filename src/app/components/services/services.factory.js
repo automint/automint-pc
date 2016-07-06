@@ -2,7 +2,7 @@
  * Factory that handles database interactions between services database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.x
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -34,7 +34,9 @@
             getServices: getServices,
             getInventories: getInventories,
             getVatSettings: getVatSettings,
-            getInventoriesSettings: getInventoriesSettings
+            getInventoriesSettings: getInventoriesSettings,
+            getLastEstimateNo : getLastEstimateNo,
+            getLastJobCardNo: getLastJobCardNo
         }
 
         return factory;
@@ -623,8 +625,14 @@
             delete newService.id;
             delete newVehicle.id;
             delete newUser.id;
-            if (options && options.isLastInvoiceNoChanged)
-                saveLastInvoiceNo(newService.invoiceno);
+            if (options) {
+                if (newService.invoiceno && options.isLastInvoiceNoChanged)
+                    saveLastInvoiceNo(newService.invoiceno);
+                if (newService.estimateno && options.isLastEstimateNoChanged)
+                    saveLastEstimateNo(newService.estimateno);
+                if (newService.jobcardno && options.isLastJobCardNoChanged)
+                    saveLastJobCardNo(newService.jobcardno);
+            }
             
             pdbCustomers.get(newUserId).then(foundExistingUser).catch(noUserFound);
             return tracker.promise;
@@ -823,6 +831,60 @@
                 tracker.reject(error);
             }
         }
+
+        function getLastJobCardNo() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.invoices && res.settings.invoices.lastJobCardNo)
+                    tracker.resolve(res.settings.invoices.lastJobCardNo);
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'No invoice settings found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
+
+        function getLastEstimateNo() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.invoices && res.settings.invoices.lastEstimateNo)
+                    tracker.resolve(res.settings.invoices.lastEstimateNo);
+                else
+                    faillure();
+            }
+
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'No invoice settings found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
         
         //  get last invoice number
         function getLastInvoiceNo() {
@@ -884,6 +946,74 @@
             
             function failure(err) {
                 $log.info('Cannot save invoice settings');
+            }
+        }
+
+        function saveLastEstimateNo(leno) {
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
+            }
+
+            function getSettingsObject(res) {
+                if (!res.settings)
+                    res.settings = {};
+                if (!res.settings.invoices)
+                    res.settings.invoices = {};
+                res.settings.invoices.lastEstimateNo = leno;
+                pdbConfig.save(res);
+            }
+
+            function writeSettingsObject(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    settings: {
+                        invoices: {
+                            lastEstimateNo: 1
+                        }
+                    }
+                }
+                pdbConfig.save(doc);
+            }
+
+            function failure(err) {
+                $log.info('Cannot save estimate settings');
+            }
+        }
+
+        function saveLastJobCardNo(ljbno) {
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
+            }
+
+            function getSettingsObject(res) {
+                if (!res.settings)
+                    res.settings = {};
+                if (!res.settings.invoices)
+                    res.settings.invoices = {};
+                res.settings.invoices.lastJobCardNo = ljbno;
+                pdbConfig.save(res);
+            }
+
+            function writeSettingsObject(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    settings: {
+                        invoices: {
+                            lastJobCardNo: 1
+                        }
+                    }
+                }
+                pdbConfig.save(doc);
+            }
+
+            function failure(err) {
+                $log.info('Cannot save jobcard settings');
             }
         }
     }

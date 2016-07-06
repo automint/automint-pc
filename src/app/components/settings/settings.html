@@ -323,15 +323,34 @@
                     <md-card class="md-hue-1 am-box-shadow">
                         <md-card-content>
                             <div layout="row" layout-xs="column">
-                                <div layout="row" layout-align="center center" flex="70">
+                                <span layout="row" layout-align="center center">
                                     <span class="md-body-1" flex>Last Invoice Number: </span>
-                                    <input type="number" ng-model="vm.ivSettings.lastInvoiceNumber" ng-blur="vm.OnBlurLastInvoiceNumber()" class="am-table-inline-input" flex>
-                                </div>
-                                <div layout="column" layout-align="center end" flex>
-                                    <md-button class="md-accent" ng-click="vm.resetLastInvoiceNo()">
-                                        <span layout-padding>Reset</span>
-                                    </md-button>
-                                </div>
+                                    <input type="number" ng-model="vm.ivSettings.lastInvoiceNumber" ng-blur="vm.OnBlurLastInvoiceNumber()" placeholder="Enter Invoice Number Here" class="am-table-inline-input" flex>
+                                </span>
+                                <div flex></div>
+                                <md-button class="md-accent" ng-click="vm.resetLastInvoiceNo()">
+                                    <span layout-padding>Reset</span>
+                                </md-button>
+                            </div>
+                            <div layout="row" layout-xs="column">
+                                <span layout="row" layout-align="center center">
+                                    <span class="md-body-1" flex>Last Estimate Number: </span>
+                                    <input type="number" ng-model="vm.ivSettings.lastEstimateNo" ng-blur="vm.OnBlurLastEstimateNo()" placeholder="Enter Estimate Number Here" class="am-table-inline-input" flex>
+                                </span>
+                                <div flex></div>
+                                <md-button class="md-accent" ng-click="vm.resetLastEstimateNo()">
+                                    <span layout-padding>Reset</span>
+                                </md-button>
+                            </div>
+                            <div layout="row" layout-xs="column">
+                                <span layout="row" layout-align="center center">
+                                    <span class="md-body-1" flex>Last Job Card Number: </span>
+                                    <input type="number" ng-model="vm.ivSettings.lastJobCardNo" ng-blur="vm.OnBlurLastJobCardNo()" placeholder="Enter Job Card Number Here" class="am-table-inline-input" flex>
+                                </span>
+                                <div flex></div>
+                                <md-button class="md-accent" ng-click="vm.resetLastJobCardNo()">
+                                    <span layout-padding>Reset</span>
+                                </md-button>
                             </div>
                         </md-card-content>
                     </md-card>
