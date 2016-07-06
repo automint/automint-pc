@@ -2,7 +2,7 @@
  * Controller for Settings component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.x
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,14 +11,21 @@
     angular.module('automintApp')
         .controller('amCtrlSettings', SettingsController);
 
-    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings', 'amSeTaxSettings'];
+    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings', 'amSeTaxSettings', 'amSettings'];
 
-    function SettingsController($rootScope, $scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings, amSeTaxSettings) {
+    function SettingsController($rootScope, $scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings, amSeTaxSettings, amSettings) {
         //  initialize view model
         var vm = this;
         
         //  temporary named assignments
-        var olino = 0, oljbno = 0, oleno = 0, ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oPasscode = '1234', oPasscodeEnabled, oIvAlignTop = '', oIvAlignBottom = '', oIvWorkshopName, oIvWorkshopPhone, oIvWorkshopAddress1, oIvWorkshopAddress2, oIvWorkshopCity;
+        var olino = 0, 
+            oljbno = 0, 
+            oleno = 0, 
+            oPasscode = '1234', 
+            oPasscodeEnabled, 
+            oIvAlignTop = '', 
+            oIvAlignBottom = '',
+            ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oIvWorkshopName, oIvWorkshopPhone, oIvWorkshopAddress1, oIvWorkshopAddress2, oIvWorkshopCity, oDefaultServiceType;
 
         //  named assignments to keep track of UI [BEGIN]
         //  general settings
@@ -28,6 +35,8 @@
         };
         vm.label_username = 'Enter Username:';
         vm.label_password = 'Enter Password:';
+        vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
+        vm.serviceState = vm.serviceStateList[2];
         //  invoice settings
         vm.workshop = {
             name: '',
@@ -67,6 +76,7 @@
         vm.handleUploadedFile = handleUploadedFile;
         vm.handleUploadedCoverPic = handleUploadedCoverPic;
         vm.handlePasscodeVisibility = handlePasscodeVisibility;
+        vm.saveDefaultServiceType = saveDefaultServiceType;
         //  invoice settings
         vm.changeWorkshopNameLabel = changeWorkshopNameLabel;
         vm.changeWorkshopPhoneLabel = changeWorkshopPhoneLabel;
@@ -98,6 +108,11 @@
         vm.OnBlurLastEstimateNo = OnBlurLastEstimateNo;
         vm.resetLastJobCardNo = resetLastJobCardNo;
         vm.OnBlurLastJobCardNo = OnBlurLastJobCardNo;
+        vm.autoCapitalizeCity = autoCapitalizeCity;
+        vm.autoCapitalizeAddressLine1 = autoCapitalizeAddressLine1;
+        vm.autoCapitalizeAddressLine2 = autoCapitalizeAddressLine2;
+        vm.autoCapitalizeWorkshopName = autoCapitalizeWorkshopName;
+        vm.autoCapitalizeEmailSubject = autoCapitalizeEmailSubject;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -111,6 +126,7 @@
         //  general settings
         checkLogin();
         getPasscode();
+        getDefaultServiceType();
         //  invoice settings
         getWorkshopDetails();
         getInvoiceSettings();
@@ -119,10 +135,63 @@
         //  service tax settings
         getServiceTaxSettings();
         getVatSettings();
-        changeInvoiceTab(true)  //  testing purposes amTODO: remove it
+        // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
         //  default execution steps [END]
 
         //  function definitions
+
+        function getDefaultServiceType() {
+            amSettings.getDefaultServiceType().then(success).catch(failure);
+
+            function success(res) {
+                vm.serviceState = res;
+                oDefaultServiceType = res;
+            }
+
+            function failure(err) {
+                vm.serviceState = vm.serviceStateList[2];
+                oDefaultServiceType = vm.serviceStateList[2];
+            }
+        }
+
+        function saveDefaultServiceType() {
+            if (oDefaultServiceType == vm.serviceState)
+                return;
+            amSettings.saveDefaultServiceType(vm.serviceState).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok) {
+                    oDefaultServiceType = vm.serviceState;
+                    utils.showSimpleToast('Default Service Type Changed Successfully!');
+                } else
+                    failure();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Could not set default service type at moment');
+                vm.serviceState = oDefaultServiceType;
+            }
+        }
+
+        function autoCapitalizeEmailSubject() {
+            vm.ivSettings.emailsubject = utils.autoCapitalizeWord(vm.ivSettings.emailsubject);
+        }
+
+        function autoCapitalizeCity() {
+            vm.workshop.city = utils.autoCapitalizeWord(vm.workshop.city);
+        }
+
+        function autoCapitalizeAddressLine2() {
+            vm.workshop.address2 = utils.autoCapitalizeWord(vm.workshop.address2);
+        }
+
+        function autoCapitalizeAddressLine1() {
+            vm.workshop.address1 = utils.autoCapitalizeWord(vm.workshop.address1);
+        }
+
+        function autoCapitalizeWorkshopName() {
+            vm.workshop.name = utils.autoCapitalizeWord(vm.workshop.name);
+        }
 
         function OnBlurLastJobCardNo() {
             if (vm.ivSettings.lastJobCardNo == '' || vm.ivSettings.lastJobCardNo == null || vm.ivSettings.lastJobCardNo == undefined)

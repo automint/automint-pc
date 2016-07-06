@@ -2,7 +2,7 @@
  * Closure for state definitions and mappings to template files
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -497,6 +497,7 @@
                 'app/components/settings/settings-importdata.service.js',
                 'app/components/settings/settings-invoices.factory.js',
                 'app/components/settings/settings-servicetax.factory.js',
+                'app/components/settings/settings.factory.js',
                 'assets/js/jquery.csv.min.js'
             ])
         }

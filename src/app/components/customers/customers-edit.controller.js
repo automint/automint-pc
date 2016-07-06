@@ -2,7 +2,7 @@
  * Controller for Edit Customer component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -81,6 +81,8 @@
         vm.editService = editService;
         vm.deleteService = deleteService;
         vm.goToInvoice = goToInvoice;
+        vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
+        vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
         
         //  default execution steps
         if ($state.params.id != undefined) {
@@ -93,6 +95,18 @@
         }
 
         //  function definitions
+
+        function autoCapitalizeVehicleModel() {
+            vm.vehicle.model = utils.autoCapitalizeWord(vm.vehicle.model);
+        }
+
+        function autoCapitalizeVehicleManuf() {
+            vm.vehicle.manuf = utils.autoCapitalizeWord(vm.vehicle.manuf);
+        }
+
+        function autoCapitalizeCustomerAddress() {
+            vm.user.address = utils.autoCapitalizeWord(vm.user.address);
+        }
 
         //  edit service
         function editService(service) {
@@ -570,12 +584,14 @@
             }
         }
 
-        function searchVehicleChange() {
+        function searchVehicleChange(e) {
+            autoCapitalizeVehicleManuf();
             if (!autofillVehicle) {
                 vm.models = [];
                 vm.vehicle.model = '';
                 autofillVehicle = false;
-            }
+            } else
+                autofillVehicle = false;
         }
 
         //  return boolean response to different configurations [BEGIN]

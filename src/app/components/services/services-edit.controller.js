@@ -2,7 +2,7 @@
  * Controller for Edit Service component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.x
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -170,6 +170,8 @@
         vm.IsServiceStateSelected = IsServiceStateSelected;
         vm.selectServiceState = selectServiceState;
         vm.WhichServiceStateEnabled = WhichServiceStateEnabled;
+        vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
+        vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
 
         //  default execution steps
         setCoverPic();
@@ -180,6 +182,18 @@
         getMemberships();
 
         //  function definitions
+
+        function autoCapitalizeVehicleModel() {
+            vm.vehicle.model = utils.autoCapitalizeWord(vm.vehicle.model);
+        }
+
+        function autoCapitalizeVehicleManuf() {
+            vm.vehicle.manuf = utils.autoCapitalizeWord(vm.vehicle.manuf);
+        }
+
+        function autoCapitalizeCustomerAddress() {
+            vm.user.address = utils.autoCapitalizeWord(vm.user.address);
+        }
 
         function getLastJobCardNo() {
             amServices.getLastJobCardNo().then(success).catch(failure);
@@ -1273,11 +1287,13 @@
 
         //  vehicle manufacturer is updated from UI, clear model list to populate new list w.r.t. manufacturer
         function searchVehicleChange() {
+            autoCapitalizeVehicleManuf();
             if (!autofillVehicle) {
                 vm.models = [];
                 vm.vehicle.model = '';
                 autofillVehicle = false;
-            }
+            } else
+                autofillVehicle = false;
         }
 
         //  replace all the treatment values with updated vehicle type

@@ -2,7 +2,7 @@
  * Controller for Add Customer component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -64,6 +64,8 @@
         vm.OnAddMembershipChip = OnAddMembershipChip;
         vm.changeMembershipTab = changeMembershipTab;
         vm.goBack = goBack;
+        vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
+        vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
         
         //  default execution steps
         getMemberships();
@@ -71,6 +73,18 @@
         getVehicleTypes();
 
         //  function definitions
+
+        function autoCapitalizeVehicleModel() {
+            vm.vehicle.model = utils.autoCapitalizeWord(vm.vehicle.model);
+        }
+
+        function autoCapitalizeVehicleManuf() {
+            vm.vehicle.manuf = utils.autoCapitalizeWord(vm.vehicle.manuf);
+        }
+
+        function autoCapitalizeCustomerAddress() {
+            vm.user.address = utils.autoCapitalizeWord(vm.user.address);
+        }
         
         function goBack() {
             $state.go('restricted.customers.all');
@@ -227,6 +241,7 @@
         function convertNameToTitleCase() {
             vm.user.name = utils.convertToTitleCase(vm.user.name);
         }
+
         function convertRegToCaps() {
             vm.vehicle.reg = vm.vehicle.reg.toUpperCase();
         }
@@ -297,6 +312,7 @@
         }
         
         function searchVehicleChange() {
+            autoCapitalizeVehicleManuf();
             vm.models = [];
             vm.vehicle.model = '';
         }

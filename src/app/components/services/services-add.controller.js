@@ -2,7 +2,7 @@
  * Controller for Add Service module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.x
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -99,7 +99,7 @@
         vm.isServiceInfoExpanded = false;
         vm.serviceViewportHeight = $(window).height();
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
-        vm.service.state = vm.serviceStateList[0];
+        vm.service.state = vm.serviceStateList[2];
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -177,12 +177,15 @@
         vm.IsServiceStateSelected = IsServiceStateSelected;
         vm.selectServiceState = selectServiceState;
         vm.WhichServiceStateEnabled = WhichServiceStateEnabled;
+        vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
+        vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
 
         //  default execution steps
         setCoverPic();
         changeUserInfoState(true);   //  ammToDo: Enable this while commiting
         // changeServiceInfoState(true);   //  ammToDo: Testing Purpose, Disable while commiting
         buildDelayedToggler('service-details-left');
+        getDefaultServiceType();
         getTreatmentDisplayFormat();
         getInventoriesSettings();
         getVehicleTypes();
@@ -194,6 +197,30 @@
         getLastJobCardNo();
 
         //  function definitions
+
+        function getDefaultServiceType() {
+            amServices.getDefaultServiceType().then(success).catch(failure);
+
+            function success(res) {
+                vm.service.state = res;
+            }
+
+            function failure(err) {
+                vm.service.state = vm.serviceStateList[2];
+            }
+        }
+
+        function autoCapitalizeVehicleModel() {
+            vm.vehicle.model = utils.autoCapitalizeWord(vm.vehicle.model);
+        }
+
+        function autoCapitalizeVehicleManuf() {
+            vm.vehicle.manuf = utils.autoCapitalizeWord(vm.vehicle.manuf);
+        }
+
+        function autoCapitalizeCustomerAddress() {
+            vm.user.address = utils.autoCapitalizeWord(vm.user.address);
+        }
 
         function WhichServiceStateEnabled(index) {
             return (IsServiceStateSelected(vm.serviceStateList[index]));
@@ -1284,6 +1311,7 @@
 
         //  vehicle manufacturer is updated from UI, clear model list to populate new list w.r.t. manufacturer
         function searchVehicleChange() {
+            autoCapitalizeVehicleManuf();
             if (!autofillVehicle) {
                 vm.models = [];
                 vm.vehicle.model = '';
