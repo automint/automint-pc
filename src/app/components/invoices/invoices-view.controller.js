@@ -25,6 +25,8 @@
         //  initialize view model
         var vm = this;
 
+        var oCustomerEmail;
+
         //  named assignments to keep track of UI elements
         vm.isFabOpen = true;
         vm.fabClass = '';
@@ -158,6 +160,7 @@
 
             function fillServiceDetails(res) {
                 vm.user = res.user;
+                oCustomerEmail = res.user.email;
                 vm.vehicle = res.vehicle;
                 vm.service = res.service;
                 vm.isRoundOff = (vm.service.roundoff != undefined);
@@ -307,6 +310,12 @@
             function doMailInvoice(result) {
                 vm.user.email = result;
                 mailInvoice();
+                if (vm.user.email != oCustomerEmail)
+                    amInvoices.saveCustomerEmail($state.params.userId, vm.user.email).then(respond).catch(respond);
+                
+                function respond(res) {
+                    console.log(res);
+                }
             }
 
             function cancelMailInvoice() {
