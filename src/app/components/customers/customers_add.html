@@ -11,14 +11,14 @@
                         <md-input-container class="am-clear-error-spacer"flex-gt-xs>
                             <md-icon class="md-accent">person_pin</md-icon>
                             <label class="am-form-label" ng-class="{'large': vm.isUserName}">{{vm.label_userName}}</label>
-                            <input ng-disabled="!vm.isAddOperation()" autofocus id="ami-user-name" type="text" ng-model="vm.user.name" ng-change="vm.convertNameToTitleCase()" ng-blur="vm.changeUserNameLabel()" ng-focus="vm.changeUserNameLabel(true)">
+                            <input id="ami-customer-name" ng-disabled="!vm.isAddOperation()" autofocus id="ami-user-name" type="text" ng-model="vm.user.name" ng-change="vm.convertNameToTitleCase()" ng-blur="vm.changeUserNameLabel()" ng-focus="vm.changeUserNameLabel(true)">
                         </md-input-container>
                     </div>
                     <div layout-gt-xs="row" layout-wrap layout-margin>
                         <md-input-container class="am-clear-error-spacer"flex-gt-xs>
                             <md-icon class="md-accent">phone</md-icon>
                             <label class="am-form-label" ng-class="{'large': vm.isUserMobile}">{{vm.label_userMobile}}</label>
-                            <input layout-padding type="text" ng-model="vm.user.mobile" ng-blur="vm.changeUserMobileLabel()" ng-focus="vm.changeUserMobileLabel(true)">
+                            <input id="ami-customer-mobile" layout-padding type="text" ng-model="vm.user.mobile" ng-blur="vm.changeUserMobileLabel(); vm.checkExistingCustomerMobile($event)" ng-focus="vm.changeUserMobileLabel(true)">
                         </md-input-container>
                         <md-input-container class="am-clear-error-spacer"flex-gt-xs>
                             <md-icon class="md-accent">email</md-icon>
@@ -35,6 +35,10 @@
                     </div>
                 </div>
                 <div layout="row" layout-align="end center">
+                    <div layout="row" layout-align="center center" ng-show="vm.loadingBasedOnMobile" flex>
+                        <md-progress-circular md-mode="indeterminate"></md-progress-circular>
+                        <span>Please wait</span>
+                    </div>
                     <md-button class="md-raised md-warn" ng-click="vm.save()">
                         <md-icon>done</md-icon>
                         <span layout-padding>Save</span>
@@ -148,7 +152,7 @@
                     <div layout="row" layout-align="start center"  layout-margin>
                         <md-icon class="md-accent">card_membership</md-icon>
                         <div layout="column" layout-align="start" flex>
-                            <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-on-remove="vm.OnRemoveMembershipChip()" md-require-match="true">
+                            <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-on-remove="vm.unsubscribeMembership($event, $chip)" md-require-match="true">
                                 <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
                                     <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
                                 </md-autocomplete>

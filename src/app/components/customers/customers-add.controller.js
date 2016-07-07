@@ -43,6 +43,7 @@
         vm.models = [];
         vm.membershipChips = [];
         vm.vehicleTypeList = [];
+        vm.loadingBasedOnMobile = false;
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -66,13 +67,72 @@
         vm.goBack = goBack;
         vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
         vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
+        vm.checkExistingCustomerMobile = checkExistingCustomerMobile;
+        vm.unsubscribeMembership = unsubscribeMembership;
         
         //  default execution steps
+        setTimeout(focusCustomerName, 300);
         getMemberships();
         getRegularTreatments();
         getVehicleTypes();
 
         //  function definitions
+
+        function unsubscribeMembership(ev, chip) {
+            var confirm = $mdDialog.confirm()
+                .textContent('Unsubscribe to ' + chip.name + ' ?')
+                .ariaLabel('Unsubscribe to ' + chip.name)
+                .targetEvent(ev)
+                .ok('Yes')
+                .cancel('No');
+
+            $mdDialog.show(confirm).then(performDelete, ignoreDelete);
+
+            function performDelete() {
+                console.log('deleted');
+            }
+
+            function ignoreDelete() {
+                vm.membershipChips.push(chip);
+            }
+        }
+
+        function focusCustomerName() {
+            $('#ami-customer-name').focus();
+        }
+
+        function checkExistingCustomerMobile(ev) {
+            vm.loadingBasedOnMobile = true;
+            amCustomers.getCustomerByMobile(vm.user.mobile).then(success).catch(failure);
+
+            function success(res) {
+                vm.loadingBasedOnMobile = false;
+                var confirm = $mdDialog.confirm()
+                    .title('Do you want to edit customer details ?')
+                    .textContent('Customer record for  ' + res.name + ' with ' + vm.user.mobile + ' already exists')
+                    .ariaLabel('Edit Customer')
+                    .targetEvent(ev)
+                    .ok('Yes')
+                    .cancel('No');
+                
+                $mdDialog.show(confirm).then(doEdit, ignore);
+                
+                function doEdit() {
+                    $state.go('restricted.customers.edit', {
+                        id: res.id
+                    });
+                }
+                
+                function ignore() {
+                    vm.user.mobile = '';
+                }                
+            }
+
+            function failure(err) {
+                vm.loadingBasedOnMobile = false;
+                console.log('New Customer');
+            }
+        }
 
         function autoCapitalizeVehicleModel() {
             vm.vehicle.model = utils.autoCapitalizeWord(vm.vehicle.model);

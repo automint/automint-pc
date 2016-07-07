@@ -75,7 +75,6 @@
         vm.OnAddMembershipChip = OnAddMembershipChip;
         vm.changeMembershipTab = changeMembershipTab;
         vm.goBack = goBack;
-        vm.OnRemoveMembershipChip = OnRemoveMembershipChip;
         vm.changeServicesTab = changeServicesTab;
         vm.getServiceDate = getServiceDate;
         vm.editService = editService;
@@ -83,18 +82,44 @@
         vm.goToInvoice = goToInvoice;
         vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
         vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
+        vm.unsubscribeMembership = unsubscribeMembership;
         
         //  default execution steps
         if ($state.params.id != undefined) {
             getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
             if ($state.params.openTab == 'services')
                 changeServicesTab(true);
+            else
+                setTimeout(focusCustomerMobile, 300);
         } else {
             utils.showSimpleToast('Something went wrong!');
             $state.go('restricted.customers.all');
         }
 
         //  function definitions
+
+        function unsubscribeMembership(ev, chip) {
+            var confirm = $mdDialog.confirm()
+                .textContent('Unsubscribe to ' + chip.name + ' ?')
+                .ariaLabel('Unsubscribe to ' + chip.name)
+                .targetEvent(ev)
+                .ok('Yes')
+                .cancel('No');
+
+            $mdDialog.show(confirm).then(performDelete, ignoreDelete);
+
+            function performDelete() {
+                OnRemoveMembershipChip();
+            }
+
+            function ignoreDelete() {
+                vm.membershipChips.push(chip);
+            }
+        }
+
+        function focusCustomerMobile() {
+            $('#ami-customer-mobile').focus();
+        }
 
         function autoCapitalizeVehicleModel() {
             vm.vehicle.model = utils.autoCapitalizeWord(vm.vehicle.model);

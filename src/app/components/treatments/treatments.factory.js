@@ -2,7 +2,7 @@
  * Factory that handles database interactions between treatments database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -199,9 +199,9 @@
             function treatmentDocFound(res) {
                 if (!res.regular)
                     res.regular = {};
-                if (!(res.regular[treatment.name] && method == 'add')) {
-                    res.regular[treatment.name] = i;
-                }
+                if (res.regular[treatment.name])
+                    delete res.regular[treatment.name]['._deleted'];
+                res.regular[treatment.name] = i;
                 pdbConfig.save(res).then(success).catch(failure);
             }
 
