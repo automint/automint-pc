@@ -56,14 +56,21 @@
         cursor: pointer;
     }
 </style>
-<md-content layout-padding layout="column" ng-init="vm.displayIncome = false">
+<md-content layout="column" ng-init="vm.displayIncome = false">
+    <md-content layout="row" layout-align="start center" style="padding: 0.3rem 1rem" class="md-hue-1">
+        <span class="md-body-1">Dislay Dashboard Information for : {{vm.ddTimeSet}} </span>
+        <div flex></div>
+        <md-button class="md-raised md-accent" ng-click="vm.openTimeFilter($event)">
+            <span layout-margin>Change</span>
+            <md-icon style="font-size: 16pt">date_range</md-icon>
+        </md-button>
+    </md-content>
     <md-content layout="row" layout-xs="column">
         <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content>
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
                         <span class="am-card-label">Customers Served</span>
-                        <span class="am-card-label x-small">(This Month)</span>
                     </div>
                     <span class="am-color light-blue bold">{{vm.totalCustomersServed}}</span>
                 </div>
@@ -74,7 +81,6 @@
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
                         <span class="am-card-label">Income</span>
-                        <span class="am-card-label x-small">(This Month)</span>
                     </div>
                     <span ng-click="vm.displayIncome = !vm.displayIncome" class="am-clickable-amount"><span class="am-color green bold" ng-if="!vm.displayIncome"><span class="am-card-label small">Rs.</span>$$$</span><span class="am-color green bold" ng-if="vm.displayIncome"><span class="am-card-label small">Rs.</span>{{vm.totalRevenueEarned}}</span></span>
                 </div>
@@ -85,7 +91,6 @@
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
                         <span class="am-card-label">Due Payments</span>
-                        <span class="am-card-label x-small">(This Month)</span>
                     </div>
                     <span class="am-color red bold"><span class="am-card-label small">Rs.</span>{{vm.totalPendingPayments}}</span>
                 </div>
@@ -96,7 +101,6 @@
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
                         <span class="am-card-label">New Customers</span>
-                        <span class="am-card-label x-small">(This Month)</span>
                     </div>
                     <span class="am-color orange bold">{{vm.totalNewCustomers}}</span>
                 </div>
@@ -107,7 +111,7 @@
         <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content layout="column">
                 <div layout="row" layout-xs="column" layout-align="start center">
-                    <span flex><span class="am-card-label">Daily Services</span>&nbsp;<span class="am-card-label small">(This Month: {{vm.totalServicesDone}} Services)</span></span>
+                    <span flex><span class="am-card-label">Daily Services</span>&nbsp;<span class="am-card-label small">({{vm.totalServicesDone}} Services)</span></span>
                     <md-button class="md-accent" ng-click="vm.viewAllServices()">
                         <md-icon>list</md-icon>
                         <span layout-margin>View All Services</span>

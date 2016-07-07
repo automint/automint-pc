@@ -413,6 +413,7 @@
             return $ocLazyLoad.load([
                 'material-datatable',
                 'google-chart',
+                'app/components/dashboard/dashboard.controller-deps.js',
                 'app/components/dashboard/dashboard.controller.js',
                 'app/components/dashboard/dashboard.factory.js'
             ]);

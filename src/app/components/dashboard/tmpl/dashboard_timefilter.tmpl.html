@@ -1,0 +1,104 @@
+<style>
+    .am-month-name {
+        font-size: 9pt;
+    }
+</style>
+<md-content class="md-hue-1" layout="column" layout-padding>
+    <table>
+        <thead>
+            <tr>
+                <th>
+                    <md-button class="md-icon-button" ng-show="vm.IsPreviousYear()" ng-click="vm.changeToPreviousYear()">
+                        <md-icon>arrow_back</md-icon>
+                    </md-button>
+                </th>
+                <th>
+                    <md-button>
+                        <span layout-margin>{{vm.yearRange[vm.currentYearIndex]}}</span>
+                    </md-button>
+                </th>
+                <th>
+                    <md-button class="md-icon-button" ng-show="vm.IsNextYear()" ng-click="vm.changeToNextYear()">
+                        <md-icon>arrow_forward</md-icon>
+                    </md-button>
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(1)" ng-class="{'md-raised': vm.IsDateSetSelected(1)}" ng-click="vm.selectDateSet(1)">
+                        <span layout-margin class="am-month-name">Jan</span>
+                    </md-button>
+                </td>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(2)" ng-class="{'md-raised': vm.IsDateSetSelected(2)}" ng-click="vm.selectDateSet(2)">
+                        <span layout-margin class="am-month-name">Feb</span>
+                    </md-button>
+                </td>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(3)" ng-class="{'md-raised': vm.IsDateSetSelected(3)}" ng-click="vm.selectDateSet(3)">
+                        <span layout-margin class="am-month-name">Mar</span>
+                    </md-button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(4)" ng-class="{'md-raised': vm.IsDateSetSelected(4)}" ng-click="vm.selectDateSet(4)">
+                        <span layout-margin class="am-month-name">Apr</span>
+                    </md-button>
+                </td>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(5)" ng-class="{'md-raised': vm.IsDateSetSelected(5)}" ng-click="vm.selectDateSet(5)">
+                        <span layout-margin class="am-month-name">May</span>
+                    </md-button>
+                </td>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(6)" ng-class="{'md-raised': vm.IsDateSetSelected(6)}" ng-click="vm.selectDateSet(6)">
+                        <span layout-margin class="am-month-name">Jun</span>
+                    </md-button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(7)" ng-class="{'md-raised': vm.IsDateSetSelected(7)}" ng-click="vm.selectDateSet(7)">
+                        <span layout-margin class="am-month-name">Jul</span>
+                    </md-button>
+                </td>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(8)" ng-class="{'md-raised': vm.IsDateSetSelected(8)}" ng-click="vm.selectDateSet(8)">
+                        <span layout-margin class="am-month-name">Aug</span>
+                    </md-button>
+                </td>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(9)" ng-class="{'md-raised': vm.IsDateSetSelected(9)}" ng-click="vm.selectDateSet(9)">
+                        <span layout-margin class="am-month-name">Sept</span>
+                    </md-button>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(10)" ng-class="{'md-raised': vm.IsDateSetSelected(10)}" ng-click="vm.selectDateSet(10)">
+                        <span layout-margin class="am-month-name">Oct</span>
+                    </md-button>
+                </td>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(11)" ng-class="{'md-raised': vm.IsDateSetSelected(11)}" ng-click="vm.selectDateSet(11)">
+                        <span layout-margin class="am-month-name">Nov</span>
+                    </md-button>
+                </td>
+                <td>
+                    <md-button class="md-accent" ng-disabled="vm.IsDateSetDisabled(12)" ng-class="{'md-raised': vm.IsDateSetSelected(12)}" ng-click="vm.selectDateSet(12)">
+                        <span layout-margin class="am-month-name">Dec</span>
+                    </md-button>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div layout="row" layout-align="end center">
+        <md-button class="md-warn" ng-click="vm.confirm()">
+            <md-icon>done</md-icon>
+            <span layout-margin>Done</span>
+        </md-button>
+    </div>
+</md-content>

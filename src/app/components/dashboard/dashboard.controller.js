@@ -2,25 +2,20 @@
  * Controller for dashboard view
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
-    angular.module('automintApp')
-        .controller('dashboardCtrl', DashboardController)
-        .controller('amCtrlDashDuPy', DuePaymentsController)
-        .controller('amCtrlDashNwCu', NewCustomerController);
+    angular.module('automintApp').controller('dashboardCtrl', DashboardController);
 
     DashboardController.$inject = ['$state', '$filter', '$log', '$mdDialog', '$amRoot', 'utils', 'amDashboard'];
-    DuePaymentsController.$inject = ['$state', '$mdDialog', 'unbilledServices'];
-    NewCustomerController.$inject = ['$mdDialog', 'newCustomers'];
 
     function DashboardController($state, $filter, $log, $mdDialog, $amRoot, utils, amDashboard) {
         //  initialize view model
         var vm = this;
-        var ubServices = [], nwCustomers = [];
+        var ubServices = [], nwCustomers = [], filterRange = [];;
 
         //  named assignments to keep track of UI
         vm.totalCustomersServed = 0;
@@ -32,7 +27,7 @@
         vm.perDayServiceChart.type = "AnnotationChart";
         vm.perDayServiceChart.options = {
             displayAnnotations: true,
-            displayZoomButtons: false,
+            displayZoomButtons: true,
             displayRangeSelector: false,
             thickness: 2,
             colors: ['03A9F4'],
@@ -79,20 +74,97 @@
             }],
             rows: []
         };
+        vm.currentTimeSet = [];
+        vm.ddTimeSet = '';
 
         //  function maps
         vm.addNewService = addNewService;
         vm.viewAllServices = viewAllServices;
         vm.openDuePayments = openDuePayments;
         vm.openNewCustomers = openNewCustomers;
+        vm.openTimeFilter = openTimeFilter;
 
         //  default execution steps
+        initCurrentTimeSet();
+        getFilterMonths();
         $amRoot.ccViews();
-        amDashboard.getTotalCustomerServed().then(generateTcsData).catch(failure);
-        amDashboard.getNewCustomers().then(generateNcpData).catch(failure);
+        amDashboard.getTotalCustomerServed(vm.currentTimeSet).then(generateTcsData).catch(failure);
+        amDashboard.getNewCustomers(vm.currentTimeSet).then(generateNcpData).catch(failure);
         amDashboard.getProblemsAndVehicleTypes().then(sortProblemsAndVehicleTypes).catch(failure);
 
         //  function definitions
+
+        function displayCurrentTimeSet() {
+            vm.ddTimeSet = '';
+            var years = [];
+            vm.currentTimeSet.forEach(iterateTimeSets);
+            years.forEach(iterateYears);
+            vm.ddTimeSet = vm.ddTimeSet.substr(0, vm.ddTimeSet.length - 2);
+
+            function iterateYears(y) {
+                var tyf = $filter('filter')(vm.currentTimeSet, {
+                    year: y
+                }, true);
+
+                tyf.forEach(iterateFoundYear);
+                vm.ddTimeSet += y + ', ';
+
+                function iterateFoundYear(fy) {
+                    vm.ddTimeSet += moment(fy.month, 'MMM').format('MMMM') + ' ';
+                }
+            }
+
+            function iterateTimeSets(ts) {
+                var tyf = $filter('filter')(years, ts.year, true);
+
+                if (tyf.length == 0)
+                    years.push(ts.year);
+            }
+        }
+
+        function initCurrentTimeSet() {
+            vm.currentTimeSet.push({
+                month: moment().format('MMM'),
+                year: moment().format('YYYY')
+            });
+            displayCurrentTimeSet();
+        }
+
+        function getFilterMonths() {
+            amDashboard.getFilterMonths().then(success).catch(failure);
+
+            function success(res) {
+                filterRange = res;
+            }
+
+            function failure(err) {
+                console.log('failed to get filter months');
+            }
+        }
+
+        function openTimeFilter(event) {
+            $mdDialog.show({
+                controller: 'amCtrlDashTmFl',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/dashboard/tmpl/dashboard_timefilter.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    filterRange: filterRange,
+                    currentTimeSet: vm.currentTimeSet
+                },
+                clickOutsideToClose: true
+            }).then(success).catch(success);
+
+            function success(res) {
+                if (!res)
+                    return;
+                vm.currentTimeSet = res;
+                amDashboard.getTotalCustomerServed(vm.currentTimeSet).then(generateTcsData).catch(failure);
+                amDashboard.getNewCustomers(vm.currentTimeSet).then(generateNcpData).catch(failure);
+                displayCurrentTimeSet();
+            }
+        }
         
         function openDuePayments() {
             if (ubServices.length <= 0) {
@@ -152,13 +224,13 @@
                 Object.keys(res.problems).forEach(iterateProblems);
                 sp.sort(sortByCount);
                 for (var i = 0; i < sp.length; i++) {
-                    if (i == 4) {
+                    if (i == 5) {
                         sortedProblems.push({
                             name: "Others",
                             count: sp[i].count
                         });
-                    } else if (i > 4)
-                        sortedProblems[4].count += sp[i].count;
+                    } else if (i > 5)
+                        sortedProblems[5].count += sp[i].count;
                     else
                         sortedProblems.push(sp[i]);
                 }
@@ -243,8 +315,10 @@
             res.forEach(iterateServices);
             vm.totalRevenueEarned = parseFloat(vm.totalRevenueEarned);
             vm.totalRevenueEarned = (vm.totalRevenueEarned % 1 != 0) ? vm.totalRevenueEarned.toFixed(2) : parseInt(vm.totalRevenueEarned);
-            if (spd)
+            if (spd) {
+                vm.perDayServiceChart.data.rows = [];
                 Object.keys(spd).forEach(calculateSpd);
+            }
 
             function calculateSpd(d) {
                 vm.perDayServiceChart.data.rows.push({
@@ -275,75 +349,7 @@
         }
 
         function failure(err) {
-            // console.log(err);
-        }
-    }
-    
-    function DuePaymentsController($state, $mdDialog, unbilledServices) {
-        //  initialize view model
-        var vm = this;
-        
-        //  named assignments to keep track of UI
-        vm.query = {
-            limit: 20,
-            page: 1,
-            total: unbilledServices.length
-        };
-        //  function mappings
-        vm.getServiceDate = getServiceDate;
-        vm.services = unbilledServices;
-        vm.editService = editService;
-        vm.closeDialog = closeDialog;
-        
-        //  default execution steps
-        vm.services.sort(sortFunction);
-        
-        //  function definitions
-        
-        function sortFunction(lhs, rhs) {
-            return (rhs.srvc_date.localeCompare(lhs.srvc_date));
-        }
-        
-        function getServiceDate(date) {
-            return moment(date).format('DD MMM YYYY');
-        }
-        
-        //  close dialog box
-        function closeDialog() {
-            $mdDialog.hide();
-        }
-        
-        //  edit service
-        function editService(service) {
-            $mdDialog.hide();
-            $state.go('restricted.services.edit', {
-                serviceId: service.srvc_id,
-                vehicleId: service.vhcl_id,
-                userId: service.cstmr_id,
-                fromState: 'dashboard.duepayments'
-            });
-        }
-    }
-    
-    function NewCustomerController($mdDialog, newCustomers) {
-        //  initialize view model
-        var vm = this;
-        
-        //  named assignments to keep track of UI
-        vm.query = {
-            limit: 20,
-            page: 1,
-            total: newCustomers.length
-        };
-        //  function mappings
-        vm.customers = newCustomers;
-        vm.closeDialog = closeDialog;
-        
-        //  function definitions
-        
-        //  close dialog box
-        function closeDialog() {
-            $mdDialog.hide();
+            console.log(err);
         }
     }
 })();;
