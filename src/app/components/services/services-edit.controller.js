@@ -29,7 +29,8 @@
             isDiscountByPercent = true,
             isManualRoundOff = false,
             isFirstTimeLoad = true,
-            serviceTotalCost = 0,
+            serviceTcRo = 0,
+            serviceTcDc = 0,
             forceStopCalCost = false,
             olInvoiceNo = 0,
             olJobCardNo = 0,
@@ -141,7 +142,7 @@
         vm.calculateVat = calculateVat;
         vm.changeQty = changeQty;
         vm.changeInventoryTotal = changeInventoryTotal;
-        vm.populateRoundOffVal = populateRoundOffVal;
+        vm.populateRoD = populateRoD;
         vm.changeForceStopCalCost = changeForceStopCalCost;
         vm.calculateViewportHeight = calculateViewportHeight;
         vm.unsubscribeMembership = unsubscribeMembership;
@@ -174,6 +175,9 @@
         vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
         vm.calculateSubtotal = calculateSubtotal;
         vm.doRoundOff = doRoundOff;
+        vm.calculateRoundOff = calculateRoundOff;
+        vm.calculateDiscount = calculateDiscount;
+        vm.isRoD = isRoD;
 
         //  default execution steps
         setCoverPic();
@@ -185,13 +189,18 @@
 
         //  function definitions
 
+         function isRoD() {
+            return (vm.isDiscountApplied || vm.isRoundOffVal);
+        }
+
         function doRoundOff(input) {
+            if (input == '')
+                return 0;
             return ((input % 1 != 0) ? input.toFixed(2) : parseInt(input));
         }
 
         function calculateSubtotal() {
             var totalCost = 0;
-            serviceTotalCost = 0;
             vm.service.problems.forEach(iterateProblem);
             vm.selectedInventories.forEach(iterateInventories);
             if (vm.serviceType == vm.serviceTypeList[1]) {
@@ -1447,52 +1456,54 @@
             }
         }
 
-        function populateRoundOffVal() {
-            vm.roundedOffVal = vm.service.cost - serviceTotalCost;
+        function populateRoD() {
+            if (vm.isDiscountApplied) {
+                vm.discountValue =  serviceTcDc - vm.service.cost;
+                calculateDiscount(false);
+            } else if (vm.isRoundOffVal)
+                vm.roundedOffVal = vm.service.cost - serviceTcRo;
+        }
+
+        function calculateRoundOff(isRoundOffManual) {
+            if (!isRoundOffManual) {
+                var ot = totalCost = vm.service.cost;
+                totalCost = vm.isRoundOffVal ? Math.floor(totalCost * 0.1) * 10 : totalCost;
+                vm.roundedOffVal = (totalCost - ot);
+            }
+            calculateCost();
+        }
+
+        function calculateDiscount(isDiscountByPercent) {
+            var totalCost = vm.service.cost;
+            if (isDiscountByPercent) {
+                vm.discountValue = totalCost * parseFloat(vm.discountPercentage) / 100;
+                vm.discountValue = (isNaN(vm.discountValue) || vm.discountValue == null) ? '' : vm.discountValue;
+            } else if (vm.discountValue != '')
+                vm.discountPercentage = 100 * parseFloat(vm.discountValue) / totalCost;
+            calculateCost();
         }
 
         function changeForceStopCalCost(bool) {
-            forceStopCalCost = bool;
-            isManualRoundOff = true; 
+            forceStopCalCost = bool; 
         }
 
-        function calculateCost(isDbp, isMro) {
+        function calculateCost(isDbp) {
             if (forceStopCalCost)
                 return;
-            isDiscountByPercent = (isDbp != undefined) ? isDbp : isDiscountByPercent;
-            isManualRoundOff = (isMro != undefined) ? isMro : isManualRoundOff;
             var totalCost = 0;
-            serviceTotalCost = 0;
             vm.service.problems.forEach(iterateProblem);
             vm.selectedInventories.forEach(iterateInventories);
             if (vm.serviceType == vm.serviceTypeList[1]) {
                 vm.packages.forEach(iteratePackages);
             }
+            serviceTcDc = totalCost;
             if (vm.isDiscountApplied) {
-                if (isDiscountByPercent) {
-                    var dv = totalCost * parseFloat(vm.discountPercentage) / 100;
-                    totalCost = vm.isDiscountApplied && !isNaN(dv) ? totalCost - dv : totalCost;
-                    vm.discountValue = dv;
-                    vm.discountValue = (isNaN(vm.discountValue) || vm.discountValue == null) ? '' : vm.discountValue;
-                    totalCost = (totalCost % 1).toFixed(2) == 0.00 ? Math.round(totalCost) : totalCost;
-                    delete dv;
-                } else if (vm.discountValue != '') {
-                    var dv = parseFloat(vm.discountValue);
-                    vm.discountPercentage = 100 * dv / totalCost;
-                    totalCost -= dv;
-                    delete dv;
-                }
+                totalCost = vm.isDiscountApplied && !isNaN(vm.discountValue) ? totalCost - vm.discountValue : totalCost;
             }
-            serviceTotalCost = totalCost;
+            serviceTcRo = totalCost;
             if (vm.isRoundOffVal) {
-                if (!isManualRoundOff) {
-                    var ot = totalCost;
-                    totalCost = vm.isRoundOffVal ? Math.floor(totalCost * 0.1) * 10 : totalCost;
-                    vm.roundedOffVal = (totalCost - ot);
-                    delete ot;
-                } else {
-                    totalCost += parseFloat(vm.roundedOffVal);
-                }
+                totalCost += parseFloat(vm.roundedOffVal);
+                serviceTcDc += parseFloat(vm.roundedOffVal);
             }
             totalCost = (totalCost % 1 != 0) ? totalCost.toFixed(2) : totalCost;
             totalCost = (totalCost % 1).toFixed(2) == 0.00 ? Math.round(totalCost) : totalCost;
