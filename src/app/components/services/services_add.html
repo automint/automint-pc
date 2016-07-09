@@ -694,8 +694,8 @@
                         </div>
                         <div flex></div>
                         <div layout="column" class="am-toolbar-strip">
-                            <span layout="row"><span class="md-body-2">Subtotal:&nbsp</span><span flex></span><span>Rs. {{vm.calculateSubtotal()}}</span></span>
-                            <span style="line-height: 0.5rem">&nbsp;</span>
+                            <span ng-if="vm.IsSubtotalEnabled()" layout="row"><span class="md-body-2">Subtotal:&nbsp</span><span flex></span><span>Rs. {{vm.calculateSubtotal()}}</span></span>
+                            <span ng-if="vm.IsSubtotalEnabled()" style="line-height: 0.5rem">&nbsp;</span>
                             <span ng-if="vm.sTaxSettings.applyTax" layout="row"><span class="md-body-2">Service Tax:&nbsp;</span><span flex></span><span>Rs. {{vm.calculateTax()}}</span></span>
                             <span ng-if="vm.sTaxSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
                             <span ng-if="vm.vatSettings.applyTax" layout="row"><span class="md-body-2">VAT:&nbsp;</span><span flex></span><span>Rs. {{vm.calculateVat()}}</span></span>

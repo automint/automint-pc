@@ -178,6 +178,7 @@
         vm.calculateRoundOff = calculateRoundOff;
         vm.calculateDiscount = calculateDiscount;
         vm.isRoD = isRoD;
+        vm.IsSubtotalEnabled = IsSubtotalEnabled;
 
         //  default execution steps
         setCoverPic();
@@ -188,6 +189,10 @@
         getMemberships();
 
         //  function definitions
+
+        function IsSubtotalEnabled() {
+            return (vm.isDiscountApplied || vm.isRoundOffVal || (vm.sTaxSettings && vm.sTaxSettings.applyTax) || (vm.vatSettings && vm.vatSettings.applyTax));
+        }
 
          function isRoD() {
             return (vm.isDiscountApplied || vm.isRoundOffVal);
