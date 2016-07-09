@@ -468,7 +468,7 @@
             $mdDialog.show(confirm).then(performDelete, ignoreDelete);
 
             function performDelete() {
-                console.log('deleted');
+                console.info('deleted');
             }
 
             function ignoreDelete() {
@@ -1810,7 +1810,7 @@
 
             //  !(save successfull)
             function failure(err) {
-                console.log(err);
+                console.info(err);
                 utils.showSimpleToast('Failed to update. Please Try Again!');
             }
         }

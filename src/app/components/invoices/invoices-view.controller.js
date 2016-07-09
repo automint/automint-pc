@@ -89,7 +89,7 @@
             }
 
             function failure(err) {
-                console.log('Cound not find margin settings');
+                console.info('Cound not find margin settings');
             }
         }
         
@@ -241,7 +241,7 @@
             }
 
             function failure(err) {
-                console.log(err);
+                console.warn(err);
                 $log.info('Could not load display settings!');
             }
         }
@@ -314,12 +314,12 @@
                     amInvoices.saveCustomerEmail($state.params.userId, vm.user.email).then(respond).catch(respond);
                 
                 function respond(res) {
-                    console.log(res);
+                    console.info(res);
                 }
             }
 
             function cancelMailInvoice() {
-                console.log('cancelled');
+                console.info('cancelled');
             }
         }
 

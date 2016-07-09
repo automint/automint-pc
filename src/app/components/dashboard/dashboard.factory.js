@@ -199,7 +199,6 @@
                             }, true);
                             
                             if (found.length == 1) {
-                                // console.log('false', target.cstmr_name, cd, dr, res[dr][sId]);
                                 var i = result.indexOf(found[0]);
                                 result.splice(i, 1);
                             }

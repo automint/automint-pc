@@ -159,7 +159,7 @@
             }
 
             function ignoreDelete() {
-                console.log('nope');
+                console.info('nope');
             }
             
 
@@ -172,7 +172,7 @@
             }
 
             function failure(err) {
-                console.log(err);
+                console.warn(err);
                 utils.showSimpleToast('Service can not be deleted at moment. Please Try Again!');
             }
         }

@@ -454,7 +454,7 @@
             $mdDialog.show(confirm).then(performDelete, ignoreDelete);
 
             function performDelete() {
-                console.log('deleted');
+                console.info('deleted');
             }
 
             function ignoreDelete() {

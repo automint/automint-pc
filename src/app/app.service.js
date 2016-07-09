@@ -116,7 +116,7 @@
             }
 
             function failure(err) {
-                console.log(err);
+                console.warn(err);
             }
         }
 

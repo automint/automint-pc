@@ -138,7 +138,7 @@
             }
 
             function failure(err) {
-                console.log('failed to get filter months');
+                console.info('failed to get filter months');
             }
         }
 
@@ -349,7 +349,7 @@
         }
 
         function failure(err) {
-            console.log(err);
+            console.warn(err);
         }
     }
 })();;

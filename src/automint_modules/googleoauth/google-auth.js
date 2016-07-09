@@ -42,7 +42,7 @@
     //  process file containing client secrets and extract its contents for authorization
     function processClientSecrets(err, content) {
         if (err) {
-            console.log('Error loading content: ' + err);
+            console.warn('Error loading content: ' + err);
             return;
         }
         authorize(JSON.parse(content), cbFn);
@@ -108,7 +108,7 @@
             
             function handleToken(err, token) {
                 if (err) {
-                    console.log('Error while trying to retrieve access token', err);
+                    console.warn('Error while trying to retrieve access token', err);
                     return;
                 }
                 oAuth2Client.credentials = token;

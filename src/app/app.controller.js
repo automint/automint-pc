@@ -83,7 +83,6 @@
         }
 
         function openHelpWindow() {
-            console.log(ammHelp);
             ammHelp.openHelpWindow();
         }
 

@@ -266,7 +266,7 @@
             }
 
             function failure(err) {
-                console.log(err);
+                console.warn(err);
                 utils.showSimpleToast('Could not save margin! Please Try Again!');
             }
         }
@@ -442,7 +442,6 @@
         function handleUploadedFile(e) {
             vm.currentCsvProgress = 0;
             var files = e.target.files || e.originalEvent.dataTransfer.files;
-            console.log(files);
             amImportdata.compileCSVFile(files).then(displayToastMessage).catch(displayToastMessage).finally(cleanUp, updates);
 
             function displayToastMessage(res) {
