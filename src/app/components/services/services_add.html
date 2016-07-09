@@ -443,15 +443,15 @@
                                             <tr md-row md-select="problem" md-select-id="details" md-on-select="vm.onProblemSelected" md-on-deselect="vm.onProblemDeselected" ng-repeat="problem in vm.selectedProblems" layout-align="center center">
                                                 <td md-cell><input type="text" ng-model="problem.details" class="am-table-inline-input"></td>
                                                 <td md-cell ng-if="vm.IsTreatmentRateDisplayed()">
-                                                    <span ng-if="vm.sTaxSettings.inclusive">{{problem.rate | number: 2}}</span>
+                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.doRoundOff(problem.rate)}}</span>
                                                     <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-model="problem.rate" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)"></span>
                                                 </td>
                                                 <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                                    {{problem.tax | number: 2}}
+                                                    {{vm.doRoundOff(problem.tax)}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.IsTreatmentAmountEditable()"><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
-                                                    <span ng-if="vm.IsTreatmentAmountText()">{{problem.amount}}</span>
+                                                    <span ng-if="vm.IsTreatmentAmountText()">{{vm.doRoundOff(problem.amount)}}</span>
                                                 </td>
                                             </tr>
                                             <tr md-row>
@@ -463,15 +463,15 @@
                                                     </md-autocomplete>
                                                 </td>
                                                 <td md-cell ng-if="vm.IsTreatmentRateDisplayed()">
-                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.problem.rate | number: 2}}</span>
+                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.doRoundOff(vm.problem.rate)}}</span>
                                                     <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewProblem()" ng-model="vm.problem.rate" ng-change="vm.changeProblemRate(vm.problem)" placeholder="Rate" class="am-box-input md-whiteframe-z1" style="width: 90%"></span>
                                                 </td>
                                                 <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                                    {{vm.problem.tax | number: 2}}
+                                                    {{vm.doRoundOff(vm.problem.tax)}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.IsTreatmentAmountEditable()"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
-                                                    <span ng-if="vm.IsTreatmentAmountText()">{{vm.problem.amount}}</span>
+                                                    <span ng-if="vm.IsTreatmentAmountText()">{{vm.doRoundOff(vm.problem.amount)}}</span>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -500,15 +500,15 @@
                                             <tr md-row md-select="problem" md-select-id="details" md-on-select="vm.onProblemSelected" md-on-deselect="vm.onProblemDeselected" ng-repeat="problem in vm.service.problems">
                                                 <td md-cell><input type="text" ng-model="problem.details" class="am-table-inline-input"></td>
                                                 <td md-cell ng-if="vm.IsTreatmentRateDisplayed()">
-                                                    <span ng-if="vm.sTaxSettings.inclusive">{{problem.rate | number: 2}}</span>
+                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.doRoundOff(problem.rate)}}</span>
                                                     <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-model="problem.rate" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)"></span>
                                                 </td>
                                                 <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                                    {{problem.tax | number: 2}}
+                                                    {{vm.doRoundOff(problem.tax)}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.IsTreatmentAmountEditable()"><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
-                                                    <span ng-if="vm.IsTreatmentAmountText()">{{problem.amount}}</span>
+                                                    <span ng-if="vm.IsTreatmentAmountText()">{{vm.doRoundOff(problem.amount)}}</span>
                                                 </td>
                                             </tr>
                                             <tr md-row>
@@ -520,15 +520,15 @@
                                                     </md-autocomplete>
                                                 </td>
                                                 <td md-cell ng-if="vm.IsTreatmentRateDisplayed()">
-                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.problem.rate | number: 2}}</span>
+                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.doRoundOff(vm.problem.rate)}}</span>
                                                     <span ng-if="!vm.sTaxSettings.inclusive"><input ng-blur="vm.finalizeNewProblem()" type="number" ng-model="vm.problem.rate" ng-change="vm.changeProblemRate(vm.problem)" placeholder="Rate" class="am-box-input md-whiteframe-z1" style="width: 90%"></span>
                                                 </td>
                                                 <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                                    {{vm.problem.tax | number: 2}}
+                                                    {{vm.doRoundOff(vm.problem.tax)}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.IsTreatmentAmountEditable()"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
-                                                    <span ng-if="vm.IsTreatmentAmountText()">{{vm.problem.amount}}</span>
+                                                    <span ng-if="vm.IsTreatmentAmountText()">{{vm.doRoundOff(vm.problem.amount)}}</span>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -567,11 +567,11 @@
                                                     <input type="number" ng-model="inventory.qty" class="am-table-inline-input" ng-change="vm.changeQty(inventory)">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{inventory.tax | number: 2}}
+                                                    {{vm.doRoundOff(inventory.tax * inventory.qty)}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.IsInventoryTotalEditable()"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
-                                                    <span ng-if="vm.IsInventoryTotalText()">{{inventory.total}}</span>
+                                                    <span ng-if="vm.IsInventoryTotalText()">{{vm.doRoundOff(inventory.total)}}</span>
                                                 </td>
                                             </tr>
                                             <tr md-row>
@@ -593,11 +593,11 @@
                                                     <input type="number" ng-model="vm.inventory.qty" placeholder="Qty" ng-change="vm.changeQty(vm.inventory)" class="am-box-input md-whiteframe-z1" style="width: 90%">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{vm.inventory.tax | number: 2}}
+                                                    {{vm.doRoundOff(vm.inventory.tax * vm.inventory.qty)}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.IsInventoryTotalEditable()"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
-                                                    <span ng-if="vm.IsInventoryTotalText()">{{vm.inventory.total}}</span>
+                                                    <span ng-if="vm.IsInventoryTotalText()">{{vm.doRoundOff(vm.inventory.total)}}</span>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -636,11 +636,11 @@
                                                     <input type="number" ng-model="inventory.qty" ng-change="vm.changeQty(inventory)" class="am-table-inline-input">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{inventory.tax | number: 2}}
+                                                    {{vm.doRoundOff(inventory.tax * inventory.qty)}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.IsInventoryTotalEditable()"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
-                                                    <span ng-if="vm.IsInventoryTotalText()">{{inventory.total}}</span>
+                                                    <span ng-if="vm.IsInventoryTotalText()">{{vm.doRoundOff(inventory.total)}}</span>
                                                 </td>
                                             </tr>
                                             <tr md-row>
@@ -662,11 +662,11 @@
                                                     <input type="number" ng-model="vm.inventory.qty" ng-change="vm.changeQty(vm.inventory)" placeholder="Qty" class="am-box-input md-whiteframe-z1" style="width: 90%">
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{vm.inventory.tax | number: 2}}
+                                                    {{vm.doRoundOff(vm.inventory.tax * vm.inventory.qty)}}
                                                 </td>
                                                 <td md-cell>
                                                     <span ng-if="vm.IsInventoryTotalEditable()"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
-                                                    <span ng-if="vm.IsInventoryTotalText()">{{vm.inventory.total}}</span>
+                                                    <span ng-if="vm.IsInventoryTotalText()">{{vm.doRoundOff(vm.inventory.total)}}</span>
                                                 </td>
                                             </tr>
                                         </tbody>
@@ -694,6 +694,8 @@
                         </div>
                         <div flex></div>
                         <div layout="column" class="am-toolbar-strip">
+                            <span layout="row"><span class="md-body-2">Subtotal:&nbsp</span><span flex></span><span>Rs. {{vm.calculateSubtotal()}}</span></span>
+                            <span style="line-height: 0.5rem">&nbsp;</span>
                             <span ng-if="vm.sTaxSettings.applyTax" layout="row"><span class="md-body-2">Service Tax:&nbsp;</span><span flex></span><span>Rs. {{vm.calculateTax()}}</span></span>
                             <span ng-if="vm.sTaxSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
                             <span ng-if="vm.vatSettings.applyTax" layout="row"><span class="md-body-2">VAT:&nbsp;</span><span flex></span><span>Rs. {{vm.calculateVat()}}</span></span>
@@ -702,10 +704,7 @@
                             <span ng-if="vm.isDiscountApplied" style="line-height: 0.5rem">&nbsp;</span>
                             <span ng-if="vm.isRoundOffVal" layout="row"><span class="md-body-2">Round Off:&nbsp;</span><span flex></span><span>Rs. <input type="text" ng-change="vm.calculateCost(undefined, true)" ng-model="vm.roundedOffVal" class="am-discount-inline-input" style="text-align: right"></span></span>
                             <span ng-if="vm.isRoundOffVal" style="line-height: 0.5rem">&nbsp;</span>
-                            <span layout="row" layout-align="end end"><span class="md-body-2">Total Cost:&nbsp;</span><span flex></span><span>Rs.&nbsp<span ng-if="vm.isRoundOffVal"><input type="text" ng-focus="vm.changeForceStopCalCost(true)" ng-blur="vm.changeForceStopCalCost(false)" ng-change="vm.populateRoundOffVal()" ng-model="vm.service.cost" class="am-discount-inline-input" style="width: 74px; text-align: right; font-size: x-large; color: #000"></span>
-                            <span ng-if="!vm.isRoundOffVal" style="font-size: x-large">{{vm.service.cost}}</span>
-                            </span>
-                            </span>
+                            <span layout="row" layout-align="end end"><span class="md-body-2">Total Cost:&nbsp;</span><span flex></span><span>Rs.&nbsp<span ng-if="vm.isRoundOffVal"><input type="text" ng-focus="vm.changeForceStopCalCost(true)" ng-blur="vm.changeForceStopCalCost(false)" ng-change="vm.populateRoundOffVal()" ng-model="vm.service.cost" class="am-discount-inline-input" style="width: 74px; text-align: right; font-size: x-large; color: #000"></span><span ng-if="!vm.isRoundOffVal" style="font-size: x-large">{{vm.service.cost}}</span></span></span>
                         </div>
                         <md-divider class="am-tab-margin"></md-divider>
                         <div layout="row" class="am-tab-margin">
