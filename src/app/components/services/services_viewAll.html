@@ -8,7 +8,7 @@
             <div flex></div>
             <div layout="row" layout-align="center center">
                 <span class="am-form-label" layout-padding>Display Data For: </span>
-                <md-select ng-model="vm.displayDataFor" aria-label="Display Data For:" style="width: 120px">
+                <md-select ng-model="vm.displayDataFor" ng-change="vm.changeDisplayFilter()" aria-label="Display Data For:" style="width: 120px">
                     <md-option class="am-hover-option" ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
                 </md-select>
                 <md-button class="md-icon-button" ng-click="vm.changeQueryMode(true)">
@@ -21,7 +21,7 @@
         <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
             <div layout="row" layout-align="center center" layout-margin>
                 <span class="am-form-label" layout-padding>Display Data For: </span>
-                <md-select ng-model="vm.displayDataFor" aria-label="Display Data For:" style="width: 120px">
+                <md-select ng-model="vm.displayDataFor" ng-change="vm.changeDisplayFilter()" aria-label="Display Data For:" style="width: 120px">
                     <md-option ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
                 </md-select>
             </div>
@@ -34,13 +34,13 @@
     <md-content class="md-hue-1 am-box-shadow">
         <md-table-container>
             <table md-table md-progress="vm.promise">
-                <thead md-head>
+                <thead md-head md-order="vm.sortColumns" md-on-reorder="vm.sortByColumns">
                     <tr md-row>
-                        <th md-column><span class="am-table-header">Customer</span></th>
-                        <th md-column><span class="am-table-header">Vehicle</span></th>
-                        <th md-column><span class="am-table-header">Date</span></th>
-                        <th md-column><span class="am-table-header">Amount</span><br>(Rs.)</th>
-                        <th md-column><span class="am-table-header">Payment</span></th>
+                        <th md-column md-order-by="customerName"><span class="am-table-header">Customer</span></th>
+                        <th md-column md-order-by="vehicle"><span class="am-table-header">Vehicle</span></th>
+                        <th md-column md-order-by="date"><span class="am-table-header">Date</span></th>
+                        <th md-column md-order-by="amount"><span class="am-table-header">Amount</span><br>(Rs.)</th>
+                        <th md-column md-order-by="payment"><span class="am-table-header">Payment</span></th>
                     </tr>
                 </thead>
                 <tbody md-body>
