@@ -88,7 +88,9 @@
             }
         }
 
-        function sortByColumns() {
+        function sortByColumns(isBlockSave) {
+            if (vm.sortColumns == '' || vm.sortColumns == undefined)
+                return;
             switch (vm.sortColumns) {
                 case "date":
                     vm.services.sort(sortAColumnByDate);
@@ -122,7 +124,7 @@
                     break;
             }
 
-            if (isPreferencesLoaded)
+            if (isPreferencesLoaded && !((typeof(isBlockSave) === "boolean") && isBlockSave))
                 ammPreferences.storePreference('viewServices.sort', vm.sortColumns.replace('-', '') + '.' + ((vm.sortColumns.indexOf('-') == 0) ? 'descending' : 'ascending'));
         }
 
