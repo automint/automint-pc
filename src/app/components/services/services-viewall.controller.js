@@ -88,7 +88,7 @@
             }
         }
 
-        function sortByColumns(isFirstLoad) {
+        function sortByColumns() {
             switch (vm.sortColumns) {
                 case "date":
                     vm.services.sort(sortAColumnByDate);
@@ -121,7 +121,8 @@
                     vm.services.sort(sortDColumnByPayment);
                     break;
             }
-            if (!isFirstLoad)
+
+            if (isPreferencesLoaded)
                 ammPreferences.storePreference('viewServices.sort', vm.sortColumns.replace('-', '') + '.' + ((vm.sortColumns.indexOf('-') == 0) ? 'descending' : 'ascending'));
         }
 
@@ -180,11 +181,10 @@
 
                 changeDisplayFilter(true);
                 isPreferencesLoaded = true;
-                if (isDataLoaded)
-                    sortByColumns(true);
             }
 
             function failure(err) {
+                isPreferencesLoaded = true;
                 console.warn(err.message);
             }
         }
