@@ -56,6 +56,7 @@
         vm.isQueryMode = false;
         vm.displayItemPage = 1;
         vm.sortColumns = '';
+        vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
 
         //  function maps
         vm.addService = addService;
@@ -67,12 +68,32 @@
         vm.getServiceDate = getServiceDate;
         vm.sortByColumns = sortByColumns;
         vm.changeDisplayFilter = changeDisplayFilter;
+        vm.IsServiceDue = IsServiceDue;
+        vm.IsServiceStateJc = IsServiceStateJc;
+        vm.IsServiceStateEs = IsServiceStateEs;
+        vm.IsServiceStateIv = IsServiceStateIv;
 
         //  default execution steps
         $scope.$watch('vm.serviceQuery', watchServiceQuery);
         processPreferences();
 
         //  function definitions
+
+         function IsServiceStateIv(state) {
+            return (state == vm.serviceStateList[2]);
+        }
+
+        function IsServiceStateEs(state) {
+            return (state == vm.serviceStateList[1]);
+        }
+
+        function IsServiceStateJc(state) {
+            return (state == vm.serviceStateList[0]);
+        }
+
+        function IsServiceDue(status) {
+            return (status == 'Due');
+        }
 
         function changeDisplayFilter(isAssignVarOnly) {
             var found = $filter('filter')(vm.displayDataOptions, {

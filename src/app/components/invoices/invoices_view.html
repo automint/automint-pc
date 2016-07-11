@@ -167,7 +167,7 @@
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td style="text-align: right;">
-                                        <p style="text-align: right; font-size: large">Invoice #{{vm.service.invoiceno}}</p>
+                                        <p style="text-align: right; font-size: large" ng-if="vm.IsInvoiceAvailable()">Invoice #{{vm.service.invoiceno}}</p>
                                         <span>{{vm.service.date}}</span>
                                     </td>
                                 </tr>

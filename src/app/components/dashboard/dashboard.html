@@ -11,7 +11,11 @@
     .am-card-label {
         font-weight: 500;
         font-size: medium;
-        color: rgba(30, 30, 30, 0.7);
+        color: #616161;
+    }
+
+    .am-card-label.white {
+        color: #fff;
     }
     
     .am-chart-no-border div {
@@ -56,13 +60,11 @@
         cursor: pointer;
     }
 </style>
-<md-content layout="column" ng-init="vm.displayIncome = false">
-    <md-content layout="row" layout-align="start center" style="padding: 0.3rem 1rem" class="md-hue-1">
-        <span class="md-body-1">Dislay Dashboard Information for : {{vm.ddTimeSet}} </span>
-        <div flex></div>
-        <md-button class="md-raised md-accent" ng-click="vm.openTimeFilter($event)">
-            <span layout-margin>Change</span>
-            <md-icon style="font-size: 16pt">date_range</md-icon>
+<md-content layout="column">
+<md-content layout="row" layout-align="end center" style="padding: 0.1rem 1rem" class="am-blue-bar c800">
+        <span class="md-body-1">Showing data for : {{vm.ddTimeSet}} </span>
+        <md-button class="md-icon-button" ng-click="vm.openTimeFilter($event)">
+            <md-icon style="font-size: 16pt; color: #fff">date_range</md-icon>
         </md-button>
     </md-content>
     <md-content layout="row" layout-xs="column">
@@ -109,19 +111,20 @@
     </md-content>
     <md-content layout="row" layout-xs="column">
         <md-card flex class="md-hue-1 am-box-shadow">
-            <md-card-content layout="column">
+            <md-card-content layout="column" style="padding: 16px 16px 16px 0">
                 <div layout="row" layout-xs="column" layout-align="start center">
-                    <span flex><span class="am-card-label">Daily Services</span>&nbsp;<span class="am-card-label small">({{vm.totalServicesDone}} Services)</span></span>
+                    <div class="am-blue-bar c800" style="padding: 10px 26px; border-radius: 0 20px 20px 0"><span class="am-card-label white">Daily Services</span>&nbsp;<span class="am-card-label white small">({{vm.totalServicesDone}} Services)</span></div>
+                    <span flex></span>
                     <md-button class="md-accent" ng-click="vm.viewAllServices()">
                         <md-icon>list</md-icon>
                         <span layout-margin>View All Services</span>
                     </md-button>
-                    <md-button class="md-raised md-accent" ng-click="vm.addNewService()">
+                    <md-button class="md-raised md-warn" ng-click="vm.addNewService()">
                         <md-icon>add</md-icon>
                         <span layout-margin>Add Service</span>
                     </md-button>
                 </div>
-                <div ng-if="vm.perDayServiceChart.data.rows.length > 0" google-chart chart="vm.perDayServiceChart" style="width: 99%" class="am-chart-no-border"></div>
+                <div ng-if="vm.perDayServiceChart.data.rows.length > 0" google-chart chart="vm.perDayServiceChart" style="width: 99%; padding-left: 16px;" class="am-chart-no-border"></div>
                 <div ng-if="vm.perDayServiceChart.data.rows.length == 0" layout="column" layout-align="center center" layout-padding>
                     <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>No Services Added For This Month</span>
                 </div>
@@ -130,14 +133,14 @@
     </md-content>
     <md-content layout="row" layout-xs="column">
         <md-card flex class="md-hue-1 am-box-shadow">
-            <md-card-content layout="column">
-                <span><span class="am-card-label">Top Treatments</span>&nbsp;<span class="am-card-label x-small">(Overall)</span></span>
+            <md-card-content layout="column" style="padding: 0">
+                <span class="am-blue-bar c800" style="padding: 10px 26px;"><span class="am-card-label white">Top Treatments</span>&nbsp;<span class="am-card-label white x-small">(Overall)</span></span>
                 <div google-chart chart="vm.topTreatmentsChart" class="am-chart-no-border"></div>
             </md-card-content>
         </md-card>
         <md-card flex class="md-hue-1 am-box-shadow">
-            <md-card-content layout="column">
-                <span><span class="am-card-label">Top Vehicle Types</span>&nbsp;<span class="am-card-label x-small">(Overall)</span></span>
+            <md-card-content layout="column" style="padding: 0">
+                <div class="am-blue-bar c800" style="padding: 10px 26px;"><span class="am-card-label white">Top Vehicle Types</span>&nbsp;<span class="am-card-label white x-small">(Overall)</span></div>
                 <div google-chart chart="vm.topVtChart" class="am-chart-no-border"></div>
             </md-card-content>
         </md-card>

@@ -47,6 +47,7 @@
         vm.IsSocialInstagram = IsSocialInstagram;
         vm.IsSocialTwitter = IsSocialTwitter;
         vm.initiateMailInvoiceProcess = initiateMailInvoiceProcess;
+        vm.IsInvoiceAvailable = IsInvoiceAvailable;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -62,6 +63,10 @@
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
+
+        function IsInvoiceAvailable() {
+            return (vm.service && vm.service.state == "Bill");
+        }
 
         function IsSocialFacebook() {
             if (vm.workshop.social.facebook == undefined)

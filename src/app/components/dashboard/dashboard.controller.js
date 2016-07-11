@@ -27,7 +27,7 @@
         vm.perDayServiceChart.type = "AnnotationChart";
         vm.perDayServiceChart.options = {
             displayAnnotations: true,
-            displayZoomButtons: true,
+            displayZoomButtons: false,
             displayRangeSelector: false,
             thickness: 2,
             colors: ['03A9F4'],
@@ -76,6 +76,7 @@
         };
         vm.currentTimeSet = [];
         vm.ddTimeSet = '';
+        vm.displayIncome = false
 
         //  function maps
         vm.addNewService = addNewService;
@@ -90,7 +91,7 @@
         $amRoot.ccViews();
         amDashboard.getTotalCustomerServed(vm.currentTimeSet).then(generateTcsData).catch(failure);
         amDashboard.getNewCustomers(vm.currentTimeSet).then(generateNcpData).catch(failure);
-        amDashboard.getProblemsAndVehicleTypes().then(sortProblemsAndVehicleTypes).catch(failure);
+        amDashboard.getProblemsAndVehicleTypes(vm.currentTimeSet).then(sortProblemsAndVehicleTypes).catch(failure);
 
         //  function definitions
 
@@ -107,10 +108,10 @@
                 }, true);
 
                 tyf.forEach(iterateFoundYear);
-                vm.ddTimeSet += y + ', ';
+                vm.ddTimeSet += y + '; ';
 
                 function iterateFoundYear(fy) {
-                    vm.ddTimeSet += moment(fy.month, 'MMM').format('MMMM') + ' ';
+                    vm.ddTimeSet += moment(fy.month, 'MMM').format('MMMM') + ', ';
                 }
             }
 
@@ -308,7 +309,8 @@
 
         function generateTcsData(res) {
             var uids = [],
-                spd = {};
+                spd = {},
+                dates = [];
             vm.totalCustomersServed = 0;
             vm.totalRevenueEarned = 0;
             vm.totalServicesDone = 0;
@@ -319,11 +321,20 @@
                 vm.perDayServiceChart.data.rows = [];
                 Object.keys(spd).forEach(calculateSpd);
             }
+            dates.sort(sortDates);
+            vm.perDayServiceChart.options['zoomStartTime'] = dates[0];
+            vm.perDayServiceChart.options['zoomEndTime'] = dates[dates.length - 1];
+
+            function sortDates(lhs, rhs) {
+                return lhs.getTime() - rhs.getTime();
+            }
 
             function calculateSpd(d) {
+                var tempdate = new Date(moment(d, 'DD MMM YYYY').format('YYYY'), moment(d, 'DD MMM YYYY').format('MM') - 1, moment(d, 'DD MMM YYYY').format('DD'));
+                dates.push(tempdate);
                 vm.perDayServiceChart.data.rows.push({
                     c: [{
-                        v: new Date(moment(d, 'DD MMM YYYY').format('YYYY'), moment(d, 'DD MMM YYYY').format('MM') - 1, moment(d, 'DD MMM YYYY').format('DD'))
+                        v: tempdate
                     }, {
                         v: spd[d]
                     }]

@@ -131,7 +131,7 @@
                             <td md-cell ng-click="vm.editService(service)">{{service.vhcl_manuf + ' ' + service.vhcl_model}}<span ng-if="service.vhcl_reg">&nbsp;({{service.vhcl_reg}})</span></td>
                             <td md-cell ng-click="vm.editService(service)">{{vm.getServiceDate(service.srvc_date)}}</td>
                             <td md-cell ng-click="vm.editService(service)">{{service.srvc_cost}}</td>
-                            <td md-cell ng-click="vm.editService(service)">{{service.srvc_status}}</td>
+                            <td md-cell ng-click="vm.editService(service)"><span ng-class="{'am-red-text': vm.IsServiceDue(service.srvc_status)}">{{service.srvc_status}}</span></td>
                             <td md-cell class="am-datatable-actions view-all-services">
                                 <md-button class="invoice md-accent" ng-click="vm.goToInvoice(service)">
                                     <span>Invoice</span>

@@ -81,7 +81,8 @@
             }
         }
         
-        function getProblemsAndVehicleTypes() {
+        function getProblemsAndVehicleTypes(dateRange) {
+            // console.log(dateRange);
             var problems = {}, vehicleTypes = {};
             var tracker = $q.defer();
             pdbCustomers.getAll().then(success).catch(failure);
@@ -111,6 +112,10 @@
                         function iterateService(sId) {
                             if (row.doc.user.vehicles[vId].services[sId]._deleted == true)
                                 return;
+                            /*var csd = moment(row.doc.user.vehicles[vId].services[sId].date).format('MMM YYYY').split(' ');
+                            var sdfound = $filter('filter')(dateRange, {
+
+                            })*/
                             if (row.doc.user.vehicles[vId].services[sId].problems)
                                 Object.keys(row.doc.user.vehicles[vId].services[sId].problems).forEach(iterateProblems);
                             

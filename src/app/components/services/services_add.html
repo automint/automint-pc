@@ -100,6 +100,25 @@
         width: 85vw !important;
         max-width: 400px !important;
     }
+
+    .md-datepicker-input-container {
+        margin-left: 0;
+    }
+
+    .am-jobcard-button {
+        background: #FB8C00 !important;
+        color: #fff !important;
+    }
+
+    .am-estimate-button {
+        background: #4CAF50 !important;
+        color: #fff !important;
+    }
+
+    .am-invoice-button {
+        background: #03A9F4 !important;
+        color: #fff !important;
+    }
 </style>
 <md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
     <md-icon aria-label="Back">arrow_back</md-icon>
@@ -147,23 +166,23 @@
         </md-toolbar>
         <div layout="column" layout-margin>
             <div layout="row" layout-align="start center" class="am-service-input-box" ng-if="vm.WhichServiceStateEnabled(2)">
-                <label class="am-form-label" flex="40">Invoice # :</label>
+                <label class="am-form-label" flex="60">Invoice # :</label>
                 <input id="ami-service-invoice-no" type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Invoice Number" ng-model="vm.service.invoiceno" flex>
             </div>
             <div layout="row" layout-align="start center" class="am-service-input-box" ng-if="vm.WhichServiceStateEnabled(1)">
-                <label class="am-form-label" flex="40">Estimate # :</label>
+                <label class="am-form-label" flex="60">Estimate # :</label>
                 <input id="ami-service-invoice-no" type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Estimate Number" ng-model="vm.service.estimateno" flex>
             </div>
             <div layout="row" layout-align="start center" class="am-service-input-box" ng-if="vm.WhichServiceStateEnabled(0)">
-                <label class="am-form-label" flex="40">Job Card # :</label>
+                <label class="am-form-label" flex="60">Job Card # :</label>
                 <input id="ami-service-invoice-no" type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Job Card Number" ng-model="vm.service.jobcardno" flex>
             </div>
             <div layout="row" layout-align="start center" class="am-service-input-box">
-                <label class="am-form-label" style="font-size: 9pt" flex="40">Odometer<span style="font-size: x-small;">&nbsp;(km)</span>:</label>
+                <label class="am-form-label" flex="60">Odometer<span style="font-size: x-small;">&nbsp;(km)</span>:</label>
                 <input type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Odometer Reading" ng-model="vm.service.odo" flex>
             </div>
             <div layout="row" layout-align="start center" class="am-service-input-box">
-                <label class="am-form-label" flex="40">Service:</label>
+                <label class="am-form-label" flex="30">Service:</label>
                 <md-select aria-label="Service Type" class="am-select" ng-model="vm.serviceType" ng-change="vm.changeServiceType()" id="ami-service-type" flex>
                     <md-option class="am-hover-option" ng-value="type" ng-repeat="type in vm.serviceTypeList" ng-selected="$first">{{type}}</md-option>
                 </md-select>
@@ -179,13 +198,13 @@
         </div>
     </md-content>
 </md-sidenav>
-<md-content style="margin: 0 0.8rem">
-    <div layout="row">
-        <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isUserInfoExpanded }" style="margin-right: 0.2rem" flex>
-            <md-item-content class="el-item service-form first tile md-whiteframe-z1" ng-class="{ 'selected md-whiteframe-z2': vm.isUserInfoExpanded}" layout="column">
-                <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeUserInfoState(true)" class="folded">
-                    <span ng-class="{'md-title': vm.isUserInfoExpanded, 'md-body-2': !vm.isUserInfoExpanded}">Customer<span class="md-caption" ng-if="!vm.isUserInfoExpanded && (vm.user.name || vm.user.mobile)">:</span></span>
-                    <span class="md-body-1" style="margin: 0 0.4rem" ng-if="!vm.isUserInfoExpanded">{{vm.user.name}}<span ng-if="vm.user.name">,&nbsp</span><span class="md-caption" ng-if="vm.user.mobile">(M)&nbsp;</span>{{vm.user.mobile}}</span>
+<md-content style="margin: 0 0.8rem; overflow: hidden" class="md-hue-1 md-whiteframe-z1">
+    <div layout="row" class="md-hue-1">
+        <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isUserInfoExpanded }" flex>
+            <md-item-content class="el-item service-form tile" ng-class="{'selected': vm.isUserInfoExpanded}" layout="column" flex>
+                <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeUserInfoState(true)" class="folded am-blue-bar">
+                    <span class="md-headline">Customer<span class="md-caption" ng-if="!vm.isUserInfoExpanded && (vm.user.name || vm.user.mobile)">:</span></span>
+                    <span class="md-body-2" style="margin: 0 0.4rem" ng-show="!vm.isUserInfoExpanded">{{vm.user.name}}<span ng-if="vm.user.name">,&nbsp</span><span class="md-caption" ng-if="vm.user.mobile">(M)&nbsp;</span>{{vm.user.mobile}}</span>
                 </div>
                 <div layout="column" layout-fill class="expanded">
                     <div layout="column">
@@ -217,11 +236,12 @@
                 </div>
             </md-item-content>
         </md-item>
-        <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isVehicleInfoExpanded }" style="margin-left: 0.2rem" flex>
-            <md-item-content class="el-item service-form first tile md-whiteframe-z1" ng-class="{ 'selected md-whiteframe-z2': vm.isVehicleInfoExpanded}" layout="column">
-                <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeVehicleInfoState(true)" class="folded">
-                    <span ng-class="{'md-title': vm.isVehicleInfoExpanded, 'md-body-2': !vm.isVehicleInfoExpanded}">Vehicle<span class="md-caption" ng-if="!vm.isVehicleInfoExpanded && (vm.vehicle.manuf || vm.vehicle.model || vm.vehicle.reg)">:</span></span>
-                    <span class="md-body-1" style="margin: 0 0.4rem" ng-if="!vm.isVehicleInfoExpanded">{{vm.vehicle.manuf}}<span ng-if="vm.vehicle.manuf">&nbsp</span>{{vm.vehicle.model}}<span ng-if="(vm.vehicle.manuf || vm.vehicle.model) && vm.vehicle.reg">&nbsp;-&nbsp;</span>{{vm.vehicle.reg}}</span>
+        <md-divider></md-divider>
+        <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isVehicleInfoExpanded }" flex>
+            <md-item-content class="el-item service-form tile" ng-class="{ 'selected': vm.isVehicleInfoExpanded}" layout="column">
+                <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeVehicleInfoState(true)" class="folded am-blue-bar">
+                    <span class="md-headline">Vehicle<span class="md-caption" ng-if="!vm.isVehicleInfoExpanded && (vm.vehicle.manuf || vm.vehicle.model || vm.vehicle.reg)">:</span></span>
+                    <span class="md-body-2" style="margin: 0 0.4rem" ng-show="!vm.isVehicleInfoExpanded">{{vm.vehicle.manuf}}<span ng-if="vm.vehicle.manuf">&nbsp</span>{{vm.vehicle.model}}<span ng-if="(vm.vehicle.manuf || vm.vehicle.model) && vm.vehicle.reg">&nbsp;-&nbsp;</span>{{vm.vehicle.reg}}</span>
                 </div>
                 <div layout="column" layout-fill class="expanded">
                     <div layout="column">
@@ -270,22 +290,23 @@
             </md-item-content>
         </md-item>
     </div>
+    <md-divider></md-divider>
     <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isServiceInfoExpanded }">
-        <md-item-content class="el-item service-form tile md-whiteframe-z1" ng-class="{ 'selected md-whiteframe-z2': vm.isServiceInfoExpanded}" layout="column">
-            <div layout-xs="column" layout="row" layout-fill ng-click="vm.changeServiceInfoState(true)" class="folded">
-                <span ng-class="{'md-title': vm.isServiceInfoExpanded, 'md-body-2': !vm.isServiceInfoExpanded}" ng-hide="vm.isServiceInfoExpanded">
-                    Service
-                </span>
+        <md-item-content class="el-item service-form tile" ng-class="{ 'selected': vm.isServiceInfoExpanded}" layout="column">
+            <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeServiceInfoState(true)" class="folded am-blue-bar" ng-hide="vm.isServiceInfoExpanded">
+                <span class="md-headline">Service Details</span>
+                <span flex></span>
+                <span class="md-caption" style="font-style: italic; font-weight: 500">Click to Expand</span>
             </div>
             <div layout="column" layout-fill class="expanded">
                 <div layout="row">
-                    <div layout="column" flex="80" id="am-service-viewport" style="height: {{vm.serviceViewportHeight}}px" am-offset-from-top="vm.calculateViewportHeight">
+                    <div layout="column" flex="80" id="am-service-viewport">
                         <md-content class="md-hue-1">
                             <div layout="row" layout-align="center center">
-                                <md-button class="md-accent" ng-if="$first" id="ami-service-state" ng-repeat-start="state in vm.serviceStateList" ng-class="{'md-raised': vm.IsServiceStateSelected(state)}" ng-click="vm.selectServiceState(state)">
+                                <md-button ng-if="$first" id="ami-service-state" ng-repeat-start="state in vm.serviceStateList" ng-class="{'md-raised': vm.IsServiceStateSelected(state), 'am-jobcard-button': vm.IsServiceStateJc(state), 'am-estimate-button': vm.IsServiceStateEs(state), 'am-invoice-button': vm.IsServiceStateIv(state)}" ng-click="vm.selectServiceState(state)">
                                     <span layout-margin class="md-caption">{{state}}</span>
                                 </md-button>
-                                <md-button class="md-accent" ng-if="!$first" ng-class="{'md-raised': vm.IsServiceStateSelected(state)}" ng-click="vm.selectServiceState(state)">
+                                <md-button ng-if="!$first" ng-class="{'md-raised': vm.IsServiceStateSelected(state), 'am-jobcard-button': vm.IsServiceStateJc(state), 'am-estimate-button': vm.IsServiceStateEs(state), 'am-invoice-button': vm.IsServiceStateIv(state)}" ng-click="vm.selectServiceState(state)">
                                     <span layout-margin class="md-caption">{{state}}</span>
                                 </md-button>
                                 <span class="am-form-label" style="padding-bottom: 0; margin-bottom: 0" ng-hide="$last" ng-repeat-end>>></span>
@@ -678,8 +699,8 @@
                     <md-divider style="margin: 0 0.4rem 0 0.4rem;"></md-divider>
                     <div layout="column" layout-align="start">
                         <div class="am-toolbar-strip am-tab-margin" layout="column">
-                            <md-datepicker class="md-hue-1" ng-model="vm.service.date" md-placeholder="Enter Date" style="margin: 0 0 0.6rem 0" md-open-on-focus></md-datepicker>
-                            <span><md-checkbox aria-label="Payment Receieved" ng-model="vm.servicestatus" flex="33" flex-xs><span class="md-body-1">Payment Received</span></md-checkbox>
+                            <md-datepicker class="md-hue-1" ng-model="vm.service.date" md-placeholder="Enter Date" style="margin: 0 0 0.6rem -1rem" md-open-on-focus></md-datepicker>
+                            <span><md-checkbox aria-label="Payment" ng-model="vm.servicestatus" flex="33" flex-xs><span class="md-body-1">Payment</span></md-checkbox>
                             </span>
                             <span><md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="33" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox>
                             </span>
@@ -715,7 +736,7 @@
                             </md-button>
                             <md-button class="md-raised md-accent" ng-click="vm.save(vm.redirect.invoice)" ng-if="!isAutomintLocked">
                                 <md-icon>receipt</md-icon>
-                                <span layout-margin>Invoice</span>
+                                <span layout-margin>{{vm.label_invoice}}</span>
                                 <md-tooltip md-direction="top">View Invoice</md-tooltip>
                             </md-button>
                         </div>

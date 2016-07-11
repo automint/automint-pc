@@ -100,6 +100,7 @@
         vm.serviceViewportHeight = $(window).height();
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
         vm.service.state = vm.serviceStateList[0];
+        vm.label_invoice = 'Invoice';
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -144,7 +145,6 @@
         vm.changeInventoryTotal = changeInventoryTotal;
         vm.populateRoD = populateRoD;
         vm.changeForceStopCalCost = changeForceStopCalCost;
-        vm.calculateViewportHeight = calculateViewportHeight;
         vm.unsubscribeMembership = unsubscribeMembership;
         vm.label_titleCustomerMoreInfo = label_titleCustomerMoreInfo;
         vm.changeUserInfoState = changeUserInfoState;
@@ -179,6 +179,9 @@
         vm.calculateDiscount = calculateDiscount;
         vm.isRoD = isRoD;
         vm.IsSubtotalEnabled = IsSubtotalEnabled;
+        vm.IsServiceStateJc = IsServiceStateJc;
+        vm.IsServiceStateEs = IsServiceStateEs;
+        vm.IsServiceStateIv = IsServiceStateIv;
 
         //  default execution steps
         setCoverPic();
@@ -188,7 +191,37 @@
         getPackages();
         getMemberships();
 
+        //  watchers
+        $(window).on('resize', OnWindowResize);
+
         //  function definitions
+
+        function IsServiceStateIv(state) {
+            if (!IsServiceStateSelected(state))
+                return false;
+            return (vm.service.state == vm.serviceStateList[2]);
+        }
+
+        function IsServiceStateEs(state) {
+            if (!IsServiceStateSelected(state))
+                return false;
+            return (vm.service.state == vm.serviceStateList[1]);
+        }
+
+        function IsServiceStateJc(state) {
+            if (!IsServiceStateSelected(state))
+                return false;
+            return (vm.service.state == vm.serviceStateList[0]);
+        }
+
+        function OnWindowResize() {
+            if (vm.isServiceInfoExpanded)
+                setServicesVpHeight();
+        }
+
+        function setServicesVpHeight() {
+            $('#am-service-viewport').height($(window).height() - ($('#am-service-viewport').offset().top + 10));
+        }
 
         function IsSubtotalEnabled() {
             return (vm.isDiscountApplied || vm.isRoundOffVal || (vm.sTaxSettings && vm.sTaxSettings.applyTax) || (vm.vatSettings && vm.vatSettings.applyTax));
@@ -300,6 +333,7 @@
 
         function selectServiceState(state) {
             vm.service.state = state;
+            vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
         }
 
         function IsServiceStateSelected(state) {
@@ -453,6 +487,8 @@
                     setTimeout(focusServiceState, 300);
             }
             vm.isServiceInfoExpanded = expanded;
+            if (expanded)
+                setTimeout(setServicesVpHeight, 500);
             vm.isUserInfoExpanded = false;
             vm.isVehicleInfoExpanded = false;
         }
@@ -474,10 +510,6 @@
             function ignoreDelete() {
                 vm.membershipChips.push(chip);
             }
-        }
-
-        function calculateViewportHeight(element) {
-            vm.serviceViewportHeight = $(window).height() - (element[0].offsetTop * 2.4);
         }
 
         function changeInventoryTotal(inventory) {
@@ -1154,6 +1186,7 @@
                 vm.service.odo = res.vehicle.service.odo;
                 vm.service.status = res.vehicle.service.status;
                 vm.service.state = (res.vehicle.service.state == undefined) ? vm.serviceStateList[2] : res.vehicle.service.state;
+                vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
                 if (res.vehicle.service.discount) {
                     vm.isDiscountApplied = true;
                     isDiscountByPercent = false;
@@ -1661,7 +1694,7 @@
                     vm.membershipChips.forEach(addMsToService);
                     break;
             }
-            vm.service.status = vm.servicestatus ? 'paid' : 'billed';
+            vm.service.status = vm.servicestatus ? 'paid' : 'due';
             vm.service.date = moment(vm.service.date).format();
             vm.service.problems.forEach(iterateProblems);
             if (vm.isDiscountApplied) {

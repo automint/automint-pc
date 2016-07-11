@@ -83,6 +83,7 @@
         vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
         vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
         vm.unsubscribeMembership = unsubscribeMembership;
+        vm.IsServiceDue = IsServiceDue;
         
         //  default execution steps
         if ($state.params.id != undefined) {
@@ -97,6 +98,10 @@
         }
 
         //  function definitions
+
+        function IsServiceDue(status) {
+            return (status == 'Due');
+        }
 
         function unsubscribeMembership(ev, chip) {
             var confirm = $mdDialog.confirm()
