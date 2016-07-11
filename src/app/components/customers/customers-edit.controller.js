@@ -53,6 +53,7 @@
             page: 1,
             total: 0
         };
+        vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -84,6 +85,9 @@
         vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
         vm.unsubscribeMembership = unsubscribeMembership;
         vm.IsServiceDue = IsServiceDue;
+        vm.IsServiceStateIv = IsServiceStateIv;
+        vm.IsServiceStateEs = IsServiceStateEs;
+        vm.IsServiceStateJc = IsServiceStateJc;
         
         //  default execution steps
         if ($state.params.id != undefined) {
@@ -98,6 +102,18 @@
         }
 
         //  function definitions
+
+        function IsServiceStateIv(state) {
+            return (state == vm.serviceStateList[2]);
+        }
+
+        function IsServiceStateEs(state) {
+            return (state == vm.serviceStateList[1]);
+        }
+
+        function IsServiceStateJc(state) {
+            return (state == vm.serviceStateList[0]);
+        }
 
         function IsServiceDue(status) {
             return (status == 'Due');
@@ -490,7 +506,8 @@
                             srvc_id: sId,
                             srvc_date: service.date,
                             srvc_cost: service.cost,
-                            srvc_status: utils.convertToTitleCase(service.status)
+                            srvc_status: utils.convertToTitleCase(service.status),
+                            srvc_state: service.state
                         });
                     }
                 }

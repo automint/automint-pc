@@ -132,7 +132,7 @@
             }
         }
 
-         function IsServiceStateIv(state) {
+        function IsServiceStateIv(state) {
             return (state == vm.serviceStateList[2]);
         }
 

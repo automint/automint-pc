@@ -96,7 +96,6 @@
         vm.isUserInfoExpanded = true;
         vm.isVehicleInfoExpanded = false;
         vm.isServiceInfoExpanded = false;
-        vm.serviceViewportHeight = $(window).height();
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
         vm.service.state = vm.serviceStateList[2];
         vm.label_invoice = 'Invoice';
@@ -233,7 +232,7 @@
         }
 
         function setServicesVpHeight() {
-            $('#am-service-viewport').height($(window).height() - ($('#am-service-viewport').offset().top + 10));
+            $('#am-service-viewport').height($(window).height() - ($('#am-service-viewport').offset().top + 15));
         }
 
         function IsSubtotalEnabled() {
@@ -275,7 +274,7 @@
             }
 
             function ipt(treatment) {
-                totalCost += treatment.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+                totalCost += treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
             }
         }
 

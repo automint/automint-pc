@@ -30,6 +30,7 @@
         //  named assignments to keep track of UI elements
         vm.isFabOpen = true;
         vm.fabClass = '';
+        vm.subtotal = 0;
 
         //  function maps
         vm.printInvoice = printInvoice;
@@ -48,6 +49,8 @@
         vm.IsSocialTwitter = IsSocialTwitter;
         vm.initiateMailInvoiceProcess = initiateMailInvoiceProcess;
         vm.IsInvoiceAvailable = IsInvoiceAvailable;
+        vm.IsSubtotalEnabled = IsSubtotalEnabled;
+        vm.calculateSubtotal = calculateSubtotal;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -63,6 +66,37 @@
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
+
+        function IsSubtotalEnabled() {
+            return (vm.isDiscountApplied || vm.isRoundOff || (vm.sTaxSettings && vm.sTaxSettings.applyTax) || (vm.vatSettings && vm.vatSettings.applyTax));
+        }
+
+        function calculateSubtotal() {
+            var totalCost = 0;
+            vm.service.problems.forEach(iterateProblem);
+            vm.service.inventories.forEach(iterateInventories);
+            if (vm.service.packages) {
+                vm.service.packages.forEach(iteratePackages);
+            }
+            totalCost = (totalCost % 1 != 0) ? totalCost.toFixed(2) : parseInt(totalCost);
+            vm.subtotal = totalCost;
+
+            function iterateProblem(element) {
+                totalCost += parseFloat(element.rate);
+            }
+
+            function iterateInventories(element) {
+                totalCost += parseFloat(element.rate * element.qty);
+            }
+
+            function iteratePackages(package) {
+                package.treatments.forEach(ipt);
+            }
+
+            function ipt(treatment) {
+                totalCost += treatment.rate;
+            }
+        }
 
         function IsInvoiceAvailable() {
             return (vm.service && vm.service.state == "Bill");
@@ -181,6 +215,7 @@
                     tax: res.service.vat.tax
                 }
                 calculateInventoryValues();
+                calculateSubtotal();
             }
 
             function failure(err) {

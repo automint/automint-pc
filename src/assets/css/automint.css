@@ -11,6 +11,21 @@ input[type=number]::-webkit-outer-spin-button {
     margin: 0;
 }
 
+.am-jobcard-text {
+    color: #FB8C00;
+    font-weight: 500;
+}
+
+.am-estimate-text {
+    color: #4CAF50;
+    font-weight: 500;
+}
+
+.am-invoice-text {
+    color: #03A9F4;
+    font-weight: 500;
+}
+
 .am-red-text {
     color: #F44336;
 }
@@ -67,7 +82,6 @@ input[type=number]::-webkit-outer-spin-button {
 .am-select-table-row:hover {
     background: #ECEFF1;
 }
-
 .am-clear-error-spacer .md-errors-spacer {
     display: none;
 }
@@ -219,7 +233,7 @@ md-sidenav.md-closed.md-locked-open-add-active {
 }
 
 .am-datatable-actions.view-all-services {
-    width: 132px;
+    width: 40px;
 }
 
 .am-datatable-actions.view-all-services .invoice {
