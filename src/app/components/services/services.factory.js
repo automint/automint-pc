@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .factory('amServices', ServicesFactory);
 
-    ServicesFactory.$inject = ['$http', '$timeout', '$q', '$log', 'utils', '$amRoot', 'constants', 'pdbCustomers', 'pdbCommon', 'pdbConfig', 'pdbCache'];
+    ServicesFactory.$inject = ['$http', '$timeout', '$q', '$log', '$filter', 'utils', '$amRoot', 'constants', 'pdbCustomers', 'pdbCommon', 'pdbConfig', 'pdbCache'];
 
-    function ServicesFactory($http, $timeout, $q, $log, utils, $amRoot, constants, pdbCustomers, pdbCommon, pdbConfig, pdbCache) {
+    function ServicesFactory($http, $timeout, $q, $log, $filter, utils, $amRoot, constants, pdbCustomers, pdbCommon, pdbConfig, pdbCache) {
         //  initialize factory variable and function maps
         var factory = {
             getManufacturers: getManufacturers,
@@ -37,12 +37,39 @@
             getInventoriesSettings: getInventoriesSettings,
             getLastEstimateNo : getLastEstimateNo,
             getLastJobCardNo: getLastJobCardNo,
-            getDefaultServiceType: getDefaultServiceType
+            getDefaultServiceType: getDefaultServiceType,
+            getFilterMonths: getFilterMonths
         }
 
         return factory;
 
         //  function definitions
+
+        function getFilterMonths() {
+            var tracker = $q.defer();
+            pdbCache.get(constants.pdb_cache_views.view_services).then(generateMonthsUsed).catch(failure);
+            return tracker.promise;
+
+            function generateMonthsUsed(res) {
+                var result = [];
+                Object.keys(res).forEach(iterateDateRange);
+                tracker.resolve(result);
+
+                function iterateDateRange(dr) {
+                    if (dr.match(/_id|_rev/g))
+                        return;
+                    var temp = dr.split('-');
+                    result.push({
+                        month: utils.convertToTitleCase(temp[0]),
+                        year: temp[1]
+                    });
+                }
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function getDefaultServiceType() {
             var tracker = $q.defer();
@@ -324,48 +351,37 @@
             }
         }
         
-        function getServices(filterMonth, filterYear, query) {
+        function getServices(dateRange, query) {
             query = angular.lowercase(query);
-            filterMonth += (12*filterYear);
             var tracker = $q.defer();
             pdbCache.get(constants.pdb_cache_views.view_services).then(success).catch(failure);
             return tracker.promise;
             
             function success(res) {
-                var result = [], ltm = filterMonth, currentRange = '';
-                if (filterMonth < 0 && filterYear < 0) {
-                    Object.keys(res).forEach(iterateDateRange);
-                    
-                    function iterateDateRange(dr) {
-                        currentRange = dr;
-                        if (currentRange.match(/_id|_rev/g))
-                            return;
-                        if (res[currentRange])
-                            Object.keys(res[currentRange]).forEach(iterateService);
-                    }
-                } else {
-                    do {
-                        var queryDate = moment().subtract({
-                            months: ltm
-                        });
-                        currentRange = moment(queryDate).format('MMM YYYY');
-                        currentRange = angular.lowercase(currentRange).replace(' ', '-');
-                        if (res[currentRange])
-                            Object.keys(res[currentRange]).forEach(iterateService);
-                        ltm--;
-                    } while(ltm >= 0);
-                }
-                result.sort(dateSort);
+                var result = [], currentRange = '';
+                Object.keys(res).forEach(iterateDateRange);
                 tracker.resolve(result);
-                
-                function dateSort(lhs, rhs) {
-                    return rhs.srvc_date.localeCompare(lhs.srvc_date);
+
+                function iterateDateRange(dr) {
+                    if (dr.match(/_id|_rev/g))
+                        return;
+                    var crd = dr.split('-');
+                    var crdfound = $filter('filter')(dateRange, {
+                        month: utils.convertToTitleCase(crd[0]),
+                        year: crd[1]
+                    }, true);
+
+                    if (crdfound.length == 0)
+                        return;
+                    currentRange = dr;
+                    if (res[currentRange])
+                        Object.keys(res[currentRange]).forEach(iterateService);
                 }
                 
                 function iterateService(sId) {
                     var target = res[currentRange][sId];
                     if (query != undefined) {
-                        if (query != undefined && (target.cstmr_name && angular.lowercase(target.cstmr_name).search(query) > -1) || (target.srvc_status && angular.lowercase(target.srvc_status).search(query) > -1) || (target.vhcl_manuf && angular.lowercase(target.vhcl_manuf).search(query) > -1) || (target.vhcl_model && angular.lowercase(target.vhcl_model).search(query) > -1) || (target.vhcl_reg && angular.lowercase(target.vhcl_reg).search(query) > -1) || (target.srvc_cost && target.srvc_cost.toString().search(query) > -1) || (target.srvc_date && angular.lowercase(target.srvc_date).search(query) > -1)) {
+                        if (query != undefined && (target.cstmr_name && angular.lowercase(target.cstmr_name).search(query) > -1) || (target.srvc_state && angular.lowercase(target.srvc_state).search(query) > -1) || (target.srvc_status && angular.lowercase(target.srvc_status).search(query) > -1) || (target.vhcl_manuf && angular.lowercase(target.vhcl_manuf).search(query) > -1) || (target.vhcl_model && angular.lowercase(target.vhcl_model).search(query) > -1) || (target.vhcl_reg && angular.lowercase(target.vhcl_reg).search(query) > -1) || (target.srvc_cost && target.srvc_cost.toString().search(query) > -1) || (target.srvc_date && angular.lowercase(target.srvc_date).search(query) > -1)) {
                             target.srvc_status = utils.convertToTitleCase(target.srvc_status);
                             target.srvc_id = sId;
                             result.push(target);
@@ -378,6 +394,7 @@
                 }
             }
             function failure(err) {
+                console.log(err);
                 tracker.reject(err);
             }
         }

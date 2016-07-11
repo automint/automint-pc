@@ -82,7 +82,6 @@
         }
         
         function getProblemsAndVehicleTypes(dateRange) {
-            // console.log(dateRange);
             var problems = {}, vehicleTypes = {};
             var tracker = $q.defer();
             pdbCustomers.getAll().then(success).catch(failure);
@@ -101,21 +100,25 @@
                         
                     function iterateVehicles(vId) {
                         var vt = row.doc.user.vehicles[vId].type;
-                        if (vt) {
-                            if (!vehicleTypes[vt])
-                                vehicleTypes[vt] = 0;
-                            vehicleTypes[vt]++;
-                        }
+                        var vtc = 0; 
+                        if (vt)
+                            vtc = (vehicleTypes[vt] != undefined) ? vehicleTypes[vt] : 0;
                         if (row.doc.user.vehicles[vId].services)
                             Object.keys(row.doc.user.vehicles[vId].services).forEach(iterateService);
                             
                         function iterateService(sId) {
                             if (row.doc.user.vehicles[vId].services[sId]._deleted == true)
                                 return;
-                            /*var csd = moment(row.doc.user.vehicles[vId].services[sId].date).format('MMM YYYY').split(' ');
+                            var csd = moment(row.doc.user.vehicles[vId].services[sId].date).format('MMM YYYY').split(' ');
                             var sdfound = $filter('filter')(dateRange, {
+                                month: csd[0],
+                                year: csd[1]
+                            }, true);
 
-                            })*/
+                            if (sdfound.length > 0)
+                                vehicleTypes[vt] = vtc + 1;
+                            else
+                                return;
                             if (row.doc.user.vehicles[vId].services[sId].problems)
                                 Object.keys(row.doc.user.vehicles[vId].services[sId].problems).forEach(iterateProblems);
                             

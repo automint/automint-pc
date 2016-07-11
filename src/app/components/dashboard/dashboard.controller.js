@@ -8,6 +8,8 @@
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
+    const ammPreferences = require('./automint_modules/am-preferences.js');
+
     angular.module('automintApp').controller('dashboardCtrl', DashboardController);
 
     DashboardController.$inject = ['$state', '$filter', '$log', '$mdDialog', '$amRoot', 'utils', 'amDashboard'];
@@ -89,11 +91,43 @@
         initCurrentTimeSet();
         getFilterMonths();
         $amRoot.ccViews();
-        amDashboard.getTotalCustomerServed(vm.currentTimeSet).then(generateTcsData).catch(failure);
-        amDashboard.getNewCustomers(vm.currentTimeSet).then(generateNcpData).catch(failure);
-        amDashboard.getProblemsAndVehicleTypes(vm.currentTimeSet).then(sortProblemsAndVehicleTypes).catch(failure);
+        processPreferences();
 
         //  function definitions
+
+        function processPreferences() {
+            ammPreferences.getAllPreferences('viewServices').then(success).catch(failure);
+
+            function success(res) {
+                if (res['viewServices.showingDataFor']) {
+                    var sdf = res['viewServices.showingDataFor'].split(';');
+                    vm.currentTimeSet = [];
+                    sdf.forEach(iterateDateRange);
+                    displayCurrentTimeSet();
+                }
+
+                amDashboard.getTotalCustomerServed(vm.currentTimeSet).then(generateTcsData).catch(failure);
+                amDashboard.getNewCustomers(vm.currentTimeSet).then(generateNcpData).catch(failure);
+                amDashboard.getProblemsAndVehicleTypes(vm.currentTimeSet).then(sortProblemsAndVehicleTypes).catch(failure);
+
+                function iterateDateRange(dr) {
+                    var m = dr.split(',');
+                    for (var i = 0; i < (m.length - 1); i++) {
+                        vm.currentTimeSet.push({
+                            month: moment(m[i].replace(' ', ''), "MMMM").format("MMM"),
+                            year: m[m.length - 1].replace(' ', '')
+                        });
+                    }
+                }
+            }
+
+            function failure(err) {
+                amDashboard.getTotalCustomerServed(vm.currentTimeSet).then(generateTcsData).catch(failure);
+                amDashboard.getNewCustomers(vm.currentTimeSet).then(generateNcpData).catch(failure);
+                amDashboard.getProblemsAndVehicleTypes(vm.currentTimeSet).then(sortProblemsAndVehicleTypes).catch(failure);
+                console.warn(err.message);
+            }
+        }
 
         function displayCurrentTimeSet() {
             vm.ddTimeSet = '';
@@ -147,7 +181,7 @@
             $mdDialog.show({
                 controller: 'amCtrlDashTmFl',
                 controllerAs: 'vm',
-                templateUrl: 'app/components/dashboard/tmpl/dashboard_timefilter.tmpl.html',
+                templateUrl: 'app/components/dashboard/tmpl/dialog_timefilter.html',
                 parent: angular.element(document.body),
                 targetEvent: event,
                 locals: {
@@ -163,7 +197,9 @@
                 vm.currentTimeSet = res;
                 amDashboard.getTotalCustomerServed(vm.currentTimeSet).then(generateTcsData).catch(failure);
                 amDashboard.getNewCustomers(vm.currentTimeSet).then(generateNcpData).catch(failure);
+                amDashboard.getProblemsAndVehicleTypes(vm.currentTimeSet).then(sortProblemsAndVehicleTypes).catch(failure);
                 displayCurrentTimeSet();
+                ammPreferences.storePreference('viewServices.showingDataFor', vm.ddTimeSet);
             }
         }
         
@@ -235,6 +271,7 @@
                     else
                         sortedProblems.push(sp[i]);
                 }
+                vm.topTreatmentsChart.data.rows = [];
                 sortedProblems.forEach(ip);
             }
             if (res.vehicletypes) {
@@ -251,6 +288,7 @@
                     else
                         sortedVehicleTypes.push(svt[i]);
                 }
+                vm.topVtChart.data.rows = [];
                 sortedVehicleTypes.forEach(ivt);
             }
             

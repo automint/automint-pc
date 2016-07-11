@@ -15,37 +15,33 @@
     }
 </style>
 <md-content>
-    <md-content class="md-table-toolbar md-default am-toolbar-strip" ng-hide="vm.isQueryMode">
-        <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
-            <md-button aria-label="Add Service" class="md-raised md-accent" ng-click="vm.addService()">
-                <md-icon style="color: white">person_add</md-icon>
-                <span style="color: white" layout-padding>Add Service</span>
+    <md-content class="md-table-toolbar md-default am-toolbar-strip" ng-hide="vm.isQueryMode" style="height: 60px" layout-gt-xs="row" layout-xs="column" layout-align="start center">
+        <md-button aria-label="Add Service" class="md-raised md-accent" ng-click="vm.addService()">
+            <md-icon style="color: white">person_add</md-icon>
+            <span style="color: white" layout-padding>Add Service</span>
+        </md-button>
+        <div flex></div>
+        <div layout="row" layout-align="center center">
+            <span class="md-body-1">Showing data for : {{vm.ddTimeSet}} </span>
+            <md-button class="md-icon-button" ng-click="vm.openTimeFilter($event)">
+                <md-icon style="font-size: 16pt; color: #424242">date_range</md-icon>
             </md-button>
-            <div flex></div>
-            <div layout="row" layout-align="center center">
-                <span class="am-form-label" layout-padding>Display Data For: </span>
-                <md-select ng-model="vm.displayDataFor" ng-change="vm.changeDisplayFilter()" aria-label="Display Data For:" style="width: 120px">
-                    <md-option class="am-hover-option" ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
-                </md-select>
-                <md-button class="md-icon-button" ng-click="vm.changeQueryMode(true)">
-                    <md-icon>search</md-icon>
-                </md-button>
-            </div>
+            <md-button class="md-icon-button" ng-click="vm.changeQueryMode(true)">
+                <md-icon>search</md-icon>
+            </md-button>
         </div>
     </md-content>
-    <md-content class="md-table-toolbar md-default" ng-show="vm.isQueryMode">
-        <div layout-gt-xs="row" layout-xs="column" layout-align="start center">
-            <div layout="row" layout-align="center center" layout-margin>
-                <span class="am-form-label" layout-padding>Display Data For: </span>
-                <md-select ng-model="vm.displayDataFor" ng-change="vm.changeDisplayFilter()" aria-label="Display Data For:" style="width: 120px">
-                    <md-option ng-value="opt.name" ng-repeat="opt in vm.displayDataOptions">{{opt.name}}</md-option>
-                </md-select>
-            </div>
-            <input type="text" id="am-query-search" ng-model="vm.serviceQuery" placeholder="Search" class="md-block am-table-input search-box" flex>
-            <md-button class="md-icon-button" ng-click="vm.changeQueryMode(false)">
-                <md-icon>close</md-icon>
+    <md-content class="md-table-toolbar md-default" ng-show="vm.isQueryMode" style="height: 60px" layout-gt-xs="row" layout-xs="column" layout-align="start center">
+        <div layout="row" layout-align="center center" layout-margin>
+            <span class="md-body-1">Showing data for : {{vm.ddTimeSet}} </span>
+            <md-button class="md-icon-button" ng-click="vm.openTimeFilter($event)">
+                <md-icon style="font-size: 16pt; color: #424242">date_range</md-icon>
             </md-button>
         </div>
+        <input type="text" id="am-query-search" ng-model="vm.serviceQuery" placeholder="Search" class="md-block am-table-input search-box" flex>
+        <md-button class="md-icon-button" ng-click="vm.changeQueryMode(false)">
+            <md-icon>close</md-icon>
+        </md-button>
     </md-content>
     <md-content class="md-hue-1 am-box-shadow">
         <md-table-container>

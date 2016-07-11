@@ -481,6 +481,7 @@
         function loadSeRADeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
+                'app/components/services/tmpl/dialog_timefilter.controller.js',
                 'app/components/services/services-viewall.controller.js'
             ])
         }

@@ -61,7 +61,7 @@
     }
 </style>
 <md-content layout="column">
-<md-content layout="row" layout-align="end center" style="padding: 0.1rem 1rem" class="am-blue-bar c800">
+    <md-content layout="row" layout-align="end center" style="padding: 0.1rem 1rem" class="am-blue-bar c800">
         <span class="md-body-1">Showing data for : {{vm.ddTimeSet}} </span>
         <md-button class="md-icon-button" ng-click="vm.openTimeFilter($event)">
             <md-icon style="font-size: 16pt; color: #fff">date_range</md-icon>
@@ -134,13 +134,13 @@
     <md-content layout="row" layout-xs="column">
         <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content layout="column" style="padding: 0">
-                <span class="am-blue-bar c800" style="padding: 10px 26px;"><span class="am-card-label white">Top Treatments</span>&nbsp;<span class="am-card-label white x-small">(Overall)</span></span>
+                <div class="am-blue-bar c800" style="padding: 10px 26px;"><span class="am-card-label white">Top Treatments</span></div>
                 <div google-chart chart="vm.topTreatmentsChart" class="am-chart-no-border"></div>
             </md-card-content>
         </md-card>
         <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content layout="column" style="padding: 0">
-                <div class="am-blue-bar c800" style="padding: 10px 26px;"><span class="am-card-label white">Top Vehicle Types</span>&nbsp;<span class="am-card-label white x-small">(Overall)</span></div>
+                <div class="am-blue-bar c800" style="padding: 10px 26px;"><span class="am-card-label white">Top Vehicle Types</span></div>
                 <div google-chart chart="vm.topVtChart" class="am-chart-no-border"></div>
             </md-card-content>
         </md-card>

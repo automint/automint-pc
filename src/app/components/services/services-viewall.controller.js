@@ -16,7 +16,7 @@
 
     function ServiceViewAllController($scope, $state, $filter, $timeout, $mdDialog, utils, amServices) {
         //  initialize view model
-        var vm = this, queryChangedPromise, cacheLoadTimeout = false, isDataLoaded = false, isPreferencesLoaded = false;
+        var vm = this, queryChangedPromise, cacheLoadTimeout = false, isDataLoaded = false, isPreferencesLoaded = false, filterRange, isFirstTimeWsq = true;
 
         //  named assginments for tracking UI elements
         vm.query = {
@@ -24,39 +24,14 @@
             page: 1,
             total: 0
         };
-        vm.filter = {
-            month: 0,
-            year: 0
-        }
         vm.services = [];
-        //  month indexes will start from zero
-        vm.displayDataOptions = [{
-            name: 'This Month',
-            month: 0,
-            year: 0
-        }, {
-            name: 'Last 2 Months',
-            month: 1,
-            year: 0
-        }, {
-            name: 'Last 6 Months',
-            month: 5,
-            year: 0
-        }, {
-            name: 'Last Year',
-            month: 0,
-            year: 1
-        }, {
-            name: 'Everything',
-            month: -1,
-            year: -1
-        }];
-        vm.displayDataFor = vm.displayDataOptions[0].name;
         vm.serviceQuery = '';
         vm.isQueryMode = false;
         vm.displayItemPage = 1;
         vm.sortColumns = '';
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
+        vm.currentTimeSet = [];
+        vm.ddTimeSet = '';
 
         //  function maps
         vm.addService = addService;
@@ -67,17 +42,95 @@
         vm.goToInvoice = goToInvoice;
         vm.getServiceDate = getServiceDate;
         vm.sortByColumns = sortByColumns;
-        vm.changeDisplayFilter = changeDisplayFilter;
         vm.IsServiceDue = IsServiceDue;
         vm.IsServiceStateJc = IsServiceStateJc;
         vm.IsServiceStateEs = IsServiceStateEs;
         vm.IsServiceStateIv = IsServiceStateIv;
+        vm.openTimeFilter = openTimeFilter;
 
         //  default execution steps
         $scope.$watch('vm.serviceQuery', watchServiceQuery);
-        processPreferences();
+        getFilterMonths(processPreferences);
+        initCurrentTimeSet();
 
         //  function definitions
+
+        function openTimeFilter(event) {
+            $mdDialog.show({
+                controller: 'amCtrlSeTmFl',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/services/tmpl/dialog_timefilter.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    filterRange: filterRange,
+                    currentTimeSet: vm.currentTimeSet
+                },
+                clickOutsideToClose: true
+            }).then(success).catch(success);
+
+            function success(res) {
+                if (!res)
+                    return;
+                vm.currentTimeSet = res;
+                getServices();
+                displayCurrentTimeSet();
+                ammPreferences.storePreference('viewServices.showingDataFor', vm.ddTimeSet);
+            }
+        }
+
+        function getFilterMonths() {
+            var callback = arguments[0];
+            var callingFunction = this;
+            var callbackArgs = arguments;
+            amServices.getFilterMonths().then(success).catch(failure);
+
+            function success(res) {
+                filterRange = res;
+                callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
+            }
+
+            function failure(err) {
+                callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
+                console.info('failed to get filter months');
+            }
+        }
+
+        function initCurrentTimeSet() {
+            vm.currentTimeSet.push({
+                month: moment().format('MMM'),
+                year: moment().format('YYYY')
+            });
+            displayCurrentTimeSet();
+        }
+
+        function displayCurrentTimeSet() {
+            vm.ddTimeSet = '';
+            var years = [];
+            vm.currentTimeSet.forEach(iterateTimeSets);
+            years.forEach(iterateYears);
+            vm.ddTimeSet = vm.ddTimeSet.substr(0, vm.ddTimeSet.length - 2);
+
+            function iterateYears(y) {
+                var tyf = $filter('filter')(vm.currentTimeSet, {
+                    year: y
+                }, true);
+
+                tyf.forEach(iterateFoundYear);
+                vm.ddTimeSet += y + '; ';
+
+                function iterateFoundYear(fy) {
+                    vm.ddTimeSet += moment(fy.month, 'MMM').format('MMMM') + ', ';
+                }
+            }
+
+            function iterateTimeSets(ts) {
+                var tyf = $filter('filter')(years, ts.year, true);
+
+                if (tyf.length == 0)
+                    years.push(ts.year);
+            }
+        }
 
          function IsServiceStateIv(state) {
             return (state == vm.serviceStateList[2]);
@@ -93,20 +146,6 @@
 
         function IsServiceDue(status) {
             return (status == 'Due');
-        }
-
-        function changeDisplayFilter(isAssignVarOnly) {
-            var found = $filter('filter')(vm.displayDataOptions, {
-                name: vm.displayDataFor
-            }, true);
-            if (found.length == 1) {
-                vm.filter.month = found[0].month;
-                vm.filter.year = found[0].year;
-                if (isAssignVarOnly)
-                    return;
-                ammPreferences.storePreference('viewServices.displayFilter', found[0].name);
-                getServices();
-            }
         }
 
         function sortByColumns(isBlockSave) {
@@ -197,17 +236,34 @@
             ammPreferences.getAllPreferences('viewServices').then(success).catch(failure);
 
             function success(res) {
-                var t = res['viewServices.sort'].split('.');
-                vm.sortColumns = ((t[1] == 'descending') ? "-" : "") + t[0];
-                if (res['viewServices.displayFilter'])
-                    vm.displayDataFor = res['viewServices.displayFilter'];
+                if (res['viewServices.sort']) {
+                    var t = res['viewServices.sort'].split('.');
+                    vm.sortColumns = ((t[1] == 'descending') ? "-" : "") + t[0];
+                }
+                if (res['viewServices.showingDataFor']) {
+                    var sdf = res['viewServices.showingDataFor'].split(';');
+                    vm.currentTimeSet = [];
+                    sdf.forEach(iterateDateRange);
+                    displayCurrentTimeSet();
+                }
 
-                changeDisplayFilter(true);
                 isPreferencesLoaded = true;
+                getServices();
+
+                function iterateDateRange(dr) {
+                    var m = dr.split(',');
+                    for (var i = 0; i < (m.length - 1); i++) {
+                        vm.currentTimeSet.push({
+                            month: moment(m[i].replace(' ', ''), "MMMM").format("MMM"),
+                            year: m[m.length - 1].replace(' ', '')
+                        });
+                    }
+                }
             }
 
             function failure(err) {
                 isPreferencesLoaded = true;
+                getServices();
                 console.warn(err.message);
             }
         }
@@ -217,6 +273,10 @@
         }
         
         function watchServiceQuery(newValue, oldValue) {
+            if (isFirstTimeWsq) {
+                isFirstTimeWsq = false;
+                return;
+            }
             if(queryChangedPromise){
                 $timeout.cancel(queryChangedPromise);
             }
@@ -241,7 +301,7 @@
         //  fill datatable with list of services
         function getServices() {
             vm.showPaginationBar = (vm.serviceQuery == '');
-            vm.promise = (isPreferencesLoaded) ? amServices.getServices(vm.filter.month, vm.filter.year, vm.serviceQuery).then(success).catch(failure) : undefined;
+            vm.promise = (isPreferencesLoaded) ? amServices.getServices(vm.currentTimeSet, vm.serviceQuery).then(success).catch(failure) : undefined;
 
             function success(res) {
                 isDataLoaded = true;
