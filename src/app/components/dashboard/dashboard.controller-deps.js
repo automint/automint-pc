@@ -108,6 +108,8 @@
         //  function definitions
 
         function confirm() {
+            if (vm.selectedDateSet.length < 1)
+                vm.selectedDateSet = currentTimeSet;
             $mdDialog.hide(vm.selectedDateSet);
         }
 
