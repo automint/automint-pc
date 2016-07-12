@@ -569,7 +569,8 @@
                         manuf: vehicle.manuf,
                         model: vehicle.model,
                         name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg),
-                        type: (vehicle.type) ? vehicle.type : ''
+                        type: (vehicle.type) ? vehicle.type : '',
+                        nextdue: vehicle.nextdue
                     });
                 }
             }
@@ -618,7 +619,8 @@
                         manuf: vehicle.manuf,
                         model: vehicle.model,
                         name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' || vehicle.reg == undefined ? '' : ', ' + vehicle.reg),
-                        type: (vehicle.type) ? vehicle.type : ''
+                        type: (vehicle.type) ? vehicle.type : '',
+                        nextdue: vehicle.nextdue
                     });
                 }
             }

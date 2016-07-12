@@ -187,13 +187,17 @@
                     <md-option class="am-hover-option" ng-value="type" ng-repeat="type in vm.serviceTypeList" ng-selected="$first">{{type}}</md-option>
                 </md-select>
             </div>
-            <div layout="column" class="am-service-input-box">
+            <div layout="column" class="am-service-input-box" style="margin: 0.6rem 0.6rem 0 0.6rem">
                 <label class="am-form-label">Vehicle Type:</label>
-                <div layout="row" layout-align="start center" class="am-service-input-box">
-                    <md-radio-group ng-model="vm.vehicle.type" ng-change="vm.changeVehicleType()" ng-blur="vm.fetchFocusItemAfterVT()">
+                <div layout="row" layout-align="start center" class="am-service-input-box" style="margin: 0.6rem 0.6rem 0 0.6rem">
+                    <md-radio-group ng-model="vm.vehicle.type" ng-change="vm.changeVehicleType()">
                         <md-radio-button class="am-service-radio" ng-value="type" ng-repeat="type in vm.vehicleTypeList" class="md-body-1">{{type}}</md-radio-button>
                     </md-radio-group>
                 </div>
+            </div>
+            <div layout="column" class="am-service-input-box">
+                <md-checkbox aria-label="Payment" ng-model="vm.isNextDueService" ng-blur="!vm.isNextDueService && vm.fetchFocusItemAfterSS()" style="margin-bottom: 4px"><span class="md-body-2">Next Service Reminder<span ng-show="vm.isNextDueService" class="md-caption">:</span></span></md-checkbox>
+                <md-datepicker ng-show="vm.isNextDueService" class="md-hue-1" ng-blur="vm.fetchFocusItemAfterSS()" ng-model="vm.nextDueDate" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem;" md-open-on-focus></md-datepicker>
             </div>
         </div>
     </md-content>
@@ -203,7 +207,7 @@
         <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isUserInfoExpanded }" flex>
             <md-item-content class="el-item service-form tile" ng-class="{'selected': vm.isUserInfoExpanded}" layout="column" flex>
                 <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeUserInfoState(true)" class="folded am-blue-bar c800">
-                    <span class="md-headline">Customer<span class="md-caption" ng-if="!vm.isUserInfoExpanded && (vm.user.name || vm.user.mobile)">:</span></span>
+                    <span ng-class="{'md-headline': vm.isUserInfoExpanded, 'md-body-2': !vm.isUserInfoExpanded}">Customer<span class="md-caption" ng-if="!vm.isUserInfoExpanded && (vm.user.name || vm.user.mobile)">:</span></span>
                     <span class="md-body-2" style="margin: 0 0.4rem" ng-show="!vm.isUserInfoExpanded">{{vm.user.name}}<span ng-if="vm.user.name">,&nbsp</span><span class="md-caption" ng-if="vm.user.mobile">(M)&nbsp;</span>{{vm.user.mobile}}</span>
                 </div>
                 <div layout="column" layout-fill class="expanded">
@@ -240,7 +244,7 @@
         <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isVehicleInfoExpanded }" flex>
             <md-item-content class="el-item service-form tile" ng-class="{ 'selected': vm.isVehicleInfoExpanded}" layout="column">
                 <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeVehicleInfoState(true)" class="folded am-blue-bar c800">
-                    <span class="md-headline">Vehicle<span class="md-caption" ng-if="!vm.isVehicleInfoExpanded && (vm.vehicle.manuf || vm.vehicle.model || vm.vehicle.reg)">:</span></span>
+                    <span ng-class="{'md-headline': vm.isVehicleInfoExpanded, 'md-body-2': !vm.isVehicleInfoExpanded}">Vehicle<span class="md-caption" ng-if="!vm.isVehicleInfoExpanded && (vm.vehicle.manuf || vm.vehicle.model || vm.vehicle.reg)">:</span></span>
                     <span class="md-body-2" style="margin: 0 0.4rem" ng-show="!vm.isVehicleInfoExpanded">{{vm.vehicle.manuf}}<span ng-if="vm.vehicle.manuf">&nbsp</span>{{vm.vehicle.model}}<span ng-if="(vm.vehicle.manuf || vm.vehicle.model) && vm.vehicle.reg">&nbsp;-&nbsp;</span>{{vm.vehicle.reg}}</span>
                 </div>
                 <div layout="column" layout-fill class="expanded">
@@ -264,8 +268,8 @@
                         <div layout="row">
                             <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
                                 <label class="am-form-label" style="font-size: 9pt" flex="20">Registration No: </label>
-                                <input type="text" class="am-box-input md-whiteframe-z1 am-vehicle-reg" ng-model="vm.vehicle.reg" ng-change="vm.convertRegToCaps()" placeholder="e.g GJ01AB9999" flex>
-                                <md-menu>
+                                <input type="text" class="am-box-input md-whiteframe-z1 am-vehicle-reg" ng-model="vm.vehicle.reg" ng-keydown="!vm.isAddOperation() && vm.changeServiceInfoState(true, $event)" ng-change="vm.convertRegToCaps()" placeholder="e.g GJ01AB9999" flex>
+                                <md-menu ng-show="vm.isAddOperation()">
                                     <md-button aria-label="Choose from existing vehicles" class="md-accent md-icon-button" ng-keydown="vm.changeServiceInfoState(true, $event)" ng-click="vm.chooseVehicle($mdOpenMenu, $event)">
                                         <md-icon>directions_car</md-icon>
                                         <md-tooltip>Change Vehicle</md-tooltip>
@@ -699,10 +703,10 @@
                             <span><md-checkbox aria-label="Payment" ng-model="vm.servicestatus" flex="33" flex-xs><span class="md-body-1">Payment</span></md-checkbox>
                             </span>
                             <span><md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="33" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox>
-                            <span ng-show="vm.sTaxSettings.applyTax">:&nbsp;<input type="number" ng-change="vm.changeServiceTax()" ng-model="vm.sTaxSettings.tax" class="am-discount-inline-input" style="width: 36px;">&nbsp;<span style="font-size: small">%</span></span>
+                            <span ng-show="vm.sTaxSettings.applyTax">:&nbsp;<input type="number" ng-change="vm.changeServiceTax()" ng-model="vm.sTaxSettings.tax" class="am-discount-inline-input" style="width: 44px;">&nbsp;<span style="font-size: small">%</span></span>
                             </span>
                             <span><md-checkbox ng-if="vm.orgApplyVat" aria-label="VAT" ng-model="vm.vatSettings.applyTax" ng-change="vm.changeVat()" flex="33" flex-xs><span class="md-body-1">VAT</span></md-checkbox>
-                            <span ng-show="vm.vatSettings.applyTax">:&nbsp;<input type="number" ng-change="vm.changeVat()" ng-model="vm.vatSettings.tax" class="am-discount-inline-input" style="width: 36px;">&nbsp;<span style="font-size: small">%</span></span>
+                            <span ng-show="vm.vatSettings.applyTax">:&nbsp;<input type="number" ng-change="vm.changeVat()" ng-model="vm.vatSettings.tax" class="am-discount-inline-input" style="width: 44px;">&nbsp;<span style="font-size: small">%</span></span>
                             </span>
                             <span><md-checkbox aria-label="Round Off Amount" ng-model="vm.isRoundOffVal" ng-change="vm.calculateRoundOff(false)" flex="33" flex-xs><span class="md-body-1">Round Off</span></md-checkbox>
                             </span>

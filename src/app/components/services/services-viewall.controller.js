@@ -52,7 +52,7 @@
         $scope.$watch('vm.serviceQuery', watchServiceQuery);
         getFilterMonths(processPreferences);
         initCurrentTimeSet();
-
+        
         //  function definitions
 
         function openTimeFilter(event) {

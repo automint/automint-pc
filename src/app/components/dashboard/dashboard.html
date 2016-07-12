@@ -59,6 +59,22 @@
         outline: none;
         cursor: pointer;
     }
+
+    .am-dashboard-table-nxtdue {
+        width: 100%;
+        padding: 4px 4px 0 10px;
+    }
+
+    .am-dashboard-table-nxtdue td {
+        padding: 4px 0;
+        cursor: default;
+        color: #424242;
+        transition: color 400ms ease;
+    }
+
+    .am-dashboard-table-nxtdue tr:hover td {
+        color: #212121;
+    }
 </style>
 <md-content layout="column">
     <md-content layout="row" layout-align="end center" style="padding: 0.1rem 1rem" class="am-blue-bar c800">
@@ -133,14 +149,52 @@
     </md-content>
     <md-content layout="row" layout-xs="column">
         <md-card flex class="md-hue-1 am-box-shadow">
+            <md-card-content layout="column" style="padding: 0;" flex>
+                <div layout="row" layout-align="start center" class="am-blue-bar c800" style="padding: 2px 0 2px 26px;">
+                    <span class="am-card-label white">Service Reminders</span>
+                    <span flex></span>
+                    <span class="md-caption">{{vm.nsdcTime}}</span>
+                    <md-menu style="padding: 0" md-position-mode="target-right target">
+                        <md-button aria-label="Choose Duration" class="md-icon-button" ng-click="vm.openNxtDueTimer($mdOpenMenu, $event)">
+                            <md-icon style="font-size: 16pt; color: #fff">date_range</md-icon>
+                            <md-tooltip>Change Duration</md-tooltip>
+                        </md-button>
+                        <md-menu-content width="2" class="md-hue-1">
+                            <md-menu-item ng-repeat="tr in vm.nsdcTimeRange">
+                                <md-button ng-click="vm.changeNsdcTimeRange(tr)">
+                                    <span class="md-caption">{{tr}}</span>
+                                </md-button>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
+                </div>
+                <table class="am-dashboard-table-nxtdue">
+                    <tbody>
+                        <tr ng-repeat="customer in vm.nextServiceDueCustomers | limitTo: 5">
+                            <td><span class="md-caption">{{vm.getNxtDueField(customer.cstmr_name)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_name)">{{customer.cstmr_name}}</md-tooltip></span></td>
+                            <td><span class="md-caption">{{vm.getNxtDueField(customer.cstmr_mobile)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_mobile)">{{customer.cstmr_mobile}}</md-tooltip></span></td>
+                            <td><span class="md-caption">{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg)}}<md-tooltip>{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg, true)}}</md-tooltip></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div flex></div>
+                <div layout="row" layout-align="end center">
+                    <md-button class="md-accent" style="marign: 0 8px;" ng-click="vm.openNextDueServices()">
+                        <span layout-margin>More</span>
+                        <md-icon>more_horiz</md-icon>
+                    </md-button>
+                </div>
+            </md-card-content>
+        </md-card>
+        <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content layout="column" style="padding: 0">
-                <div class="am-blue-bar c800" style="padding: 10px 26px;"><span class="am-card-label white">Top Treatments</span></div>
+                <div class="am-blue-bar c800" style="padding: 12px 26px;"><span class="am-card-label white">Top Treatments</span></div>
                 <div google-chart chart="vm.topTreatmentsChart" class="am-chart-no-border"></div>
             </md-card-content>
         </md-card>
         <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content layout="column" style="padding: 0">
-                <div class="am-blue-bar c800" style="padding: 10px 26px;"><span class="am-card-label white">Top Vehicle Types</span></div>
+                <div class="am-blue-bar c800" style="padding: 12px 26px;"><span class="am-card-label white">Top Vehicle Types</span></div>
                 <div google-chart chart="vm.topVtChart" class="am-chart-no-border"></div>
             </md-card-content>
         </md-card>

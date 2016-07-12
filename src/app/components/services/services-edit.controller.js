@@ -100,6 +100,9 @@
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
         vm.service.state = vm.serviceStateList[0];
         vm.label_invoice = 'Invoice';
+        vm.isNextDueService = false;
+        vm.nextDueDate = new Date(); 
+        vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -152,7 +155,7 @@
         vm.openCustomerMoreDetails = buildDelayedToggler('customer-more-right');
         vm.closeCustomerMoreDetails = closeCustomerMoreDetails;
         vm.openServiceDetailsPanel = buildDelayedToggler('service-details-left');
-        vm.fetchFocusItemAfterVT = fetchFocusItemAfterVT;
+        vm.fetchFocusItemAfterSS = fetchFocusItemAfterSS;
         vm.lockServiceNavbar = lockServiceNavbar;
         vm.IsMembershipTreatmentsDisabled = IsMembershipTreatmentsDisabled;
         vm.IsNoMembershipSubscribed = IsNoMembershipSubscribed;
@@ -395,7 +398,7 @@
             return $mdMedia('gt-md');
         }
 
-        function fetchFocusItemAfterVT() {
+        function fetchFocusItemAfterSS() {
             changeServiceInfoState(true, null, true);
         }
 
@@ -1181,6 +1184,11 @@
                 }
                 vm.service.id = $state.params.serviceId;
                 vm.service.date = new Date(res.vehicle.service.date);
+                if (res.vehicle.nextdue && (res.vehicle.nextdue.localeCompare(moment().format()) > 0)) {
+                    vm.isNextDueService = true;
+                    vm.nextDueDate = new Date(res.vehicle.nextdue);
+                } else
+                    vm.isNextDueService = false;
                 vm.service.cost = res.vehicle.service.cost;
                 vm.service.odo = res.vehicle.service.odo;
                 vm.service.status = res.vehicle.service.status;
@@ -1695,6 +1703,8 @@
             }
             vm.service.status = vm.servicestatus ? 'paid' : 'due';
             vm.service.date = moment(vm.service.date).format();
+            if (vm.isNextDueService)
+                vm.vehicle.nextdue = moment(vm.nextDueDate).format();
             vm.service.problems.forEach(iterateProblems);
             if (vm.isDiscountApplied) {
                 vm.service['discount'] = {

@@ -99,6 +99,9 @@
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
         vm.service.state = vm.serviceStateList[2];
         vm.label_invoice = 'Invoice';
+        vm.isNextDueService = false;
+        vm.nextDueDate = new Date(); 
+        vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -157,7 +160,7 @@
         vm.openCustomerMoreDetails = buildDelayedToggler('customer-more-right');
         vm.closeCustomerMoreDetails = closeCustomerMoreDetails;
         vm.openServiceDetailsPanel = buildDelayedToggler('service-details-left');
-        vm.fetchFocusItemAfterVT = fetchFocusItemAfterVT;
+        vm.fetchFocusItemAfterSS = fetchFocusItemAfterSS;
         vm.lockServiceNavbar = lockServiceNavbar;
         vm.IsMembershipTreatmentsDisabled = IsMembershipTreatmentsDisabled;
         vm.IsNoMembershipSubscribed = IsNoMembershipSubscribed;
@@ -383,7 +386,7 @@
             return $mdMedia('gt-md');
         }
 
-        function fetchFocusItemAfterVT() {
+        function fetchFocusItemAfterSS() {
             changeServiceInfoState(true, null, true);
         }
 
@@ -1289,6 +1292,10 @@
                 vm.vehicle.manuf = found[0].manuf;
                 vm.vehicle.model = found[0].model;
                 vm.vehicle.type = (found[0].type == undefined || found[0].type == '') ? vm.vehicleTypeList[0] : found[0].type;
+                if (found[0].nextdue && (found[0].nextdue.localeCompare(moment().format()) > 0)) {
+                    vm.isNextDueService = true;
+                    vm.nextDueDate = new Date(found[0].nextdue);
+                }
                 changeVehicleType();
                 autofillVehicle = true;
             } else
@@ -1306,6 +1313,9 @@
                 vm.vehicle.type = vm.vehicleTypeList[0];
                 changeVehicleType();
             }
+            vm.isNextDueService = false;
+            vm.nextDueDate = new Date();
+            vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
             autofillVehicle = false;
         }
 
@@ -1717,6 +1727,8 @@
             }
             vm.service.status = vm.servicestatus ? 'paid' : 'due';
             vm.service.date = moment(vm.service.date).format();
+            if (vm.isNextDueService)
+                vm.vehicle.nextdue = moment(vm.nextDueDate).format();
             if (vm.isDiscountApplied) {
                 vm.service['discount'] = {
                     percent: parseFloat(vm.discountPercentage),

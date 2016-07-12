@@ -8,14 +8,18 @@
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
+    const ammPreferences = require('./automint_modules/am-preferences.js');
+
     angular.module('automintApp')
         .controller('amCtrlDashDuPy', DuePaymentsController)
         .controller('amCtrlDashNwCu', NewCustomerController)
-        .controller('amCtrlDashTmFl', TimeFilterController);
+        .controller('amCtrlDashTmFl', TimeFilterController)
+        .controller('amCtrlDashNxDu', NextDueServicesController);
 
     DuePaymentsController.$inject = ['$state', '$mdDialog', 'unbilledServices'];
     NewCustomerController.$inject = ['$mdDialog', 'newCustomers'];
     TimeFilterController.$inject = ['$mdDialog', '$filter', 'filterRange', 'currentTimeSet'];
+    NextDueServicesController.$inject = ['$mdDialog', 'amDashboard', 'dueCustomers', 'nsdcTimeRange', 'nsdcTime'];
     
     function DuePaymentsController($state, $mdDialog, unbilledServices) {
         //  initialize view model
@@ -176,6 +180,56 @@
                 if (found == 0)
                     vm.yearRange.push(item.year);
             }
+        }
+    }
+
+    function NextDueServicesController($mdDialog, amDashboard, dueCustomers, nsdcTimeRange, nsdcTime) {
+        //  initialize view model
+        var vm = this;
+        
+        //  named assignments to keep track of UI
+        vm.query = {
+            limit: 20,
+            page: 1,
+            total: dueCustomers.length
+        };
+        vm.nsdcTime = nsdcTime;
+        vm.nsdcTimeRange = nsdcTimeRange
+
+        //  function mappings
+        vm.customers = dueCustomers;
+        vm.closeDialog = closeDialog;
+        vm.getDate = getDate;
+        vm.openNxtDueTimer = openNxtDueTimer;
+        vm.changeNsdcTimeRange = changeNsdcTimeRange;
+        
+        //  function definitions
+
+        function generateNdcData(res) {
+            vm.customers = res;
+        }
+
+        function changeNsdcTimeRange(time) {
+            vm.nsdcTime = time;
+            amDashboard.getNextDueCustomers(vm.nsdcTime).then(generateNdcData).catch(failure);
+            ammPreferences.storePreference('dashboard.serviceReminders', vm.nsdcTime);
+
+            function failure(err) {
+                console.warn(err);
+            }
+        }
+
+        function openNxtDueTimer($mdOpenMenu, ev) {
+            $mdOpenMenu(ev);
+        }
+
+        function getDate(date) {
+            return moment(date).format('DD MMM YYYY');
+        }
+        
+        //  close dialog box
+        function closeDialog() {
+            $mdDialog.hide();
         }
     }
 })();

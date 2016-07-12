@@ -18,12 +18,68 @@
             getTotalCustomerServed: getTotalCustomerServed,
             getNewCustomers: getNewCustomers,
             getProblemsAndVehicleTypes: getProblemsAndVehicleTypes,
-            getFilterMonths: getFilterMonths
+            getFilterMonths: getFilterMonths,
+            getNextDueCustomers: getNextDueCustomers
         }
         
         return factory;
         
         //  function definitions
+
+        function getNextDueCustomers(dateRange) {
+            var tracker = $q.defer();
+            pdbCache.get(constants.pdb_cache_views.view_services).then(generateNextDueCustomers).catch(failure);
+            return tracker.promise;
+
+            function generateNextDueCustomers(res) {
+                var startdate, enddate, dateFormat, result = [];
+                switch (dateRange) {
+                    case "Today":
+                        dateFormat = 'YYYY-MM-DD';
+                        startdate = moment().format(dateFormat);
+                        enddate = moment().format(dateFormat);
+                        break;
+                    case "This Week":
+                        dateFormat = 'w';
+                        startdate = moment().format(dateFormat);
+                        enddate = moment().format(dateFormat);
+                        break;
+                    case "This Month":
+                        dateFormat = 'M';
+                        startdate = moment().format(dateFormat);
+                        enddate = moment().format(dateFormat);
+                        break;
+                }
+                Object.keys(res).forEach(iterateDateRange);
+                result.sort(dateSort);
+                tracker.resolve(result);
+
+                function dateSort(lhs, rhs) {
+                    return lhs.vhcl_nextdue.localeCompare(rhs.vhcl_nextdue);
+                }
+
+                function iterateDateRange(dr) {
+                    if (dr.match(/_id|_rev/g))
+                        return;
+                    Object.keys(res[dr]).forEach(iterateService);
+
+                    function iterateService(sId) {
+	                    if (res[dr][sId].vhcl_nextdue && (moment(res[dr][sId].vhcl_nextdue).format(dateFormat).localeCompare(startdate) >= 0) && (moment(res[dr][sId].vhcl_nextdue).format(dateFormat).localeCompare(enddate) <= 0)) {
+                            var cfound = $filter('filter')(result, {
+                                cstmr_id: res[dr][sId].cstmr_id
+                            }, true);
+
+                            if (cfound.length == 0)
+                                result.push(res[dr][sId]);
+                        } 
+                    }
+                }
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function getFilterMonths() {
             var tracker = $q.defer();

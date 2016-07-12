@@ -78,7 +78,10 @@
         };
         vm.currentTimeSet = [];
         vm.ddTimeSet = '';
-        vm.displayIncome = false
+        vm.displayIncome = false;
+        vm.nextServiceDueCustomers = [];
+        vm.nsdcTimeRange = ['Today', 'This Week', 'This Month'];
+        vm.nsdcTime = vm.nsdcTimeRange[0];
 
         //  function maps
         vm.addNewService = addNewService;
@@ -86,6 +89,12 @@
         vm.openDuePayments = openDuePayments;
         vm.openNewCustomers = openNewCustomers;
         vm.openTimeFilter = openTimeFilter;
+        vm.openNxtDueTimer = openNxtDueTimer;
+        vm.changeNsdcTimeRange = changeNsdcTimeRange;
+        vm.getNxtDueField = getNxtDueField;
+        vm.getNextDueVehicle = getNextDueVehicle;
+        vm.IsNextDueFieldLong = IsNextDueFieldLong;
+        vm.openNextDueServices = openNextDueServices;
 
         //  default execution steps
         initCurrentTimeSet();
@@ -95,10 +104,71 @@
 
         //  function definitions
 
-        function processPreferences() {
-            ammPreferences.getAllPreferences('viewServices').then(success).catch(failure);
+        function openNextDueServices() {
+            $mdDialog.show({
+                controller: 'amCtrlDashNxDu',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/dashboard/tmpl/dialog_nextdueservices.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    dueCustomers: vm.nextServiceDueCustomers,
+                    nsdcTimeRange: vm.nsdcTimeRange,
+                    nsdcTime: vm.nsdcTime
+                },
+                clickOutsideToClose: true
+            }).then(closeNdsDialog).catch(closeNdsDialog);
 
-            function success(res) {
+            function closeNdsDialog() {
+                ammPreferences.getPreference('dashboard.serviceReminders').then(success).catch(failure);
+
+                function success(res) {
+                    changeNsdcTimeRange(res, true);
+                }
+            }
+        }
+
+        function IsNextDueFieldLong(text) {
+            return (text.length > 15);
+        }
+
+        function getNextDueVehicle(manuf, model, reg, long) {
+            var v = (model ? model : (reg ? reg : (manuf ? manuf : '')));
+            var t = (manuf ? manuf : '') + ((manuf || model) ? ' ' : '') + (model ? model : '') + (((manuf || model) && reg) ? ' - ' : '') + (reg ? reg : '');
+            return (long ? t : getNxtDueField(v));
+        }
+
+        function getNxtDueField(text) {
+            return ((text.length <= 15) ? text : text.substr(0, 15) + '...');
+        }
+
+        function changeNsdcTimeRange(time, isStoreBlocked) {
+            vm.nsdcTime = time;
+            amDashboard.getNextDueCustomers(vm.nsdcTime).then(generateNdcData).catch(failure);
+            if (!isStoreBlocked)
+                ammPreferences.storePreference('dashboard.serviceReminders', vm.nsdcTime);
+        }
+
+        function openNxtDueTimer($mdOpenMenu, ev) {
+            $mdOpenMenu(ev);
+        }
+
+        function generateNdcData(res) {
+            vm.nextServiceDueCustomers = res;
+        }
+
+        function processPreferences() {
+            ammPreferences.getAllPreferences('viewServices').then(processViewServices).catch(failure);
+            ammPreferences.getAllPreferences('dashboard').then(processDashboard).catch(failure);
+
+            function processDashboard(res) {
+                if (res['dashboard.serviceReminders']) {
+                    vm.nsdcTime = res['dashboard.serviceReminders'];
+                }
+                changeNsdcTimeRange(vm.nsdcTime, true);
+            }
+
+            function processViewServices(res) {
                 if (res['viewServices.showingDataFor']) {
                     var sdf = res['viewServices.showingDataFor'].split(';');
                     vm.currentTimeSet = [];
@@ -125,6 +195,7 @@
                 amDashboard.getTotalCustomerServed(vm.currentTimeSet).then(generateTcsData).catch(failure);
                 amDashboard.getNewCustomers(vm.currentTimeSet).then(generateNcpData).catch(failure);
                 amDashboard.getProblemsAndVehicleTypes(vm.currentTimeSet).then(sortProblemsAndVehicleTypes).catch(failure);
+                changeNsdcTimeRange(vm.nsdcTimeRange[0]);
                 console.warn(err.message);
             }
         }
