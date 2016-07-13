@@ -645,39 +645,46 @@
 
             function success(res) {
                 vm.inventories = res;
-                existingInventories.forEach(iterateInventories);
+                addExistingInventories(existingInventories);
                 getVatSettings();
 
-                function iterateInventories(inventory) {
-                    if (inventory.name != '') {
-                        if (inventory.qty == undefined)
-                            inventory.qty = 1;
-                        var found = $filter('filter')(vm.inventories, {
-                            name: inventory.name
-                        }, true);
-                        if (found.length == 1) {
-                            found[0].checked = true;
-                            found[0].rate = inventory.rate;
-                            found[0].amount = inventory.rate;
-                            found[0].qty = inventory.qty;
-                            vm.selectedInventories.push(found[0]);
-                        } else {
-                            vm.inventories.push({
-                                name: inventory.name,
-                                rate: inventory.rate,
-                                amount: inventory.rate,
-                                qty: inventory.qty,
-                                checked: true
-                            });
-                            vm.selectedInventories.push(vm.inventories[vm.inventories.length - 1]);
-                        }
-                    }
-                }
+                
             }
 
             function failure(err) {
                 vm.inventories = [];
+                addExistingInventories(existingInventories);
                 getVatSettings();
+            }
+        }
+
+        function addExistingInventories(existingInventories) {
+            existingInventories.forEach(iterateInventories);
+
+            function iterateInventories(inventory) {
+                if (inventory.name != '') {
+                    if (inventory.qty == undefined)
+                        inventory.qty = 1;
+                    var found = $filter('filter')(vm.inventories, {
+                        name: inventory.name
+                    }, true);
+                    if (found.length == 1) {
+                        found[0].checked = true;
+                        found[0].rate = inventory.rate;
+                        found[0].amount = inventory.rate;
+                        found[0].qty = inventory.qty;
+                        vm.selectedInventories.push(found[0]);
+                    } else {
+                        vm.inventories.push({
+                            name: inventory.name,
+                            rate: inventory.rate,
+                            amount: inventory.rate,
+                            qty: inventory.qty,
+                            checked: true
+                        });
+                        vm.selectedInventories.push(vm.inventories[vm.inventories.length - 1]);
+                    }
+                }
             }
         }
 

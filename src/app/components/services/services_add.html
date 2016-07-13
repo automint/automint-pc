@@ -225,8 +225,7 @@
                     <div layout="column">
                         <div layout="row" layout-align="start center" flex="60" class="am-service-input-box">
                             <label class="am-form-label" flex="10">Name: </label>
-                            <md-autocomplete md-autofocus ng-disabled="!vm.isAddOperation()" flex md-no-cache md-selected-item="vm.currentUser" md-search-text-change="vm.convertNameToTitleCase()" md-search-text="vm.user.name" md-selected-item-change="vm.selectedUserChange()" md-items="user in vm.userQuerySearch()"
-                                md-item-text="user.name" md-min-length="1" placeholder="Enter Full Name" id="ami-user-name">
+                            <md-autocomplete md-autofocus ng-disabled="!vm.isAddOperation()" flex md-no-cache md-selected-item="vm.currentUser" md-search-text-change="vm.convertNameToTitleCase()" md-search-text="vm.user.name" md-selected-item-change="vm.selectedUserChange()" md-items="user in vm.userQuerySearch()" md-item-text="user.name" md-min-length="1" placeholder="Enter Full Name" id="ami-user-name">
                                 <md-item-template>
                                     <span md-highlight-text="vm.user.name" md-highlight-flags="^i">{{user.name}}</span>
                                 </md-item-template>

@@ -194,6 +194,7 @@
         //  default execution steps
         setCoverPic();
         changeUserInfoState(true);   //  ammToDo: Enable this while commiting
+        setTimeout(focusUserName, 700);
         // changeServiceInfoState(true);   //  ammToDo: Testing Purpose, Disable while commiting
         buildDelayedToggler('service-details-left');
         getDefaultServiceType();
