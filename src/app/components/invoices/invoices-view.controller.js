@@ -2,7 +2,7 @@
  * Controller for View Invoice component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.1 
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -14,17 +14,23 @@
     const eIpc = require("electron").ipcRenderer;
 
     //  angular code 
-    angular.module('automintApp').controller('amCtrlIvRI', InvoicesViewController);
+    angular.module('automintApp')
+        .controller('amCtrlIvRI', InvoicesViewController)
+        .controller('amCtrlCmI', ConfirmMailController);
 
-    InvoicesViewController.$inject = ['$q', '$log', '$state', '$window', 'utils', 'amInvoices'];
+    InvoicesViewController.$inject = ['$q', '$log', '$state', '$window', '$mdDialog', 'utils', 'amInvoices'];
+    ConfirmMailController.$inject = ['$mdDialog', 'utils', 'user'];
 
-    function InvoicesViewController($q, $log, $state, $window, utils, amInvoices) {
+    function InvoicesViewController($q, $log, $state, $window, $mdDialog, utils, amInvoices) {
         //  initialize view model
         var vm = this;
+
+        var oCustomerEmail;
 
         //  named assignments to keep track of UI elements
         vm.isFabOpen = true;
         vm.fabClass = '';
+        vm.subtotal = 0;
 
         //  function maps
         vm.printInvoice = printInvoice;
@@ -41,6 +47,10 @@
         vm.IsSocialFacebook = IsSocialFacebook;
         vm.IsSocialInstagram = IsSocialInstagram;
         vm.IsSocialTwitter = IsSocialTwitter;
+        vm.initiateMailInvoiceProcess = initiateMailInvoiceProcess;
+        vm.IsInvoiceAvailable = IsInvoiceAvailable;
+        vm.IsSubtotalEnabled = IsSubtotalEnabled;
+        vm.calculateSubtotal = calculateSubtotal;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -56,6 +66,41 @@
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
+
+        function IsSubtotalEnabled() {
+            return (vm.isDiscountApplied || vm.isRoundOff || (vm.sTaxSettings && vm.sTaxSettings.applyTax) || (vm.vatSettings && vm.vatSettings.applyTax));
+        }
+
+        function calculateSubtotal() {
+            var totalCost = 0;
+            vm.service.problems.forEach(iterateProblem);
+            vm.service.inventories.forEach(iterateInventories);
+            if (vm.service.packages) {
+                vm.service.packages.forEach(iteratePackages);
+            }
+            totalCost = (totalCost % 1 != 0) ? totalCost.toFixed(2) : parseInt(totalCost);
+            vm.subtotal = totalCost;
+
+            function iterateProblem(element) {
+                totalCost += parseFloat(element.rate);
+            }
+
+            function iterateInventories(element) {
+                totalCost += parseFloat(element.rate * element.qty);
+            }
+
+            function iteratePackages(package) {
+                package.treatments.forEach(ipt);
+            }
+
+            function ipt(treatment) {
+                totalCost += treatment.rate;
+            }
+        }
+
+        function IsInvoiceAvailable() {
+            return (vm.service && vm.service.state == "Bill");
+        }
 
         function IsSocialFacebook() {
             if (vm.workshop.social.facebook == undefined)
@@ -83,7 +128,7 @@
             }
 
             function failure(err) {
-                console.log('Cound not find margin settings');
+                console.info('Cound not find margin settings');
             }
         }
         
@@ -154,6 +199,7 @@
 
             function fillServiceDetails(res) {
                 vm.user = res.user;
+                oCustomerEmail = res.user.email;
                 vm.vehicle = res.vehicle;
                 vm.service = res.service;
                 vm.isRoundOff = (vm.service.roundoff != undefined);
@@ -169,6 +215,7 @@
                     tax: res.service.vat.tax
                 }
                 calculateInventoryValues();
+                calculateSubtotal();
             }
 
             function failure(err) {
@@ -234,7 +281,7 @@
             }
 
             function failure(err) {
-                console.log(err);
+                console.warn(err);
                 $log.info('Could not load display settings!');
             }
         }
@@ -283,6 +330,36 @@
                 if (IsSocialTwitter()) {
                     amInScTw.src = 'assets/img/twitter.svg';                
                 }
+            }
+        }
+
+        function initiateMailInvoiceProcess(ev) {
+            $mdDialog.show({
+                controller: 'amCtrlCmI',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/invoices/invoices_confirmmail.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    utils: utils,
+                    user: vm.user
+                },
+                clickOutsideToClose: true
+            }).then(doMailInvoice).catch(cancelMailInvoice);
+
+            function doMailInvoice(result) {
+                vm.user.email = result;
+                mailInvoice();
+                if (vm.user.email != oCustomerEmail)
+                    amInvoices.saveCustomerEmail($state.params.userId, vm.user.email).then(respond).catch(respond);
+                
+                function respond(res) {
+                    console.info(res);
+                }
+            }
+
+            function cancelMailInvoice() {
+                console.info('cancelled');
             }
         }
 
@@ -379,6 +456,26 @@
             while (elem.firstChild) {
                 elem.removeChild(elem.firstChild);
             }
+        }
+    }
+
+    function ConfirmMailController($mdDialog, utils, user) {
+        var vm = this;
+
+        vm.user = user;
+        vm.sendInvoice = sendInvoice;
+        vm.cancelInvoice = cancelInvoice;
+
+        function sendInvoice() {
+            if (vm.user.email == '' || vm.user.email == undefined) {
+                utils.showSimpleToast('Please Enter Email Address');
+                return;
+            }
+            $mdDialog.hide(vm.user.email);
+        }
+
+        function cancelInvoice() {
+            $mdDialog.cancel();
         }
     }
 })();

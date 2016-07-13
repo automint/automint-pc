@@ -2,7 +2,7 @@
  * Controller for Add Customer component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -43,6 +43,10 @@
         vm.models = [];
         vm.membershipChips = [];
         vm.vehicleTypeList = [];
+        vm.loadingBasedOnMobile = false;
+        vm.isNextDueService = false;
+        vm.nextDueDate = new Date(); 
+        vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -64,13 +68,91 @@
         vm.OnAddMembershipChip = OnAddMembershipChip;
         vm.changeMembershipTab = changeMembershipTab;
         vm.goBack = goBack;
+        vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
+        vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
+        vm.checkExistingCustomerMobile = checkExistingCustomerMobile;
+        vm.unsubscribeMembership = unsubscribeMembership;
+        vm.getDate = getDate;
         
         //  default execution steps
+        setTimeout(focusCustomerName, 300);
         getMemberships();
         getRegularTreatments();
         getVehicleTypes();
 
         //  function definitions
+
+        function getDate(date) {
+            return moment(date).format('DD MMM YYYY');
+        }
+
+        function unsubscribeMembership(ev, chip) {
+            var confirm = $mdDialog.confirm()
+                .textContent('Unsubscribe to ' + chip.name + ' ?')
+                .ariaLabel('Unsubscribe to ' + chip.name)
+                .targetEvent(ev)
+                .ok('Yes')
+                .cancel('No');
+
+            $mdDialog.show(confirm).then(performDelete, ignoreDelete);
+
+            function performDelete() {
+                console.info('deleted');
+            }
+
+            function ignoreDelete() {
+                vm.membershipChips.push(chip);
+            }
+        }
+
+        function focusCustomerName() {
+            $('#ami-customer-name').focus();
+        }
+
+        function checkExistingCustomerMobile(ev) {
+            vm.loadingBasedOnMobile = true;
+            amCustomers.getCustomerByMobile(vm.user.mobile).then(success).catch(failure);
+
+            function success(res) {
+                vm.loadingBasedOnMobile = false;
+                var confirm = $mdDialog.confirm()
+                    .title('Do you want to edit customer details ?')
+                    .textContent('Customer record for  ' + res.name + ' with ' + vm.user.mobile + ' already exists')
+                    .ariaLabel('Edit Customer')
+                    .targetEvent(ev)
+                    .ok('Yes')
+                    .cancel('No');
+                
+                $mdDialog.show(confirm).then(doEdit, ignore);
+                
+                function doEdit() {
+                    $state.go('restricted.customers.edit', {
+                        id: res.id
+                    });
+                }
+                
+                function ignore() {
+                    vm.user.mobile = '';
+                }                
+            }
+
+            function failure(err) {
+                vm.loadingBasedOnMobile = false;
+                console.info('New Customer');
+            }
+        }
+
+        function autoCapitalizeVehicleModel() {
+            vm.vehicle.model = utils.autoCapitalizeWord(vm.vehicle.model);
+        }
+
+        function autoCapitalizeVehicleManuf() {
+            vm.vehicle.manuf = utils.autoCapitalizeWord(vm.vehicle.manuf);
+        }
+
+        function autoCapitalizeCustomerAddress() {
+            vm.user.address = utils.autoCapitalizeWord(vm.user.address);
+        }
         
         function goBack() {
             $state.go('restricted.customers.all');
@@ -227,6 +309,7 @@
         function convertNameToTitleCase() {
             vm.user.name = utils.convertToTitleCase(vm.user.name);
         }
+
         function convertRegToCaps() {
             vm.vehicle.reg = vm.vehicle.reg.toUpperCase();
         }
@@ -297,6 +380,7 @@
         }
         
         function searchVehicleChange() {
+            autoCapitalizeVehicleManuf();
             vm.models = [];
             vm.vehicle.model = '';
         }
@@ -360,6 +444,8 @@
             vm.user.memberships = vm.membershipChips;
             if (!(vm.vehicle.reg == '' && vm.vehicle.manuf == '' && vm.vehicle.model == '')) {
                 vm.vehicle.reg = vm.vehicle.reg.replace(/\s/g, '');
+                if (vm.isNextDueService)
+                    vm.vehicle.nextdue = vm.nextDueDate;
                 amCustomers.addNewCustomer(vm.user, vm.vehicle).then(successfullSave).catch(failedSave);
             } else
                 amCustomers.addNewCustomer(vm.user).then(successfullSave).catch(failedSave);

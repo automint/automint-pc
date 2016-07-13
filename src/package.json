@@ -1,6 +1,6 @@
 {
   "name": "Automint",
-  "version": "0.6.3",
+  "version": "0.6.4",
   "description": "CRM by Automint",
   "main": "main.js",
   "scripts": {
@@ -16,8 +16,9 @@
   },
   "dependencies": {
     "base64url": "^1.0.6",
-    "google-auth-library": "^0.9.7",
+    "google-auth-library": "^0.9.8",
     "googleapis": "^5.2.1",
-    "premailer-api": "^1.0.4"
+    "premailer-api": "^1.0.4",
+    "promise": "^7.1.1"
   }
 }

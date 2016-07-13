@@ -112,7 +112,7 @@
             }
             
             function ignoreDelete() {
-                console.log('nope');
+                console.info('nope');
             }
             
             function success(res) {

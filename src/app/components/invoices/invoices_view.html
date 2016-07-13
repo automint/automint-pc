@@ -16,7 +16,7 @@
         <md-tooltip md-direction="top">Back</md-tooltip>
     </md-button>
     <div flex></div>
-    <md-button aria-label="Email" class="md-fab md-raised md-mini" ng-click="vm.mailInvoice()">
+    <md-button aria-label="Email" class="md-fab md-raised md-mini" ng-click="vm.initiateMailInvoiceProcess($event)">
         <md-icon aria-label="Email">email</md-icon>
         <md-tooltip md-direction="top">Email</md-tooltip>
     </md-button>
@@ -167,7 +167,7 @@
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td style="text-align: right;">
-                                        <p style="text-align: right; font-size: large">Invoice #{{vm.service.invoiceno}}</p>
+                                        <p style="text-align: right; font-size: large" ng-if="vm.IsInvoiceAvailable()">Invoice #{{vm.service.invoiceno}}</p>
                                         <span>{{vm.service.date}}</span>
                                     </td>
                                 </tr>
@@ -213,31 +213,37 @@
                                     <td ng-if="vm.service.inventories.length > 0">{{inventory.qty}}</td>
                                     <td align="right">Rs. {{inventory.total}}</td>
                                 </tr>
-                                <tr class="tax" ng-if="vm.sTaxSettings.applyTax">
+                                <tr class="tax" ng-if="vm.IsSubtotalEnabled()">
+                                    <td>Sub Total</td>
+                                    <td ng-if="vm.services.inventories.length > 0"></td>
+                                    <td ng-if="vm.services.inventories.length > 0"></td>
+                                    <td align="right">Rs. {{vm.subtotal}}</td>
+                                </tr>
+                                <tr ng-class="{'tax': !vm.IsSubtotalEnabled(), 'subt': vm.IsSubtotalEnabled()}" ng-if="vm.sTaxSettings.applyTax">
                                     <td>Service Tax ({{vm.sTaxSettings.tax}}<small>%</small>)</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right">Rs. {{vm.calculateServiceTax()}}</td>
                                 </tr>
-                                <tr ng-class="{'tax': !vm.sTaxSettings.applyTax, 'subt': vm.sTaxSettings.applyTax}" ng-if="vm.vatSettings.applyTax">
+                                <tr ng-class="{'tax': !vm.IsSubtotalEnabled() && !vm.sTaxSettings.applyTax, 'subt': vm.IsSubtotalEnabled() || vm.sTaxSettings.applyTax}" ng-if="vm.vatSettings.applyTax">
                                     <td>VAT ({{vm.vatSettings.tax}}<small>%</small>)</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right">Rs. {{vm.calculateVat()}}</td>
                                 </tr>
-                                <tr ng-class="{'tax': !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax, 'subt': vm.sTaxSettings.applyTax || vm.vatSettings.applyTax}" ng-if="vm.isDiscountApplied">
+                                <tr ng-class="{'tax': !vm.IsSubtotalEnabled() && !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax, 'subt': vm.IsSubtotalEnabled() || vm.sTaxSettings.applyTax || vm.vatSettings.applyTax}" ng-if="vm.isDiscountApplied">
                                     <td>Discount ({{vm.service.discount.percent}}<small>%</small>)</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right">Rs. {{vm.service.discount.amount}}</td>
                                 </tr>
-                                <tr ng-class="{'tax': !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax && !vm.isDiscountApplied, 'subt': vm.sTaxSettings.applyTax || vm.vatSettings.applyTax || vm.isDiscountApplied}" class="subt" ng-if="vm.isRoundOff">
+                                <tr ng-class="{'tax': !vm.IsSubtotalEnabled() && !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax && !vm.isDiscountApplied, 'subt': vm.IsSubtotalEnabled() || vm.sTaxSettings.applyTax || vm.vatSettings.applyTax || vm.isDiscountApplied}" class="subt" ng-if="vm.isRoundOff">
                                     <td>Round Off</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right">Rs. {{vm.service.roundoff}}</td>
                                 </tr>
-                                <tr class="total" ng-class="{'tax': !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax && !vm.isDiscountApplied && !vm.isRoundOff}">
+                                <tr class="total" ng-class="{'tax': !vm.IsSubtotalEnabled() && !vm.sTaxSettings.applyTax && !vm.vatSettings.applyTax && !vm.isDiscountApplied && !vm.isRoundOff}">
                                     <td>Total</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>

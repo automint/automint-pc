@@ -2,13 +2,58 @@
  * Customised style sheet for Automint App
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
     -webkit-appearance: none;
     margin: 0;
+}
+
+.am-jobcard-text {
+    color: #FB8C00;
+    font-weight: 500;
+}
+
+.am-estimate-text {
+    color: #4CAF50;
+    font-weight: 500;
+}
+
+.am-invoice-text {
+    color: #03A9F4;
+    font-weight: 500;
+}
+
+.am-red-text {
+    color: #F44336;
+}
+
+.am-blue-bar {
+    background: #03A9F4;
+    color: #fff;
+}
+
+.am-blue-bar.c600 {
+    background: #039BE5;
+}
+
+.am-blue-bar.c800 {
+    background: #0277BD;
+}
+
+.am-service-details-panel.ng-hide {
+    opacity: 0;
+}
+
+.am-service-details-panel.ng-show {
+    opacity: 1;
+}
+
+.am-service-details-panel {
+    opacity: 1;
+    transition: left 600ms ease, opacity 1s ease;
 }
 
 .am-tab-margin {
@@ -37,7 +82,6 @@ input[type=number]::-webkit-outer-spin-button {
 .am-select-table-row:hover {
     background: #ECEFF1;
 }
-
 .am-clear-error-spacer .md-errors-spacer {
     display: none;
 }
@@ -46,7 +90,7 @@ input[type=number]::-webkit-outer-spin-button {
     font-weight: 500;
     padding-bottom: 0.1rem;
     font-size: small;
-    color: rgba(30, 30, 30, 0.7);
+    color: #000;
     margin-bottom: 0.5rem;
 }
 
@@ -54,7 +98,7 @@ input[type=number]::-webkit-outer-spin-button {
     font-weight: 500;
     padding-bottom: 0.1rem;
     font-size: medium;
-    color: rgba(30, 30, 30, 0.7);
+    color: #000;
     margin-bottom: 0.1rem;
 }
 
@@ -189,7 +233,7 @@ md-sidenav.md-closed.md-locked-open-add-active {
 }
 
 .am-datatable-actions.view-all-services {
-    width: 132px;
+    width: 40px;
 }
 
 .am-datatable-actions.view-all-services .invoice {
@@ -270,13 +314,21 @@ md-sidenav.md-closed.md-locked-open-add-active {
     outline: none;
 }
 
-.am-el-item .el-item {
-    background-color: white;
-    transition: all 200ms;
+.am-el-item .tile.service-form .folded {
+    cursor: pointer;
+    outline: none;
+    padding: 1rem;
 }
 
-.am-el-item .el-item * {
-    transition: all 200ms;
+.am-el-item .tile.service-form.selected .folded {
+    cursor: pointer;
+    outline: none;
+    padding: 1rem;
+}
+
+.am-el-item .el-item {
+    background-color: white;
+    transition: all 260ms;
 }
 
 .am-el-item .el-item .actions {
@@ -294,13 +346,23 @@ md-sidenav.md-closed.md-locked-open-add-active {
     border-radius: 2px;
 }
 
+.am-el-item .el-item.selected.service-form {
+    border-radius: 2px;
+    margin: 0;
+}
+
+.am-el-item .el-item.selected.service-form .expanded {
+    border-radius: 2px;
+    padding: 0.8rem;
+}
+
 .am-el-item .el-item.selected .expanded {
     visibility: visible;
 }
 
 .am-el-item .el-item.selected .expanded,
 .am-el-item .el-item.selected .expanded> * {
-    max-height: 700px;
+    max-height: 7000px;
     opacity: 1;
 }
 
@@ -316,7 +378,7 @@ md-sidenav.md-closed.md-locked-open-add-active {
 .am-el-item .el-item .expanded> * {
     max-height: 0;
     opacity: 0;
-    transition: all 200ms;
+    transition: all 260ms;
 }
 
 .am-lockscreen {

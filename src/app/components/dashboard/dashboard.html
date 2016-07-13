@@ -11,7 +11,11 @@
     .am-card-label {
         font-weight: 500;
         font-size: medium;
-        color: rgba(30, 30, 30, 0.7);
+        color: #616161;
+    }
+
+    .am-card-label.white {
+        color: #fff;
     }
     
     .am-chart-no-border div {
@@ -55,15 +59,36 @@
         outline: none;
         cursor: pointer;
     }
+
+    .am-dashboard-table-nxtdue {
+        width: 100%;
+        padding: 4px 4px 0 10px;
+    }
+
+    .am-dashboard-table-nxtdue td {
+        padding: 4px 0;
+        cursor: default;
+        color: #424242;
+        transition: color 400ms ease;
+    }
+
+    .am-dashboard-table-nxtdue tr:hover td {
+        color: #212121;
+    }
 </style>
-<md-content layout-padding layout="column" ng-init="vm.displayIncome = false">
+<md-content layout="column">
+    <md-content layout="row" layout-align="end center" style="padding: 0.1rem 1rem" class="am-blue-bar c800">
+        <span class="md-body-1">Showing data for : {{vm.ddTimeSet}} </span>
+        <md-button class="md-icon-button" ng-click="vm.openTimeFilter($event)">
+            <md-icon style="font-size: 16pt; color: #fff">date_range</md-icon>
+        </md-button>
+    </md-content>
     <md-content layout="row" layout-xs="column">
         <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content>
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
                         <span class="am-card-label">Customers Served</span>
-                        <span class="am-card-label x-small">(This Month)</span>
                     </div>
                     <span class="am-color light-blue bold">{{vm.totalCustomersServed}}</span>
                 </div>
@@ -74,7 +99,6 @@
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
                         <span class="am-card-label">Income</span>
-                        <span class="am-card-label x-small">(This Month)</span>
                     </div>
                     <span ng-click="vm.displayIncome = !vm.displayIncome" class="am-clickable-amount"><span class="am-color green bold" ng-if="!vm.displayIncome"><span class="am-card-label small">Rs.</span>$$$</span><span class="am-color green bold" ng-if="vm.displayIncome"><span class="am-card-label small">Rs.</span>{{vm.totalRevenueEarned}}</span></span>
                 </div>
@@ -85,7 +109,6 @@
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
                         <span class="am-card-label">Due Payments</span>
-                        <span class="am-card-label x-small">(This Month)</span>
                     </div>
                     <span class="am-color red bold"><span class="am-card-label small">Rs.</span>{{vm.totalPendingPayments}}</span>
                 </div>
@@ -96,7 +119,6 @@
                 <div layout="row" layout-align="center center">
                     <div layout="column" flex>
                         <span class="am-card-label">New Customers</span>
-                        <span class="am-card-label x-small">(This Month)</span>
                     </div>
                     <span class="am-color orange bold">{{vm.totalNewCustomers}}</span>
                 </div>
@@ -105,19 +127,20 @@
     </md-content>
     <md-content layout="row" layout-xs="column">
         <md-card flex class="md-hue-1 am-box-shadow">
-            <md-card-content layout="column">
+            <md-card-content layout="column" style="padding: 16px 16px 16px 0">
                 <div layout="row" layout-xs="column" layout-align="start center">
-                    <span flex><span class="am-card-label">Daily Services</span>&nbsp;<span class="am-card-label small">(This Month: {{vm.totalServicesDone}} Services)</span></span>
+                    <div class="am-blue-bar c800" style="padding: 10px 26px; border-radius: 0 20px 20px 0"><span class="am-card-label white">Daily Services</span>&nbsp;<span class="am-card-label white small">({{vm.totalServicesDone}} Services)</span></div>
+                    <span flex></span>
                     <md-button class="md-accent" ng-click="vm.viewAllServices()">
                         <md-icon>list</md-icon>
                         <span layout-margin>View All Services</span>
                     </md-button>
-                    <md-button class="md-raised md-accent" ng-click="vm.addNewService()">
+                    <md-button class="md-raised md-warn" ng-click="vm.addNewService()">
                         <md-icon>add</md-icon>
                         <span layout-margin>Add Service</span>
                     </md-button>
                 </div>
-                <div ng-if="vm.perDayServiceChart.data.rows.length > 0" google-chart chart="vm.perDayServiceChart" style="width: 99%" class="am-chart-no-border"></div>
+                <div ng-if="vm.perDayServiceChart.data.rows.length > 0" google-chart chart="vm.perDayServiceChart" style="width: 98%; padding-left: 16px;" class="am-chart-no-border"></div>
                 <div ng-if="vm.perDayServiceChart.data.rows.length == 0" layout="column" layout-align="center center" layout-padding>
                     <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>No Services Added For This Month</span>
                 </div>
@@ -126,14 +149,55 @@
     </md-content>
     <md-content layout="row" layout-xs="column">
         <md-card flex class="md-hue-1 am-box-shadow">
-            <md-card-content layout="column">
-                <span><span class="am-card-label">Top Treatments</span>&nbsp;<span class="am-card-label x-small">(Overall)</span></span>
+            <md-card-content layout="column" style="padding: 0">
+                <div class="am-blue-bar c800" style="padding: 12px 26px;"><span class="am-card-label white">Top Treatments</span></div>
                 <div google-chart chart="vm.topTreatmentsChart" class="am-chart-no-border"></div>
             </md-card-content>
         </md-card>
         <md-card flex class="md-hue-1 am-box-shadow">
-            <md-card-content layout="column">
-                <span><span class="am-card-label">Top Vehicle Types</span>&nbsp;<span class="am-card-label x-small">(Overall)</span></span>
+            <md-card-content layout="column" style="padding: 0;" flex>
+                <div layout="row" layout-align="start center" class="am-blue-bar c800" style="padding: 2px 0 2px 26px;">
+                    <span class="am-card-label white">Service Reminders</span>
+                    <span flex></span>
+                    <span class="md-caption">{{vm.nsdcTime}}</span>
+                    <md-menu style="padding: 0" md-position-mode="target-right target">
+                        <md-button aria-label="Choose Duration" class="md-icon-button" ng-click="vm.openNxtDueTimer($mdOpenMenu, $event)">
+                            <md-icon style="font-size: 16pt; color: #fff">date_range</md-icon>
+                            <md-tooltip>Change Duration</md-tooltip>
+                        </md-button>
+                        <md-menu-content width="2" class="md-hue-1">
+                            <md-menu-item ng-repeat="tr in vm.nsdcTimeRange">
+                                <md-button ng-click="vm.changeNsdcTimeRange(tr)">
+                                    <span class="md-caption">{{tr}}</span>
+                                </md-button>
+                            </md-menu-item>
+                        </md-menu-content>
+                    </md-menu>
+                </div>
+                <table class="am-dashboard-table-nxtdue">
+                    <tbody>
+                        <tr ng-repeat="customer in vm.nextServiceDueCustomers | limitTo: 5">
+                            <td><span class="md-caption">{{vm.getNxtDueField(customer.cstmr_name)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_name)">{{customer.cstmr_name}}</md-tooltip></span></td>
+                            <td><span class="md-caption">{{vm.getNxtDueField(customer.cstmr_mobile)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_mobile)">{{customer.cstmr_mobile}}</md-tooltip></span></td>
+                            <td><span class="md-caption">{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg)}}<md-tooltip>{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg, true)}}</md-tooltip></span></td>
+                        </tr>
+                    </tbody>
+                </table>
+                <div layout="row" layout-align="center center" ng-if="vm.IsNoNextDueReminders()">
+                    <span class="md-body-1">No Reminders {{vm.nsdcTime}}</span>
+                </div>
+                <div flex></div>
+                <div layout="row" layout-align="end center">
+                    <md-button class="md-accent" style="marign: 0 8px;" ng-click="vm.openNextDueServices()">
+                        <span layout-margin>More</span>
+                        <md-icon>more_horiz</md-icon>
+                    </md-button>
+                </div>
+            </md-card-content>
+        </md-card>
+        <md-card flex class="md-hue-1 am-box-shadow">
+            <md-card-content layout="column" style="padding: 0">
+                <div class="am-blue-bar c800" style="padding: 12px 26px;"><span class="am-card-label white">Top Vehicle Types</span></div>
                 <div google-chart chart="vm.topVtChart" class="am-chart-no-border"></div>
             </md-card-content>
         </md-card>

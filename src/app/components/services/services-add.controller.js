@@ -2,7 +2,7 @@
  * Controller for Add Service module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -12,7 +12,7 @@
         .controller('amCtrlSeCI', ServiceAddController)
         .controller('amCtrlMeD', MembershipEditDialogController);
 
-    ServiceAddController.$inject = ['$state', '$q', '$log', '$filter', '$mdEditDialog', '$mdDialog', 'utils', 'amServices'];
+    ServiceAddController.$inject = ['$scope', '$state', '$q', '$log', '$filter', '$timeout', '$mdEditDialog', '$mdDialog', '$mdSidenav', 'utils', 'amServices'];
     MembershipEditDialogController.$inject = ['$mdDialog', '$filter', 'membership', 'treatments'];
 
     /*
@@ -20,7 +20,7 @@
     > Do not create new method named moment() since it is used by moment.js
     */
 
-    function ServiceAddController($state, $q, $log, $filter, $mdEditDialog, $mdDialog, utils, amServices) {
+    function ServiceAddController($scope, $state, $q, $log, $filter, $timeout, $mdEditDialog, $mdDialog, $mdSidenav, utils, amServices) {
         //  initialize view model
         var vm = this;
 
@@ -28,20 +28,15 @@
         var autofillVehicle = false,
             flagGetUserBasedOnMobile = true,
             olInvoiceNo = 1,
+            olJobCardNo = 1,
+            olEstimateNo = 1,
             transitIds = undefined,
             transitInterState = undefined,
-            isDiscountByPercent = true,
-            isManualRoundOff = false,
-            serviceTotalCost = 0,
-            forceStopCalCost = false;
+            forceStopCalCost = false,
+            serviceTcRo = 0,
+            serviceTcDc = 0;
 
         //  vm assignments to keep track of UI related elements
-        vm.label_userMobile = 'Enter Mobile Number:';
-        vm.label_userEmail = 'Enter Email:';
-        vm.label_userAddress = 'Enter Address:';
-        vm.label_vehicleReg = 'Enter Vehicle Reg Number:';
-        vm.label_vehicleManuf = 'Manufacturer:';
-        vm.label_vehicleModel = 'Model:';
         vm.vehicleTypeList = [];
         vm.user = {
             id: '',
@@ -62,7 +57,10 @@
             odo: 0,
             cost: 0,
             status: '',
+            state: '',
             invoiceno: 1,
+            jobcardno: 1,
+            estimateno: 1,
             problems: []
         };
         vm.problem = {
@@ -95,6 +93,15 @@
             total: ''
         };
         vm.totalCost = 0;
+        vm.isUserInfoExpanded = true;
+        vm.isVehicleInfoExpanded = false;
+        vm.isServiceInfoExpanded = false;
+        vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
+        vm.service.state = vm.serviceStateList[2];
+        vm.label_invoice = 'Invoice';
+        vm.isNextDueService = false;
+        vm.nextDueDate = new Date(); 
+        vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -107,11 +114,6 @@
         vm.searchVehicleChange = searchVehicleChange;
         vm.manufacturersQuerySearch = manufacturersQuerySearch;
         vm.modelQuerySearch = modelQuerySearch;
-        vm.changeUserMobileLabel = changeUserMobileLabel;
-        vm.changeUserEmailLabel = changeUserEmailLabel;
-        vm.changeVehicleRegLabel = changeVehicleRegLabel;
-        vm.changeVehicleTab = changeVehicleTab;
-        vm.changeUserTab = changeUserTab;
         vm.changeVehicle = changeVehicle;
         vm.isAddOperation = isAddOperation;
         vm.chooseVehicle = chooseVehicle;
@@ -123,16 +125,14 @@
         vm.treatmentsQuerySearch = treatmentsQuerySearch;
         vm.onProblemSelected = onProblemSelected;
         vm.onProblemDeselected = onProblemDeselected;
-        vm.changeServiceTab = changeServiceTab;
         vm.updateTreatmentDetails = updateTreatmentDetails;
         vm.finalizeNewProblem = finalizeNewProblem;
         vm.save = save;
-        vm.changeUserAddressLabel = changeUserAddressLabel;
         vm.queryMembershipChip = queryMembershipChip;
         vm.OnClickMembershipChip = OnClickMembershipChip;
         vm.calculateCost = calculateCost;
         vm.OnAddMembershipChip = OnAddMembershipChip;
-        vm.navigateToSubscriptMembership = navigateToSubscriptMembership;
+        vm.navigateToSubscribeMembership = navigateToSubscribeMembership;
         vm.goBack = goBack;
         vm.changeProblemRate = changeProblemRate;
         vm.changeServiceTax = changeServiceTax;
@@ -150,12 +150,54 @@
         vm.calculateVat = calculateVat;
         vm.changeQty = changeQty;
         vm.changeInventoryTotal = changeInventoryTotal;
-        vm.populateRoundOffVal = populateRoundOffVal;
+        vm.populateRoD = populateRoD;
         vm.changeForceStopCalCost = changeForceStopCalCost;
-        vm.calculateViewportHeight = calculateViewportHeight;
+        vm.unsubscribeMembership = unsubscribeMembership;
+        vm.label_titleCustomerMoreInfo = label_titleCustomerMoreInfo;
+        vm.changeUserInfoState = changeUserInfoState;
+        vm.changeVehicleInfoState = changeVehicleInfoState;
+        vm.changeServiceInfoState = changeServiceInfoState;
+        vm.openCustomerMoreDetails = buildDelayedToggler('customer-more-right');
+        vm.closeCustomerMoreDetails = closeCustomerMoreDetails;
+        vm.openServiceDetailsPanel = buildDelayedToggler('service-details-left');
+        vm.fetchFocusItemAfterSS = fetchFocusItemAfterSS;
+        vm.lockServiceNavbar = lockServiceNavbar;
+        vm.IsMembershipTreatmentsDisabled = IsMembershipTreatmentsDisabled;
+        vm.IsNoMembershipSubscribed = IsNoMembershipSubscribed;
+        vm.IsMembershipEnabled = IsMembershipEnabled;
+        vm.IsPackageEnabled = IsPackageEnabled;
+        vm.convertVehicleTypeToAF = convertVehicleTypeToAF;
+        vm.IsTreatmentAmountEditable = IsTreatmentAmountEditable;
+        vm.IsTreatmentAmountText = IsTreatmentAmountText;
+        vm.IsPackageEnabled = IsPackageEnabled;
+        vm.changeDisplayAsList = changeDisplayAsList;
+        vm.IsTreatmentRateDisplayed = IsTreatmentRateDisplayed;
+        vm.changeInventoryAsList = changeInventoryAsList;
+        vm.IsInventoryTotalEditable = IsInventoryTotalEditable;
+        vm.IsInventoryTotalText = IsInventoryTotalText;
+        vm.IsServiceStateSelected = IsServiceStateSelected;
+        vm.selectServiceState = selectServiceState;
+        vm.WhichServiceStateEnabled = WhichServiceStateEnabled;
+        vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
+        vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
+        vm.calculateSubtotal = calculateSubtotal;
+        vm.doRoundOff = doRoundOff;
+        vm.calculateRoundOff = calculateRoundOff;
+        vm.calculateDiscount = calculateDiscount;
+        vm.isRoD = isRoD;
+        vm.IsSubtotalEnabled = IsSubtotalEnabled;
+        vm.IsServiceStateJc = IsServiceStateJc;
+        vm.IsServiceStateEs = IsServiceStateEs;
+        vm.IsServiceStateIv = IsServiceStateIv;
+        vm.getDate = getDate;
 
         //  default execution steps
-        // vm.serviceTab = true; //  testing purposes [amTODO: remove it]
+        setCoverPic();
+        changeUserInfoState(true);   //  ammToDo: Enable this while commiting
+        setTimeout(focusUserName, 700);
+        // changeServiceInfoState(true);   //  ammToDo: Testing Purpose, Disable while commiting
+        buildDelayedToggler('service-details-left');
+        getDefaultServiceType();
         getTreatmentDisplayFormat();
         getInventoriesSettings();
         getVehicleTypes();
@@ -163,13 +205,307 @@
         getInventories();
         getMemberships();
         getLastInvoiceNo();
+        getLastEstimateNo();
+        getLastJobCardNo();
 
-        vm.serviceViewportHeight = $(window).height();
+        //  watchers
+        $(window).on('resize', OnWindowResize);
 
         //  function definitions
 
-        function calculateViewportHeight(element) {
-            vm.serviceViewportHeight = $(window).height() - (2*element[0].offsetTop + 0.6*element[0].offsetTop);
+        function getDate(date) {
+            return moment(date).format('DD MMM YYYY');
+        }
+
+        function IsServiceStateIv(state) {
+            if (!IsServiceStateSelected(state))
+                return false;
+            return (vm.service.state == vm.serviceStateList[2]);
+        }
+
+        function IsServiceStateEs(state) {
+            if (!IsServiceStateSelected(state))
+                return false;
+            return (vm.service.state == vm.serviceStateList[1]);
+        }
+
+        function IsServiceStateJc(state) {
+            if (!IsServiceStateSelected(state))
+                return false;
+            return (vm.service.state == vm.serviceStateList[0]);
+        }
+
+        function OnWindowResize() {
+            if (vm.isServiceInfoExpanded)
+                setServicesVpHeight();
+        }
+
+        function setServicesVpHeight() {
+            $('#am-service-viewport').height($(window).height() - ($('#am-service-viewport').offset().top + 15));
+        }
+
+        function IsSubtotalEnabled() {
+            return (vm.isDiscountApplied || vm.isRoundOffVal || (vm.sTaxSettings && vm.sTaxSettings.applyTax) || (vm.vatSettings && vm.vatSettings.applyTax));
+        }
+
+        function isRoD() {
+            return (vm.isDiscountApplied || vm.isRoundOffVal);
+        }
+
+        function doRoundOff(input) {
+            if (input == '')
+                return 0;
+            return ((input % 1 != 0) ? input.toFixed(2) : parseInt(input));
+        }
+
+        function calculateSubtotal() {
+            var totalCost = 0;
+            vm.service.problems.forEach(iterateProblem);
+            vm.selectedInventories.forEach(iterateInventories);
+            if (vm.serviceType == vm.serviceTypeList[1]) {
+                vm.packages.forEach(iteratePackages);
+            }
+            totalCost = (totalCost % 1 != 0) ? totalCost.toFixed(2) : parseInt(totalCost);
+            return totalCost;
+
+            function iterateProblem(element) {
+                totalCost += parseFloat(element.rate ? (element.rate * (element.checked ? 1 : 0)) : 0);
+            }
+
+            function iterateInventories(element) {
+                totalCost += parseFloat(element.rate ? ((element.rate * element.qty) * (element.checked ? 1 : 0)) : 0);
+            }
+
+            function iteratePackages(package) {
+                if (!package.checked)
+                    return;
+                package.selectedTreatments.forEach(ipt);
+            }
+
+            function ipt(treatment) {
+                totalCost += treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+            }
+        }
+
+        function getDefaultServiceType() {
+            amServices.getDefaultServiceType().then(success).catch(failure);
+
+            function success(res) {
+                vm.service.state = res;
+                vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
+            }
+
+            function failure(err) {
+                vm.service.state = vm.serviceStateList[2];
+                vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
+            }
+        }
+
+        function autoCapitalizeVehicleModel() {
+            vm.vehicle.model = utils.autoCapitalizeWord(vm.vehicle.model);
+        }
+
+        function autoCapitalizeVehicleManuf() {
+            vm.vehicle.manuf = utils.autoCapitalizeWord(vm.vehicle.manuf);
+        }
+
+        function autoCapitalizeCustomerAddress() {
+            vm.user.address = utils.autoCapitalizeWord(vm.user.address);
+        }
+
+        function WhichServiceStateEnabled(index) {
+            return (IsServiceStateSelected(vm.serviceStateList[index]));
+        }
+
+        function selectServiceState(state) {
+            vm.service.state = state;
+            vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
+        }
+
+        function IsServiceStateSelected(state) {
+            return (vm.service.state == state);
+        }
+
+        function focusShowAllInventoriesButton() {
+            $('#ami-display-inventory-as').focus();
+        }
+
+        function focusShowAllTreatmentsButton() {
+            $('#ami-display-as').focus();
+        }
+
+        function IsInventoryTotalText() {
+            return (vm.vatSettings && !vm.vatSettings.inclusive && vm.vatSettings.applyTax);
+        }
+
+        function IsInventoryTotalEditable() {
+            return (vm.vatSettings && (vm.vatSettings.inclusive || !vm.vatSettings.applyTax));
+        }
+
+        function changeInventoryAsList(bool) {
+            vm.displayInventoriesAsList = bool;
+            setTimeout(focusShowAllInventoriesButton, 300);
+        }
+
+        function IsTreatmentRateDisplayed() {
+            return (vm.sTaxSettings && vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive);
+        }
+
+        function changeDisplayAsList(bool) {
+            vm.displayTreatmentAsList = bool;
+            setTimeout(focusShowAllTreatmentsButton, 300);
+        }
+
+        function IsPackageEnabled() {
+            return (vm.packages.length < 1);
+        }
+
+        function IsTreatmentAmountText() {
+            return (vm.sTaxSettings && !vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax);
+        }
+
+        function IsTreatmentAmountEditable() {
+            return (vm.sTaxSettings && (vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax));
+        }
+
+        function convertVehicleTypeToAF() {
+            return (vm.vehicle.type.toLowerCase().replace(' ', '-'));
+        }
+
+        function IsPackageEnabled() {
+            return (vm.serviceType == vm.serviceTypeList[1]);
+        }
+
+        function IsMembershipEnabled() {
+            return (vm.serviceType == vm.serviceTypeList[2]);
+        }
+
+        function IsNoMembershipSubscribed() {
+            return (vm.membershipChips.length < 1);
+        }
+
+        function IsMembershipTreatmentsDisabled(membership, treatment) {
+            return (membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0);
+        }
+
+        function lockServiceNavbar() {
+            return $mdMedia('gt-md');
+        }
+
+        function fetchFocusItemAfterSS() {
+            changeServiceInfoState(true, null, true);
+        }
+
+        function setCoverPic() {
+            var source = localStorage.getItem('cover-pic');
+            $('#am-sp-cover-pic').attr('src', (source) ? source : 'assets/img/logo-250x125px.png').width(250).height(125);
+        }
+
+        function label_titleCustomerMoreInfo() {
+            return (vm.user.name ? vm.user.name + "'s" : "Customer");
+        }
+
+        function closeCustomerMoreDetails() {
+            $mdSidenav('customer-more-right').close();
+            setTimeout(cvis, 800);
+
+            function cvis() {
+                changeVehicleInfoState(true);
+            }
+        }
+
+        //  Supplies a function that will continue to operate until the time is up.
+        function debounce(func, wait, context) {
+            var timer;
+            return function debounced() {
+                var context = $scope,
+                    args = Array.prototype.slice.call(arguments);
+                $timeout.cancel(timer);
+                timer = $timeout(function() {
+                    timer = undefined;
+                    func.apply(context, args);
+                }, wait || 10);
+            };
+        }
+
+        //  Build handler to open/close a SideNav; when animation finishes report completion in console
+        function buildDelayedToggler(navID) {
+            return debounce(function() {
+                $mdSidenav(navID).toggle();
+            }, 200);
+        }
+
+        function focusServiceState() {
+            $('#ami-service-state').focus();
+        }
+
+        function focusInvoiceNo() {
+            $('#ami-service-invoice-no').focus();
+        }
+
+        function focusUserName() {
+            $('#ami-user-name input').focus();
+        }
+
+        function focusVehicleManuf() {
+            $('#ami-vehicle-manuf input').focus();
+        }
+
+        function changeUserInfoState(expanded) {
+            vm.isUserInfoExpanded = expanded;
+            if (expanded)
+                setTimeout(focusUserName, 300);
+            vm.isVehicleInfoExpanded = true;
+            vm.isServiceInfoExpanded = false;
+        }
+
+        function changeVehicleInfoState(expanded, event) {
+            if (event != undefined) {
+                if (event.keyCode != 9)
+                    return;
+            }
+            vm.isVehicleInfoExpanded = expanded;
+            if (expanded)
+                setTimeout(focusVehicleManuf, 300);
+            vm.isUserInfoExpanded = true;
+            vm.isServiceInfoExpanded = false;
+        }
+
+        function changeServiceInfoState(expanded, event, isAlreadyThere) {
+            if (event != undefined) {
+                if (event.keyCode != 9)
+                    return;
+            }
+            if (expanded) {
+                if (!isAlreadyThere)
+                    setTimeout(focusInvoiceNo, 300);
+                else
+                    setTimeout(focusServiceState, 300);
+            }
+            vm.isServiceInfoExpanded = expanded;
+            if (expanded)
+                setTimeout(setServicesVpHeight, 500);
+            vm.isUserInfoExpanded = false;
+            vm.isVehicleInfoExpanded = false;
+        }
+
+        function unsubscribeMembership(ev, chip) {
+            var confirm = $mdDialog.confirm()
+                .textContent('Unsubscribe to ' + chip.name + ' ?')
+                .ariaLabel('Unsubscribe to ' + chip.name)
+                .targetEvent(ev)
+                .ok('Yes')
+                .cancel('No');
+
+            $mdDialog.show(confirm).then(performDelete, ignoreDelete);
+
+            function performDelete() {
+                console.info('deleted');
+            }
+
+            function ignoreDelete() {
+                vm.membershipChips.push(chip);
+            }
         }
 
         function changeInventoryTotal(inventory) {
@@ -186,7 +522,7 @@
             function iterateInventories(element) {
                 if ((vm.vatSettings && !vm.vatSettings.applyTax) || !element.tax || !element.checked)
                     return;
-                totalTax += parseFloat(element.tax.toFixed(2) * element.qty);
+                totalTax += parseFloat(element.tax * element.qty);
             }
         }
 
@@ -364,8 +700,6 @@
                         inventory.rate = inventory.amount;
                     inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
                     inventory.amount = inventory.rate + inventory.tax;
-                    if (inventory.amount % 1 != 0)
-                        inventory.amount = parseFloat(inventory.amount).toFixed(2);
                 }
             } else if (force) {
                 if (vm.vatSettings.inclusive)
@@ -410,7 +744,7 @@
                     if (!problem.rate)
                         problem.rate = problem.amount;
                     problem.tax = (problem.rate * vm.sTaxSettings.tax / 100);
-                    problem.amount = Math.round(problem.rate + problem.tax);
+                    problem.amount = problem.rate + problem.tax;
                 }
             } else if (force) {
                 if (vm.sTaxSettings.inclusive)
@@ -469,8 +803,9 @@
             OnAddMembershipChip(chip);
         }
 
-        function navigateToSubscriptMembership() {
-            vm.userTab = true;
+        function navigateToSubscribeMembership() {
+            changeUserInfoState(true);
+            vm.openCustomerMoreDetails();
         }
 
         function OnClickMembershipChip(event) {
@@ -558,11 +893,12 @@
         }
 
         function OnAddMembershipChip(chip) {
-            if (vm.membershipChips.length > 0)
-                vm.serviceType = vm.serviceTypeList[2];
+            vm.serviceType = (vm.membershipChips.length > 0) ? vm.serviceTypeList[2] : vm.serviceTypeList[0];
             var m = $.extend({}, chip.treatments, false);
-            chip.treatments = [];
-            Object.keys(m).forEach(iterateTreatments);
+            if (!angular.isArray(chip.treatments)) {
+                chip.treatments = [];
+                Object.keys(m).forEach(iterateTreatments);
+            }
             chip.selectedTreatments = [];
             chip.startdate = moment().format();
             chip.treatments.forEach(makeSelectedTreatments);
@@ -719,7 +1055,7 @@
                                 treatment.tax[cvt] = (treatment.rate[cvt] * vm.sTaxSettings.tax / 100);
                             } else {
                                 treatment.tax[cvt] = (treatment.rate[cvt] * vm.sTaxSettings.tax / 100);
-                                treatment.amount[cvt] = Math.round(treatment.rate[cvt] + treatment.tax[cvt]);
+                                treatment.amount[cvt] = treatment.rate[cvt] + treatment.tax[cvt];
                             }
                         } else if (force) {
                             if (vm.sTaxSettings.inclusive)
@@ -750,6 +1086,34 @@
 
             function failure(err) {
                 vm.packages = [];
+            }
+        }
+
+        function getLastJobCardNo() {
+            amServices.getLastJobCardNo().then(success).catch(failure);
+
+            function success(res) {
+                vm.service.jobcardno = ++res;
+                olJobCardNo = res;
+            }
+
+            function failure(err) {
+                vm.service.jobcardno = 1;
+                olJobCardNo = 1;
+            }
+        }
+
+        function getLastEstimateNo() {
+            amServices.getLastEstimateNo().then(success).catch(failure);
+
+            function success(res) {
+                vm.service.estimateno = ++res;
+                olEstimateNo = res;
+            }
+
+            function failure(err) {
+                vm.service.estimateno = 1;
+                olEstimateNo = 1;
             }
         }
 
@@ -794,6 +1158,7 @@
             }
 
             function failure(err) {
+                console.log(err);
                 setDefaultVehicle();
             }
         }
@@ -845,13 +1210,9 @@
                 vm.user.name = res.name;
                 vm.user.address = (res.address == undefined) ? '' : res.address;
                 if (res.memberships) {
-                    if (Object.keys(res.memberships).length > 0)
-                        vm.serviceType = vm.serviceTypeList[2];
+                    vm.serviceType = (Object.keys(res.memberships).length > 0) ? vm.serviceTypeList[2] : vm.serviceTypeList[0];
                     Object.keys(res.memberships).forEach(iterateMemberships);
                 }
-                changeUserMobileLabel();
-                changeUserEmailLabel();
-                changeUserAddressLabel();
                 vm.possibleVehicleList = res.possibleVehicleList;
                 vm.changeUserMobile(false);
                 changeVehicle(vm.possibleVehicleList.length > 0 ? vm.possibleVehicleList[0].id : undefined);
@@ -870,9 +1231,6 @@
                 vm.user.email = '';
                 vm.user.address = '';
                 vm.membershipChips = [];
-                changeUserMobileLabel();
-                changeUserEmailLabel();
-                changeUserAddressLabel();
                 vm.possibleVehicleList = [];
                 changeVehicle();
             }
@@ -903,9 +1261,6 @@
                         vm.serviceType = vm.serviceTypeList[2];
                     Object.keys(res.memberships).forEach(iterateMemberships);
                 }
-                changeUserMobileLabel();
-                changeUserEmailLabel();
-                changeUserAddressLabel();
                 vm.possibleVehicleList = res.possibleVehicleList;
                 changeVehicle(vm.possibleVehicleList.length > 0 ? vm.possibleVehicleList[0].id : undefined);
 
@@ -919,29 +1274,34 @@
             function failure(err) {
                 vm.loadingBasedOnMobile = false;
                 vm.user.id = '';
-                changeUserMobileLabel();
                 vm.possibleVehicleList = [];
                 changeVehicle();
             }
         }
 
         //  change vehicle related details when changed from UI
-        function changeVehicle(id) {
+        function changeVehicle(id, manual) {
             if (!id) {
                 setDefaultVehicle();
+                setTimeout(focusVehicleManuf, 500);
                 return;
             }
             var found = $filter('filter')(vm.possibleVehicleList, {
                 id: id
             }, true);
             if (found.length > 0) {
+                if (manual)
+                    changeServiceInfoState(true);
                 vm.currentVehicle = found[0].name;
                 vm.vehicle.id = found[0].id;
                 vm.vehicle.reg = found[0].reg;
                 vm.vehicle.manuf = found[0].manuf;
                 vm.vehicle.model = found[0].model;
                 vm.vehicle.type = (found[0].type == undefined || found[0].type == '') ? vm.vehicleTypeList[0] : found[0].type;
-                changeVehicleRegLabel();
+                if (found[0].nextdue && (found[0].nextdue.localeCompare(moment().format()) > 0)) {
+                    vm.isNextDueService = true;
+                    vm.nextDueDate = new Date(found[0].nextdue);
+                }
                 changeVehicleType();
                 autofillVehicle = true;
             } else
@@ -959,7 +1319,9 @@
                 vm.vehicle.type = vm.vehicleTypeList[0];
                 changeVehicleType();
             }
-            changeVehicleRegLabel();
+            vm.isNextDueService = false;
+            vm.nextDueDate = new Date();
+            vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
             autofillVehicle = false;
         }
 
@@ -1045,6 +1407,7 @@
 
         //  vehicle manufacturer is updated from UI, clear model list to populate new list w.r.t. manufacturer
         function searchVehicleChange() {
+            autoCapitalizeVehicleManuf();
             if (!autofillVehicle) {
                 vm.models = [];
                 vm.vehicle.model = '';
@@ -1072,7 +1435,7 @@
                         } else {
                             problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
                             problem.tax = (problem.rate * vm.sTaxSettings.tax / 100);
-                            problem.amount = Math.round(problem.rate + problem.tax);
+                            problem.amount = problem.rate + problem.tax;
                         }
                     } else {
                         problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
@@ -1087,43 +1450,6 @@
             return true;
         }
         //  return boolean response to different configurations [END]
-
-        //  change user tab selector variable
-        function changeUserTab(bool) {
-            vm.userTab = bool;
-        }
-
-        //  change vehicle tab selector variable
-        function changeVehicleTab(bool) {
-            vm.vehicleTab = bool;
-        }
-
-        //  change service tab selector variable
-        function changeServiceTab(bool) {
-            vm.serviceTab = bool;
-        }
-
-        //  listen to changes in input fields [BEGIN]
-        function changeUserMobileLabel(force) {
-            vm.isUserMobile = (force != undefined || vm.user.mobile != '');
-            vm.label_userMobile = vm.isUserMobile ? 'Mobile:' : 'Enter Mobile Number:';
-        }
-
-        function changeUserEmailLabel(force) {
-            vm.isUserEmail = (force != undefined || vm.user.email != '');
-            vm.label_userEmail = vm.isUserEmail ? 'Email:' : 'Enter Email:';
-        }
-
-        function changeUserAddressLabel(force) {
-            vm.isUserAddress = (force != undefined || vm.user.address != '');
-            vm.label_userAddress = vm.isUserAddress ? 'Address:' : 'Enter Address:';
-        }
-
-        function changeVehicleRegLabel(force) {
-            vm.isVehicleReg = (force != undefined || vm.vehicle.reg != '');
-            vm.label_vehicleReg = vm.isVehicleReg ? 'Vehicle Registration Number:' : 'Enter Vehicle Reg Number:';
-        }
-        //  listen to changes in input fields [END]
 
         //  populate regular treatment list
         function getRegularTreatments() {
@@ -1183,55 +1509,57 @@
             }
         }
 
-        function populateRoundOffVal() {
-            vm.roundedOffVal = vm.service.cost - serviceTotalCost;
+        function populateRoD() {
+            if (vm.isDiscountApplied) {
+                vm.discountValue =  serviceTcDc - vm.service.cost;
+                calculateDiscount(false);
+            } else if (vm.isRoundOffVal)
+                vm.roundedOffVal = vm.service.cost - serviceTcRo;
+        }
+
+        function calculateRoundOff(isRoundOffManual) {
+            if (!isRoundOffManual) {
+                var ot = totalCost = vm.service.cost;
+                totalCost = vm.isRoundOffVal ? Math.floor(totalCost * 0.1) * 10 : totalCost;
+                vm.roundedOffVal = (totalCost - ot);
+            }
+            calculateCost();
+        }
+
+        function calculateDiscount(isDiscountByPercent) {
+            var totalCost = vm.service.cost;
+            if (isDiscountByPercent) {
+                vm.discountValue = totalCost * parseFloat(vm.discountPercentage) / 100;
+                vm.discountValue = (isNaN(vm.discountValue) || vm.discountValue == null) ? '' : vm.discountValue;
+            } else if (vm.discountValue != '')
+                vm.discountPercentage = 100 * parseFloat(vm.discountValue) / totalCost;
+            calculateCost();
         }
 
         function changeForceStopCalCost(bool) {
             forceStopCalCost = bool;
-            isManualRoundOff = true; 
         }
 
-        function calculateCost(isDbp, isMro) {
+        function calculateCost() {
             if (forceStopCalCost)
                 return;
-            isDiscountByPercent = (isDbp != undefined) ? isDbp : isDiscountByPercent;
-            isManualRoundOff = (isMro != undefined) ? isMro : isManualRoundOff;
             var totalCost = 0;
-            serviceTotalCost = 0;
             vm.service.problems.forEach(iterateProblem);
             vm.selectedInventories.forEach(iterateInventories);
             if (vm.serviceType == vm.serviceTypeList[1]) {
                 vm.packages.forEach(iteratePackages);
             }
+            serviceTcDc = totalCost;
             if (vm.isDiscountApplied) {
-                if (isDiscountByPercent) {
-                    var dv = totalCost * parseFloat(vm.discountPercentage) / 100;
-                    totalCost = vm.isDiscountApplied && !isNaN(dv) ? totalCost - dv : totalCost;
-                    vm.discountValue = (dv % 1 != 0) ? dv.toFixed(2) : dv;
-                    vm.discountValue = (isNaN(vm.discountValue) || vm.discountValue == null) ? '' : vm.discountValue;
-                    delete dv;
-                } else if (vm.discountValue != '') {
-                    var dv = parseFloat(vm.discountValue);
-                    vm.discountPercentage = 100 * dv / totalCost;
-                    vm.discountPercentage = (vm.discountPercentage % 1 != 0) ? vm.discountPercentage.toFixed(2) : vm.discountPercentage;
-                    totalCost -= dv;
-                    delete dv;
-                }
+                totalCost = vm.isDiscountApplied && !isNaN(vm.discountValue) ? totalCost - vm.discountValue : totalCost;
             }
-            serviceTotalCost = totalCost;
+            serviceTcRo = totalCost;
             if (vm.isRoundOffVal) {
-                if (!isManualRoundOff) {
-                    var ot = totalCost;
-                    totalCost = vm.isRoundOffVal ? Math.floor(totalCost * 0.1) * 10 : totalCost;
-                    vm.roundedOffVal = (totalCost - ot);
-                    vm.roundedOffVal = (vm.roundedOffVal % 1 != 0) ? vm.roundedOffVal.toFixed(2) : vm.roundedOffVal;
-                    delete ot;
-                } else {
-                    totalCost += parseFloat(vm.roundedOffVal);
-                }
+                totalCost += parseFloat(vm.roundedOffVal);
+                serviceTcDc += parseFloat(vm.roundedOffVal);
             }
             totalCost = (totalCost % 1 != 0) ? totalCost.toFixed(2) : totalCost;
+            totalCost = (totalCost % 1).toFixed(2) == 0.00 ? Math.round(totalCost) : totalCost;
             vm.service.cost = totalCost;
 
             function iterateProblem(element) {
@@ -1264,7 +1592,7 @@
             function iterateProblems(problem) {
                 if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !problem.tax || !problem.checked)
                     return;
-                totalTax += parseFloat(problem.tax.toFixed(2));
+                totalTax += parseFloat(problem.tax);
             }
 
             function iteratePackages(package) {
@@ -1276,7 +1604,7 @@
             function ipt(treatment) {
                 if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !treatment.tax)
                     return;
-                totalTax += parseFloat(treatment.tax[vm.vehicle.type.toLowerCase().replace(' ', '-')].toFixed(2));
+                totalTax += parseFloat(treatment.tax[vm.vehicle.type.toLowerCase().replace(' ', '-')]);
             }
         }
 
@@ -1332,7 +1660,7 @@
                     } else {
                         vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
                         vm.problem.tax = (vm.problem.rate * vm.sTaxSettings.tax / 100);
-                        vm.problem.amount = Math.round(vm.problem.rate + vm.problem.tax);
+                        vm.problem.amount = vm.problem.rate + vm.problem.tax;
                     }
                 } else {
                     if (vm.sTaxSettings.inclusive)
@@ -1346,7 +1674,7 @@
 
         function validate() {
             if (vm.user.name == '') {
-                changeUserTab(true);
+                changeUserInfoState(true);
                 setTimeout(doFocus, 300);
                 utils.showSimpleToast('Please Enter Name');
 
@@ -1358,7 +1686,7 @@
             var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
 
             if (isVehicleBlank) {
-                changeVehicleTab(true);
+                changeVehicleInfoState(true);
                 utils.showSimpleToast('Please Enter At Least One Vehicle Detail');
                 return false;
             }
@@ -1390,7 +1718,9 @@
             }
             vm.service.problems = vm.selectedProblems;
             var options = {
-                isLastInvoiceNoChanged: (vm.service.invoiceno == olInvoiceNo)
+                isLastInvoiceNoChanged: (vm.service.invoiceno == olInvoiceNo),
+                isLastEstimateNoChanged: (vm.service.estimateno == olEstimateNo),
+                isLastJobCardNoChanged: (vm.service.jobcardno == olJobCardNo)
             }
             vm.user.memberships = vm.membershipChips;
             switch (vm.serviceType) {
@@ -1401,8 +1731,10 @@
                     vm.membershipChips.forEach(addMsToService);
                     break;
             }
-            vm.service.status = vm.servicestatus ? 'paid' : 'billed';
+            vm.service.status = vm.servicestatus ? 'paid' : 'due';
             vm.service.date = moment(vm.service.date).format();
+            if (vm.isNextDueService)
+                vm.vehicle.nextdue = moment(vm.nextDueDate).format();
             if (vm.isDiscountApplied) {
                 vm.service['discount'] = {
                     percent: parseFloat(vm.discountPercentage),
@@ -1429,6 +1761,20 @@
             }
             vm.selectedInventories.forEach(iterateInventories);
             vm.service.inventories = vm.selectedInventories;
+            switch (vm.service.state) {
+                case vm.serviceStateList[0]:
+                    delete vm.service.invoiceno;
+                    delete vm.service.estimateno;
+                    break;
+                case vm.serviceStateList[1]:
+                    delete vm.service.jobcardno;
+                    delete vm.service.invoiceno;
+                    break;
+                case vm.serviceStateList[2]:
+                    delete vm.service.jobcardno;
+                    delete vm.service.estimateno;
+                    break;
+            }
             amServices.saveService(vm.user, vm.vehicle, vm.service, options).then(success).catch(failure);
 
             function addMsToService(membership) {

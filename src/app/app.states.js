@@ -2,7 +2,7 @@
  * Closure for state definitions and mappings to template files
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -105,7 +105,8 @@
                 controllerAs: 'vm',
                 params: {
                     id: undefined,
-                    openTab: undefined
+                    openTab: undefined,
+                    fromState: undefined
                 },
                 resolve: {
                     deps: ['$ocLazyLoad', loadCuUIDeps]
@@ -413,6 +414,7 @@
             return $ocLazyLoad.load([
                 'material-datatable',
                 'google-chart',
+                'app/components/dashboard/dashboard.controller-deps.js',
                 'app/components/dashboard/dashboard.controller.js',
                 'app/components/dashboard/dashboard.factory.js'
             ]);
@@ -480,6 +482,7 @@
         function loadSeRADeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
+                'app/components/services/tmpl/dialog_timefilter.controller.js',
                 'app/components/services/services-viewall.controller.js'
             ])
         }
@@ -497,6 +500,7 @@
                 'app/components/settings/settings-importdata.service.js',
                 'app/components/settings/settings-invoices.factory.js',
                 'app/components/settings/settings-servicetax.factory.js',
+                'app/components/settings/settings.factory.js',
                 'assets/js/jquery.csv.min.js'
             ])
         }

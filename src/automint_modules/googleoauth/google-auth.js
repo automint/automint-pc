@@ -2,7 +2,7 @@
  * Module to authenticate user to Google Server
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.6.4
  */
 
 /// <reference path="../../typings/main.d.ts" />
@@ -42,7 +42,7 @@
     //  process file containing client secrets and extract its contents for authorization
     function processClientSecrets(err, content) {
         if (err) {
-            console.log('Error loading content: ' + err);
+            console.warn('Error loading content: ' + err);
             return;
         }
         authorize(JSON.parse(content), cbFn);
@@ -108,7 +108,7 @@
             
             function handleToken(err, token) {
                 if (err) {
-                    console.log('Error while trying to retrieve access token', err);
+                    console.warn('Error while trying to retrieve access token', err);
                     return;
                 }
                 oAuth2Client.credentials = token;
@@ -121,7 +121,6 @@
     //  store token in local storage
     function storeToken(token) {
         try {
-            console.log(TOKEN_DIR);
             fs.mkdirSync(TOKEN_DIR);
         } catch(err) {
             if (err.code != 'EEXIST')

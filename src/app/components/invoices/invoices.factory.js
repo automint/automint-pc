@@ -2,7 +2,7 @@
  * Factory that handles database interactions between invoices database and controller
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -19,12 +19,32 @@
             getServiceDetails: getServiceDetails,
             getWorkshopDetails: getWorkshopDetails,
             getIvSettings: getIvSettings,
-            getIvAlignMargins: getIvAlignMargins
+            getIvAlignMargins: getIvAlignMargins,
+            saveCustomerEmail: saveCustomerEmail
         }
 
         return factory;
 
         //  function definitions
+
+        function saveCustomerEmail(userId, email) {
+            var tracker = $q.defer();
+            pdbCustomers.get(userId).then(getUserObject).catch(failure);
+            return tracker.promise;
+
+            function getUserObject(res) {
+                res.user.email = email;
+                pdbCustomers.save(res).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function getIvAlignMargins() {
             var tracker = $q.defer();

@@ -2,7 +2,7 @@
  * Factory to fetch and retrieve invoice settings from database
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -23,7 +23,9 @@
             saveIvDisplaySettings: saveIvDisplaySettings,
             saveIvEmailSubject: saveIvEmailSubject,
             saveIvAlignMargins : saveIvAlignMargins,
-            getIvAlignMargins: getIvAlignMargins
+            getIvAlignMargins: getIvAlignMargins,
+            changeLastJobCardNo: changeLastJobCardNo,
+            changeLastEstimateNo: changeLastEstimateNo
         }
         
         return factory;
@@ -157,6 +159,86 @@
             function failure(err) {
                 tracker.reject(err);
             }
+        }
+
+        function changeLastJobCardNo(jobcardno) {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
+            }
+
+            function getSettingsObject(res) {
+                if (!res.settings)
+                    res.settings = {};
+                if (!res.settings.invoices)
+                    res.settings.invoices = {};
+                res.settings.invoices.lastJobCardNo = jobcardno;
+                pdbConfig.save(res).then(success).catch(failure);
+            }
+
+            function writeSettingsObject(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    settings: {
+                        invoices: {
+                            lastJobCardNo: jobcardno
+                        }
+                    }
+                }
+                pdbConfig.save(doc).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+            
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function changeLastEstimateNo(estimateno) {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
+            }
+
+            function getSettingsObject(res) {
+                if (!res.settings)
+                    res.settings = {};
+                if (!res.settings.invoices)
+                    res.settings.invoices = {};
+                res.settings.invoices.lastEstimateNo = estimateno;
+                pdbConfig.save(res).then(success).catch(failure);
+            }
+
+            function writeSettingsObject(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    settings: {
+                        invoices: {
+                            lastEstimateNo: estimateno
+                        }
+                    }
+                }
+                pdbConfig.save(doc).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+            
+            function failure(err) {
+                tracker.reject(err);
+            } 
         }
         
         //  change last invoice number in database

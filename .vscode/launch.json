@@ -1,0 +1,38 @@
+{
+    "version": "0.1.0",
+    "configurations": [
+        {
+            "name": "Automint Electron App",
+            "type": "node",
+            "program": "${workspaceRoot}/src/main.js",
+            "stopOnEntry": false,
+            "args": [],
+            "runtimeExecutable": "/usr/local/bin/electron",
+            "runtimeArgs": [
+                ".",
+                "--enable-logging"
+            ],
+            "cwd": "${workspaceRoot}/src",
+            "request": "launch",
+            "env": {},
+            "externalConsole": false,
+            "sourceMaps": false,
+            "outDir": null
+        },
+        {
+            "name": "Attach",
+            "type": "node",
+            "request": "attach",
+            "port": 5858,
+            "sourceMaps": false,
+            "outDir": null
+        },
+        {
+            "name": "Chrome Debugger",
+            "type": "chrome",
+            "request": "attach",
+            "port": 9222,
+            "sourceMaps": true
+        }
+    ]
+}

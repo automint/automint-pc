@@ -2,7 +2,7 @@
  * Controller for Edit Customer component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -20,7 +20,7 @@
         var vm = this;
 
         //  temporary named assignments
-        var autofillVehicle = false, isMembershipAltered = false;
+        var autofillVehicle = false;
         var userDbInstance;
 
         //  vm assignments to keep track of UI related elements
@@ -53,6 +53,10 @@
             page: 1,
             total: 0
         };
+        vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
+        vm.isNextDueService = false;
+        vm.nextDueDate = new Date(); 
+        vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -75,24 +79,95 @@
         vm.OnAddMembershipChip = OnAddMembershipChip;
         vm.changeMembershipTab = changeMembershipTab;
         vm.goBack = goBack;
-        vm.OnRemoveMembershipChip = OnRemoveMembershipChip;
         vm.changeServicesTab = changeServicesTab;
         vm.getServiceDate = getServiceDate;
         vm.editService = editService;
         vm.deleteService = deleteService;
         vm.goToInvoice = goToInvoice;
-        
+        vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
+        vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
+        vm.unsubscribeMembership = unsubscribeMembership;
+        vm.IsServiceDue = IsServiceDue;
+        vm.IsServiceStateIv = IsServiceStateIv;
+        vm.IsServiceStateEs = IsServiceStateEs;
+        vm.IsServiceStateJc = IsServiceStateJc;
+        vm.getDate = getDate;
+
         //  default execution steps
         if ($state.params.id != undefined) {
             getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
-            if ($state.params.openTab == 'services')
-                changeServicesTab(true);
+            switch ($state.params.openTab) {
+                case 'services':
+                    changeServicesTab(true);
+                    break;
+                case 'vehicle':
+                    changeVehicleTab(true);
+                    break;
+                default:
+                    setTimeout(focusCustomerMobile, 300);
+                    break;
+            }
         } else {
             utils.showSimpleToast('Something went wrong!');
             $state.go('restricted.customers.all');
         }
 
         //  function definitions
+
+        function getDate(date) {
+            return moment(date).format('DD MMM YYYY');
+        }
+
+        function IsServiceStateIv(state) {
+            return (state == vm.serviceStateList[2]);
+        }
+
+        function IsServiceStateEs(state) {
+            return (state == vm.serviceStateList[1]);
+        }
+
+        function IsServiceStateJc(state) {
+            return (state == vm.serviceStateList[0]);
+        }
+
+        function IsServiceDue(status) {
+            return (status == 'Due');
+        }
+
+        function unsubscribeMembership(ev, chip) {
+            var confirm = $mdDialog.confirm()
+                .textContent('Unsubscribe to ' + chip.name + ' ?')
+                .ariaLabel('Unsubscribe to ' + chip.name)
+                .targetEvent(ev)
+                .ok('Yes')
+                .cancel('No');
+
+            $mdDialog.show(confirm).then(performDelete, ignoreDelete);
+
+            function performDelete() {
+                console.info('membership deleted');
+            }
+
+            function ignoreDelete() {
+                vm.membershipChips.push(chip);
+            }
+        }
+
+        function focusCustomerMobile() {
+            $('#ami-customer-mobile').focus();
+        }
+
+        function autoCapitalizeVehicleModel() {
+            vm.vehicle.model = utils.autoCapitalizeWord(vm.vehicle.model);
+        }
+
+        function autoCapitalizeVehicleManuf() {
+            vm.vehicle.manuf = utils.autoCapitalizeWord(vm.vehicle.manuf);
+        }
+
+        function autoCapitalizeCustomerAddress() {
+            vm.user.address = utils.autoCapitalizeWord(vm.user.address);
+        }
 
         //  edit service
         function editService(service) {
@@ -120,7 +195,7 @@
             }
 
             function ignoreDelete() {
-                console.log('nope');
+                console.info('nope');
             }
             
 
@@ -133,7 +208,7 @@
             }
 
             function failure(err) {
-                console.log(err);
+                console.warn(err);
                 utils.showSimpleToast('Service can not be deleted at moment. Please Try Again!');
             }
         }
@@ -157,7 +232,19 @@
         }
         
         function goBack() {
-            $state.go('restricted.customers.all');
+            var transitState = 'restricted.customers.all';
+            var transitParams = undefined;
+            if ($state.params.fromState != undefined) {
+                switch ($state.params.fromState) {
+                    case 'dashboard.nextdueservices':
+                        transitState = 'restricted.dashboard';
+                        transitParams = {
+                            openDialog: 'nextdueservices'
+                        }
+                        break;
+                }
+            }
+            $state.go(transitState, transitParams);
         }
         
         function changeMembershipTab(bool) {
@@ -182,7 +269,6 @@
             }).then(changeMembershipChip).catch(changeMembershipChip);
             
             function changeMembershipChip(obj) {
-                isMembershipAltered = true;
                 $log.info('Changes Saved');
             }
         }
@@ -243,13 +329,8 @@
                 item.checked = false;
             }
         }
-        
-        function OnRemoveMembershipChip() {
-            isMembershipAltered = true;
-        }
 
         function OnAddMembershipChip(chip) {
-            isMembershipAltered = true;
             var m = $.extend({}, chip.treatments, false);
             chip.treatments = [];
             Object.keys(m).forEach(iterateTreatments);
@@ -430,7 +511,8 @@
                         reg: vehicle.reg,
                         manuf: vehicle.manuf,
                         model: vehicle.model,
-                        name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg)
+                        name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg),
+                        nextdue: vehicle.nextdue
                     });
                     if (vehicle.services)
                         Object.keys(vehicle.services).forEach(iterateServices);
@@ -446,7 +528,8 @@
                             srvc_id: sId,
                             srvc_date: service.date,
                             srvc_cost: service.cost,
-                            srvc_status: utils.convertToTitleCase(service.status)
+                            srvc_status: utils.convertToTitleCase(service.status),
+                            srvc_state: service.state
                         });
                     }
                 }
@@ -477,6 +560,10 @@
                 vm.vehicle.reg = found[0].reg;
                 vm.vehicle.manuf = found[0].manuf;
                 vm.vehicle.model = found[0].model;
+            	if (found[0].nextdue && (found[0].nextdue.localeCompare(moment().format()) > 0)) {
+                    vm.isNextDueService = true;
+                    vm.nextDueDate = new Date(found[0].nextdue);
+                }
                 changeVehicleRegLabel();
                 autofillVehicle = true;
             } else
@@ -570,12 +657,14 @@
             }
         }
 
-        function searchVehicleChange() {
+        function searchVehicleChange(e) {
+            autoCapitalizeVehicleManuf();
             if (!autofillVehicle) {
                 vm.models = [];
                 vm.vehicle.model = '';
                 autofillVehicle = false;
-            }
+            } else
+                autofillVehicle = false;
         }
 
         //  return boolean response to different configurations [BEGIN]
@@ -620,11 +709,6 @@
 
         //  save to database
         function save() {
-            $log.info('same = ' + isSame());
-            if (isSame() == true) {
-                successfullSave();
-                return;
-            }
             userDbInstance.user.mobile = vm.user.mobile;
             userDbInstance.user.name = vm.user.name;
             userDbInstance.user.email = vm.user.email;
@@ -644,13 +728,20 @@
                     vehicleDbInstance.reg = vm.vehicle.reg;
                     vehicleDbInstance.manuf = vm.vehicle.manuf;
                     vehicleDbInstance.model = vm.vehicle.model;
+                    if (vm.isNextDueService)
+                        vehicleDbInstance.nextdue = vm.nextDueDate;
+                    else if (vehicleDbInstance.nextdue)
+                        delete vehicleDbInstance['nextdue'];
                 } else {
                     var prefixVehicle = 'vhcl' + ((vm.vehicle.manuf && vm.vehicle.model) ? '-' + angular.lowercase(vm.vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vm.vehicle.model).replace(' ', '-') : '');
-                    userDbInstance.user.vehicles[utils.generateUUID(prefixVehicle)] = {
+                    var vo = {
                         reg: (vm.vehicle.reg == undefined ? '' : vm.vehicle.reg),
                         manuf: (vm.vehicle.manuf == undefined ? '' : vm.vehicle.manuf),
                         model: (vm.vehicle.model == undefined ? '' : vm.vehicle.model)
-                    };
+                    }
+                    if (vm.isNextDueService)
+                        vo.nextdue = vm.nextDueDate;
+                    userDbInstance.user.vehicles[utils.generateUUID(prefixVehicle)] = vo;
                 }
             }
             

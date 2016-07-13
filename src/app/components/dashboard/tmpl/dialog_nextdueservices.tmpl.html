@@ -1,0 +1,77 @@
+<style>
+    .am-nxtdue-datepicker .md-datepicker-button {
+        margin: 0;
+    }
+
+    .md-datepicker-input-container {
+        margin-left: 0 !important;
+    }
+
+    .md-datepicker-input-container .md-datepicker-input, .md-datepicker-triangle-button {
+        display: none;
+    }
+
+    .am-select-table-row:hover .am-nxtdue-datepicker {
+        background: #ECEFF1;
+    }
+</style>
+<md-dialog aria-label="new customers" ng-cloak flex>
+    <md-toolbar class="am-blue-bar c800">
+        <div class="md-toolbar-tools" layout="row" layout-align="center center">
+            <span class="md-title">Customers with Next Due Service</span>
+            <div flex></div>
+            <span class="md-caption">{{vm.nsdcTime}}</span>
+            <md-menu style="padding: 0" md-position-mode="target-right target">
+                <md-button aria-label="Choose Duration" class="md-icon-button" ng-click="vm.openNxtDueTimer($mdOpenMenu, $event)">
+                    <md-icon style="font-size: 16pt; color: #fff">date_range</md-icon>
+                    <md-tooltip>Change Duration</md-tooltip>
+                </md-button>
+                <md-menu-content width="2" class="md-hue-1">
+                    <md-menu-item ng-repeat="tr in vm.nsdcTimeRange">
+                        <md-button ng-click="vm.changeNsdcTimeRange(tr)">
+                            <span class="md-caption">{{tr}}</span>
+                        </md-button>
+                    </md-menu-item>
+                </md-menu-content>
+            </md-menu>
+            <md-button class="md-icon-button" ng-click="vm.closeDialog()">
+                <md-icon>close</md-icon>
+            </md-button>
+        </div>
+    </md-toolbar>
+    <md-dialog-content>
+        <div class="md-dialog-content" style="padding: 0;">
+            <md-table-container>
+                <table md-table>
+                    <thead md-head>
+                        <tr md-row>
+                            <th md-column><span class="am-table-header">Customer</span></th>
+                            <th md-column><span class="am-table-header">Mobile</span></th>
+                            <th md-column><span class="am-table-header">Vehicle</span></th>
+                            <th md-column><span class="am-table-header">Date</span></th>
+                        </tr>
+                    </thead>
+                    <tbody md-body>
+                        <tr md-row ng-repeat="customer in vm.customers | limitTo: vm.query.limit: (vm.query.page - 1)*(vm.query.limit)" class="am-select-table-row">
+                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.cstmr_name}}</td>
+                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.cstmr_mobile}}</td>
+                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.vhcl_manuf + ' ' + customer.vhcl_model}}<span ng-if="customer.vhcl_reg">&nbsp;({{customer.vhcl_reg}})</span></td>
+                            <td md-cell>
+                                <md-datepicker class="am-nxtdue-datepicker" ng-model="customer.vhcl_nextdue" ng-change="vm.changeDate(customer)" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem; padding: 0" md-open-on-focus></md-datepicker>
+                                <span style="cursor: default">{{vm.getDate(customer.vhcl_nextdue)}}</span>
+                            </td>
+                            <td md-cell class="am-datatable-actions view-all-customers">
+                                <md-button class="md-icon-button" ng-click="vm.deleteServiceReminder(customer.cstmr_id, customer.vhcl_id, $event)">
+                                    <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
+                                    <md-tooltip>Delete Reminder</md-tooltip>
+                                </md-button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+            
+            <md-table-pagination md-limit="vm.query.limit" md-limit-options="[10, 20, 50, 100]" md-page="vm.query.page" md-total="{{vm.query.total}}" md-page-select></md-table-pagination>
+        </div>
+    </md-dialog-content>
+</md-dialog>

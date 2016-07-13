@@ -1,4 +1,40 @@
 <style>
+    md-chips md-autocomplete input {
+        color: #000;
+        transition: all 600ms ease;
+        background: #fff !important;
+    }
+    
+    md-autocomplete input {
+        color: #000;
+        transition: all 600ms ease;
+        background: rgba(180, 180, 180, 0.1) !important;
+    }
+    
+    .am-box-input {
+        border: 0;
+        padding: 0 15px;
+        line-height: 40px;
+        font-size: small;
+        outline: none;
+        color: #000;
+        transition: all 600ms ease;
+        background: rgba(180, 180, 180, 0.1);
+    }
+    
+    .am-service-input-box {
+        margin: 0.6rem;
+    }
+    
+    .am-service-input-box label {
+        margin-bottom: 0;
+        margin-right: 0.4rem;
+    }
+    
+    .am-select {
+        margin: 0;
+    }
+    
     .am-checkbox-dt {
         margin-top: 0.8rem;
     }
@@ -39,74 +75,172 @@
         background: white;
         border-bottom: 1px rgba(30, 30, 30, 0.5) solid;
     }
-
+    
     .am-display-as {
         cursor: pointer;
         outline: none;
         color: #03A9F4;
         transition: all 700ms ease;
     }
-
+    
+    .am-display-as:focus {
+        color: #0288D1;
+    }
+    
     .am-display-as:hover {
         color: #0288D1;
     }
-
+    
     .am-display-as-brackets {
         color: #039BE5
+    }
+    
+    .am-customer-more-panel {
+        min-width: 200px !important;
+        width: 85vw !important;
+        max-width: 400px !important;
+    }
+
+    .am-jobcard-button {
+        background: #FB8C00 !important;
+        color: #fff !important;
+    }
+
+    .am-estimate-button {
+        background: #4CAF50 !important;
+        color: #fff !important;
+    }
+
+    .am-invoice-button {
+        background: #03A9F4 !important;
+        color: #fff !important;
+    }
+
+    .md-datepicker-button {
+        margin: 0 !important;
+    }
+
+    .md-datepicker-input-container {
+        margin-left: 0 !important;
+    }
+
+    .md-datepicker-input-container .md-datepicker-input, .md-datepicker-triangle-button {
+        display: none;
     }
 </style>
 <md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
     <md-icon aria-label="Back">arrow_back</md-icon>
     <md-tooltip md-direction="bottom">Back</md-tooltip>
 </md-button>
-<md-content class="md-hue-1 am-box-shadow">
-    <md-tabs md-dynamic-height md-border-bottom class="am-tab-margin">
-        <md-tab label="Customer Information" md-active="vm.userTab" md-on-deselect="vm.changeUserTab(false)">
-            <md-content layout-padding class="md-hue-1 ">
-                <div layout="column">
-                    <div layout="row" layout-align="start center" layout-wrap layout-margin>
-                        <md-icon class="md-accent">person_pin</md-icon>
-                        <md-autocomplete md-autofocus ng-disabled="!vm.isAddOperation()" flex md-no-cache md-selected-item="vm.currentUser" md-search-text-change="vm.convertNameToTitleCase()" md-search-text="vm.user.name" md-selected-item-change="vm.selectedUserChange()" md-items="user in vm.userQuerySearch()"
-                            md-item-text="user.name" md-min-length="1" placeholder="Enter Full Name" id="ami-user-name">
-                            <md-item-template>
-                                <span md-highlight-text="vm.user.name" md-highlight-flags="^i">{{user.name}}</span>
-                            </md-item-template>
-                        </md-autocomplete>
-                    </div>
-                    <div layout-gt-xs="row" layout-wrap layout-margin>
-                        <md-input-container flex-gt-xs class="am-clear-error-spacer">
-                            <md-icon class="md-accent">phone</md-icon>
-                            <label class="am-form-label" ng-class="{'large': vm.isUserMobile}">{{vm.label_userMobile}}</label>
-                            <input layout-padding type="text" ng-model="vm.user.mobile" ng-blur="vm.changeUserMobileLabel(); vm.selectUserBasedOnMobile()" ng-focus="vm.changeUserMobileLabel(true)" ng-change="vm.changeUserMobile(true)">
-                        </md-input-container>
-                        <md-input-container flex-gt-xs class="am-clear-error-spacer">
-                            <md-icon class="md-accent">email</md-icon>
-                            <label class="am-form-label" ng-class="{'large': vm.isUserEmail}">{{vm.label_userEmail}}</label>
-                            <input type="email" ng-model="vm.user.email" ng-blur="vm.changeUserEmailLabel()" ng-focus="vm.changeUserEmailLabel(true)">
-                        </md-input-container>
-                    </div>
-                    <div layout-gt-xs="row" layout-wrap layout-margin>
-                        <md-input-container flex-gt-xs class="am-clear-error-spacer">
-                            <md-icon class="md-accent">home</md-icon>
-                            <label class="am-form-label" ng-class="{'large': vm.isUserAddress}">{{vm.label_userAddress}}</label>
-                            <textarea ng-model="vm.user.address" rows="5" md-select-on-focus ng-blur="vm.changeUserAddressLabel()" ng-focus="vm.changeUserAddressLabel(true)"></textarea>
-                        </md-input-container>
-                    </div>
-                    <div layout="row" layout-align="start" layout-margin>
-                        <md-icon class="md-accent">card_membership</md-icon>
-                        <div layout="column" layout-align="start" flex>
-                            <label class="md-body-2" style="color: rgba(30, 30, 30, 0.7);">Memberships <i>(AMC Contracts)</i>:</label>
-                            <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-require-match="true">
-                                <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
-                                    <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
-                                </md-autocomplete>
-                                <md-chip-template>
-                                    <span>
-                                    <span style="font-size: small">{{$chip.name}}</span>
-                                    </span>
-                                </md-chip-template>
-                            </md-chips>
-                            <span class="md-caption" style="line-height: 2rem"><address>*&nbsp;Click on Membership for details</address></span>
+<md-sidenav class="md-sidenav-right am-customer-more-panel md-whiteframe-4dp md-hue-1" md-component-id="customer-more-right">
+    <md-toolbar class="md-accent am-headerbar-shadow" layout="row" layout-align="start center" layout-padding>
+        <span class="md-subhead">{{vm.label_titleCustomerMoreInfo()}} Information</span>
+    </md-toolbar>
+    <md-content layout-margin layout="column" class="md-hue-1">
+        <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+            <label class="am-form-label" flex="15">Email: </label>
+            <input md-autofocus type="email" class="am-box-input md-whiteframe-z1" placeholder="Enter Email Address" ng-model="vm.user.email" flex>
+        </div>
+        <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+            <label class="am-form-label" flex="15">Address: </label>
+            <textarea class="am-box-input md-whiteframe-z1" style="line-height: normal; padding: 10px 15px" placeholder="Enter Address" ng-model="vm.user.address" ng-change="vm.autoCapitalizeCustomerAddress()" rows="2" md-select-on-focus ng-blur="vm.changeUserAddressLabel()" ng-focus="vm.changeUserAddressLabel(true)"
+                flex></textarea>
+        </div>
+        <div layout="column" layout-align="start" class="am-service-input-box">
+            <label class="am-form-label" style="color: rgba(30, 30, 30, 0.7);">Memberships <i>(AMC Contracts)</i>:</label>
+            <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-on-remove="vm.unsubscribeMembership($event, $chip)" md-require-match="true">
+                <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
+                    <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
+                </md-autocomplete>
+                <md-chip-template>
+                    <span>
+                    <span style="font-size: small">{{$chip.name}}</span>
+                    </span>
+                </md-chip-template>
+            </md-chips>
+            <span class="md-caption" style="line-height: 2rem"><address>*&nbsp;Click on Membership for details</address></span>
+        </div>
+        <div flex></div>
+        <md-button class="md-raised md-warn" ng-click="vm.closeCustomerMoreDetails()">
+            <span layout-margin>Continue</span>
+            <md-tooltip>Continue to Add Service</md-tooltip>
+        </md-button>
+    </md-content>
+</md-sidenav>
+<md-sidenav class="md-sidenav-left md-whiteframe-4dp md-hue-1 am-service-details-panel" md-component-id="service-details-left" style="position: fixed" md-disable-backdrop md-is-locked-open="vm.lockServiceNavbar">
+    <md-content layout="column" class="md-hue-1">
+        <md-toolbar>
+            <img src="assets/img/logo-250x125px.png" id="am-sp-cover-pic" style="box-shadow: 1px 1px 3px 1px #212121; background: #212121">
+        </md-toolbar>
+        <div layout="column" layout-margin>
+            <div layout="row" layout-align="start center" class="am-service-input-box" ng-if="vm.WhichServiceStateEnabled(2)">
+                <label class="am-form-label" flex="60">Invoice # :</label>
+                <input id="ami-service-invoice-no" type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Invoice Number" ng-model="vm.service.invoiceno" flex>
+            </div>
+            <div layout="row" layout-align="start center" class="am-service-input-box" ng-if="vm.WhichServiceStateEnabled(1)">
+                <label class="am-form-label" flex="60">Estimate # :</label>
+                <input id="ami-service-invoice-no" type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Estimate Number" ng-model="vm.service.estimateno" flex>
+            </div>
+            <div layout="row" layout-align="start center" class="am-service-input-box" ng-if="vm.WhichServiceStateEnabled(0)">
+                <label class="am-form-label" flex="60">Job Card # :</label>
+                <input id="ami-service-invoice-no" type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Job Card Number" ng-model="vm.service.jobcardno" flex>
+            </div>
+            <div layout="row" layout-align="start center" class="am-service-input-box">
+                <label class="am-form-label" flex="60">Odometer<span style="font-size: x-small;">&nbsp;(km)</span>:</label>
+                <input type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Odometer Reading" ng-model="vm.service.odo" flex>
+            </div>
+            <div layout="row" layout-align="start center" class="am-service-input-box">
+                <label class="am-form-label" flex="30">Service:</label>
+                <md-select aria-label="Service Type" class="am-select" ng-model="vm.serviceType" ng-change="vm.changeServiceType()" id="ami-service-type" flex>
+                    <md-option class="am-hover-option" ng-value="type" ng-repeat="type in vm.serviceTypeList" ng-selected="$first">{{type}}</md-option>
+                </md-select>
+            </div>
+            <div layout="column" class="am-service-input-box" style="margin: 0.6rem 0.6rem 0 0.6rem">
+                <label class="am-form-label">Vehicle Type:</label>
+                <div layout="row" layout-align="start center" class="am-service-input-box" style="margin: 0.6rem 0.6rem 0 0.6rem">
+                    <md-radio-group ng-model="vm.vehicle.type" ng-change="vm.changeVehicleType()">
+                        <md-radio-button class="am-service-radio" ng-value="type" ng-repeat="type in vm.vehicleTypeList" class="md-body-1">{{type}}</md-radio-button>
+                    </md-radio-group>
+                </div>
+            </div>
+            <div layout="column" class="am-service-input-box">
+                <md-checkbox aria-label="Payment" ng-model="vm.isNextDueService" ng-blur="!vm.isNextDueService && vm.fetchFocusItemAfterSS()" style="margin-bottom: 4px"><span class="md-body-2">Next Service Reminder<span ng-show="vm.isNextDueService" class="md-caption">:</span></span></md-checkbox>
+                <div layout="row" layout-align="start center" ng-show="vm.isNextDueService">
+                    <md-datepicker class="md-hue-1" ng-blur="vm.fetchFocusItemAfterSS()" ng-model="vm.nextDueDate" md-placeholder="Enter Date" style="margin: 0 0 0 0.2rem; padding-right: 0" md-open-on-focus></md-datepicker>
+                    <span style="font-size: 10pt; padding-top: 4px">{{vm.getDate(vm.nextDueDate)}}</span>
+                </div>
+            </div>
+        </div>
+    </md-content>
+</md-sidenav>
+<md-content style="margin: 0 0.8rem; overflow: hidden" class="md-hue-1 md-whiteframe-z1">
+    <div layout="row" class="md-hue-1">
+        <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isUserInfoExpanded }" flex>
+            <md-item-content class="el-item service-form tile" ng-class="{'selected': vm.isUserInfoExpanded}" layout="column" flex>
+                <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeUserInfoState(true)" class="folded am-blue-bar c800">
+                    <span ng-class="{'md-headline': vm.isUserInfoExpanded, 'md-body-2': !vm.isUserInfoExpanded}">Customer<span class="md-caption" ng-if="!vm.isUserInfoExpanded && (vm.user.name || vm.user.mobile)">:</span></span>
+                    <span class="md-body-2" style="margin: 0 0.4rem" ng-show="!vm.isUserInfoExpanded">{{vm.user.name}}<span ng-if="vm.user.name">,&nbsp</span><span class="md-caption" ng-if="vm.user.mobile">(M)&nbsp;</span>{{vm.user.mobile}}</span>
+                </div>
+                <div layout="column" layout-fill class="expanded">
+                    <div layout="column">
+                        <div layout="row" layout-align="start center" flex="60" class="am-service-input-box">
+                            <label class="am-form-label" flex="10">Name: </label>
+                            <md-autocomplete md-autofocus ng-disabled="!vm.isAddOperation()" flex md-no-cache md-selected-item="vm.currentUser" md-search-text-change="vm.convertNameToTitleCase()" md-search-text="vm.user.name" md-selected-item-change="vm.selectedUserChange()" md-items="user in vm.userQuerySearch()" md-item-text="user.name" md-min-length="1" placeholder="Enter Full Name" id="ami-user-name">
+                                <md-item-template>
+                                    <span md-highlight-text="vm.user.name" md-highlight-flags="^i">{{user.name}}</span>
+                                </md-item-template>
+                            </md-autocomplete>
+                        </div>
+                        <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+                            <label class="am-form-label" flex="10">Mobile: </label>
+                            <input type="text" class="am-box-input md-whiteframe-z1" placeholder="Enter Mobile Number" ng-model="vm.user.mobile" ng-blur="vm.selectUserBasedOnMobile()" ng-change="vm.changeUserMobile(true)" flex>
+                        </div>
+                        <div layout="row" layout-align="end" flex="auto" class="am-service-input-box">
+                            <md-button class="md-accent" ng-keydown="vm.changeVehicleInfoState(true, $event)" ng-click="vm.openCustomerMoreDetails()">
+                                <span layout-margin>More Details</span>
+                                <md-icon>more</md-icon>
+                                <md-tooltip>More About Customer</md-tooltip>
+                            </md-button>
                         </div>
                     </div>
                     <div layout="row" layout-align="center center" ng-show="vm.loadingBasedOnMobile">
@@ -114,104 +248,85 @@
                         <span>Please wait</span>
                     </div>
                 </div>
-                <div layout="row" layout-align="end center">
-                    <md-button class="md-raised md-warn" ng-click="vm.changeVehicleTab(true)">
-                        <span layout-padding>Continue</span>
-                        <md-icon>navigate_next</md-icon>
-                    </md-button>
+            </md-item-content>
+        </md-item>
+        <md-divider></md-divider>
+        <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isVehicleInfoExpanded }" flex>
+            <md-item-content class="el-item service-form tile" ng-class="{ 'selected': vm.isVehicleInfoExpanded}" layout="column">
+                <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeVehicleInfoState(true)" class="folded am-blue-bar c800">
+                    <span ng-class="{'md-headline': vm.isVehicleInfoExpanded, 'md-body-2': !vm.isVehicleInfoExpanded}">Vehicle<span class="md-caption" ng-if="!vm.isVehicleInfoExpanded && (vm.vehicle.manuf || vm.vehicle.model || vm.vehicle.reg)">:</span></span>
+                    <span class="md-body-2" style="margin: 0 0.4rem" ng-show="!vm.isVehicleInfoExpanded">{{vm.vehicle.manuf}}<span ng-if="vm.vehicle.manuf">&nbsp</span>{{vm.vehicle.model}}<span ng-if="(vm.vehicle.manuf || vm.vehicle.model) && vm.vehicle.reg">&nbsp;-&nbsp;</span>{{vm.vehicle.reg}}</span>
                 </div>
-            </md-content>
-        </md-tab>
-        <md-tab label="Vehicle Information" md-active="vm.vehicleTab" md-on-deselect="vm.changeVehicleTab(false)">
-            <md-content layout-padding class="md-hue-1">
-                <div layout="column">
-                    <div layout-gt-xs="row" layout-wrap layout-margin ng-if="vm.isAddOperation()">
-                        <div layout="column" flex>
-                            <span class="am-form-label">Choose Vehicle:</span>
-                            <md-menu>
-                                <md-button aria-label="Choose from existing vehicles" class="md-raised md-accent" ng-click="vm.chooseVehicle($mdOpenMenu, $event)">
-                                    <span layout-padding>{{vm.currentVehicle}}</span>
-                                </md-button>
-                                <md-menu-content width="6" class="md-hue-1">
-                                    <md-menu-item>
-                                        <md-button ng-click="vm.changeVehicle()">
-                                            <span>New Vehicle</span>
-                                        </md-button>
-                                    </md-menu-item>
-                                    <md-menu-item ng-repeat="vehicle in vm.possibleVehicleList" ng-hide="vm.possibleVehicleList.length == 0">
-                                        <md-button ng-click="vm.changeVehicle(vehicle.id)">
-                                            <span>{{vehicle.name}}</span>
-                                        </md-button>
-                                    </md-menu-item>
-                                </md-menu-content>
-                            </md-menu>
-                            <span class="am-form-label md-warn">(To add new vehicle, click on the button above and select new vehicle)</span>
-                        </div>
-                    </div>
-                    <div layout-gt-xs="row" layout-wrap layout-margin>
-                        <div layout="column" flex>
-                            <span class="am-form-label">Choose Manufacturer:</span>
-                            <md-autocomplete md-autofocus md-selected-item="vm.selectedManuf" md-search-text="vm.vehicle.manuf" md-items="manuf in vm.manufacturersQuerySearch()" md-item-text="manuf" placeholder="Type Manufacturer Name" md-search-text-change="vm.searchVehicleChange()">
+                <div layout="column" layout-fill class="expanded">
+                    <div layout="column">
+                        <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+                            <label class="am-form-label" flex="20">Manufacturer:</label>
+                            <md-autocomplete id="ami-vehicle-manuf" class="am-full-width" md-selected-item="vm.selectedManuf" md-search-text="vm.vehicle.manuf" md-items="manuf in vm.manufacturersQuerySearch()" md-item-text="manuf" placeholder="Type Manufacturer Name" md-search-text-change="vm.searchVehicleChange()" flex>
                                 <md-item-template>
                                     <span md-highlight-text="vm.vehicle.manuf">{{manuf}}</span>
                                 </md-item-template>
                             </md-autocomplete>
                         </div>
-                        <div layout="column" flex>
-                            <span class="am-form-label">Choose Model:</span>
-                            <md-autocomplete md-selected-item="vm.selectedModel" md-search-text="vm.vehicle.model" md-items="model in vm.modelQuerySearch()" md-item-text="model" placeholder="Type Model Name" md-no-cache="true" md-min-length="0">
+                        <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+                            <label class="am-form-label" flex="20">Model:</label>
+                            <md-autocomplete class="am-full-width" md-selected-item="vm.selectedModel" md-search-text="vm.vehicle.model" md-items="model in vm.modelQuerySearch()" md-item-text="model" placeholder="Type Model Name" md-no-cache="true" md-min-length="0" md-search-text-change="vm.autoCapitalizeVehicleModel()" flex>
                                 <md-item-template>
                                     <span md-highlight-text="vm.vehicle.model">{{model}}</span>
                                 </md-item-template>
                             </md-autocomplete>
                         </div>
-                    </div>
-                    <div layout-gt-xs="row" layout-wrap layout-margin>
-                        <md-input-container class="md-block" flex-gt-xs="50">
-                            <label class="am-form-label" ng-class="{'large': vm.isVehicleReg}">{{vm.label_vehicleReg}}</label>
-                            <input type="text" class="am-vehicle-reg" ng-model="vm.vehicle.reg" ng-change="vm.convertRegToCaps()" ng-blur="vm.changeVehicleRegLabel()" ng-focus="vm.changeVehicleRegLabel(true)">
-                            <div class="am-hint">e.g. <span class="spacing-1p bold-500">GJ01AB9999</span></div>
-                        </md-input-container>
+                        <div layout="row">
+                            <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+                                <label class="am-form-label" style="font-size: 9pt" flex="20">Registration No: </label>
+                                <input type="text" class="am-box-input md-whiteframe-z1 am-vehicle-reg" ng-model="vm.vehicle.reg" ng-keydown="!vm.isAddOperation() && vm.changeServiceInfoState(true, $event)" ng-change="vm.convertRegToCaps()" placeholder="e.g GJ01AB9999" flex>
+                                <md-menu ng-show="vm.isAddOperation()">
+                                    <md-button aria-label="Choose from existing vehicles" class="md-accent md-icon-button" ng-keydown="vm.changeServiceInfoState(true, $event)" ng-click="vm.chooseVehicle($mdOpenMenu, $event)">
+                                        <md-icon>directions_car</md-icon>
+                                        <md-tooltip>Change Vehicle</md-tooltip>
+                                    </md-button>
+                                    <md-menu-content width="6" class="md-hue-1">
+                                        <md-menu-item ng-repeat="vehicle in vm.possibleVehicleList">
+                                            <md-button ng-click="vm.changeVehicle(vehicle.id, true)">
+                                                <span>{{vehicle.name}}</span>
+                                            </md-button>
+                                        </md-menu-item>
+                                        <md-menu-item>
+                                            <md-button ng-click="vm.changeVehicle()">
+                                                <span>New Vehicle</span>
+                                            </md-button>
+                                        </md-menu-item>
+                                    </md-menu-content>
+                                </md-menu>
+                            </div>
+                        </div>
                     </div>
                 </div>
-                <div layout="row" layout-align="end center">
-                    <md-button class="md-raised md-warn" ng-click="vm.changeServiceTab(true)">
-                        <span layout-padding>Continue</span>
-                        <md-icon>navigate_next</md-icon>
-                    </md-button>
-                </div>
-            </md-content>
-        </md-tab>
-        <md-tab label="Service Information" md-active="vm.serviceTab" md-on-deselect="vm.changeServiceTab(false)">
-            <md-content style="padding: 0.8rem 1rem 0.8rem 1rem" class="md-hue-1">
-                <div layout="column">
-                    <div layout-gt-xs="row" layout-wrap layout-margin layout-align="end">
-                        <md-input-container flex-gt-xs="14" class="am-clear-error-spacer" ng-show="vm.isAddOperation()">
-                            <label class="am-form-label large">Service Type:</label>
-                            <md-select class="am-select" ng-model="vm.serviceType" ng-change="vm.changeServiceType()" flex>
-                                <md-option class="am-hover-option" ng-value="type" ng-repeat="type in vm.serviceTypeList" ng-selected="$first">{{type}}</md-option>
-                            </md-select>
-                        </md-input-container>
-                        <md-input-container flex-gt-xs="12" class="am-clear-error-spacer">
-                            <label class="am-form-label large">Invoice #:</label>
-                            <input type="number" ng-model="vm.service.invoiceno">
-                        </md-input-container>
-                        <md-input-container flex-gt-xs="14" class="am-clear-error-spacer">
-                            <label class="am-form-label large">Vehicle Type:</label>
-                            <md-select class="am-select" ng-model="vm.vehicle.type" ng-change="vm.changeVehicleType()" flex>
-                                <md-option class="am-hover-option" ng-value="type" ng-repeat="type in vm.vehicleTypeList" ng-selected="type == vm.vehicle.type">{{type}}</md-option>
-                            </md-select>
-                        </md-input-container>
-                        <md-input-container flex-gt-xs="19" class="am-clear-error-spacer">
-                            <label class="am-form-label large" style="font-size: 11pt">Odometer Reading:</label>
-                            <input type="number" ng-model="vm.service.odo">
-                        </md-input-container>
-                        <md-datepicker flex-gt-xs="19" class="md-hue-1" ng-model="vm.service.date" md-placeholder="Enter Date"></md-datepicker>
-                    </div>
-                    <div layout="row">
-                        <div layout="column" flex="80" id="am-service-viewport" style="height: {{vm.serviceViewportHeight}}px" am-offset-from-top="vm.calculateViewportHeight">
-                            <md-content class="md-hue-1">        
-                                <div layout="column" ng-show="vm.serviceType == vm.serviceTypeList[2]" aria-label="Memberships" class="md-hue-1">
+            </md-item-content>
+        </md-item>
+    </div>
+    <md-divider></md-divider>
+    <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isServiceInfoExpanded }">
+        <md-item-content class="el-item service-form tile" ng-class="{ 'selected': vm.isServiceInfoExpanded}" layout="column">
+            <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeServiceInfoState(true)" class="folded am-blue-bar c800" ng-hide="vm.isServiceInfoExpanded">
+                <span class="md-headline">Service Details</span>
+                <span flex></span>
+                <span class="md-caption" style="font-style: italic; font-weight: 500">Click to Expand</span>
+            </div>
+            <div layout="column" layout-fill class="expanded">
+                <div layout="row">
+                    <div layout="column" flex="80" id="am-service-viewport">
+                        <md-content class="md-hue-1">
+                            <div layout="row" layout-align="center center">
+                                <md-button ng-if="$first" id="ami-service-state" ng-repeat-start="state in vm.serviceStateList" ng-class="{'md-raised': vm.IsServiceStateSelected(state), 'am-jobcard-button': vm.IsServiceStateJc(state), 'am-estimate-button': vm.IsServiceStateEs(state), 'am-invoice-button': vm.IsServiceStateIv(state)}" ng-click="vm.selectServiceState(state)">
+                                    <span layout-margin class="md-caption">{{state}}</span>
+                                </md-button>
+                                <md-button ng-if="!$first" ng-class="{'md-raised': vm.IsServiceStateSelected(state), 'am-jobcard-button': vm.IsServiceStateJc(state), 'am-estimate-button': vm.IsServiceStateEs(state), 'am-invoice-button': vm.IsServiceStateIv(state)}" ng-click="vm.selectServiceState(state)">
+                                    <span layout-margin class="md-caption">{{state}}</span>
+                                </md-button>
+                                <span class="am-form-label" style="padding-bottom: 0; margin-bottom: 0" ng-hide="$last" ng-repeat-end>>></span>
+                            </div>
+                            <div ng-show="vm.IsMembershipEnabled()" aria-label="Memberships" class="md-hue-1" style="margin: 0.6rem 0rem 0 1rem">
+                                <div layout="column">
                                     <div layout="row">
                                         <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
                                             <md-checkbox aria-label="Check All" style="opacity: 0; cursor: default"></md-checkbox>
@@ -229,13 +344,14 @@
                                                 <md-button class="md-icon-button md-primary" ng-click="membership.expandMembership()">
                                                     <md-icon ng-hide="membership.expanded">add_circle_outline</md-icon>
                                                     <md-icon ng-show="membership.expanded">remove_circle_outline</md-icon>
+                                                    <md-tooltip><span ng-if="membership.expanded">Collapse</span><span ng-if="!membership.expanded">Expand</span> Membership</md-tooltip>
                                                 </md-button>
                                             </div>
                                             <div aria-label="name" flex layout="column" layout-align="center start">
                                                 <span>{{membership.name}}</span>
                                             </div>
                                         </div>
-                                        <div layout="column" style="font-size: small" ng-show="membership.expanded == true">
+                                        <div layout="column" style="font-size: small" ng-show="membership.expanded">
                                             <md-table-container style="margin-left: 6rem" ng-if="membership.treatments.length > 0">
                                                 <table md-table md-row-select multiple ng-model="membership.selectedTreatments">
                                                     <thead md-head>
@@ -246,7 +362,7 @@
                                                         </tr>
                                                     </thead>
                                                     <tbody md-body>
-                                                        <tr md-row md-select="treatment" ng-disabled="membership.calculateTOccurenceLeft(treatment) <= 0 || membership.calculateTDurationLeft(treatment) <= 0" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected" ng-repeat="treatment in membership.treatments">
+                                                        <tr md-row md-select="treatment" ng-disabled="vm.IsMembershipTreatmentsDisabled(membership, treatment)" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected" ng-repeat="treatment in membership.treatments">
                                                             <td md-cell style="width: auto">{{treatment.name}}</td>
                                                             <td md-cell style="text-align: center">{{membership.calculateTOccurenceLeft(treatment)}}</td>
                                                             <td md-cell style="text-align: center">{{membership.calculateTDurationLeft(treatment)}}</td>
@@ -257,12 +373,14 @@
                                         </div>
                                         <md-divider ng-hide="$last"></md-divider>
                                     </div>
-                                    <div layout="column" layout-align="centere center" ng-if="vm.membershipChips.length < 1">
-                                        <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>{{vm.user.name || 'Customer'}} has not subscribed to any memberships. <span class="am-membership-subscribe-button" ng-click="vm.navigateToSubscriptMembership()">Click here</span> to subscribe to one</span>
+                                    <div layout="column" layout-align="centere center" ng-if="vm.IsNoMembershipSubscribed()">
+                                        <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>{{vm.user.name || 'Customer'}} has not subscribed to any memberships. <span class="am-membership-subscribe-button" ng-click="vm.navigateToSubscribeMembership()">Click here</span>                                        to subscribe to one</span>
                                     </div>
                                 </div>
-                                <md-divider style="margin-top: 2rem;" ng-show="vm.serviceType == vm.serviceTypeList[2]"></md-divider>
-                                <div layout="column" ng-show="vm.serviceType == vm.serviceTypeList[1]" aria-label="Packages" class="md-hue-1">
+                                <md-divider style="margin-top: 2rem;"></md-divider>
+                            </div>
+                            <div ng-show="vm.IsPackageEnabled()" aria-label="Packages" class="md-hue-1" style="margin: 0.6rem 0rem 0 1rem">
+                                <div layout="column">
                                     <div layout="row">
                                         <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
                                             <md-checkbox aria-label="Check All" style="opacity: 0; cursor: default"></md-checkbox>
@@ -286,6 +404,7 @@
                                                 <md-button class="md-icon-button md-primary" ng-click="package.expandPackage()">
                                                     <md-icon ng-hide="package.expanded">add_circle_outline</md-icon>
                                                     <md-icon ng-show="package.expanded">remove_circle_outline</md-icon>
+                                                    <md-tooltip><span ng-if="package.expanded">Collapse</span><span ng-if="!package.expanded">Expand</span> Package</md-tooltip>
                                                 </md-button>
                                             </div>
                                             <div aria-label="name" flex="50" layout="column" layout-align="center start">
@@ -298,8 +417,8 @@
                                                 <span>{{(package.total ? package.total * (package.checked ? 1 : 0) : 0)}}</span>
                                             </div>
                                         </div>
-                                        <div layout="column" style="font-size: small" ng-show="package.expanded == true">
-                                            <md-table-container style="margin-left: 5rem">
+                                        <div layout="column" style="font-size: small" ng-show="package.expanded">
+                                            <md-table-container style="margin-left: 4rem">
                                                 <table md-table md-row-select multiple ng-model="package.selectedTreatments">
                                                     <thead md-head>
                                                         <tr md-row>
@@ -313,15 +432,15 @@
                                                         <tr md-row md-select="treatment" md-select-id="key" md-on-select="package.onTreatmentSelected" md-on-deselect="package.onTreatmentDeselected" ng-repeat="treatment in package.treatments">
                                                             <td md-cell>{{treatment.name}}</td>
                                                             <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                                                <span ng-if="vm.sTaxSettings.inclusive">{{treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')] | number: 2}}</span>
-                                                                <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-model="treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')]" class="am-table-inline-input" ng-change="package.changeTreatmentTax(treatment)"></span>
+                                                                <span ng-if="vm.sTaxSettings.inclusive">{{treatment.rate[vm.convertVehicleTypeToAF()] | number: 2}}</span>
+                                                                <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-model="treatment.rate[vm.convertVehicleTypeToAF()]" class="am-table-inline-input" ng-change="package.changeTreatmentTax(treatment)"></span>
                                                             </td>
                                                             <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                                                {{treatment.tax[vm.vehicle.type.toLowerCase().replace(' ', '-')] | number: 2}}
+                                                                {{treatment.tax[vm.convertVehicleTypeToAF()] | number: 2}}
                                                             </td>
                                                             <td md-cell>
-                                                                <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input type="number" ng-model="treatment.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')]" class="am-table-inline-input" ng-change="package.changeTreatmentTax(treatment)" style="text-align: right"></span>
-                                                                <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax" style="text-align: right">{{treatment.amount[vm.vehicle.type.toLowerCase().replace(' ', '-')]}}</span>
+                                                                <span ng-if="vm.IsTreatmentAmountEditable()"><input type="number" ng-model="treatment.amount[vm.convertVehicleTypeToAF()]" class="am-table-inline-input" ng-change="package.changeTreatmentTax(treatment)" style="text-align: right"></span>
+                                                                <span ng-if="vm.IsTreatmentAmountText()" style="text-align: right">{{treatment.amount[vm.convertVehicleTypeToAF()]}}</span>
                                                             </td>
                                                         </tr>
                                                     </tbody>
@@ -330,11 +449,13 @@
                                         </div>
                                         <md-divider ng-hide="$last"></md-divider>
                                     </div>
-                                    <div layout="column" layout-align="centere center" ng-if="vm.packages.length < 1">
+                                    <div layout="column" layout-align="centere center" ng-if="vm.IsPackageEnabled()">
                                         <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>No Packages Found!</span>
                                     </div>
                                 </div>
-                                <md-divider style="margin-top: 2rem;" ng-show="vm.serviceType == vm.serviceTypeList[1]"></md-divider>
+                                <md-divider style="margin-top: 2rem;"></md-divider>
+                            </div>
+                            <div class="md-hue-1">
                                 <md-table-container ng-if="!vm.displayTreatmentAsList">
                                     <table md-table md-row-select multiple ng-model="vm.selectedProblems" md-progress="vm.problemPromise">
                                         <thead md-head>
@@ -342,65 +463,52 @@
                                                 <th md-column>
                                                     <span class="am-table-header">Treatments</span>
                                                     <span style="margin-left: 0.6rem;">
-                                                        <span class="am-table-header am-display-as-brackets">(</span>
-                                                        <span ng-click="vm.displayTreatmentAsList = true" class="am-display-as">Show All</span>
-                                                        <span class="am-table-header am-display-as-brackets">)</span>
+                                            <span class="am-table-header am-display-as-brackets">(</span>
+                                                    <span ng-click="vm.changeDisplayAsList(true)" id="ami-display-as" class="am-display-as">Show All<md-tooltip>Show All Treatments</md-tooltip></span>
+                                                    <span class="am-table-header am-display-as-brackets">)</span>
                                                     </span>
                                                 </th>
-                                                <th md-column ng-if="vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive" style="width: 13%"><span class="am-table-header">Rate</span></th>
-                                                <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 10%; padding: 0"><span class="am-table-header">Tax<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeServiceTax()" ng-model="vm.sTaxSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:40px"></span></span>
-                                                </th>
+                                                <th md-column ng-if="vm.IsTreatmentRateDisplayed()" style="width: 13%"><span class="am-table-header">Rate</span></th>
+                                                <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 6%; padding: 0"><span class="am-table-header">Tax</span></th>
                                                 <th md-column md-numeric style="width: 13%"><span class="am-table-header">Amount</span></th>
                                             </tr>
                                         </thead>
                                         <tbody md-body>
                                             <tr md-row md-select="problem" md-select-id="details" md-on-select="vm.onProblemSelected" md-on-deselect="vm.onProblemDeselected" ng-repeat="problem in vm.selectedProblems" layout-align="center center">
                                                 <td md-cell><input type="text" ng-model="problem.details" class="am-table-inline-input"></td>
-                                                <td md-cell ng-if="vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive">
-                                                    <span ng-if="vm.sTaxSettings.inclusive">{{problem.rate | number: 2}}</span>
+                                                <td md-cell ng-if="vm.IsTreatmentRateDisplayed()">
+                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.doRoundOff(problem.rate)}}</span>
                                                     <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-model="problem.rate" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)"></span>
                                                 </td>
-                                                <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                                    {{problem.tax | number: 2}}
+                                                <td md-cell ng-if="vm.sTaxSettings.applyTax" style="padding: 0">
+                                                    {{vm.doRoundOff(problem.tax)}}
                                                 </td>
                                                 <td md-cell>
-                                                    <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
-                                                    <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{problem.amount}}</span>
+                                                    <span ng-if="vm.IsTreatmentAmountEditable()"><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
+                                                    <span ng-if="vm.IsTreatmentAmountText()">{{vm.doRoundOff(problem.amount)}}</span>
                                                 </td>
                                             </tr>
                                             <tr md-row>
                                                 <td md-cell>
-                                                    <md-autocomplete id="new-problem-details" md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()"
-                                                        md-search-text-change="vm.convertPbToTitleCase()">
+                                                    <md-autocomplete id="new-problem-details" md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.convertPbToTitleCase()">
                                                         <md-item-template>
                                                             <span md-highlight-text="vm.problem.details">{{treatment.name}}</span>
                                                         </md-item-template>
                                                     </md-autocomplete>
                                                 </td>
-                                                <td md-cell ng-if="vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive">
-                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.problem.rate | number: 2}}</span>
-                                                    <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewProblem()" ng-model="vm.problem.rate" ng-change="vm.changeProblemRate(vm.problem)" placeholder="Rate" class="am-table-input" style="width: 97%"></span>
+                                                <td md-cell ng-if="vm.IsTreatmentRateDisplayed()">
+                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.doRoundOff(vm.problem.rate)}}</span>
+                                                    <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewProblem()" ng-model="vm.problem.rate" ng-change="vm.changeProblemRate(vm.problem)" placeholder="Rate" class="am-box-input md-whiteframe-z1" style="width: 90%"></span>
                                                 </td>
-                                                <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                                    {{vm.problem.tax | number: 2}}
+                                                <td md-cell ng-if="vm.sTaxSettings.applyTax" style="padding: 0">
+                                                    {{vm.doRoundOff(vm.problem.tax)}}
                                                 </td>
                                                 <td md-cell>
-                                                    <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
-                                                    <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{vm.problem.amount}}</span>
+                                                    <span ng-if="vm.IsTreatmentAmountEditable()"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
+                                                    <span ng-if="vm.IsTreatmentAmountText()">{{vm.doRoundOff(vm.problem.amount)}}</span>
                                                 </td>
                                             </tr>
                                         </tbody>
-                                        <tfoot md-foot>
-                                            <tr md-row>
-                                                <td md-cell style="border: 0"></td>
-                                                <td md-cell style="border: 0">
-                                                    <md-button ng-click="vm.finalizeNewProblem(true)">
-                                                        <md-icon>add</md-icon>
-                                                        <span layout-padding>Add More</span>
-                                                    </md-button>
-                                                </td>
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </md-table-container>
 
@@ -411,65 +519,52 @@
                                                 <th md-column>
                                                     <span class="am-table-header">Treatments</span>
                                                     <span style="margin-left: 0.6rem;">
-                                                        <span class="am-table-header am-display-as-brackets">(</span>
-                                                        <span ng-click="vm.displayTreatmentAsList = false" class="am-display-as">Show Few</span>
-                                                        <span class="am-table-header am-display-as-brackets">)</span>
+                                            <span class="am-table-header am-display-as-brackets">(</span>
+                                                    <span ng-click="vm.changeDisplayAsList(false)" id="ami-display-as" class="am-display-as">Show Few<md-tooltip>Show Selected Treatments</md-tooltip></span>
+                                                    <span class="am-table-header am-display-as-brackets">)</span>
                                                     </span>
                                                 </th>
-                                                <th md-column ng-if="vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive" style="width: 13%"><span class="am-table-header">Rate</span></th>
-                                                <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 10%; padding: 0"><span class="am-table-header">Tax<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeServiceTax()" ng-model="vm.sTaxSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:40px"></span></span>
-                                                </th>
+                                                <th md-column ng-if="vm.IsTreatmentRateDisplayed()" style="width: 13%"><span class="am-table-header">Rate</span></th>
+                                                <th md-column ng-if="vm.sTaxSettings.applyTax" style="width: 6%; padding: 0"><span class="am-table-header">Tax</span></th>
                                                 <th md-column md-numeric style="width: 13%"><span class="am-table-header">Amount</span></th>
                                             </tr>
                                         </thead>
                                         <tbody md-body>
                                             <tr md-row md-select="problem" md-select-id="details" md-on-select="vm.onProblemSelected" md-on-deselect="vm.onProblemDeselected" ng-repeat="problem in vm.service.problems">
                                                 <td md-cell><input type="text" ng-model="problem.details" class="am-table-inline-input"></td>
-                                                <td md-cell ng-if="vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive">
-                                                    <span ng-if="vm.sTaxSettings.inclusive">{{problem.rate | number: 2}}</span>
+                                                <td md-cell ng-if="vm.IsTreatmentRateDisplayed()">
+                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.doRoundOff(problem.rate)}}</span>
                                                     <span ng-if="!vm.sTaxSettings.inclusive"><input type="number" ng-model="problem.rate" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)"></span>
                                                 </td>
-                                                <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                                    {{problem.tax | number: 2}}
+                                                <td md-cell ng-if="vm.sTaxSettings.applyTax" style="padding: 0">
+                                                    {{vm.doRoundOff(problem.tax)}}
                                                 </td>
                                                 <td md-cell>
-                                                    <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
-                                                    <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{problem.amount}}</span>
+                                                    <span ng-if="vm.IsTreatmentAmountEditable()"><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
+                                                    <span ng-if="vm.IsTreatmentAmountText()">{{vm.doRoundOff(problem.amount)}}</span>
                                                 </td>
                                             </tr>
                                             <tr md-row>
                                                 <td md-cell>
-                                                    <md-autocomplete id="new-problem-details" md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()"
-                                                        md-search-text-change="vm.convertPbToTitleCase()">
+                                                    <md-autocomplete id="new-problem-details" md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.convertPbToTitleCase()">
                                                         <md-item-template>
                                                             <span md-highlight-text="vm.problem.details">{{treatment.name}}</span>
                                                         </md-item-template>
                                                     </md-autocomplete>
                                                 </td>
-                                                <td md-cell ng-if="vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive">
-                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.problem.rate | number: 2}}</span>
-                                                    <span ng-if="!vm.sTaxSettings.inclusive"><input ng-blur="vm.finalizeNewProblem()" type="number" ng-model="vm.problem.rate" ng-change="vm.changeProblemRate(vm.problem)" placeholder="Rate" class="am-table-input" style="width: 97%"></span>
+                                                <td md-cell ng-if="vm.IsTreatmentRateDisplayed()">
+                                                    <span ng-if="vm.sTaxSettings.inclusive">{{vm.doRoundOff(vm.problem.rate)}}</span>
+                                                    <span ng-if="!vm.sTaxSettings.inclusive"><input ng-blur="vm.finalizeNewProblem()" type="number" ng-model="vm.problem.rate" ng-change="vm.changeProblemRate(vm.problem)" placeholder="Rate" class="am-box-input md-whiteframe-z1" style="width: 90%"></span>
                                                 </td>
-                                                <td md-cell ng-if="vm.sTaxSettings.applyTax">
-                                                    {{vm.problem.tax | number: 2}}
+                                                <td md-cell ng-if="vm.sTaxSettings.applyTax" style="padding: 0">
+                                                    {{vm.doRoundOff(vm.problem.tax)}}
                                                 </td>
                                                 <td md-cell>
-                                                    <span ng-if="vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
-                                                    <span ng-if="!vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax">{{vm.problem.amount}}</span>
+                                                    <span ng-if="vm.IsTreatmentAmountEditable()"><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
+                                                    <span ng-if="vm.IsTreatmentAmountText()">{{vm.doRoundOff(vm.problem.amount)}}</span>
                                                 </td>
                                             </tr>
                                         </tbody>
-                                        <tfoot md-foot>
-                                            <tr md-row>
-                                                <td md-cell style="border: 0"></td>
-                                                <td md-cell style="border: 0">
-                                                    <md-button ng-click="vm.finalizeNewProblem(true)">
-                                                        <md-icon>add</md-icon>
-                                                        <span layout-padding>Add More</span>
-                                                    </md-button>
-                                                </td>
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </md-table-container>
                                 <md-table-container ng-if="!vm.displayInventoriesAsList">
@@ -479,15 +574,14 @@
                                                 <th md-column>
                                                     <span class="am-table-header">Parts</span>
                                                     <span style="margin-left: 0.6rem;">
-                                                        <span class="am-table-header am-display-as-brackets">(</span>
-                                                        <span ng-click="vm.displayInventoriesAsList = true" class="am-display-as">Show All</span>
-                                                        <span class="am-table-header am-display-as-brackets">)</span>
+                                            <span class="am-table-header am-display-as-brackets">(</span>
+                                                    <span ng-click="vm.changeInventoryAsList(true)" id="ami-display-inventory-as" class="am-display-as">Show All<md-tooltip>Show All Inventories</md-tooltip></span>
+                                                    <span class="am-table-header am-display-as-brackets">)</span>
                                                     </span>
                                                 </th>
                                                 <th md-column style="width: 13%"><span class="am-table-header">Rate</span></th>
                                                 <th md-column style="width: 6%"><span class="am-table-header">Qty</span></th>
-                                                <th md-column ng-if="vm.vatSettings.applyTax" style="width: 10%; padding: 0"><span class="am-table-header">VAT<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeVat()" ng-model="vm.vatSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:40px"></span></span>
-                                                </th>
+                                                <th md-column ng-if="vm.vatSettings.applyTax" style="width: 6%; padding: 0"><span class="am-table-header">VAT</span></th>
                                                 <th md-column md-numeric style="width: 13%"><span class="am-table-header">Amount</span></th>
                                             </tr>
                                         </thead>
@@ -504,53 +598,41 @@
                                                 <td md-cell>
                                                     <input type="number" ng-model="inventory.qty" class="am-table-inline-input" ng-change="vm.changeQty(inventory)">
                                                 </td>
-                                                <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{inventory.tax * (inventory.qty ? inventory.qty : 1) | number: 2}}
+                                                <td md-cell ng-if="vm.vatSettings.applyTax" style="padding: 0">
+                                                    {{vm.doRoundOff(inventory.tax * inventory.qty)}}
                                                 </td>
                                                 <td md-cell>
-                                                    <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
-                                                    <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{inventory.total}}</span>
+                                                    <span ng-if="vm.IsInventoryTotalEditable()"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
+                                                    <span ng-if="vm.IsInventoryTotalText()">{{vm.doRoundOff(inventory.total)}}</span>
                                                 </td>
                                             </tr>
                                             <tr md-row>
                                                 <td md-cell>
-                                                    <md-autocomplete id="new-inventory-name" md-search-text="vm.inventory.name" md-items="inventory in vm.inventoryQuerySearch()" md-item-text="inventory.name" placeholder="Enter Part Name" md-selected-item-change="vm.updateInventoryDetails()"
-                                                        md-search-text-change="vm.convertInToTitleCase()">
+                                                    <md-autocomplete id="new-inventory-name" md-search-text="vm.inventory.name" md-items="inventory in vm.inventoryQuerySearch()" md-item-text="inventory.name" placeholder="Enter Part Name" md-selected-item-change="vm.updateInventoryDetails()" md-search-text-change="vm.convertInToTitleCase()">
                                                         <md-item-template>
                                                             <span md-highlight-text="vm.inventory.name">{{inventory.name}}</span>
                                                         </md-item-template>
                                                     </md-autocomplete>
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    <span ng-if="vm.vatSettings.inclusive"><input type="number" ng-model="vm.inventory.amount" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Rate" class="am-table-input" style="width: 97%"></span>
-                                                    <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewInventory()" ng-model="vm.inventory.rate" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Rate" class="am-table-input" style="width: 97%"></span>
+                                                    <span ng-if="vm.vatSettings.inclusive"><input type="number" ng-model="vm.inventory.amount" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Rate" class="am-box-input md-whiteframe-z1" style="width: 90%"></span>
+                                                    <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewInventory()" ng-model="vm.inventory.rate" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Rate" class="am-box-input md-whiteframe-z1" style="width: 90%"></span>
                                                 </td>
                                                 <td md-cell ng-if="!vm.vatSettings.applyTax">
-                                                    <input type="number" ng-model="vm.inventory.rate" ng-change="vm.changeQty(vm.inventory)" placeholder="Rate" class="am-table-input" style="width: 97%">
+                                                    <input type="number" ng-model="vm.inventory.rate" ng-change="vm.changeQty(vm.inventory)" placeholder="Rate" class="am-box-input md-whiteframe-z1" style="width: 90%">
                                                 </td>
                                                 <td md-cell>
-                                                    <input type="number" ng-model="vm.inventory.qty" placeholder="Qty" ng-change="vm.changeQty(vm.inventory)" class="am-table-input" style="width: 97%">
+                                                    <input type="number" ng-model="vm.inventory.qty" placeholder="Qty" ng-change="vm.changeQty(vm.inventory)" class="am-box-input md-whiteframe-z1" style="width: 90%">
                                                 </td>
-                                                <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{vm.inventory.tax * (vm.inventory.qty ? vm.inventory.qty : 1) | number: 2}}
+                                                <td md-cell ng-if="vm.vatSettings.applyTax" style="padding: 0">
+                                                    {{vm.doRoundOff(vm.inventory.tax * vm.inventory.qty)}}
                                                 </td>
                                                 <td md-cell>
-                                                    <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
-                                                    <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{vm.inventory.total}}</span>
+                                                    <span ng-if="vm.IsInventoryTotalEditable()"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
+                                                    <span ng-if="vm.IsInventoryTotalText()">{{vm.doRoundOff(vm.inventory.total)}}</span>
                                                 </td>
                                             </tr>
                                         </tbody>
-                                        <tfoot md-foot>
-                                            <tr md-row>
-                                                <td md-cell style="border: 0"></td>
-                                                <td md-cell style="border: 0">
-                                                    <md-button ng-click="vm.finalizeNewInventory(true)">
-                                                        <md-icon>add</md-icon>
-                                                        <span layout-padding>Add More</span>
-                                                    </md-button>
-                                                </td>
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </md-table-container>
                                 <md-table-container ng-if="vm.displayInventoriesAsList">
@@ -560,15 +642,14 @@
                                                 <th md-column>
                                                     <span class="am-table-header">Parts</span>
                                                     <span style="margin-left: 0.6rem;">
-                                                        <span class="am-table-header am-display-as-brackets">(</span>
-                                                        <span ng-click="vm.displayInventoriesAsList = false" class="am-display-as">Show Few</span>
-                                                        <span class="am-table-header am-display-as-brackets">)</span>
+                                            <span class="am-table-header am-display-as-brackets">(</span>
+                                                    <span ng-click="vm.changeInventoryAsList(false)" id="ami-display-inventory-as" class="am-display-as">Show Few<md-tooltip>Show Selected Inventories</md-tooltip></span>
+                                                    <span class="am-table-header am-display-as-brackets">)</span>
                                                     </span>
                                                 </th>
                                                 <th md-column style="width: 13%"><span class="am-table-header">Rate</span></th>
                                                 <th md-column style="width: 6%"><span class="am-table-header">Qty</span></th>
-                                                <th md-column ng-if="vm.vatSettings.applyTax" style="width: 10%; padding: 0"><span class="am-table-header">VAT<span>&nbsp;<small>(%)</small>:&nbsp;<input type="number" ng-change="vm.changeVat()" ng-model="vm.vatSettings.tax" class="am-table-inline-input" style="padding-left:0.2rem; width:40px"></span></span>
-                                                </th>
+                                                <th md-column ng-if="vm.vatSettings.applyTax" style="width: 6%; padding: 0"><span class="am-table-header">VAT</span></th>
                                                 <th md-column md-numeric style="width: 13%"><span class="am-table-header">Amount</span></th>
                                             </tr>
                                         </thead>
@@ -585,96 +666,98 @@
                                                 <td md-cell>
                                                     <input type="number" ng-model="inventory.qty" ng-change="vm.changeQty(inventory)" class="am-table-inline-input">
                                                 </td>
-                                                <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{inventory.tax * (inventory.qty ? inventory.qty : 1) | number: 2}}
+                                                <td md-cell ng-if="vm.vatSettings.applyTax" style="padding: 0">
+                                                    {{vm.doRoundOff(inventory.tax * inventory.qty)}}
                                                 </td>
                                                 <td md-cell>
-                                                    <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
-                                                    <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{inventory.total}}</span>
+                                                    <span ng-if="vm.IsInventoryTotalEditable()"><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
+                                                    <span ng-if="vm.IsInventoryTotalText()">{{vm.doRoundOff(inventory.total)}}</span>
                                                 </td>
                                             </tr>
                                             <tr md-row>
                                                 <td md-cell>
-                                                    <md-autocomplete id="new-inventory-name" md-search-text="vm.inventory.name" md-items="inventory in vm.inventoryQuerySearch()" md-item-text="inventory.name" placeholder="Enter Part Name" md-selected-item-change="vm.updateInventoryDetails()"
-                                                        md-search-text-change="vm.convertInToTitleCase()">
+                                                    <md-autocomplete id="new-inventory-name" md-search-text="vm.inventory.name" md-items="inventory in vm.inventoryQuerySearch()" md-item-text="inventory.name" placeholder="Enter Part Name" md-selected-item-change="vm.updateInventoryDetails()" md-search-text-change="vm.convertInToTitleCase()">
                                                         <md-item-template>
                                                             <span md-highlight-text="vm.inventory.name">{{inventory.name}}</span>
                                                         </md-item-template>
                                                     </md-autocomplete>
                                                 </td>
                                                 <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    <span ng-if="vm.vatSettings.inclusive"><input type="number" ng-model="vm.inventory.amount" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Rate" class="am-table-input" style="width: 97%"></span>
-                                                    <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewInventory()" ng-model="vm.inventory.rate" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Rate" class="am-table-input" style="width: 97%"></span>
+                                                    <span ng-if="vm.vatSettings.inclusive"><input type="number" ng-model="vm.inventory.amount" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Rate" class="am-box-input md-whiteframe-z1" style="width: 90%"></span>
+                                                    <span ng-if="!vm.vatSettings.inclusive"><input type="number" ng-blur="vm.finalizeNewInventory()" ng-model="vm.inventory.rate" ng-change="vm.changeInventoryRate(vm.inventory)" placeholder="Rate" class="am-box-input md-whiteframe-z1" style="width: 90%"></span>
                                                 </td>
                                                 <td md-cell ng-if="!vm.vatSettings.applyTax">
-                                                    <input type="number" ng-model="vm.inventory.rate" ng-change="vm.changeQty(vm.inventory)" placeholder="Rate" class="am-table-input" style="width: 97%">
+                                                    <input type="number" ng-model="vm.inventory.rate" ng-change="vm.changeQty(vm.inventory)" placeholder="Rate" class="am-box-input md-whiteframe-z1" style="width: 90%">
                                                 </td>
                                                 <td md-cell>
-                                                    <input type="number" ng-model="vm.inventory.qty" ng-change="vm.changeQty(vm.inventory)" placeholder="Qty" class="am-table-input" style="width: 97%">
+                                                    <input type="number" ng-model="vm.inventory.qty" ng-change="vm.changeQty(vm.inventory)" placeholder="Qty" class="am-box-input md-whiteframe-z1" style="width: 90%">
                                                 </td>
-                                                <td md-cell ng-if="vm.vatSettings.applyTax">
-                                                    {{vm.inventory.tax * (vm.inventory.qty ? vm.inventory.qty : 1) | number: 2}}
+                                                <td md-cell ng-if="vm.vatSettings.applyTax" style="padding: 0">
+                                                    {{vm.doRoundOff(vm.inventory.tax * vm.inventory.qty)}}
                                                 </td>
                                                 <td md-cell>
-                                                    <span ng-if="vm.vatSettings.inclusive || !vm.vatSettings.applyTax"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-table-input" style="width: 97%; text-align: right"></span>
-                                                    <span ng-if="!vm.vatSettings.inclusive && vm.vatSettings.applyTax">{{vm.inventory.total}}</span>
+                                                    <span ng-if="vm.IsInventoryTotalEditable()"><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
+                                                    <span ng-if="vm.IsInventoryTotalText()">{{vm.doRoundOff(vm.inventory.total)}}</span>
                                                 </td>
                                             </tr>
                                         </tbody>
-                                        <tfoot md-foot>
-                                            <tr md-row>
-                                                <td md-cell style="border: 0"></td>
-                                                <td md-cell style="border: 0">
-                                                    <md-button ng-click="vm.finalizeNewInventory(true)">
-                                                        <md-icon>add</md-icon>
-                                                        <span layout-padding>Add More</span>
-                                                    </md-button>
-                                                </td>
-                                            </tr>
-                                        </tfoot>
                                     </table>
                                 </md-table-container>
-                            </md-content>
+                            </div>
+                        </md-content>
+                    </div>
+                    <md-divider style="margin: 0 0.4rem 0 0.4rem;"></md-divider>
+                    <div layout="column" layout-align="start">
+                        <div class="am-toolbar-strip am-tab-margin" layout="column">
+                            <div layout="row" layout-align="start center" style="margin-bottom: 0.6rem">
+                                <md-datepicker class="md-hue-1" ng-model="vm.service.date" md-placeholder="Enter Date" style="margin: 0 0 0 -0.7rem; padding-right: 0" md-open-on-focus></md-datepicker>
+                                <span style="font-size: 10pt; padding-top: 2px">{{vm.getDate(vm.service.date)}}</span>
+                            </div>
+                            <span><md-checkbox aria-label="Payment" ng-model="vm.servicestatus" flex="33" flex-xs><span class="md-body-1">Payment</span></md-checkbox>
+                            </span>
+                            <span><md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="33" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox>
+                            <span ng-show="vm.sTaxSettings.applyTax">:&nbsp;<input type="number" ng-change="vm.changeServiceTax()" ng-model="vm.sTaxSettings.tax" class="am-discount-inline-input" style="width: 44px;">&nbsp;<span style="font-size: small">%</span></span>
+                            </span>
+                            <span><md-checkbox ng-if="vm.orgApplyVat" aria-label="VAT" ng-model="vm.vatSettings.applyTax" ng-change="vm.changeVat()" flex="33" flex-xs><span class="md-body-1">VAT</span></md-checkbox>
+                            <span ng-show="vm.vatSettings.applyTax">:&nbsp;<input type="number" ng-change="vm.changeVat()" ng-model="vm.vatSettings.tax" class="am-discount-inline-input" style="width: 44px;">&nbsp;<span style="font-size: small">%</span></span>
+                            </span>
+                            <span><md-checkbox aria-label="Round Off Amount" ng-model="vm.isRoundOffVal" ng-change="vm.calculateRoundOff(false)" flex="33" flex-xs><span class="md-body-1">Round Off</span></md-checkbox>
+                            </span>
+                            <span>
+                <md-checkbox aria-label="Apply Discount" ng-model="vm.isDiscountApplied" ng-change="vm.calculateCost()"><span class="md-body-1">Discount</span></md-checkbox>
+                            <span ng-show="vm.isDiscountApplied">:&nbsp;<input type="number" ng-change="vm.calculateDiscount(true)" ng-model="vm.discountPercentage" class="am-discount-inline-input" style="width: 32px;">&nbsp;<span style="font-size: small">%</span></span>
+                            </span>
                         </div>
-                        <md-divider style="margin: 0 0.4rem 0 0.4rem;"></md-divider>
-                        <div layout="column" layout-align="start">
-                            <div class="am-toolbar-strip am-tab-margin" layout="column">
-                                <span><md-checkbox aria-label="Payment Receieved" ng-model="vm.servicestatus" flex="33" flex-xs><span class="md-body-1">Payment Received</span></md-checkbox></span>
-                                <span><md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="33" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox></span>
-                                <span><md-checkbox ng-if="vm.orgApplyVat" aria-label="VAT" ng-model="vm.vatSettings.applyTax" ng-change="vm.changeVat()" flex="33" flex-xs><span class="md-body-1">VAT</span></md-checkbox></span>
-                                <span><md-checkbox aria-label="Round Off Amount" ng-model="vm.isRoundOffVal" ng-change="vm.calculateCost(undefined, false)" flex="33" flex-xs><span class="md-body-1">Round Off</span></md-checkbox></span>
-                                <span>
-                                    <md-checkbox aria-label="Apply Discount" ng-model="vm.isDiscountApplied" ng-change="vm.calculateCost()"><span class="md-body-1">Discount</span></md-checkbox>
-                                    <span ng-show="vm.isDiscountApplied">:&nbsp;<input type="text" ng-change="vm.calculateCost(true)" ng-model="vm.discountPercentage" class="am-discount-inline-input" style="width: 32px;">&nbsp;<span style="font-size: small">%</span></span>
-                                </span>
-                            </div>
-                            <div flex></div>
-                            <div layout="column" class="am-toolbar-strip">
-                                <span ng-if="vm.sTaxSettings.applyTax" layout="row"><span class="md-body-2">Service Tax:&nbsp;</span><span flex></span><span>Rs. {{vm.calculateTax()}}</span></span>
-                                <span ng-if="vm.sTaxSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
-                                <span ng-if="vm.vatSettings.applyTax" layout="row"><span class="md-body-2">VAT:&nbsp;</span><span flex></span><span>Rs. {{vm.calculateVat()}}</span></span>
-                                <span ng-if="vm.vatSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
-                                <span ng-if="vm.isDiscountApplied" layout="row"><span class="md-body-2">Discount:&nbsp;</span><span flex></span><span>Rs. <input type="text" ng-change="vm.calculateCost(false)" ng-model="vm.discountValue" class="am-discount-inline-input" style="text-align: right"></span></span>
-                                <span ng-if="vm.isDiscountApplied" style="line-height: 0.5rem">&nbsp;</span>
-                                <span ng-if="vm.isRoundOffVal" layout="row"><span class="md-body-2">Round Off:&nbsp;</span><span flex></span><span>Rs. <input type="text" ng-change="vm.calculateCost(undefined, true)" ng-model="vm.roundedOffVal" class="am-discount-inline-input" style="text-align: right"></span></span>
-                                <span ng-if="vm.isRoundOffVal" style="line-height: 0.5rem">&nbsp;</span>
-                                <span layout="row" layout-align="end end"><span class="md-body-2">Total Cost:&nbsp;</span><span flex></span><span>Rs.&nbsp<span ng-if="vm.isRoundOffVal"><input type="text" ng-focus="vm.changeForceStopCalCost(true)" ng-blur="vm.changeForceStopCalCost(false)" ng-change="vm.populateRoundOffVal()" ng-model="vm.service.cost" class="am-discount-inline-input" style="width: 74px; text-align: right; font-size: x-large; color: #000"></span><span ng-if="!vm.isRoundOffVal" style="font-size: x-large">{{vm.service.cost}}</span> </span></span>
-                            </div>
-                            <md-divider class="am-tab-margin"></md-divider>
-                            <div layout="row" class="am-tab-margin">
-                                <md-button class="md-raised md-warn" ng-click="vm.save()">
-                                    <md-icon>done</md-icon>
-                                    <span layout-padding>Save</span>
-                                </md-button>
-                                <md-button class="md-raised md-accent" ng-click="vm.save(vm.redirect.invoice)" ng-if="!isAutomintLocked">
-                                    <md-icon>receipt</md-icon>
-                                    <span layout-padding>Invoice</span>
-                                </md-button>
-                            </div>
+                        <div flex></div>
+                        <div layout="column" class="am-toolbar-strip">
+                            <span ng-if="vm.IsSubtotalEnabled()" layout="row"><span class="md-body-2">Subtotal:&nbsp</span><span flex></span><span>Rs. {{vm.calculateSubtotal()}}</span></span>
+                            <span ng-if="vm.IsSubtotalEnabled()" style="line-height: 0.5rem">&nbsp;</span>
+                            <span ng-if="vm.sTaxSettings.applyTax" layout="row"><span class="md-body-2">Service Tax:&nbsp;</span><span flex></span><span>Rs. {{vm.calculateTax()}}</span></span>
+                            <span ng-if="vm.sTaxSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
+                            <span ng-if="vm.vatSettings.applyTax" layout="row"><span class="md-body-2">VAT:&nbsp;</span><span flex></span><span>Rs. {{vm.calculateVat()}}</span></span>
+                            <span ng-if="vm.vatSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
+                            <span ng-if="vm.isDiscountApplied" layout="row"><span class="md-body-2">Discount:&nbsp;</span><span flex></span><span>Rs. <input type="text" ng-change="vm.calculateDiscount(false)" ng-model="vm.discountValue" class="am-discount-inline-input" style="text-align: right"></span></span>
+                            <span ng-if="vm.isDiscountApplied" style="line-height: 0.5rem">&nbsp;</span>
+                            <span ng-if="vm.isRoundOffVal" layout="row"><span class="md-body-2">Round Off:&nbsp;</span><span flex></span><span>Rs. <input type="text" ng-change="vm.calculateRoundOff(true)" ng-model="vm.roundedOffVal" class="am-discount-inline-input" style="text-align: right"></span></span>
+                            <span ng-if="vm.isRoundOffVal" style="line-height: 0.5rem">&nbsp;</span>
+                            <span layout="row" layout-align="end end"><span class="md-body-2">Total Cost:&nbsp;</span><span flex></span><span>Rs.&nbsp<span ng-if="vm.isRoD()"><input type="number" ng-focus="vm.changeForceStopCalCost(true)" ng-blur="vm.changeForceStopCalCost(false)" ng-change="vm.populateRoD()" ng-model="vm.service.cost" class="am-discount-inline-input" style="width: 74px; text-align: right; font-size: x-large; color: #000"></span><span ng-if="!vm.isRoD()" style="font-size: x-large">{{vm.service.cost}}</span></span></span>
+                        </div>
+                        <md-divider class="am-tab-margin"></md-divider>
+                        <div layout="row" class="am-tab-margin">
+                            <md-button class="md-raised md-warn" ng-click="vm.save()">
+                                <md-icon>done</md-icon>
+                                <span layout-margin>Save</span>
+                                <md-tooltip md-direction="top">Save Service</md-tooltip>
+                            </md-button>
+                            <md-button class="md-raised md-accent" style="width: 110px" ng-click="vm.save(vm.redirect.invoice)" ng-if="!isAutomintLocked">
+                                <md-icon>receipt</md-icon>
+                                <span layout-margin>{{vm.label_invoice}}</span>
+                                <md-tooltip md-direction="top">View Invoice</md-tooltip>
+                            </md-button>
                         </div>
                     </div>
                 </div>
-            </md-content>
-        </md-tab>
-    </md-tabs>
+            </div>
+        </md-item-content>
+    </md-item>
 </md-content>

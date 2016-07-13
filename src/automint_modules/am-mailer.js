@@ -45,7 +45,7 @@
             html: emailTemplate
         }, function(err, email) {
             if (err) {
-                console.log(err);
+                console.warn(err);
                 return;
             }
             

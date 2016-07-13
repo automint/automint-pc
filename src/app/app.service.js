@@ -2,7 +2,7 @@
  * Closure for root level service
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -49,7 +49,7 @@
             pdbCache.setDatabase(constants.pdb_cache);
 
             //  check and create views
-            ccViews();
+            manageDbVersions().then(ccViews).catch(ccViews);
 
             //  listen to changes in local db
             OnCustomerDbChanged();
@@ -58,6 +58,91 @@
             //  setup server iteraction
             // oneWayReplication();
             // syncDb();
+        }
+
+        function manageDbVersions() {
+            var tracker = $q.defer();
+            isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get(sVm.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
+            }
+
+            function getSettingsObject(res) {
+                if (!res.dbversion)
+                    res.dbversion = 0;
+                switch (res.dbversion) {
+                    case 0:
+                        applyPatch1().then(proceed).catch(proceed);
+                        break;
+                }
+
+                function proceed(res) {
+                    res.dbversion = constants.db_version;
+                    pdbConfig.save(res).then(success).catch(failure);
+                }
+            }
+
+            function writeSettingsObject(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: sVm.username,
+                    dbversion: constants.db_version
+                }
+                applyPatch1().then(proceed).catch(proceed);
+
+                function proceed(res) {
+                    pdbConfig.save(doc).then(success).catch(failure);
+                }
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function applyPatch1() {
+            var tracker = $q.defer();
+            pdbCustomers.getAll().then(success).catch(failure);
+            return tracker.promise;
+
+            function success(res) {
+                var customers = [];
+                res.rows.forEach(iterateRows);
+                pdbCustomers.saveAll(customers).then(saveSuccess).catch(failure);
+
+                function iterateRows(row) {
+                    if (row.doc && row.doc.user && row.doc.user.vehicles) {
+                        Object.keys(row.doc.user.vehicles).forEach(iterateVehicles);
+                        customers.push(row.doc);
+                    }
+
+                    function iterateVehicles(vId) {
+                        if (row.doc.user.vehicles[vId].services)
+                            Object.keys(row.doc.user.vehicles[vId].services).forEach(iterateServices);
+
+                        function iterateServices(sId) {
+                            if (row.doc.user.vehicles[vId].services[sId].status == 'billed')
+                                row.doc.user.vehicles[vId].services[sId].status = 'due';
+                            if (row.doc.user.vehicles[vId].services[sId].state == undefined || row.doc.user.vehicles[vId].services[sId].state == '')
+                                row.doc.user.vehicles[vId].services[sId].state = 'Bill';
+                        }
+                    }
+                }
+            }
+
+            function saveSuccess(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
         }
 
         function ccViews(force) {
@@ -105,9 +190,11 @@
                                     vhcl_reg: vehicle.reg,
                                     vhcl_manuf: vehicle.manuf,
                                     vhcl_model: vehicle.model,
+                                    vhcl_nextdue: vehicle.nextdue,
                                     srvc_date: service.date,
                                     srvc_cost: service.cost,
-                                    srvc_status: service.status
+                                    srvc_status: service.status,
+                                    srvc_state: service.state
                                 };
                             }
                         }
@@ -116,7 +203,7 @@
             }
 
             function failure(err) {
-                console.log(err);
+                console.warn(err);
             }
         }
 
@@ -190,9 +277,11 @@
                                     vhcl_reg: vehicle.reg,
                                     vhcl_manuf: vehicle.manuf,
                                     vhcl_model: vehicle.model,
+                                    vhcl_nextdue: vehicle.nextdue,
                                     srvc_date: service.date,
                                     srvc_cost: service.cost,
-                                    srvc_status: service.status
+                                    srvc_status: service.status,
+                                    srvc_state: service.state
                                 };
                             }
                         }

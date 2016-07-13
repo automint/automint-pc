@@ -2,7 +2,7 @@
  * Factory that handles database interactions between services database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .factory('amServices', ServicesFactory);
 
-    ServicesFactory.$inject = ['$http', '$timeout', '$q', '$log', 'utils', '$amRoot', 'constants', 'pdbCustomers', 'pdbCommon', 'pdbConfig', 'pdbCache'];
+    ServicesFactory.$inject = ['$http', '$timeout', '$q', '$log', '$filter', 'utils', '$amRoot', 'constants', 'pdbCustomers', 'pdbCommon', 'pdbConfig', 'pdbCache'];
 
-    function ServicesFactory($http, $timeout, $q, $log, utils, $amRoot, constants, pdbCustomers, pdbCommon, pdbConfig, pdbCache) {
+    function ServicesFactory($http, $timeout, $q, $log, $filter, utils, $amRoot, constants, pdbCustomers, pdbCommon, pdbConfig, pdbCache) {
         //  initialize factory variable and function maps
         var factory = {
             getManufacturers: getManufacturers,
@@ -34,12 +34,69 @@
             getServices: getServices,
             getInventories: getInventories,
             getVatSettings: getVatSettings,
-            getInventoriesSettings: getInventoriesSettings
+            getInventoriesSettings: getInventoriesSettings,
+            getLastEstimateNo : getLastEstimateNo,
+            getLastJobCardNo: getLastJobCardNo,
+            getDefaultServiceType: getDefaultServiceType,
+            getFilterMonths: getFilterMonths
         }
 
         return factory;
 
         //  function definitions
+
+        function getFilterMonths() {
+            var tracker = $q.defer();
+            pdbCache.get(constants.pdb_cache_views.view_services).then(generateMonthsUsed).catch(failure);
+            return tracker.promise;
+
+            function generateMonthsUsed(res) {
+                var result = [];
+                Object.keys(res).forEach(iterateDateRange);
+                tracker.resolve(result);
+
+                function iterateDateRange(dr) {
+                    if (dr.match(/_id|_rev/g))
+                        return;
+                    var temp = dr.split('-');
+                    result.push({
+                        month: utils.convertToTitleCase(temp[0]),
+                        year: temp[1]
+                    });
+                }
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function getDefaultServiceType() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.servicestate)
+                    tracker.resolve(res.settings.servicestate);
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'Could not find service state'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
 
         function getInventoriesSettings() {
             var tracker = $q.defer();
@@ -294,48 +351,37 @@
             }
         }
         
-        function getServices(filterMonth, filterYear, query) {
+        function getServices(dateRange, query) {
             query = angular.lowercase(query);
-            filterMonth += (12*filterYear);
             var tracker = $q.defer();
             pdbCache.get(constants.pdb_cache_views.view_services).then(success).catch(failure);
             return tracker.promise;
             
             function success(res) {
-                var result = [], ltm = filterMonth, currentRange = '';
-                if (filterMonth < 0 && filterYear < 0) {
-                    Object.keys(res).forEach(iterateDateRange);
-                    
-                    function iterateDateRange(dr) {
-                        currentRange = dr;
-                        if (currentRange.match(/_id|_rev/g))
-                            return;
-                        if (res[currentRange])
-                            Object.keys(res[currentRange]).forEach(iterateService);
-                    }
-                } else {
-                    do {
-                        var queryDate = moment().subtract({
-                            months: ltm
-                        });
-                        currentRange = moment(queryDate).format('MMM YYYY');
-                        currentRange = angular.lowercase(currentRange).replace(' ', '-');
-                        if (res[currentRange])
-                            Object.keys(res[currentRange]).forEach(iterateService);
-                        ltm--;
-                    } while(ltm >= 0);
-                }
-                result.sort(dateSort);
+                var result = [], currentRange = '';
+                Object.keys(res).forEach(iterateDateRange);
                 tracker.resolve(result);
-                
-                function dateSort(lhs, rhs) {
-                    return rhs.srvc_date.localeCompare(lhs.srvc_date);
+
+                function iterateDateRange(dr) {
+                    if (dr.match(/_id|_rev/g))
+                        return;
+                    var crd = dr.split('-');
+                    var crdfound = $filter('filter')(dateRange, {
+                        month: utils.convertToTitleCase(crd[0]),
+                        year: crd[1]
+                    }, true);
+
+                    if (crdfound.length == 0)
+                        return;
+                    currentRange = dr;
+                    if (res[currentRange])
+                        Object.keys(res[currentRange]).forEach(iterateService);
                 }
                 
                 function iterateService(sId) {
                     var target = res[currentRange][sId];
                     if (query != undefined) {
-                        if (query != undefined && (target.cstmr_name && angular.lowercase(target.cstmr_name).search(query) > -1) || (target.srvc_status && angular.lowercase(target.srvc_status).search(query) > -1) || (target.vhcl_manuf && angular.lowercase(target.vhcl_manuf).search(query) > -1) || (target.vhcl_model && angular.lowercase(target.vhcl_model).search(query) > -1) || (target.vhcl_reg && angular.lowercase(target.vhcl_reg).search(query) > -1) || (target.srvc_cost && target.srvc_cost.toString().search(query) > -1) || (target.srvc_date && angular.lowercase(target.srvc_date).search(query) > -1)) {
+                        if (query != undefined && (target.cstmr_name && angular.lowercase(target.cstmr_name).search(query) > -1) || (target.srvc_state && angular.lowercase(target.srvc_state).search(query) > -1) || (target.srvc_status && angular.lowercase(target.srvc_status).search(query) > -1) || (target.vhcl_manuf && angular.lowercase(target.vhcl_manuf).search(query) > -1) || (target.vhcl_model && angular.lowercase(target.vhcl_model).search(query) > -1) || (target.vhcl_reg && angular.lowercase(target.vhcl_reg).search(query) > -1) || (target.srvc_cost && target.srvc_cost.toString().search(query) > -1) || (target.srvc_date && angular.lowercase(target.srvc_date).search(query) > -1)) {
                             target.srvc_status = utils.convertToTitleCase(target.srvc_status);
                             target.srvc_id = sId;
                             result.push(target);
@@ -348,6 +394,7 @@
                 }
             }
             function failure(err) {
+                console.log(err);
                 tracker.reject(err);
             }
         }
@@ -522,7 +569,8 @@
                         manuf: vehicle.manuf,
                         model: vehicle.model,
                         name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg),
-                        type: (vehicle.type) ? vehicle.type : ''
+                        type: (vehicle.type) ? vehicle.type : '',
+                        nextdue: vehicle.nextdue
                     });
                 }
             }
@@ -571,7 +619,8 @@
                         manuf: vehicle.manuf,
                         model: vehicle.model,
                         name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' || vehicle.reg == undefined ? '' : ', ' + vehicle.reg),
-                        type: (vehicle.type) ? vehicle.type : ''
+                        type: (vehicle.type) ? vehicle.type : '',
+                        nextdue: vehicle.nextdue
                     });
                 }
             }
@@ -623,8 +672,14 @@
             delete newService.id;
             delete newVehicle.id;
             delete newUser.id;
-            if (options && options.isLastInvoiceNoChanged)
-                saveLastInvoiceNo(newService.invoiceno);
+            if (options) {
+                if (newService.invoiceno && options.isLastInvoiceNoChanged)
+                    saveLastInvoiceNo(newService.invoiceno);
+                if (newService.estimateno && options.isLastEstimateNoChanged)
+                    saveLastEstimateNo(newService.estimateno);
+                if (newService.jobcardno && options.isLastJobCardNoChanged)
+                    saveLastJobCardNo(newService.jobcardno);
+            }
             
             pdbCustomers.get(newUserId).then(foundExistingUser).catch(noUserFound);
             return tracker.promise;
@@ -650,6 +705,8 @@
                 }
 
                 function iterateVehicleFields(vfn) {
+                    if (newVehicle[vfn] == undefined)
+                        delete res.user.vehicles[newVehicleId][vfn];
                     res.user.vehicles[newVehicleId][vfn] = newVehicle[vfn];
                 }
             }
@@ -823,6 +880,60 @@
                 tracker.reject(error);
             }
         }
+
+        function getLastJobCardNo() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.invoices && res.settings.invoices.lastJobCardNo)
+                    tracker.resolve(res.settings.invoices.lastJobCardNo);
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'No invoice settings found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
+
+        function getLastEstimateNo() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.invoices && res.settings.invoices.lastEstimateNo)
+                    tracker.resolve(res.settings.invoices.lastEstimateNo);
+                else
+                    faillure();
+            }
+
+            function failure(err) {
+                if (!err) {
+                    err = {
+                        success: false,
+                        message: 'No invoice settings found!'
+                    }
+                }
+                tracker.reject(err);
+            }
+        }
         
         //  get last invoice number
         function getLastInvoiceNo() {
@@ -884,6 +995,74 @@
             
             function failure(err) {
                 $log.info('Cannot save invoice settings');
+            }
+        }
+
+        function saveLastEstimateNo(leno) {
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
+            }
+
+            function getSettingsObject(res) {
+                if (!res.settings)
+                    res.settings = {};
+                if (!res.settings.invoices)
+                    res.settings.invoices = {};
+                res.settings.invoices.lastEstimateNo = leno;
+                pdbConfig.save(res);
+            }
+
+            function writeSettingsObject(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    settings: {
+                        invoices: {
+                            lastEstimateNo: 1
+                        }
+                    }
+                }
+                pdbConfig.save(doc);
+            }
+
+            function failure(err) {
+                $log.info('Cannot save estimate settings');
+            }
+        }
+
+        function saveLastJobCardNo(ljbno) {
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
+            }
+
+            function getSettingsObject(res) {
+                if (!res.settings)
+                    res.settings = {};
+                if (!res.settings.invoices)
+                    res.settings.invoices = {};
+                res.settings.invoices.lastJobCardNo = ljbno;
+                pdbConfig.save(res);
+            }
+
+            function writeSettingsObject(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    settings: {
+                        invoices: {
+                            lastJobCardNo: 1
+                        }
+                    }
+                }
+                pdbConfig.save(doc);
+            }
+
+            function failure(err) {
+                $log.info('Cannot save jobcard settings');
             }
         }
     }

@@ -2,7 +2,7 @@
  * Closure for root level controllers
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.6.4
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -40,7 +40,7 @@
         }
 
         function gps(res) {
-            if (res.enabled == false) {
+            if (!res || res.enabled == false) {
                 unlock();
                 skip = true;
                 return;
@@ -83,11 +83,12 @@
         }
 
         function openHelpWindow() {
-            console.log(ammHelp);
             ammHelp.openHelpWindow();
         }
 
         function gps(res) {
+            if (res == undefined)
+                return;
             $rootScope.isPasscodeEnabled = res.enabled;
         }
 
