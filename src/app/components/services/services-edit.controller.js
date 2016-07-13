@@ -185,6 +185,7 @@
         vm.IsServiceStateJc = IsServiceStateJc;
         vm.IsServiceStateEs = IsServiceStateEs;
         vm.IsServiceStateIv = IsServiceStateIv;
+        vm.getDate = getDate;
 
         //  default execution steps
         setCoverPic();
@@ -198,6 +199,10 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function getDate(date) {
+            return moment(date).format('DD MMM YYYY');
+        }
 
         function IsServiceStateIv(state) {
             if (!IsServiceStateSelected(state))
