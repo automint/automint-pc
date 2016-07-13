@@ -80,7 +80,7 @@
         vm.ddTimeSet = '';
         vm.displayIncome = false;
         vm.nextServiceDueCustomers = [];
-        vm.nsdcTimeRange = ['Today', 'This Week', 'This Month'];
+        vm.nsdcTimeRange = ['Today', 'This Week', 'This Month', 'All'];
         vm.nsdcTime = vm.nsdcTimeRange[0];
 
         //  function maps

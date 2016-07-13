@@ -104,7 +104,7 @@
                     Object.keys(res[dr]).forEach(iterateService);
 
                     function iterateService(sId) {
-	                    if (res[dr][sId].vhcl_nextdue && (moment(res[dr][sId].vhcl_nextdue).format(dateFormat).localeCompare(startdate) >= 0) && (moment(res[dr][sId].vhcl_nextdue).format(dateFormat).localeCompare(enddate) <= 0)) {
+	                    if (res[dr][sId].vhcl_nextdue && ((dateRange == 'All') || ((moment(res[dr][sId].vhcl_nextdue).format(dateFormat).localeCompare(startdate) >= 0) && (moment(res[dr][sId].vhcl_nextdue).format(dateFormat).localeCompare(enddate) <= 0)))) {
                             var cfound = $filter('filter')(result, {
                                 cstmr_id: res[dr][sId].cstmr_id
                             }, true);
