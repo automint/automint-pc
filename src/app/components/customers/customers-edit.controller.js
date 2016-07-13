@@ -91,6 +91,7 @@
         vm.IsServiceStateIv = IsServiceStateIv;
         vm.IsServiceStateEs = IsServiceStateEs;
         vm.IsServiceStateJc = IsServiceStateJc;
+        vm.getDate = getDate;
 
         //  default execution steps
         if ($state.params.id != undefined) {
@@ -112,6 +113,10 @@
         }
 
         //  function definitions
+
+        function getDate(date) {
+            return moment(date).format('DD MMM YYYY');
+        }
 
         function IsServiceStateIv(state) {
             return (state == vm.serviceStateList[2]);

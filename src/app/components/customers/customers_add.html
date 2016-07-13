@@ -1,6 +1,14 @@
 <style>
+    .md-datepicker-button {
+        margin: 0 !important;
+    }
+
     .md-datepicker-input-container {
-        margin-left: 0;
+        margin-left: 0 !important;
+    }
+
+    .md-datepicker-input-container .md-datepicker-input, .md-datepicker-triangle-button {
+        display: none;
     }
 </style>
 <md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
@@ -108,7 +116,10 @@
                         </md-input-container>
                         <div layout="row" layout-align="start center">
                             <md-checkbox aria-label="Next Due" ng-model="vm.isNextDueService" style="margin-bottom: 0"><span class="md-body-2">Next Service Reminder<span ng-show="vm.isNextDueService" class="md-caption">:</span></span></md-checkbox>
-                            <md-datepicker ng-show="vm.isNextDueService" class="md-hue-1" ng-model="vm.nextDueDate" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem;" md-open-on-focus></md-datepicker>
+                            <div layout="row" layout-align="start center" ng-show="vm.isNextDueService">
+                                <md-datepicker class="md-hue-1" ng-model="vm.nextDueDate" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem; padding-right: 0" md-open-on-focus></md-datepicker>
+                                <span style="font-size: 10pt; padding-top: 2px">{{vm.getDate(vm.nextDueDate)}}</span>
+                            </div>
                         </div>
                     </div>
                 </div>

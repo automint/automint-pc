@@ -72,6 +72,7 @@
         vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
         vm.checkExistingCustomerMobile = checkExistingCustomerMobile;
         vm.unsubscribeMembership = unsubscribeMembership;
+        vm.getDate = getDate;
         
         //  default execution steps
         setTimeout(focusCustomerName, 300);
@@ -80,6 +81,10 @@
         getVehicleTypes();
 
         //  function definitions
+
+        function getDate(date) {
+            return moment(date).format('DD MMM YYYY');
+        }
 
         function unsubscribeMembership(ev, chip) {
             var confirm = $mdDialog.confirm()

@@ -149,6 +149,12 @@
     </md-content>
     <md-content layout="row" layout-xs="column">
         <md-card flex class="md-hue-1 am-box-shadow">
+            <md-card-content layout="column" style="padding: 0">
+                <div class="am-blue-bar c800" style="padding: 12px 26px;"><span class="am-card-label white">Top Treatments</span></div>
+                <div google-chart chart="vm.topTreatmentsChart" class="am-chart-no-border"></div>
+            </md-card-content>
+        </md-card>
+        <md-card flex class="md-hue-1 am-box-shadow">
             <md-card-content layout="column" style="padding: 0;" flex>
                 <div layout="row" layout-align="start center" class="am-blue-bar c800" style="padding: 2px 0 2px 26px;">
                     <span class="am-card-label white">Service Reminders</span>
@@ -187,12 +193,6 @@
                         <md-icon>more_horiz</md-icon>
                     </md-button>
                 </div>
-            </md-card-content>
-        </md-card>
-        <md-card flex class="md-hue-1 am-box-shadow">
-            <md-card-content layout="column" style="padding: 0">
-                <div class="am-blue-bar c800" style="padding: 12px 26px;"><span class="am-card-label white">Top Treatments</span></div>
-                <div google-chart chart="vm.topTreatmentsChart" class="am-chart-no-border"></div>
             </md-card-content>
         </md-card>
         <md-card flex class="md-hue-1 am-box-shadow">
