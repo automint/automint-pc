@@ -37,7 +37,8 @@
             olEstimateNo = 0,
             isInvoice = false,
             isEstimate = false,
-            isJobCard = false;
+            isJobCard = false,
+            wasNextDueService = false;
 
         //  vm assignments to keep track of UI related elements
         vm.vehicleTypeList = [];
@@ -1185,10 +1186,13 @@
                 vm.service.id = $state.params.serviceId;
                 vm.service.date = new Date(res.vehicle.service.date);
                 if (res.vehicle.nextdue && (res.vehicle.nextdue.localeCompare(moment().format()) > 0)) {
+                    wasNextDueService = true;
                     vm.isNextDueService = true;
                     vm.nextDueDate = new Date(res.vehicle.nextdue);
-                } else
+                } else {
+                    wasNextDueService = false;
                     vm.isNextDueService = false;
+                }
                 vm.service.cost = res.vehicle.service.cost;
                 vm.service.odo = res.vehicle.service.odo;
                 vm.service.status = res.vehicle.service.status;
@@ -1705,6 +1709,8 @@
             vm.service.date = moment(vm.service.date).format();
             if (vm.isNextDueService)
                 vm.vehicle.nextdue = moment(vm.nextDueDate).format();
+            else if (wasNextDueService)
+                vm.vehicle.nextdue = undefined;
             vm.service.problems.forEach(iterateProblems);
             if (vm.isDiscountApplied) {
                 vm.service['discount'] = {

@@ -17,7 +17,7 @@
     function DashboardController($state, $filter, $log, $mdDialog, $amRoot, utils, amDashboard) {
         //  initialize view model
         var vm = this;
-        var ubServices = [], nwCustomers = [], filterRange = [];;
+        var ubServices = [], nwCustomers = [], filterRange = [], isNextDueServicesOpened = false;
 
         //  named assignments to keep track of UI
         vm.totalCustomersServed = 0;
@@ -95,6 +95,7 @@
         vm.getNextDueVehicle = getNextDueVehicle;
         vm.IsNextDueFieldLong = IsNextDueFieldLong;
         vm.openNextDueServices = openNextDueServices;
+        vm.IsNoNextDueReminders = IsNoNextDueReminders;
 
         //  default execution steps
         initCurrentTimeSet();
@@ -103,6 +104,10 @@
         processPreferences();
 
         //  function definitions
+
+        function IsNoNextDueReminders() {
+            return (vm.nextServiceDueCustomers.length == 0);
+        }
 
         function openNextDueServices() {
             $mdDialog.show({
@@ -155,6 +160,10 @@
 
         function generateNdcData(res) {
             vm.nextServiceDueCustomers = res;
+            if (isNextDueServicesOpened) {
+                openNextDueServices();
+                isNextDueServicesOpened = false;
+            }
         }
 
         function processPreferences() {
@@ -162,6 +171,8 @@
             ammPreferences.getAllPreferences('dashboard').then(processDashboard).catch(failure);
 
             function processDashboard(res) {
+                if ($state.params.openDialog == 'nextdueservices')
+	                isNextDueServicesOpened = true;
                 if (res['dashboard.serviceReminders']) {
                     vm.nsdcTime = res['dashboard.serviceReminders'];
                 }

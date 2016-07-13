@@ -19,12 +19,52 @@
             getNewCustomers: getNewCustomers,
             getProblemsAndVehicleTypes: getProblemsAndVehicleTypes,
             getFilterMonths: getFilterMonths,
-            getNextDueCustomers: getNextDueCustomers
+            getNextDueCustomers: getNextDueCustomers,
+            deleteServiceReminder: deleteServiceReminder,
+            changeServiceReminderDate: changeServiceReminderDate
         }
         
         return factory;
         
         //  function definitions
+
+        function changeServiceReminderDate(cId, vId, nextdue) {
+            var tracker = $q.defer();
+            pdbCustomers.get(cId).then(getCustomerDoc).catch(failure);
+            return tracker.promise;
+
+            function getCustomerDoc(res) {
+                res.user.vehicles[vId].nextdue = nextdue;
+                pdbCustomers.save(res).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function deleteServiceReminder(cId, vId) {
+            var tracker = $q.defer();
+            pdbCustomers.get(cId).then(getCustomerDoc).catch(failure);
+            return tracker.promise;
+
+            function getCustomerDoc(res) {
+                delete res.user.vehicles[vId].nextdue;
+                pdbCustomers.save(res).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function getNextDueCustomers(dateRange) {
             var tracker = $q.defer();

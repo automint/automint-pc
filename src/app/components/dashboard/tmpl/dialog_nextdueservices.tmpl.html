@@ -1,3 +1,17 @@
+<style>
+    .am-nxtdue-datepicker .md-datepicker-button {
+        display: none;
+    }
+
+    .md-datepicker-input-container {
+        border-bottom-width: 0;
+        border-bottom-style: none;
+    }
+
+    .am-select-table-row:hover .am-nxtdue-datepicker {
+        background: #ECEFF1;
+    }
+</style>
 <md-dialog aria-label="new customers" ng-cloak flex>
     <md-toolbar class="am-blue-bar c800">
         <div class="md-toolbar-tools" layout="row" layout-align="center center">
@@ -35,11 +49,18 @@
                         </tr>
                     </thead>
                     <tbody md-body>
-                        <tr md-row ng-repeat="customer in vm.customers | limitTo: vm.query.limit: (vm.query.page - 1)*(vm.query.limit)" class="am-select-table-row" style="cursor: default">
-                            <td md-cell>{{customer.cstmr_name}}</td>
-                            <td md-cell>{{customer.cstmr_mobile}}</td>
-                            <td md-cell>{{customer.vhcl_manuf + ' ' + customer.vhcl_model}}<span ng-if="customer.vhcl_reg">&nbsp;({{customer.vhcl_reg}})</span></td>
-                            <td md-cell>{{vm.getDate(customer.vhcl_nextdue)}}</td>
+                        <tr md-row ng-repeat="customer in vm.customers | limitTo: vm.query.limit: (vm.query.page - 1)*(vm.query.limit)" class="am-select-table-row">
+                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.cstmr_name}}</td>
+                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.cstmr_mobile}}</td>
+                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.vhcl_manuf + ' ' + customer.vhcl_model}}<span ng-if="customer.vhcl_reg">&nbsp;({{customer.vhcl_reg}})</span></td>
+                            <td md-cell><md-datepicker class="am-nxtdue-datepicker" ng-model="customer.vhcl_nextdue" ng-change="vm.changeDate(customer)" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem;" md-open-on-focus></md-datepicker></td>
+                            <!--<td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{vm.getDate(customer.vhcl_nextdue)}}</td>-->
+                            <td md-cell class="am-datatable-actions view-all-customers">
+                                <md-button class="md-icon-button" ng-click="vm.deleteServiceReminder(customer.cstmr_id, customer.vhcl_id, $event)">
+                                    <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
+                                    <md-tooltip>Delete Reminder</md-tooltip>
+                                </md-button>
+                            </td>
                         </tr>
                     </tbody>
                 </table>

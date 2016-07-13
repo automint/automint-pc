@@ -19,7 +19,7 @@
     DuePaymentsController.$inject = ['$state', '$mdDialog', 'unbilledServices'];
     NewCustomerController.$inject = ['$mdDialog', 'newCustomers'];
     TimeFilterController.$inject = ['$mdDialog', '$filter', 'filterRange', 'currentTimeSet'];
-    NextDueServicesController.$inject = ['$mdDialog', 'amDashboard', 'dueCustomers', 'nsdcTimeRange', 'nsdcTime'];
+    NextDueServicesController.$inject = ['$state', '$mdDialog', 'amDashboard', 'dueCustomers', 'nsdcTimeRange', 'nsdcTime'];
     
     function DuePaymentsController($state, $mdDialog, unbilledServices) {
         //  initialize view model
@@ -183,7 +183,7 @@
         }
     }
 
-    function NextDueServicesController($mdDialog, amDashboard, dueCustomers, nsdcTimeRange, nsdcTime) {
+    function NextDueServicesController($state, $mdDialog, amDashboard, dueCustomers, nsdcTimeRange, nsdcTime) {
         //  initialize view model
         var vm = this;
         
@@ -197,22 +197,71 @@
         vm.nsdcTimeRange = nsdcTimeRange
 
         //  function mappings
-        vm.customers = dueCustomers;
         vm.closeDialog = closeDialog;
         vm.getDate = getDate;
         vm.openNxtDueTimer = openNxtDueTimer;
         vm.changeNsdcTimeRange = changeNsdcTimeRange;
+        vm.editCustomer = editCustomer;
+        vm.deleteServiceReminder = deleteServiceReminder;
+        vm.changeDate = changeDate;
+
+        //  default execution steps
+        manageCustomers(dueCustomers);
         
         //  function definitions
 
+        function changeDate(customer) {
+            amDashboard.changeServiceReminderDate(customer.cstmr_id, customer.vhcl_id, moment(customer.vhcl_nextdue).format()).then(success).catch(failure);
+
+            function success(res) {
+                setTimeout(changeNsdcTimeRange, 300);
+            }
+
+            function failure(err) {
+                console.warn(err);
+            }
+        }
+
+        function manageCustomers(holder) {
+            holder.forEach(iterateCustomers);
+            vm.customers = holder;
+
+            function iterateCustomers(customer) {
+                customer.vhcl_nextdue = new Date(moment(customer.vhcl_nextdue).format("YYYY"), moment(customer.vhcl_nextdue).format("MM") - 1, moment(customer.vhcl_nextdue).format("DD"));
+            }
+        }
+
+        function deleteServiceReminder(cId, vId) {
+            amDashboard.deleteServiceReminder(cId, vId).then(success).catch(failure);
+
+            function success(res) {
+                setTimeout(changeNsdcTimeRange, 300);
+            }
+
+            function failure(err) {
+                console.warn(err);
+            }
+        }
+
+        function editCustomer(cId) {
+            $state.go('restricted.customers.edit', {
+                id: cId,
+                openTab: 'vehicle',
+                fromState: 'dashboard.nextdueservices'
+            });
+            $mdDialog.hide();
+        }
+
         function generateNdcData(res) {
-            vm.customers = res;
+            manageCustomers(res);
         }
 
         function changeNsdcTimeRange(time) {
-            vm.nsdcTime = time;
+            if (time != undefined) {
+                vm.nsdcTime = time;
+                ammPreferences.storePreference('dashboard.serviceReminders', vm.nsdcTime);
+            }
             amDashboard.getNextDueCustomers(vm.nsdcTime).then(generateNdcData).catch(failure);
-            ammPreferences.storePreference('dashboard.serviceReminders', vm.nsdcTime);
 
             function failure(err) {
                 console.warn(err);

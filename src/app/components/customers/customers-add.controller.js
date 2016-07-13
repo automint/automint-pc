@@ -44,6 +44,9 @@
         vm.membershipChips = [];
         vm.vehicleTypeList = [];
         vm.loadingBasedOnMobile = false;
+        vm.isNextDueService = false;
+        vm.nextDueDate = new Date(); 
+        vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -436,6 +439,8 @@
             vm.user.memberships = vm.membershipChips;
             if (!(vm.vehicle.reg == '' && vm.vehicle.manuf == '' && vm.vehicle.model == '')) {
                 vm.vehicle.reg = vm.vehicle.reg.replace(/\s/g, '');
+                if (vm.isNextDueService)
+                    vm.vehicle.nextdue = vm.nextDueDate;
                 amCustomers.addNewCustomer(vm.user, vm.vehicle).then(successfullSave).catch(failedSave);
             } else
                 amCustomers.addNewCustomer(vm.user).then(successfullSave).catch(failedSave);

@@ -20,7 +20,7 @@
         var vm = this;
 
         //  temporary named assignments
-        var autofillVehicle = false, isMembershipAltered = false;
+        var autofillVehicle = false;
         var userDbInstance;
 
         //  vm assignments to keep track of UI related elements
@@ -54,6 +54,9 @@
             total: 0
         };
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
+        vm.isNextDueService = false;
+        vm.nextDueDate = new Date(); 
+        vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
@@ -88,14 +91,21 @@
         vm.IsServiceStateIv = IsServiceStateIv;
         vm.IsServiceStateEs = IsServiceStateEs;
         vm.IsServiceStateJc = IsServiceStateJc;
-        
+
         //  default execution steps
         if ($state.params.id != undefined) {
             getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
-            if ($state.params.openTab == 'services')
-                changeServicesTab(true);
-            else
-                setTimeout(focusCustomerMobile, 300);
+            switch ($state.params.openTab) {
+                case 'services':
+                    changeServicesTab(true);
+                    break;
+                case 'vehicle':
+                    changeVehicleTab(true);
+                    break;
+                default:
+                    setTimeout(focusCustomerMobile, 300);
+                    break;
+            }
         } else {
             utils.showSimpleToast('Something went wrong!');
             $state.go('restricted.customers.all');
@@ -130,7 +140,7 @@
             $mdDialog.show(confirm).then(performDelete, ignoreDelete);
 
             function performDelete() {
-                OnRemoveMembershipChip();
+                console.info('membership deleted');
             }
 
             function ignoreDelete() {
@@ -217,7 +227,19 @@
         }
         
         function goBack() {
-            $state.go('restricted.customers.all');
+            var transitState = 'restricted.customers.all';
+            var transitParams = undefined;
+            if ($state.params.fromState != undefined) {
+                switch ($state.params.fromState) {
+                    case 'dashboard.nextdueservices':
+                        transitState = 'restricted.dashboard';
+                        transitParams = {
+                            openDialog: 'nextdueservices'
+                        }
+                        break;
+                }
+            }
+            $state.go(transitState, transitParams);
         }
         
         function changeMembershipTab(bool) {
@@ -242,7 +264,6 @@
             }).then(changeMembershipChip).catch(changeMembershipChip);
             
             function changeMembershipChip(obj) {
-                isMembershipAltered = true;
                 $log.info('Changes Saved');
             }
         }
@@ -303,13 +324,8 @@
                 item.checked = false;
             }
         }
-        
-        function OnRemoveMembershipChip() {
-            isMembershipAltered = true;
-        }
 
         function OnAddMembershipChip(chip) {
-            isMembershipAltered = true;
             var m = $.extend({}, chip.treatments, false);
             chip.treatments = [];
             Object.keys(m).forEach(iterateTreatments);
@@ -490,7 +506,8 @@
                         reg: vehicle.reg,
                         manuf: vehicle.manuf,
                         model: vehicle.model,
-                        name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg)
+                        name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg),
+                        nextdue: vehicle.nextdue
                     });
                     if (vehicle.services)
                         Object.keys(vehicle.services).forEach(iterateServices);
@@ -538,6 +555,10 @@
                 vm.vehicle.reg = found[0].reg;
                 vm.vehicle.manuf = found[0].manuf;
                 vm.vehicle.model = found[0].model;
+            	if (found[0].nextdue && (found[0].nextdue.localeCompare(moment().format()) > 0)) {
+                    vm.isNextDueService = true;
+                    vm.nextDueDate = new Date(found[0].nextdue);
+                }
                 changeVehicleRegLabel();
                 autofillVehicle = true;
             } else
@@ -683,11 +704,6 @@
 
         //  save to database
         function save() {
-            $log.info('same = ' + isSame());
-            if (isSame() == true) {
-                successfullSave();
-                return;
-            }
             userDbInstance.user.mobile = vm.user.mobile;
             userDbInstance.user.name = vm.user.name;
             userDbInstance.user.email = vm.user.email;
@@ -707,13 +723,20 @@
                     vehicleDbInstance.reg = vm.vehicle.reg;
                     vehicleDbInstance.manuf = vm.vehicle.manuf;
                     vehicleDbInstance.model = vm.vehicle.model;
+                    if (vm.isNextDueService)
+                        vehicleDbInstance.nextdue = vm.nextDueDate;
+                    else if (vehicleDbInstance.nextdue)
+                        delete vehicleDbInstance['nextdue'];
                 } else {
                     var prefixVehicle = 'vhcl' + ((vm.vehicle.manuf && vm.vehicle.model) ? '-' + angular.lowercase(vm.vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vm.vehicle.model).replace(' ', '-') : '');
-                    userDbInstance.user.vehicles[utils.generateUUID(prefixVehicle)] = {
+                    var vo = {
                         reg: (vm.vehicle.reg == undefined ? '' : vm.vehicle.reg),
                         manuf: (vm.vehicle.manuf == undefined ? '' : vm.vehicle.manuf),
                         model: (vm.vehicle.model == undefined ? '' : vm.vehicle.model)
-                    };
+                    }
+                    if (vm.isNextDueService)
+                        vo.nextdue = vm.nextDueDate;
+                    userDbInstance.user.vehicles[utils.generateUUID(prefixVehicle)] = vo;
                 }
             }
             

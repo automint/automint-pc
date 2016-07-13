@@ -177,6 +177,9 @@
                         </tr>
                     </tbody>
                 </table>
+                <div layout="row" layout-align="center center" ng-if="vm.IsNoNextDueReminders()">
+                    <span class="md-body-1">No Reminders {{vm.nsdcTime}}</span>
+                </div>
                 <div flex></div>
                 <div layout="row" layout-align="end center">
                     <md-button class="md-accent" style="marign: 0 8px;" ng-click="vm.openNextDueServices()">

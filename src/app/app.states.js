@@ -105,7 +105,8 @@
                 controllerAs: 'vm',
                 params: {
                     id: undefined,
-                    openTab: undefined
+                    openTab: undefined,
+                    fromState: undefined
                 },
                 resolve: {
                     deps: ['$ocLazyLoad', loadCuUIDeps]

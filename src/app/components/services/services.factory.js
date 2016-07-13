@@ -705,6 +705,8 @@
                 }
 
                 function iterateVehicleFields(vfn) {
+                    if (newVehicle[vfn] == undefined)
+                        delete res.user.vehicles[newVehicleId][vfn];
                     res.user.vehicles[newVehicleId][vfn] = newVehicle[vfn];
                 }
             }

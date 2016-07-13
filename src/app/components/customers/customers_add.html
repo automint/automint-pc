@@ -1,3 +1,8 @@
+<style>
+    .md-datepicker-input-container {
+        margin-left: 0;
+    }
+</style>
 <md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
     <md-icon aria-label="Back">arrow_back</md-icon>
     <md-tooltip md-direction="bottom">Back</md-tooltip>
@@ -101,6 +106,10 @@
                             <input type="text" class="am-vehicle-reg" ng-model="vm.vehicle.reg" ng-change="vm.convertRegToCaps()" ng-blur="vm.changeVehicleRegLabel()" ng-focus="vm.changeVehicleRegLabel(true)">
                             <div class="am-hint">e.g. <span class="spacing-1p bold-500">GJ01AB9999</span></div>
                         </md-input-container>
+                        <div layout="row" layout-align="start center">
+                            <md-checkbox aria-label="Next Due" ng-model="vm.isNextDueService" style="margin-bottom: 0"><span class="md-body-2">Next Service Reminder<span ng-show="vm.isNextDueService" class="md-caption">:</span></span></md-checkbox>
+                            <md-datepicker ng-show="vm.isNextDueService" class="md-hue-1" ng-model="vm.nextDueDate" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem;" md-open-on-focus></md-datepicker>
+                        </div>
                     </div>
                 </div>
                 <div layout="row" layout-align="end center">
