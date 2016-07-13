@@ -101,10 +101,6 @@
         max-width: 400px !important;
     }
 
-    .md-datepicker-input-container {
-        margin-left: 0;
-    }
-
     .am-jobcard-button {
         background: #FB8C00 !important;
         color: #fff !important;
@@ -118,6 +114,18 @@
     .am-invoice-button {
         background: #03A9F4 !important;
         color: #fff !important;
+    }
+
+    .md-datepicker-button {
+        margin: 0 !important;
+    }
+
+    .md-datepicker-input-container {
+        margin-left: 0 !important;
+    }
+
+    .md-datepicker-input-container .md-datepicker-input, .md-datepicker-triangle-button {
+        display: none;
     }
 </style>
 <md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
@@ -197,7 +205,10 @@
             </div>
             <div layout="column" class="am-service-input-box">
                 <md-checkbox aria-label="Payment" ng-model="vm.isNextDueService" ng-blur="!vm.isNextDueService && vm.fetchFocusItemAfterSS()" style="margin-bottom: 4px"><span class="md-body-2">Next Service Reminder<span ng-show="vm.isNextDueService" class="md-caption">:</span></span></md-checkbox>
-                <md-datepicker ng-show="vm.isNextDueService" class="md-hue-1" ng-blur="vm.fetchFocusItemAfterSS()" ng-model="vm.nextDueDate" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem;" md-open-on-focus></md-datepicker>
+                <div layout="row" layout-align="start center" ng-show="vm.isNextDueService">
+                    <md-datepicker class="md-hue-1" ng-blur="vm.fetchFocusItemAfterSS()" ng-model="vm.nextDueDate" md-placeholder="Enter Date" style="margin: 0 0 0 0.2rem; padding-right: 0" md-open-on-focus></md-datepicker>
+                    <span style="font-size: 10pt; padding-top: 4px">{{vm.getDate(vm.nextDueDate)}}</span>
+                </div>
             </div>
         </div>
     </md-content>
@@ -699,7 +710,10 @@
                     <md-divider style="margin: 0 0.4rem 0 0.4rem;"></md-divider>
                     <div layout="column" layout-align="start">
                         <div class="am-toolbar-strip am-tab-margin" layout="column">
-                            <md-datepicker class="md-hue-1" ng-model="vm.service.date" md-placeholder="Enter Date" style="margin: 0 0 0.6rem -1rem" md-open-on-focus></md-datepicker>
+                            <div layout="row" layout-align="start center" style="margin-bottom: 0.6rem">
+                                <md-datepicker class="md-hue-1" ng-model="vm.service.date" md-placeholder="Enter Date" style="margin: 0 0 0 -0.7rem; padding-right: 0" md-open-on-focus></md-datepicker>
+                                <span style="font-size: 10pt; padding-top: 2px">{{vm.getDate(vm.service.date)}}</span>
+                            </div>
                             <span><md-checkbox aria-label="Payment" ng-model="vm.servicestatus" flex="33" flex-xs><span class="md-body-1">Payment</span></md-checkbox>
                             </span>
                             <span><md-checkbox ng-if="vm.orgApplyTax" aria-label="Service Tax" ng-model="vm.sTaxSettings.applyTax" ng-change="vm.OnServiceTaxEnabledChange()" flex="33" flex-xs><span class="md-body-1">Service Tax</span></md-checkbox>

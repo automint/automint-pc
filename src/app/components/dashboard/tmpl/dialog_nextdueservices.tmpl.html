@@ -1,11 +1,14 @@
 <style>
     .am-nxtdue-datepicker .md-datepicker-button {
-        display: none;
+        margin: 0;
     }
 
     .md-datepicker-input-container {
-        border-bottom-width: 0;
-        border-bottom-style: none;
+        margin-left: 0 !important;
+    }
+
+    .md-datepicker-input-container .md-datepicker-input, .md-datepicker-triangle-button {
+        display: none;
     }
 
     .am-select-table-row:hover .am-nxtdue-datepicker {
@@ -53,8 +56,10 @@
                             <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.cstmr_name}}</td>
                             <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.cstmr_mobile}}</td>
                             <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.vhcl_manuf + ' ' + customer.vhcl_model}}<span ng-if="customer.vhcl_reg">&nbsp;({{customer.vhcl_reg}})</span></td>
-                            <td md-cell><md-datepicker class="am-nxtdue-datepicker" ng-model="customer.vhcl_nextdue" ng-change="vm.changeDate(customer)" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem;" md-open-on-focus></md-datepicker></td>
-                            <!--<td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{vm.getDate(customer.vhcl_nextdue)}}</td>-->
+                            <td md-cell>
+                                <md-datepicker class="am-nxtdue-datepicker" ng-model="customer.vhcl_nextdue" ng-change="vm.changeDate(customer)" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem; padding: 0" md-open-on-focus></md-datepicker>
+                                <span style="cursor: default">{{vm.getDate(customer.vhcl_nextdue)}}</span>
+                            </td>
                             <td md-cell class="am-datatable-actions view-all-customers">
                                 <md-button class="md-icon-button" ng-click="vm.deleteServiceReminder(customer.cstmr_id, customer.vhcl_id, $event)">
                                     <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
