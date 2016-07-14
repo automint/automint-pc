@@ -490,7 +490,7 @@
                                             </tr>
                                             <tr md-row>
                                                 <td md-cell>
-                                                    <md-autocomplete id="new-problem-details" md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.convertPbToTitleCase()">
+                                                    <md-autocomplete id="new-problem-details" md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.convertPbToTitleCase(); vm.updateTreatmentDetails()">
                                                         <md-item-template>
                                                             <span md-highlight-text="vm.problem.details">{{treatment.name}}</span>
                                                         </md-item-template>
@@ -546,7 +546,7 @@
                                             </tr>
                                             <tr md-row>
                                                 <td md-cell>
-                                                    <md-autocomplete id="new-problem-details" md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.convertPbToTitleCase()">
+                                                    <md-autocomplete id="new-problem-details" md-search-text="vm.problem.details" md-items="treatment in vm.treatmentsQuerySearch()" md-item-text="treatment.name" placeholder="Enter Treatment" md-selected-item-change="vm.updateTreatmentDetails()" md-search-text-change="vm.convertPbToTitleCase(); vm.updateTreatmentDetails()">
                                                         <md-item-template>
                                                             <span md-highlight-text="vm.problem.details">{{treatment.name}}</span>
                                                         </md-item-template>
@@ -608,7 +608,7 @@
                                             </tr>
                                             <tr md-row>
                                                 <td md-cell>
-                                                    <md-autocomplete id="new-inventory-name" md-search-text="vm.inventory.name" md-items="inventory in vm.inventoryQuerySearch()" md-item-text="inventory.name" placeholder="Enter Part Name" md-selected-item-change="vm.updateInventoryDetails()" md-search-text-change="vm.convertInToTitleCase()">
+                                                    <md-autocomplete id="new-inventory-name" md-search-text="vm.inventory.name" md-items="inventory in vm.inventoryQuerySearch()" md-item-text="inventory.name" placeholder="Enter Part Name" md-selected-item-change="vm.updateInventoryDetails()" md-search-text-change="vm.convertInToTitleCase(); vm.updateInventoryDetails()">
                                                         <md-item-template>
                                                             <span md-highlight-text="vm.inventory.name">{{inventory.name}}</span>
                                                         </md-item-template>
@@ -676,7 +676,7 @@
                                             </tr>
                                             <tr md-row>
                                                 <td md-cell>
-                                                    <md-autocomplete id="new-inventory-name" md-search-text="vm.inventory.name" md-items="inventory in vm.inventoryQuerySearch()" md-item-text="inventory.name" placeholder="Enter Part Name" md-selected-item-change="vm.updateInventoryDetails()" md-search-text-change="vm.convertInToTitleCase()">
+                                                    <md-autocomplete id="new-inventory-name" md-search-text="vm.inventory.name" md-items="inventory in vm.inventoryQuerySearch()" md-item-text="inventory.name" placeholder="Enter Part Name" md-selected-item-change="vm.updateInventoryDetails()" md-search-text-change="vm.convertInToTitleCase(); vm.updateInventoryDetails()">
                                                         <md-item-template>
                                                             <span md-highlight-text="vm.inventory.name">{{inventory.name}}</span>
                                                         </md-item-template>
