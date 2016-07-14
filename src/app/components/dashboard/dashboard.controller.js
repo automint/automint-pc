@@ -423,7 +423,7 @@
                 openDuePayments();
 
             function iterateUnbilledServices(ubs) {
-                vm.totalPendingPayments += ubs.srvc_cost;
+                vm.totalPendingPayments += parseFloat(ubs.srvc_cost);
             }
         }
 

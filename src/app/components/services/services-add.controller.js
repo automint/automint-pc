@@ -1541,8 +1541,10 @@
             if (isDiscountByPercent) {
                 vm.discountValue = totalCost * parseFloat(vm.discountPercentage) / 100;
                 vm.discountValue = (isNaN(vm.discountValue) || vm.discountValue == null) ? '' : vm.discountValue;
-            } else if (vm.discountValue != '')
+            } else if (vm.discountValue != '') {
                 vm.discountPercentage = 100 * parseFloat(vm.discountValue) / totalCost;
+                vm.discountPercentage = (vm.discountPercentage % 1 != 0) ? parseFloat(vm.discountPercentage.toFixed(2)) : parseInt(vm.discountPercentage);
+            }
             calculateCost();
         }
 
@@ -1570,9 +1572,9 @@
                 totalCost += parseFloat(vm.roundedOffVal);
                 serviceTcDc += parseFloat(vm.roundedOffVal);
             }
-            totalCost = (totalCost % 1 != 0) ? totalCost.toFixed(2) : totalCost;
+            totalCost = (totalCost % 1 != 0) ? parseFloat(totalCost.toFixed(2)) : totalCost;
             totalCost = (totalCost % 1).toFixed(2) == 0.00 ? Math.round(totalCost) : totalCost;
-            vm.service.cost = totalCost;
+            vm.service.cost = parseFloat(totalCost);
 
             function iterateProblem(element) {
                 totalCost += parseFloat(element.amount ? (element.amount * (element.checked ? 1 : 0)) : 0);
