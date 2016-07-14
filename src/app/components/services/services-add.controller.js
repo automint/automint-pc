@@ -102,6 +102,8 @@
         vm.isNextDueService = false;
         vm.nextDueDate = new Date(); 
         vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
+        vm.problemFocusIndex = -1;
+        vm.inventoryFocusIndex = -1;
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -190,7 +192,8 @@
         vm.IsServiceStateEs = IsServiceStateEs;
         vm.IsServiceStateIv = IsServiceStateIv;
         vm.getDate = getDate;
-        vm.generateProblemElementId = generateProblemElementId;
+        vm.IsProblemFocusIndex = IsProblemFocusIndex;
+        vm.IsInventoryFocusIndex = IsInventoryFocusIndex;
 
         //  default execution steps
         setCoverPic();
@@ -214,8 +217,12 @@
 
         //  function definitions
 
-        function generateProblemElementId(index) {
-            return ("ami-problem-" + index);
+        function IsInventoryFocusIndex(index) {
+            return (vm.inventoryFocusIndex == index);
+        }
+
+        function IsProblemFocusIndex(index) {
+            return (vm.problemFocusIndex == index);
         }
 
         function getDate(date) {
@@ -546,9 +553,11 @@
             }
         }
 
-        function finalizeNewInventory(btnClicked) {
+        function finalizeNewInventory(isFromAutocomplete) {
             vm.inventory.name = vm.inventory.name.trim();
             if (vm.inventory.name != '') {
+                if (isFromAutocomplete)
+                    updateInventoryDetails();
                 var found = $filter('filter')(vm.inventories, {
                     name: vm.inventory.name
                 }, true);
@@ -579,10 +588,11 @@
                 vm.inventory.qty = 1;
                 vm.inventory.total = '';
                 calculateCost();
-                setTimeout(focusNewInventoryName, 300);
+                if (isFromAutocomplete)
+                    vm.inventoryFocusIndex = vm.selectedInventories.length - 1;
+                else
+                    setTimeout(focusNewInventoryName, 300);
             }
-            if (btnClicked)
-                setTimeout(focusNewInventoryName, 300);
 
             function focusNewInventoryName() {
                 $('#new-inventory-name input').focus();
@@ -1632,9 +1642,9 @@
 
         function finalizeNewProblem(isFromAutocomplete) {
             vm.problem.details = vm.problem.details.trim();
-            if (isFromAutocomplete)
-                updateTreatmentDetails();
             if (vm.problem.details != '') {
+                if (isFromAutocomplete)
+                    updateTreatmentDetails();
                 var found = $filter('filter')(vm.service.problems, {
                     details: vm.problem.details
                 }, true);
@@ -1659,7 +1669,10 @@
                 vm.problem.rate = '';
                 vm.problem.tax = '';
                 calculateCost();
-                setTimeout(focusNewProblemDetails, 300);
+                if (isFromAutocomplete)
+                    vm.problemFocusIndex = vm.selectedProblems.length - 1;
+                else
+                    setTimeout(focusNewProblemDetails, 300);
             }
 
             function focusNewProblemDetails() {

@@ -12,7 +12,8 @@
         .directive('pageTitle', PageTitleDirective)
         .directive('amDropFiles', amDropFilesDirective)
         .directive('amUploadFiles', amUploadFilesDirective)
-        .directive('amOnEnter', OnEnterDirective);
+        .directive('amOnEnter', OnEnterDirective)
+        .directive('amCustomAutofocus', amCustomAutofocusDirective);
 
     PageTitleDirective.$inject = ['$rootScope', '$timeout'];
 
@@ -110,6 +111,27 @@
             
             function handleChangeEvent(e) {
                 callbackChange(e);
+            }
+        }
+    }
+
+    function amCustomAutofocusDirective() {
+        return {
+            restrict: 'A',
+            link: link
+        }
+
+        function link(scope, element, attrs) {
+            scope.$watch(watchKey, watcher);
+            
+            function watchKey() {
+                return scope.$eval(attrs.amCustomAutofocus);
+            }
+
+            function watcher(newValue) {
+                if (newValue === true){
+                    element[0].focus();
+               }
             }
         }
     }
