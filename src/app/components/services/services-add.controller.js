@@ -1532,6 +1532,7 @@
                 var ot = totalCost = vm.service.cost;
                 totalCost = vm.isRoundOffVal ? Math.floor(totalCost * 0.1) * 10 : totalCost;
                 vm.roundedOffVal = (totalCost - ot);
+                vm.roundedOffVal = (vm.roundedOffVal % 1 != 0) ? parseFloat(vm.roundedOffVal.toFixed(2)) : parseInt(vm.roundedOffVal);
             }
             calculateCost();
         }
@@ -1543,7 +1544,7 @@
                 vm.discountValue = (isNaN(vm.discountValue) || vm.discountValue == null) ? '' : vm.discountValue;
             } else if (vm.discountValue != '') {
                 vm.discountPercentage = 100 * parseFloat(vm.discountValue) / totalCost;
-                vm.discountPercentage = (vm.discountPercentage % 1 != 0) ? parseFloat(vm.discountPercentage.toFixed(2)) : parseInt(vm.discountPercentage);
+                vm.discountPercentage = (vm.discountPercentage % 1 != 0) ? parseFloat(vm.discountPercentage.toFixed(1)) : parseInt(vm.discountPercentage);
             }
             calculateCost();
         }
@@ -1623,8 +1624,10 @@
             }
         }
 
-        function finalizeNewProblem(btnClicked) {
+        function finalizeNewProblem(isFromAutocomplete) {
             vm.problem.details = vm.problem.details.trim();
+            if (isFromAutocomplete)
+                updateTreatmentDetails();
             if (vm.problem.details != '') {
                 var found = $filter('filter')(vm.service.problems, {
                     details: vm.problem.details
@@ -1652,8 +1655,6 @@
                 calculateCost();
                 setTimeout(focusNewProblemDetails, 300);
             }
-            if (btnClicked)
-                setTimeout(focusNewProblemDetails, 300);
 
             function focusNewProblemDetails() {
                 $('#new-problem-details input').focus();

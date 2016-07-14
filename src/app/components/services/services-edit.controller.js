@@ -1538,6 +1538,7 @@
                 var ot = totalCost = vm.service.cost;
                 totalCost = vm.isRoundOffVal ? Math.floor(totalCost * 0.1) * 10 : totalCost;
                 vm.roundedOffVal = (totalCost - ot);
+                vm.roundedOffVal = (vm.roundedOffVal % 1 != 0) ? parseFloat(vm.roundedOffVal.toFixed(2)) : parseInt(vm.roundedOffVal);
             }
             calculateCost();
         }
@@ -1549,7 +1550,7 @@
                 vm.discountValue = (isNaN(vm.discountValue) || vm.discountValue == null) ? '' : vm.discountValue;
             } else if (vm.discountValue != '') {
                 vm.discountPercentage = 100 * parseFloat(vm.discountValue) / totalCost;
-                vm.discountPercentage = (vm.discountPercentage % 1 != 0) ? parseFloat(vm.discountPercentage.toFixed(2)) : parseInt(vm.discountPercentage);
+                vm.discountPercentage = (vm.discountPercentage % 1 != 0) ? parseFloat(vm.discountPercentage.toFixed(1)) : parseInt(vm.discountPercentage);
             }
             calculateCost();
         }
