@@ -190,6 +190,7 @@
         vm.IsServiceStateEs = IsServiceStateEs;
         vm.IsServiceStateIv = IsServiceStateIv;
         vm.getDate = getDate;
+        vm.generateProblemElementId = generateProblemElementId;
 
         //  default execution steps
         setCoverPic();
@@ -212,6 +213,10 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function generateProblemElementId(index) {
+            return ("ami-problem-" + index);
+        }
 
         function getDate(date) {
             return moment(date).format('DD MMM YYYY');
@@ -1542,6 +1547,7 @@
             if (isDiscountByPercent) {
                 vm.discountValue = totalCost * parseFloat(vm.discountPercentage) / 100;
                 vm.discountValue = (isNaN(vm.discountValue) || vm.discountValue == null) ? '' : vm.discountValue;
+                vm.discountValue = (vm.discountValue % 1 != 0) ? parseFloat(vm.discountValue.toFixed(2)) : parseInt(vm.discountValue);
             } else if (vm.discountValue != '') {
                 vm.discountPercentage = 100 * parseFloat(vm.discountValue) / totalCost;
                 vm.discountPercentage = (vm.discountPercentage % 1 != 0) ? parseFloat(vm.discountPercentage.toFixed(1)) : parseInt(vm.discountPercentage);
