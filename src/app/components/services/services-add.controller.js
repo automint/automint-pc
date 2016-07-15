@@ -2,7 +2,7 @@
  * Controller for Add Service module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.6.5
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -102,6 +102,8 @@
         vm.isNextDueService = false;
         vm.nextDueDate = new Date(); 
         vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
+        vm.problemFocusIndex = -1;
+        vm.inventoryFocusIndex = -1;
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -190,6 +192,8 @@
         vm.IsServiceStateEs = IsServiceStateEs;
         vm.IsServiceStateIv = IsServiceStateIv;
         vm.getDate = getDate;
+        vm.IsProblemFocusIndex = IsProblemFocusIndex;
+        vm.IsInventoryFocusIndex = IsInventoryFocusIndex;
 
         //  default execution steps
         setCoverPic();
@@ -212,6 +216,14 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function IsInventoryFocusIndex(index) {
+            return (vm.inventoryFocusIndex == index);
+        }
+
+        function IsProblemFocusIndex(index) {
+            return (vm.problemFocusIndex == index);
+        }
 
         function getDate(date) {
             return moment(date).format('DD MMM YYYY');
@@ -261,7 +273,9 @@
         function calculateSubtotal() {
             var totalCost = 0;
             vm.service.problems.forEach(iterateProblem);
+            iterateProblem(vm.problem);
             vm.selectedInventories.forEach(iterateInventories);
+            iterateInventories(vm.inventory);
             if (vm.serviceType == vm.serviceTypeList[1]) {
                 vm.packages.forEach(iteratePackages);
             }
@@ -516,6 +530,7 @@
         function calculateVat() {
             var totalTax = 0.0;
             vm.selectedInventories.forEach(iterateInventories);
+            iterateInventories(vm.inventory);
             totalTax = (totalTax % 1 != 0) ? totalTax.toFixed(2) : totalTax;
             return totalTax;
 
@@ -538,9 +553,11 @@
             }
         }
 
-        function finalizeNewInventory(btnClicked) {
+        function finalizeNewInventory(isFromAutocomplete) {
             vm.inventory.name = vm.inventory.name.trim();
             if (vm.inventory.name != '') {
+                if (isFromAutocomplete)
+                    updateInventoryDetails();
                 var found = $filter('filter')(vm.inventories, {
                     name: vm.inventory.name
                 }, true);
@@ -571,10 +588,11 @@
                 vm.inventory.qty = 1;
                 vm.inventory.total = '';
                 calculateCost();
-                setTimeout(focusNewInventoryName, 300);
+                if (isFromAutocomplete)
+                    vm.inventoryFocusIndex = vm.selectedInventories.length - 1;
+                else
+                    setTimeout(focusNewInventoryName, 300);
             }
-            if (btnClicked)
-                setTimeout(focusNewInventoryName, 300);
 
             function focusNewInventoryName() {
                 $('#new-inventory-name input').focus();
@@ -582,37 +600,43 @@
         }
 
         function updateInventoryDetails() {
-            var found = $filter('filter')(vm.inventories, {
-                name: vm.inventory.name
-            });
-            vm.inventory.amount = (vm.inventory.rate == '') ? 0 : vm.inventory.rate;
-            if (found.length == 1) {
-                var rate;
-                if (vm.vatSettings.applyTax)
-                    rate = (vm.vatSettings.inclusive) ? found[0].amount : found[0].rate;
-                else
-                    rate = found[0].rate;
-                vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
-                if (vm.vatSettings.applyTax) {
-                    if (vm.vatSettings.inclusive) {
-                        vm.inventory.rate = (vm.inventory.amount * 100) / (vm.vatSettings.tax + 100);
-                        vm.inventory.tax = (vm.inventory.rate * vm.vatSettings.tax / 100);
+            if (vm.inventory.name != '') {
+                var found = $filter('filter')(vm.inventories, {
+                    name: vm.inventory.name
+                }, true);
+                if (found.length == 1) {
+                    var rate;
+                    if (vm.vatSettings.applyTax)
+                        rate = (vm.vatSettings.inclusive) ? found[0].amount : found[0].rate;
+                    else
+                        rate = found[0].rate;
+                    vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
+                    if (vm.vatSettings.applyTax) {
+                        if (vm.vatSettings.inclusive) {
+                            vm.inventory.rate = (vm.inventory.amount * 100) / (vm.vatSettings.tax + 100);
+                            vm.inventory.tax = (vm.inventory.rate * vm.vatSettings.tax / 100);
+                        } else {
+                            vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
+                            vm.inventory.tax = (vm.inventory.rate * vm.vatSettings.tax / 100);
+                            vm.inventory.amount = Math.round(vm.inventory.rate + vm.inventory.tax);
+                        }
                     } else {
-                        vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
-                        vm.inventory.tax = (vm.inventory.rate * vm.vatSettings.tax / 100);
-                        vm.inventory.amount = Math.round(vm.inventory.rate + vm.inventory.tax);
+                        if (vm.vatSettings.inclusive)
+                            vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
+                        else {
+                            vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
+                            vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
+                        }
                     }
-                } else {
-                    if (vm.vatSettings.inclusive)
-                        vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
-                    else {
-                        vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
-                        vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
-                    }
+                    vm.inventory.total = vm.inventory.amount * vm.inventory.qty;
+                    vm.inventory.checked = true;
+                    calculateCost();
                 }
-                vm.inventory.total = vm.inventory.amount * vm.inventory.qty;
             } else {
+                vm.inventory.checked = false;
                 vm.inventory.rate = '';
+                vm.inventory.tax = 0;
+                vm.inventory.amount = '';
                 vm.inventory.total = '';
             }
         }
@@ -1418,6 +1442,7 @@
         //  replace all the treatment values with updated vehicle type
         function changeVehicleType() {
             vm.service.problems.forEach(iterateProblem);
+            iterateProblem(vm.problem);
             calculatePackageTax();
             calculateCost();
 
@@ -1522,6 +1547,7 @@
                 var ot = totalCost = vm.service.cost;
                 totalCost = vm.isRoundOffVal ? Math.floor(totalCost * 0.1) * 10 : totalCost;
                 vm.roundedOffVal = (totalCost - ot);
+                vm.roundedOffVal = (vm.roundedOffVal % 1 != 0) ? parseFloat(vm.roundedOffVal.toFixed(2)) : parseInt(vm.roundedOffVal);
             }
             calculateCost();
         }
@@ -1531,8 +1557,11 @@
             if (isDiscountByPercent) {
                 vm.discountValue = totalCost * parseFloat(vm.discountPercentage) / 100;
                 vm.discountValue = (isNaN(vm.discountValue) || vm.discountValue == null) ? '' : vm.discountValue;
-            } else if (vm.discountValue != '')
+                vm.discountValue = (vm.discountValue % 1 != 0) ? parseFloat(vm.discountValue.toFixed(2)) : parseInt(vm.discountValue);
+            } else if (vm.discountValue != '') {
                 vm.discountPercentage = 100 * parseFloat(vm.discountValue) / totalCost;
+                vm.discountPercentage = (vm.discountPercentage % 1 != 0) ? parseFloat(vm.discountPercentage.toFixed(1)) : parseInt(vm.discountPercentage);
+            }
             calculateCost();
         }
 
@@ -1545,7 +1574,9 @@
                 return;
             var totalCost = 0;
             vm.service.problems.forEach(iterateProblem);
+            iterateProblem(vm.problem);
             vm.selectedInventories.forEach(iterateInventories);
+            iterateInventories(vm.inventory);
             if (vm.serviceType == vm.serviceTypeList[1]) {
                 vm.packages.forEach(iteratePackages);
             }
@@ -1558,9 +1589,9 @@
                 totalCost += parseFloat(vm.roundedOffVal);
                 serviceTcDc += parseFloat(vm.roundedOffVal);
             }
-            totalCost = (totalCost % 1 != 0) ? totalCost.toFixed(2) : totalCost;
+            totalCost = (totalCost % 1 != 0) ? parseFloat(totalCost.toFixed(2)) : totalCost;
             totalCost = (totalCost % 1).toFixed(2) == 0.00 ? Math.round(totalCost) : totalCost;
-            vm.service.cost = totalCost;
+            vm.service.cost = parseFloat(totalCost);
 
             function iterateProblem(element) {
                 totalCost += parseFloat(element.amount ? (element.amount * (element.checked ? 1 : 0)) : 0);
@@ -1583,6 +1614,7 @@
 
         function calculateTax() {
             var totalTax = 0.0;
+            iterateProblems(vm.problem);
             vm.service.problems.forEach(iterateProblems);
             if (vm.serviceType == vm.serviceTypeList[1])
                 vm.packages.forEach(iteratePackages);
@@ -1608,9 +1640,11 @@
             }
         }
 
-        function finalizeNewProblem(btnClicked) {
+        function finalizeNewProblem(isFromAutocomplete) {
             vm.problem.details = vm.problem.details.trim();
             if (vm.problem.details != '') {
+                if (isFromAutocomplete)
+                    updateTreatmentDetails();
                 var found = $filter('filter')(vm.service.problems, {
                     details: vm.problem.details
                 }, true);
@@ -1635,10 +1669,11 @@
                 vm.problem.rate = '';
                 vm.problem.tax = '';
                 calculateCost();
-                setTimeout(focusNewProblemDetails, 300);
+                if (isFromAutocomplete)
+                    vm.problemFocusIndex = vm.selectedProblems.length - 1;
+                else
+                    setTimeout(focusNewProblemDetails, 300);
             }
-            if (btnClicked)
-                setTimeout(focusNewProblemDetails, 300);
 
             function focusNewProblemDetails() {
                 $('#new-problem-details input').focus();
@@ -1646,30 +1681,37 @@
         }
 
         function updateTreatmentDetails() {
-            var found = $filter('filter')(vm.treatments, {
-                name: vm.problem.details
-            });
-            vm.problem.amount = (vm.problem.rate == '') ? 0 : vm.problem.rate;
-            if (found.length == 1) {
-                var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
-                vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
-                if (vm.sTaxSettings.applyTax) {
-                    if (vm.sTaxSettings.inclusive) {
-                        vm.problem.rate = (vm.problem.amount * 100) / (vm.sTaxSettings.tax + 100);
-                        vm.problem.tax = (vm.problem.rate * vm.sTaxSettings.tax / 100);
+            if (vm.problem.details != '') {
+                var found = $filter('filter')(vm.treatments, {
+                    name: vm.problem.details
+                }, true);
+                if (found.length == 1) {
+                    var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
+                    vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
+                    if (vm.sTaxSettings.applyTax) {
+                        if (vm.sTaxSettings.inclusive) {
+                            vm.problem.rate = (vm.problem.amount * 100) / (vm.sTaxSettings.tax + 100);
+                            vm.problem.tax = (vm.problem.rate * vm.sTaxSettings.tax / 100);
+                        } else {
+                            vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
+                            vm.problem.tax = (vm.problem.rate * vm.sTaxSettings.tax / 100);
+                            vm.problem.amount = vm.problem.rate + vm.problem.tax;
+                        }
                     } else {
-                        vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
-                        vm.problem.tax = (vm.problem.rate * vm.sTaxSettings.tax / 100);
-                        vm.problem.amount = vm.problem.rate + vm.problem.tax;
+                        if (vm.sTaxSettings.inclusive)
+                            vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
+                        else
+                            vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
                     }
-                } else {
-                    if (vm.sTaxSettings.inclusive)
-                        vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
-                    else
-                        vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
+                    vm.problem.checked = true;
+                    calculateCost();
                 }
-            } else
+            } else {
                 vm.problem.rate = '';
+                vm.problem.tax = 0;
+                vm.problem.amount = '';
+                vm.problem.checked = false;
+            }
         }
 
         function validate() {
@@ -1744,6 +1786,8 @@
             if (vm.isRoundOffVal) {
                 vm.service['roundoff'] = vm.roundedOffVal;
             }
+            if (vm.problem.details)
+                vm.service.problems.push(vm.problem);
             vm.service.problems.forEach(iterateProblems);
             if (vm.sTaxSettings != undefined) {
                 vm.service.serviceTax = {
@@ -1759,6 +1803,8 @@
                     tax: vm.vatSettings.tax
                 }
             }
+            if (vm.inventory.name)
+                vm.selectedInventories.push(vm.inventory);
             vm.selectedInventories.forEach(iterateInventories);
             vm.service.inventories = vm.selectedInventories;
             switch (vm.service.state) {
@@ -1848,6 +1894,10 @@
                         break;
                     }
                 }
+                if (vm.problem.details != '')
+                    isTreatmentsSelected = true;
+                if (vm.inventory.name != '')
+                    isTreatmentsSelected = true;
                 if (vm.selectedInventories.length > 0)
                     isTreatmentsSelected = true;
                 return isTreatmentsSelected;
