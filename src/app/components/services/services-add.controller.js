@@ -222,6 +222,8 @@
         }
 
         function IsProblemFocusIndex(index) {
+            if (vm.problemFocusIndex == index)
+                console.log('true');
             return (vm.problemFocusIndex == index);
         }
 
@@ -555,10 +557,14 @@
 
         function finalizeNewInventory(isFromAutocomplete) {
             vm.inventory.name = vm.inventory.name.trim();
+            vm.inventoryFocusIndex = -1;
             if (vm.inventory.name != '') {
                 if (isFromAutocomplete)
                     updateInventoryDetails();
                 var found = $filter('filter')(vm.inventories, {
+                    name: vm.inventory.name
+                }, true);
+                var foundExisting = $filter('filter')(vm.selectedInventories, {
                     name: vm.inventory.name
                 }, true);
                 if (found.length == 1) {
@@ -568,7 +574,10 @@
                     found[0].qty = vm.inventory.qty;
                     found[0].amount = vm.inventory.amount;
                     found[0].total = vm.inventory.total;
-                    vm.selectedInventories.push(found[0]);
+                    if (foundExisting.length == 0)
+                        vm.selectedInventories.push(found[0]);
+                    else
+                        foundExisting[0] = found[0];
                 } else {
                     vm.inventories.push({
                         name: vm.inventory.name,
@@ -588,8 +597,8 @@
                 vm.inventory.qty = 1;
                 vm.inventory.total = '';
                 calculateCost();
-                if (isFromAutocomplete)
-                    vm.inventoryFocusIndex = vm.selectedInventories.length - 1;
+                if (isFromAutocomplete || foundExisting.length != 0)
+                    vm.inventoryFocusIndex = (foundExisting.length == 0) ? vm.selectedInventories.length - 1 : vm.selectedInventories.indexOf(foundExisting[0]);
                 else
                     setTimeout(focusNewInventoryName, 300);
             }
@@ -1642,10 +1651,14 @@
 
         function finalizeNewProblem(isFromAutocomplete) {
             vm.problem.details = vm.problem.details.trim();
+            vm.problemFocusIndex = -1;
             if (vm.problem.details != '') {
                 if (isFromAutocomplete)
                     updateTreatmentDetails();
                 var found = $filter('filter')(vm.service.problems, {
+                    details: vm.problem.details
+                }, true);
+                var foundExisting = $filter('filter')(vm.selectedProblems, {
                     details: vm.problem.details
                 }, true);
                 if (found.length == 1) {
@@ -1653,7 +1666,10 @@
                     found[0].rate = vm.problem.rate;
                     found[0].tax = vm.problem.tax;
                     found[0].amount = vm.problem.amount;
-                    vm.selectedProblems.push(found[0]);
+                    if (foundExisting.length == 0)
+                        vm.selectedProblems.push(found[0]);
+                    else
+                        foundExisting[0] = found[0];
                 } else {
                     vm.service.problems.push({
                         details: vm.problem.details,
@@ -1669,8 +1685,8 @@
                 vm.problem.rate = '';
                 vm.problem.tax = '';
                 calculateCost();
-                if (isFromAutocomplete)
-                    vm.problemFocusIndex = vm.selectedProblems.length - 1;
+                if (isFromAutocomplete || foundExisting.length != 0)
+                    vm.problemFocusIndex = (foundExisting.length == 0) ? vm.selectedProblems.length - 1 : vm.selectedProblems.indexOf(foundExisting[0]);
                 else
                     setTimeout(focusNewProblemDetails, 300);
             }
@@ -1758,6 +1774,8 @@
                     }
                     break;
             }
+            if (vm.problem.details)
+                finalizeNewProblem();
             vm.service.problems = vm.selectedProblems;
             var options = {
                 isLastInvoiceNoChanged: (vm.service.invoiceno == olInvoiceNo),
@@ -1786,8 +1804,6 @@
             if (vm.isRoundOffVal) {
                 vm.service['roundoff'] = vm.roundedOffVal;
             }
-            if (vm.problem.details)
-                vm.service.problems.push(vm.problem);
             vm.service.problems.forEach(iterateProblems);
             if (vm.sTaxSettings != undefined) {
                 vm.service.serviceTax = {
@@ -1804,7 +1820,7 @@
                 }
             }
             if (vm.inventory.name)
-                vm.selectedInventories.push(vm.inventory);
+                finalizeNewInventory();
             vm.selectedInventories.forEach(iterateInventories);
             vm.service.inventories = vm.selectedInventories;
             switch (vm.service.state) {
