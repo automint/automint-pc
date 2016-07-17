@@ -24,7 +24,8 @@
                 'hue-1': '50'
             })
             .accentPalette('light-blue', {
-                'default': '700'
+                'default': '700',
+                'hue-1': '500'
             })
             .warnPalette('green', {
                 'default': '600'

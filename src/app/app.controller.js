@@ -9,6 +9,8 @@
 
 (function() {
     const ammHelp = require('./automint_modules/am-help.js');
+    const ipcRenderer = require("electron").ipcRenderer;
+    const BrowserWindow = require('electron').remote.BrowserWindow;
 
     angular.module('automintApp')
         .controller('lockScreenCtrl', LockScreenController)
@@ -16,7 +18,7 @@
         .controller('appSideBarCtrl', SidebarController);
 
     HeaderbarController.$inject = ['$rootScope', '$scope', '$state', '$timeout', '$mdSidenav', 'amRootFactory'];
-    SidebarController.$inject = ['$state', '$mdSidenav'];
+    SidebarController.$inject = ['$scope', '$state', '$http', '$mdSidenav'];
     LockScreenController.$inject = ['$rootScope', '$state', '$window', 'amRootFactory', 'utils'];
 
     function LockScreenController($rootScope, $state, $window, amRootFactory, utils) {
@@ -125,11 +127,8 @@
         }
     }
 
-    function SidebarController($state, $mdSidenav) {
+    function SidebarController($scope, $state, $http, $mdSidenav) {
         var vm = this;
-
-        //  map functions to view model
-        vm.openState = openState;
 
         //  objects passed to view model
         vm.items = [{
@@ -153,6 +152,38 @@
             icon: 'settings',
             state: 'restricted.settings'
         }];
+        vm.isAutomintUpdateAvailable = undefined;
+
+        //  map functions to view model
+        vm.openState = openState;
+        vm.doUpdate = doUpdate;
+
+        //  default execution steps
+        ipcRenderer.on('automint-updated', listenToAutomintUpdates);
+        getPackageFile();
+
+        //  function definitions
+
+        function listenToAutomintUpdates(event, arg) {
+            vm.isAutomintUpdateAvailable = arg;
+            $scope.$apply();
+        }
+
+        function doUpdate() {
+            BrowserWindow.getFocusedWindow().reload();
+        }
+
+        function getPackageFile() {
+            $http.get('package.json').success(success).catch(failure);
+
+            function success(res) {
+                vm.automintVersion = res.version;
+            }
+
+            function failure(err) {
+                console.warn(err);
+            }
+        }
 
         function openState(state) {
             $mdSidenav('main-nav-left').close()

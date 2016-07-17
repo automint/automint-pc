@@ -1,15 +1,20 @@
-<div class="column">
-    <md-toolbar>
-        <img src="assets/img/logo-250x125px.png" id="am-cover-pic" style="box-shadow: 1px 1px 3px 1px #212121; background: #212121">
-    </md-toolbar>
-    <md-list ng-cloak class="am-side-nav">
-        <md-list-item ng-repeat="item in sidebarVm.items" ng-click="sidebarVm.openState(item.state)">
-            <div layout="column">
-                <div layout="row" layout-align="center center">
-                    <div layout-padding><md-icon class="item-color">{{ item.icon }}</md-icon></div>
-                    <div layout-padding><span class="md-body-1 item-color strong"> {{ item.name }} </span></div>
-                </div>
+<md-toolbar>
+    <img src="assets/img/logo-250x125px.png" id="am-cover-pic" style="box-shadow: 1px 1px 3px 1px #212121; background: #212121">
+</md-toolbar>
+<md-list ng-cloak class="am-side-nav">
+    <md-list-item ng-repeat="item in sidebarVm.items" ng-click="sidebarVm.openState(item.state)">
+        <div layout="column">
+            <div layout="row" layout-align="center center">
+                <div layout-padding><md-icon class="item-color">{{ item.icon }}</md-icon></div>
+                <div layout-padding><span class="md-body-1 item-color strong"> {{ item.name }} </span></div>
             </div>
-        </md-list-item>
-    </md-list>
+        </div>
+    </md-list-item>
+</md-list>
+<div flex></div>
+<div layout="row" layout-align="start center" class="am-side-nav" layout-margin ng-show="sidebarVm.automintVersion">
+    <md-button class="md-accent md-hue-1" ng-show="sidebarVm.isAutomintUpdateAvailable" ng-click="sidebarVm.doUpdate()">
+        <span style="font-size: 8pt" layout-margin>Apply Update</span>
+    </md-button>
+    <span class="md-caption" style="color: #fff; text-align: right" flex>v{{sidebarVm.automintVersion}}</span>
 </div>

@@ -13,7 +13,8 @@
     const app = electron.app;
     // Module to create native browser window.
     const BrowserWindow = electron.BrowserWindow;
-    
+    // Module for IPC
+    const ipcMain = electron.ipcMain;
     // Importing Eelctron Squirrel Startup 
     if(require('electron-squirrel-startup')) return;
     // Module to Auto Update app
@@ -21,7 +22,11 @@
     var os = require('os');  
     // var feedURL = 'http://updates.automint.in/releases/' + (os.platform()) + '/' + (os.arch());
     var feedURL = 'http://updates.automint.in/releases/win32/ia32';
+
     autoUpdater.addListener("error", function(error) {});
+
+    autoUpdater.addListener("update-downloaded", OnAutomintUpdated);
+
     autoUpdater.setFeedURL(feedURL);
     if (process.argv[1] == '--squirrel-firstrun') {
         setTimeout(()=> {
@@ -63,6 +68,10 @@
         }
     });
 
+    function OnAutomintUpdated(event, releaseNotes, releaseName, releaseDate, updateURL) {
+        mainWindow.webContents.send('automint-updated', true);
+    }
+
     function createWindow() {
         // Create the browser window.
         mainWindow = new BrowserWindow({
@@ -71,6 +80,7 @@
         });
         mainWindow.maximize();
         // and load the index.html of the app.
+
         mainWindow.loadURL('file://' + __dirname + '/index.html');
 
         // Emitted when the window is closed.
