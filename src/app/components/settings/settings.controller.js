@@ -8,8 +8,11 @@
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
-    angular.module('automintApp')
-        .controller('amCtrlSettings', SettingsController);
+    let electron = require('electron').remote;
+    const amApp = electron.app;
+    const dialog = electron.dialog;
+
+    angular.module('automintApp').controller('amCtrlSettings', SettingsController);
 
     SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings', 'amSeTaxSettings', 'amSettings'];
 
@@ -37,6 +40,7 @@
         vm.label_password = 'Enter Password:';
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
         vm.serviceState = vm.serviceStateList[2];
+        vm.amAppPath = 'Default';
         //  invoice settings
         vm.workshop = {
             name: '',
@@ -77,6 +81,7 @@
         vm.handleUploadedCoverPic = handleUploadedCoverPic;
         vm.handlePasscodeVisibility = handlePasscodeVisibility;
         vm.saveDefaultServiceType = saveDefaultServiceType;
+        vm.setAmAppDataPath = setAmAppDataPath;
         //  invoice settings
         vm.changeWorkshopNameLabel = changeWorkshopNameLabel;
         vm.changeWorkshopPhoneLabel = changeWorkshopPhoneLabel;
@@ -127,6 +132,7 @@
         checkLogin();
         getPasscode();
         getDefaultServiceType();
+        getAmAppDataPath();
         //  invoice settings
         getWorkshopDetails();
         getInvoiceSettings();
@@ -139,6 +145,17 @@
         //  default execution steps [END]
 
         //  function definitions
+
+        function setAmAppDataPath() {
+            var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
+            amApp.setPath('userData', newPath);
+            console.log(newPath);
+            // /Users/ndkcha/Library/Application Support/Automint
+        }
+
+        function getAmAppDataPath() {
+            vm.amAppPath = amApp.getPath('userData');
+        }
 
         function getDefaultServiceType() {
             amSettings.getDefaultServiceType().then(success).catch(failure);

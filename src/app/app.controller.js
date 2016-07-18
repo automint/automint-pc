@@ -8,9 +8,11 @@
 /// <reference path="../typings/main.d.ts" />
 
 (function() {
+    let electron = require('electron').remote;
     const ammHelp = require('./automint_modules/am-help.js');
     const ipcRenderer = require("electron").ipcRenderer;
-    const BrowserWindow = require('electron').remote.BrowserWindow;
+    const amApp = electron.app;
+    const BrowserWindow = electron.BrowserWindow;
 
     angular.module('automintApp')
         .controller('lockScreenCtrl', LockScreenController)
@@ -170,19 +172,13 @@
         }
 
         function doUpdate() {
-            BrowserWindow.getFocusedWindow().reload();
+            console.log(require('electron').remote.app);
+            amApp.relaunch({args: process.argv.slice(1) + ['--relaunch']})
+            amApp.exit(0);
         }
 
         function getPackageFile() {
-            $http.get('package.json').success(success).catch(failure);
-
-            function success(res) {
-                vm.automintVersion = res.version;
-            }
-
-            function failure(err) {
-                console.warn(err);
-            }
+            vm.automintVersion = amApp.getVersion();
         }
 
         function openState(state) {

@@ -13,7 +13,8 @@
 </md-list>
 <div flex></div>
 <div layout="row" layout-align="start center" class="am-side-nav" layout-margin ng-show="sidebarVm.automintVersion">
-    <md-button class="md-accent md-hue-1" ng-show="sidebarVm.isAutomintUpdateAvailable" ng-click="sidebarVm.doUpdate()">
+    <md-button class="md-accent md-hue-1" ng-click="sidebarVm.doUpdate()">
+    <!--<md-button class="md-accent md-hue-1" ng-show="sidebarVm.isAutomintUpdateAvailable" ng-click="sidebarVm.doUpdate()">-->
         <span style="font-size: 8pt" layout-margin>Apply Update</span>
     </md-button>
     <span class="md-caption" style="color: #fff; text-align: right" flex>v{{sidebarVm.automintVersion}}</span>

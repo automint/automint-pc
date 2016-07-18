@@ -14,7 +14,7 @@
         border-bottom: 1px solid black;
         width: 97%;
         font-weight: 400;
-        padding: 0.7rem;
+        padding: 6px;
         outline: none;
         background: transparent;
         color: rgba(30, 30, 30, 0.7);
@@ -126,8 +126,8 @@
                         </md-card-content>
                     </md-card>
                     <md-card class="md-hue-1 am-box-shadow">
-                        <md-card-content style="padding-bottom: 0" layout="row" layout-align="center center">
-                            <md-input-container class="am-clear-error-spacer">
+                        <md-card-content layout="row" layout-align="center center">
+                            <md-input-container class="am-clear-error-spacer" style="margin: 18px 0 4px 0">
                                 <md-icon class="md-accent" style="cursor: pointer" ng-mouseup="vm.handlePasscodeVisibility(false)" ng-mousedown="vm.handlePasscodeVisibility(true)">lock_open<md-tooltip>See Passcode</md-tooltip></md-icon>
                                 <label class="am-form-label large">Passcode</label>
                                 <input type="password" ng-model="vm.passcode" ng-blur="vm.savePasscode()" style="letter-spacing: 1px" aria-label="Email Subject" id="am-passcode">
@@ -139,11 +139,11 @@
                         </md-card-content>
                     </md-card>
                     <md-card class="md-hue-1 am-box-shadow">
-                        <md-card-content style="padding-bottom: 0" layout="column">
+                        <md-card-content layout="column" style="padding: 12px 18px 18px 18px">
                             <div layout="row">
                                 <span class="md-body-2">Default Service Type</span>
                             </div>
-                            <md-radio-group ng-model="vm.serviceState" ng-change="vm.saveDefaultServiceType()" layout="row" layout-align="start center" style="padding: 0.8rem 0">
+                            <md-radio-group ng-model="vm.serviceState" ng-change="vm.saveDefaultServiceType()" layout="row" layout-align="start center" style="padding-top: 10px">
                                 <md-radio-button ng-value="state" ng-repeat="state in vm.serviceStateList" class="md-body-1">{{state}}</md-radio-button>
                             </md-radio-group>
                         </md-card-content>
@@ -151,7 +151,7 @@
                 </div>
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card class="md-hue-1 am-box-shadow">
-                        <md-card-content layout-xs="column" layout="row" layout-align="center center">
+                        <md-card-content layout-xs="column" layout="row" layout-align="center center" style="padding: 8px 16px">
                             <span class="md-title">Backup Your Data</span>
                             <div flex></div>
                             <md-button class="md-raised" ng-click="vm.doBackup()">
@@ -214,7 +214,7 @@
                             <div layout="row" layout-xs="column" ng-show="vm.sTaxSettings.applyTax">
                                 <div layout="row" layout-align="start center" class="am-tax-adjust">
                                     <span class="md-body-1 am-pt-cursor" layout-padding ng-click="vm.sTaxSettings.inclusive = false">Exclusive</span>
-                                    <md-switch aria-label="Adjust Service Tax" ng-change="vm.saveServiceTaxSettings()" ng-model="vm.sTaxSettings.inclusive"></md-switch>
+                                    <md-switch aria-label="Adjust Service Tax" ng-change="vm.saveServiceTaxSettings()" ng-model="vm.sTaxSettings.inclusive" style="margin: 0"></md-switch>
                                     <span class="md-body-1 am-pt-cursor" ng-click="vm.sTaxSettings.inclusive = true">Inclusive</span>
                                 </div>
                                 <div flex></div>
@@ -237,14 +237,29 @@
                             <div layout="row" layout-xs="column" ng-show="vm.vatSettings.applyTax">
                                 <div layout="row" layout-align="start center" class="am-tax-adjust">
                                     <span class="md-body-1 am-pt-cursor" layout-padding ng-click="vm.vatSettings.inclusive = false">Exclusive</span>
-                                    <md-switch aria-label="Adjust VAT" ng-change="vm.saveVatSettings()" ng-model="vm.vatSettings.inclusive"></md-switch>
+                                    <md-switch aria-label="Adjust VAT" ng-change="vm.saveVatSettings()" ng-model="vm.vatSettings.inclusive" style="margin: 0"></md-switch>
                                     <span class="md-body-1 am-pt-cursor" ng-click="vm.vatSettings.inclusive = true">Inclusive</span>
                                 </div>
                                 <div flex></div>
-                                <div layout="row" layout-align="center center" flex="40">
+                                <div layout="row" layout-align="center center" flex="30">
                                     <span class="md-body-1">VAT <small>(%)</small>:</span>
                                     <input type="number" ng-blur="vm.saveVatSettings()" ng-model="vm.vatSettings.tax" class="am-tax-inline-input" value="0" flex>
                                 </div>
+                            </div>
+                        </md-card-content>
+                    </md-card>
+                    <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-content>
+                            <div layout="row">
+                                <span class="md-title">App Data</span>
+                            </div>
+                            <div layout="row" layout-align="start center">
+                                <span class="md-caption">{{vm.amAppPath}}</span>
+                                <span flex></span>
+                                <md-button class="md-raised hue-1" ng-click="vm.setAmAppDataPath()">
+                                    <span layout-margin>Change</span>
+                                    <md-icon>folder_open</md-icon>
+                                </md-button>
                             </div>
                         </md-card-content>
                     </md-card>
@@ -256,8 +271,8 @@
             <md-content class="md-padding" layout-xs="column" layout="row">
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card class="md-hue-1 am-box-shadow">
-                        <md-card-content layout="column">
-                            <span class="md-title" style="margin: 0 0 1rem 0">Workshop Details</span>
+                        <md-card-content layout="column" style="padding: 0 16px">
+                            <span class="md-title" style="margin: 16px">Workshop Details</span>
                             <div layout="row" layout-wrap layout-margin>
                                 <md-input-container flex-gt-xs>
                                     <md-icon class="md-accent">domain</md-icon>
@@ -286,18 +301,18 @@
                                 </md-input-container>
                             </div>
                         </md-card-content>
-                        <md-card-actions layout="row" layout-align="end center" style="margin-top: 0">
-                            <md-switch dir="rtl" ng-model="vm.ivSettings.display.workshopDetails" ng-change="vm.saveIvDisplaySettings()">
+                        <md-card-actions layout="row" layout-align="end center" style="margin: 10px 14px">
+                            <md-switch dir="rtl" ng-model="vm.ivSettings.display.workshopDetails" ng-change="vm.saveIvDisplaySettings()" style="margin: 0">
                                 <span layout-padding class="am-form-label">Display in Invoice</span>
                             </md-switch>
                         </md-card-actions>
                     </md-card>
                     <md-card class="md-hue-1 am-box-shadow">
                         <md-card-content layout="column">
-                            <div layout="row">
+                            <div layout="row" style="margin-bottom: 12px">
                                 <span class="md-title">Social Links</span>
                                 <div flex></div>
-                                <md-checkbox ng-model="vm.workshop.social.enabled" ng-change="vm.saveWorkshopDetails()" aria-label="Enable Links">
+                                <md-checkbox ng-model="vm.workshop.social.enabled" ng-change="vm.saveWorkshopDetails()" aria-label="Enable Links" style="margin-bottom: 0">
                                     <span class="md-body-1">Show Links</span>
                                 </md-checkbox>
                             </div>
@@ -321,10 +336,10 @@
                 </div>
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card class="md-hue-1 am-box-shadow">
-                        <md-card-content>
+                        <md-card-content style="padding: 8px 24px">
                             <div layout="row" layout-xs="column">
                                 <span layout="row" layout-align="center center">
-                                    <span class="md-body-1" flex>Last Invoice Number: </span>
+                                    <span class="md-body-2" flex>Last Invoice Number: </span>
                                     <input type="number" ng-model="vm.ivSettings.lastInvoiceNumber" ng-blur="vm.OnBlurLastInvoiceNumber()" placeholder="Enter Invoice Number Here" class="am-table-inline-input" flex>
                                 </span>
                                 <div flex></div>
@@ -334,7 +349,7 @@
                             </div>
                             <div layout="row" layout-xs="column">
                                 <span layout="row" layout-align="center center">
-                                    <span class="md-body-1" flex>Last Estimate Number: </span>
+                                    <span class="md-body-2" flex>Last Estimate Number: </span>
                                     <input type="number" ng-model="vm.ivSettings.lastEstimateNo" ng-blur="vm.OnBlurLastEstimateNo()" placeholder="Enter Estimate Number Here" class="am-table-inline-input" flex>
                                 </span>
                                 <div flex></div>
@@ -344,7 +359,7 @@
                             </div>
                             <div layout="row" layout-xs="column">
                                 <span layout="row" layout-align="center center">
-                                    <span class="md-body-1" flex>Last Job Card Number: </span>
+                                    <span class="md-body-2" flex>Last Job Card Number: </span>
                                     <input type="number" ng-model="vm.ivSettings.lastJobCardNo" ng-blur="vm.OnBlurLastJobCardNo()" placeholder="Enter Job Card Number Here" class="am-table-inline-input" flex>
                                 </span>
                                 <div flex></div>
@@ -355,17 +370,17 @@
                         </md-card-content>
                     </md-card>
                     <md-card class="md-hue-1 am-box-shadow">
-                        <md-card-title layout-xs="column" layout-align="center center" layout-wrap>
+                        <md-card-title layout-xs="column" layout-align="center center" layout-wrap style="padding: 16px 24px">
                             <md-card-title-text>
                                 <span class="md-title">Workshop Logo</span>
                             </md-card-title-text>
                         </md-card-title>
-                        <md-card-content layout="column" layout-align="center center" layout-margin layout-wrap>
+                        <md-card-content layout="column" layout-align="center center" layout-margin layout-wrap style="padding: 0">
                             <img ng-src="{{vm.invoiceWLogo}}" id="am-invoice-w-logo">
                         </md-card-content>
                         <input type="file" id="am-upload-invoice-w-logo" am-upload-files="vm.changeInvoiceWLogo" ng-hide="true">
                         <md-card-actions layout="row" layout-align="end center">
-                            <md-switch dir="rtl" ng-model="vm.ivSettings.display.workshopLogo" ng-change="vm.saveIvDisplaySettings()">
+                            <md-switch dir="rtl" ng-model="vm.ivSettings.display.workshopLogo" ng-change="vm.saveIvDisplaySettings()" style="margin: 0">
                                 <span layout-padding class="am-form-label">Display in Invoice</span>
                             </md-switch>
                             <md-button class="md-accent" ng-click="vm.uploadInvoiceWLogo()">
@@ -388,16 +403,16 @@
                             <div layout="row">
                                 <span class="md-title">Printing Margin&nbsp;<span style="font-size: small">(in cm)</span></span>
                                 <div flex></div>
-                                <md-checkbox ng-model="vm.ivAlign.enabled" ng-change="vm.saveIvAlignMargins(true)" aria-label="Enable Margins">
+                                <md-checkbox ng-model="vm.ivAlign.enabled" ng-change="vm.saveIvAlignMargins(true)" aria-label="Enable Margins" style="margin: 0">
                                     <span class="md-body-1">Enable Margins</span>
                                 </md-checkbox>
                             </div>
-                            <md-input-container class="am-clear-error-spacer" flex>
+                            <md-input-container class="am-clear-error-spacer" flex style="margin: 18px 0 0">
                                 <md-icon class="md-accent">vertical_align_top</md-icon>
                                 <label class="am-form-label" ng-class="{'large': vm.isTopAlignment}">{{vm.label_ivAlignTopAlignment}}</label>
                                 <input type="number" ng-model="vm.ivAlign.top" ng-focus="vm.changeTopAlignLabel(true)" ng-blur="vm.changeTopAlignLabel(); vm.saveIvAlignMargins()" aria-label="Top Align">
                             </md-input-container>
-                            <md-input-container class="am-clear-error-spacer" flex>
+                            <md-input-container class="am-clear-error-spacer" flex style="margin: 18px 0 0">
                                 <md-icon class="md-accent">vertical_align_bottom</md-icon>
                                 <label class="am-form-label" ng-class="{'large': vm.isBottomAlignment}">{{vm.label_ivAlignBottomAlignment}}</label>
                                 <input type="number" ng-model="vm.ivAlign.bottom" ng-focus="vm.changeBottomAlignLabel(true)" ng-blur="vm.changeBottomAlignLabel(); vm.saveIvAlignMargins()" aria-label="Bottom Align">
