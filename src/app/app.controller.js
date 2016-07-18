@@ -2,13 +2,13 @@
  * Closure for root level controllers
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../typings/main.d.ts" />
 
 (function() {
-    let electron = require('electron').remote;
+    const electron = require('electron').remote;
     const ammHelp = require('./automint_modules/am-help.js');
     const ipcRenderer = require("electron").ipcRenderer;
     const amApp = electron.app;
@@ -155,7 +155,7 @@
             state: 'restricted.settings'
         }];
         vm.isAutomintUpdateAvailable = undefined;
-
+        
         //  map functions to view model
         vm.openState = openState;
         vm.doUpdate = doUpdate;
@@ -172,9 +172,7 @@
         }
 
         function doUpdate() {
-            console.log(require('electron').remote.app);
-            amApp.relaunch({args: process.argv.slice(1) + ['--relaunch']})
-            amApp.exit(0);
+            ipcRenderer.send('am-quit-update', true);
         }
 
         function getPackageFile() {

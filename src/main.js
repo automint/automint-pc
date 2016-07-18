@@ -2,7 +2,7 @@
  * Entrance file for Atom Electron App
  * @author ndkcha
  * @since 0.1.0
- * @version 0.6.4 by @vrlkacha
+ * @version 0.7.0
  */
 
 'use strict';
@@ -67,6 +67,12 @@
             createWindow();
         }
     });
+
+    ipcMain.on('am-quit-update', updateAndRestartApp);
+
+    function updateAndRestartApp(event, args) {
+        autoUpdater.quitAndInstall();
+    }
 
     function OnAutomintUpdated(event, releaseNotes, releaseName, releaseDate, updateURL) {
         mainWindow.webContents.send('automint-updated', true);

@@ -2,13 +2,13 @@
  * Controller for Settings component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
-    let electron = require('electron').remote;
+    const electron = require('electron').remote;
     const amApp = electron.app;
     const dialog = electron.dialog;
 
