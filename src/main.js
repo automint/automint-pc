@@ -27,7 +27,7 @@
     const ammPreferences = require('./automint_modules/am-preferences.js');
     const fs = require('fs');
     // Keep track of path whether it exists
-    var isUserDataPathExists = false;
+    var isUserDataPathExists = true;
 
     autoUpdater.addListener("error", function(error) {});
 
@@ -129,6 +129,8 @@
         // and load the index.html of the app.
 
         mainWindow.loadURL('file://' + __dirname + '/index.html');
+
+        mainWindow.webContents.openDevTools();
 
         // Emitted when the window is closed.
         mainWindow.on('closed', function() {
