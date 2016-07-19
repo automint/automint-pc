@@ -11,6 +11,7 @@
     const electron = require('electron');
     // Module to control application life.
     const app = electron.app;
+    const dialog = electron.dialog;
     // Module to create native browser window.
     const BrowserWindow = electron.BrowserWindow;
     // Module for IPC
@@ -22,6 +23,11 @@
     var os = require('os');  
     // var feedURL = 'http://updates.automint.in/releases/' + (os.platform()) + '/' + (os.arch());
     var feedURL = 'http://updates.automint.in/releases/win32/ia32';
+    // Module to check preferences
+    const ammPreferences = require('./automint_modules/am-preferences.js');
+    const fs = require('fs');
+    // Keep track of path whether it exists
+    var isUserDataPathExists = false;
 
     autoUpdater.addListener("error", function(error) {});
 
@@ -47,9 +53,22 @@
         return;
     }
 
+    // setUserDataPath();
+    var amUserDataPath = ammPreferences.getUserData();
+    if ((typeof amUserDataPath) == "string") {
+        try {
+            fs.accessSync(amUserDataPath);
+            app.setPath('userData', amUserDataPath);
+            isUserDataPathExists = true;
+        } catch(e) {
+            isUserDataPathExists = false;
+        }
+    }
+
+
     // This method will be called when Electron has finished
     // initialization and is ready to create browser windows.
-    app.on('ready', createWindow);
+    app.on('ready', OnAppReady);
 
     // Quit when all windows are closed.
     app.on('window-all-closed', function() {
@@ -76,6 +95,28 @@
 
     function OnAutomintUpdated(event, releaseNotes, releaseName, releaseDate, updateURL) {
         mainWindow.webContents.send('automint-updated', true);
+    }
+
+    function OnAppReady() {
+        if (isUserDataPathExists)
+            createWindow();
+        else {
+            var msgbox = dialog.showMessageBox({
+                type: 'info',
+                message: 'Select Path of User Data',
+                buttons: ['OK'],
+                defaultId: 0,
+                icon: undefined
+            }, openCorrectFileUrl);
+        }
+
+        function openCorrectFileUrl() {
+            var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
+            ammPreferences.storePreference('automint.userDataPath', newPath[0]);
+            var exec = require('child_process').exec;
+            exec(process.argv.join(' '));
+            app.quit();
+        }
     }
 
     function createWindow() {

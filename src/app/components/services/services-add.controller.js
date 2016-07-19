@@ -2,7 +2,7 @@
  * Controller for Add Service module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.5
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -222,8 +222,6 @@
         }
 
         function IsProblemFocusIndex(index) {
-            if (vm.problemFocusIndex == index)
-                console.log('true');
             return (vm.problemFocusIndex == index);
         }
 

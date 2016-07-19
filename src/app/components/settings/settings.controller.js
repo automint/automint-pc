@@ -9,8 +9,10 @@
 
 (function() {
     const electron = require('electron').remote;
+    const fse = require('fs-extra');
     const amApp = electron.app;
     const dialog = electron.dialog;
+    const ammPreferences = require('./automint_modules/am-preferences.js');
 
     angular.module('automintApp').controller('amCtrlSettings', SettingsController);
 
@@ -148,8 +150,18 @@
 
         function setAmAppDataPath() {
             var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
-            amApp.setPath('userData', newPath);
-            console.log(newPath);
+            if (newPath) {
+                ammPreferences.storePreference('automint.userDataPath', newPath[0]);
+                fse.move(amApp.getPath('userData'), newPath[0], {
+                    clobber: true
+                }, success);
+            }
+            
+            function success(res) {
+                var exec = require('child_process').exec;
+                exec(process.argv.join(' '));
+                amApp.quit();
+            }
             // /Users/ndkcha/Library/Application Support/Automint
         }
 

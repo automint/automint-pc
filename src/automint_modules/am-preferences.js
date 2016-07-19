@@ -2,7 +2,7 @@
  * Module for storing local usage preferences
  * @author ndkcha
  * @since 0.6.4
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -23,12 +23,22 @@
 
     //  export as module
     module.exports = {
+        getUserData: getUserData,
         storePreference: storePreference,
         getPreference: getPreference,
         getAllPreferences: getAllPreferences
     }
 
     //  function definitions
+
+    function getUserData() {
+        try {
+            var data = JSON.parse(fs.readFileSync(PREF_FILE), 'utf-8');
+            return (data['automint.userDataPath']);
+        } catch(e) {
+            return e404;
+        }
+    }
 
     function storePreference(key, value) {
         fs.readFile(PREF_FILE, changePreferences);
