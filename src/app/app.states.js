@@ -2,7 +2,7 @@
  * Closure for state definitions and mappings to template files
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -100,12 +100,11 @@
             })
             .state('restricted.customers.edit', {
                 url: '/edit',
-                templateUrl:'app/components/customers/customers_add.html',
+                templateUrl:'app/components/customers/customers_edit.html',
                 controller: 'amCtrlCuUI',
                 controllerAs: 'vm',
                 params: {
                     id: undefined,
-                    openTab: undefined,
                     fromState: undefined
                 },
                 resolve: {
@@ -439,7 +438,8 @@
         function loadCuUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/customers/customers-edit.controller.js'
+                'app/components/customers/customers-edit.controller.js',
+                'app/components/customers/tmpl/vehicle-crud.controller.js'
             ])
         }
         function loadTreatmentDeps($ocLazyLoad) {

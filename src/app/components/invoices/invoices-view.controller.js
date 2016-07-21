@@ -2,7 +2,7 @@
  * Controller for View Invoice component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -431,8 +431,7 @@
                     case 'customers.edit.services':
                         transitState = 'restricted.customers.edit';
                         transitParams = {
-                            id: $state.params.userId,
-                            openTab: 'services'
+                            id: $state.params.userId
                         }
                         break;
                 }

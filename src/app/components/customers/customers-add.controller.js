@@ -2,7 +2,7 @@
  * Controller for Add Customer component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -61,7 +61,6 @@
         vm.changeVehicleRegLabel = changeVehicleRegLabel;
         vm.changeVehicleTab = changeVehicleTab;
         vm.changeUserTab = changeUserTab;
-        vm.isAddOperation = isAddOperation;
         vm.save = save;
         vm.queryMembershipChip = queryMembershipChip;
         vm.OnClickMembershipChip = OnClickMembershipChip;
@@ -384,12 +383,6 @@
             vm.models = [];
             vm.vehicle.model = '';
         }
-        
-        //  return boolean response to different configurations [BEGIN]
-        function isAddOperation() {
-            return true;
-        }
-        //  return boolean response to different configurations [END]
         
         //  change user tab selector variable
         function changeUserTab(bool) {

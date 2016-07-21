@@ -2,7 +2,7 @@
  * Controller for Edit Customer component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -12,25 +12,20 @@
         .controller('amCtrlCuUI', CustomerEditController)
         .controller('amCtrlMeD', MembershipEditDialogController);
 
-    CustomerEditController.$inject = ['$state', '$q', '$log', '$filter', '$mdDialog', 'utils', 'amCustomers'];
+    CustomerEditController.$inject = ['$scope', '$state', '$q', '$log', '$filter', '$mdDialog', 'utils', 'amCustomers'];
     MembershipEditDialogController.$inject = ['$mdDialog', '$filter', 'membership', 'treatments'];
 
-    function CustomerEditController($state, $q, $log, $filter, $mdDialog, utils, amCustomers) {
+    function CustomerEditController($scope, $state, $q, $log, $filter, $mdDialog, utils, amCustomers) {
         //  initialize view model
         var vm = this;
 
         //  temporary named assignments
         var autofillVehicle = false;
         var userDbInstance;
+        var nextDueDate = new Date(); 
+        nextDueDate.setMonth(nextDueDate.getMonth() + 3);
 
         //  vm assignments to keep track of UI related elements
-        vm.label_userName = 'Enter Full Name';
-        vm.label_userMobile = 'Enter Mobile Number';
-        vm.label_userEmail = 'Enter Email:';
-        vm.label_userAddress = 'Enter Address:';
-        vm.label_vehicleReg = 'Enter Vehicle Registration Number';
-        vm.label_vehicleManuf = 'Manufacturer:';
-        vm.label_vehicleModel = 'Model:';
         vm.user = {
             mobile: '',
             name: '',
@@ -41,7 +36,8 @@
             id: '',
             reg: '',
             manuf: '',
-            model: ''
+            model: '',
+
         };
         vm.manufacturers = [];
         vm.models = [];
@@ -54,65 +50,125 @@
             total: 0
         };
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
-        vm.isNextDueService = false;
-        vm.nextDueDate = new Date(); 
-        vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
+        vm.vNextDue = {};
+        vm.customerTypeList = ['Customer', 'Agency'];
+        vm.paymentDone = 0;
+        vm.paymentDue = 0;
 
         //  function maps
-        vm.convertNameToTitleCase = convertNameToTitleCase;
-        vm.convertRegToCaps = convertRegToCaps;
-        vm.searchVehicleChange = searchVehicleChange;
-        vm.manufacturersQuerySearch = manufacturersQuerySearch;
-        vm.modelQuerySearch = modelQuerySearch;
-        vm.changeUserNameLabel = changeUserNameLabel;
-        vm.changeUserMobileLabel = changeUserMobileLabel;
-        vm.changeUserEmailLabel = changeUserEmailLabel;
-        vm.changeUserAddressLabel = changeUserAddressLabel;
-        vm.changeVehicleRegLabel = changeVehicleRegLabel;
-        vm.changeVehicleTab = changeVehicleTab;
         vm.changeVehicle = changeVehicle;
         vm.isAddOperation = isAddOperation;
-        vm.chooseVehicle = chooseVehicle;
         vm.save = save;
         vm.queryMembershipChip = queryMembershipChip;
         vm.OnClickMembershipChip = OnClickMembershipChip;
         vm.OnAddMembershipChip = OnAddMembershipChip;
         vm.changeMembershipTab = changeMembershipTab;
         vm.goBack = goBack;
-        vm.changeServicesTab = changeServicesTab;
         vm.getServiceDate = getServiceDate;
         vm.editService = editService;
-        vm.deleteService = deleteService;
         vm.goToInvoice = goToInvoice;
         vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
-        vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
         vm.unsubscribeMembership = unsubscribeMembership;
         vm.IsServiceDue = IsServiceDue;
         vm.IsServiceStateIv = IsServiceStateIv;
         vm.IsServiceStateEs = IsServiceStateEs;
         vm.IsServiceStateJc = IsServiceStateJc;
         vm.getDate = getDate;
+        vm.IsVehicleSelected = IsVehicleSelected;
+        vm.editVehicle = editVehicle;
 
         //  default execution steps
+        // $state.params.id = ($state.params.id == undefined) ? "usr-anand-kacha-772d071e-852c-4a45-aaaf-089d80f73449" : $state.params.id;
         if ($state.params.id != undefined) {
             getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
-            switch ($state.params.openTab) {
-                case 'services':
-                    changeServicesTab(true);
-                    break;
-                case 'vehicle':
-                    changeVehicleTab(true);
-                    break;
-                default:
-                    setTimeout(focusCustomerMobile, 300);
-                    break;
-            }
+            setTimeout(focusCustomerMobile, 300);
         } else {
             utils.showSimpleToast('Something went wrong!');
             $state.go('restricted.customers.all');
         }
 
         //  function definitions
+
+        function editVehicle(id) {
+            changeVehicle(id);
+            $mdDialog.show({
+                controller: 'amCtrlCuVeCRUD',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/customers/tmpl/vehicle-crud.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    vehicle: vm.vehicle
+                },
+                clickOutsideToClose: true
+            }).then(closeVehicleDialog).catch(closeVehicleDialog);
+
+            function closeVehicleDialog(res) {
+                if (!res)
+                    return;
+                var vId = res.id;
+                if (!userDbInstance.user.vehicles)
+                    userDbInstance.user.vehicles = {};
+
+                var prefixVehicle = 'vhcl' + ((vm.vehicle.manuf && vm.vehicle.model) ? '-' + angular.lowercase(vm.vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vm.vehicle.model).replace(' ', '-') : '');
+
+                if (vId == undefined)
+                    vId = utils.generateUUID(prefixVehicle);
+                
+                if (userDbInstance.user.vehicles[vId]) {
+                    var tv = userDbInstance.user.vehicles[vId];
+                    if ((tv.manuf != res.manuf) || (tv.model != res.model)) {
+                        vId = utils.generateUUID(prefixVehicle);
+                        userDbInstance.user.vehicles[vId] = tv;
+                        vm.vNextDue[vId] = vm.vNextDue[res.id];
+                        delete userDbInstance.user.vehicles[res.id];
+                        delete vm.vNextDue[res.id];
+                    }
+                } else
+                    userDbInstance.user.vehicles[vId] = {};
+                var intermvehicle = userDbInstance.user.vehicles[vId];
+                intermvehicle.reg = res.reg;
+                intermvehicle.manuf = res.manuf;
+                intermvehicle.model = res.model;
+
+                var longname = (intermvehicle.manuf ? intermvehicle.manuf + ' ' : '') + (intermvehicle.model ? intermvehicle.model + ' ' : '') + (intermvehicle.reg ? ((intermvehicle.manuf || intermvehicle.model) ? ' - ' : '') + intermvehicle.reg : '');
+                var shortname = (longname.length <= 45) ? longname : longname.substr(0, 45) + '...';
+                var isLongName = (longname.length > 45);
+
+                var vfound = $filter('filter')(vm.possibleVehicleList, {
+                    id: res.id
+                }, true);
+
+                if (vfound.length == 1) {
+                    vfound[0].id = vId
+                    vfound[0].reg = res.reg;
+                    vfound[0].manuf = res.manuf;
+                    vfound[0].model = res.model;
+                    vfound[0].name = longname;
+                    vfound[0].shortname = shortname;
+                    vfound[0].isLongName = isLongName;
+                } else {
+                    vm.possibleVehicleList.push({
+                        id: vId,
+                        reg: res.reg,
+                        manuf: res.manuf,
+                        model: res.model,
+                        name: longname,
+                        shortname: shortname,
+                        isLongName: isLongName
+                    });
+                    vm.vNextDue[vId] = {
+                        isNextDue: false,
+                        nextdue: nextDueDate
+                    }
+                }
+                changeVehicle(vId);
+            }
+        }
+
+        function IsVehicleSelected(id) {
+            return (vm.currentVehicleId == id);
+        }
 
         function getDate(date) {
             return moment(date).format('DD MMM YYYY');
@@ -157,14 +213,6 @@
             $('#ami-customer-mobile').focus();
         }
 
-        function autoCapitalizeVehicleModel() {
-            vm.vehicle.model = utils.autoCapitalizeWord(vm.vehicle.model);
-        }
-
-        function autoCapitalizeVehicleManuf() {
-            vm.vehicle.manuf = utils.autoCapitalizeWord(vm.vehicle.manuf);
-        }
-
         function autoCapitalizeCustomerAddress() {
             vm.user.address = utils.autoCapitalizeWord(vm.user.address);
         }
@@ -177,40 +225,6 @@
                 userId: service.cstmr_id,
                 fromState: 'customers.edit.services'
             });
-        }
-
-        //  delete service from UI
-        function deleteService(service, ev) {
-            var confirm = $mdDialog.confirm()
-                .textContent('Are you sure you want to delete the service ?')
-                .ariaLabel('Delete Customer')
-                .targetEvent(ev)
-                .ok('Yes')
-                .cancel('No');
-
-            $mdDialog.show(confirm).then(performDelete, ignoreDelete);
-
-            function performDelete() {
-                amServices.deleteService(service.cstmr_id, service.vhcl_id, service.srvc_id).then(success).catch(failure);
-            }
-
-            function ignoreDelete() {
-                console.info('nope');
-            }
-            
-
-            function success(res) {
-                if (res.ok) {
-                    utils.showSimpleToast('Service has been deleted.');
-                    setTimeout(getServices, 200);
-                } else
-                    failure();
-            }
-
-            function failure(err) {
-                console.warn(err);
-                utils.showSimpleToast('Service can not be deleted at moment. Please Try Again!');
-            }
         }
         
         //  transit to state to view selected invoice
@@ -225,10 +239,6 @@
 
         function getServiceDate(date) {
             return moment(date).format('DD MMM YYYY');
-        }
-
-        function changeServicesTab(bool) {
-            vm.servicesTab = bool;
         }
         
         function goBack() {
@@ -487,6 +497,8 @@
                 vm.user.email = res.user.email;
                 vm.user.name = res.user.name;
                 vm.user.address = res.user.address;
+                if (res.user.type)
+                    vm.user.type = res.user.type;
                 changeUserMobileLabel();
                 changeUserEmailLabel();
                 changeUserNameLabel();
@@ -497,41 +509,28 @@
                     Object.keys(res.user.vehicles).forEach(iterateVehicle, this);
                 vm.serviceQuery.total = vm.services.length;
                 vm.possibleVehicleList = pvl;
-                changeVehicle(pvl.length > 0 ? pvl[0].id : undefined);
-                vm.services.sort(dateSort);
-
-                function dateSort(lhs, rhs) {
-                    return rhs.srvc_date.localeCompare(lhs.srvc_date);
-                }
+                changeVehicle(undefined);
+                $scope.$apply();
 
                 function iterateVehicle(vId) {
                     var vehicle = res.user.vehicles[vId];
+                    var longname = (vehicle.manuf ? vehicle.manuf + ' ' : '') + (vehicle.model ? vehicle.model + ' ' : '') + (vehicle.reg ? ((vehicle.manuf || vehicle.model) ? ' - ' : '') + vehicle.reg : '');
+                    var shortname = (longname.length <= 45) ? longname : longname.substr(0, 45) + '...';
+                    var isLongName = (longname.length > 45);
+                    vm.vNextDue[vId] = {
+                        isNextDue: (vehicle.nextdue != undefined),
+                        nextdue: (vehicle.nextdue ? new Date(vehicle.nextdue) : nextDueDate)
+                    }
                     pvl.push({
                         id: vId,
                         reg: vehicle.reg,
                         manuf: vehicle.manuf,
                         model: vehicle.model,
-                        name: vehicle.manuf + ' - ' + vehicle.model + (vehicle.reg == '' ? '' : ', ' + vehicle.reg),
+                        name: longname,
+                        shortname: shortname,
+                        isLongName: isLongName,
                         nextdue: vehicle.nextdue
                     });
-                    if (vehicle.services)
-                        Object.keys(vehicle.services).forEach(iterateServices);
-
-                    function iterateServices(sId) {
-                        var service = vehicle.services[sId];
-                        vm.services.push({
-                            cstmr_id: res._id,
-                            vhcl_manuf: vehicle.manuf,
-                            vhcl_model: vehicle.model,
-                            vhcl_reg: vehicle.reg,
-                            vhcl_id: vId,
-                            srvc_id: sId,
-                            srvc_date: service.date,
-                            srvc_cost: service.cost,
-                            srvc_status: utils.convertToTitleCase(service.status),
-                            srvc_state: service.state
-                        });
-                    }
                 }
                 function iterateMemberships(membership) {
                     res.user.memberships[membership].name = membership;
@@ -546,160 +545,80 @@
             }
         }
 
+        function loadServices() {
+            vm.services = [];
+            vm.paymentDone = 0;
+            vm.paymentDue = 0;
+            if (vm.vehicle.id) {
+                if (userDbInstance.user && userDbInstance.user.vehicles && userDbInstance.user.vehicles[vm.vehicle.id])
+                    iterateVehicle(vm.vehicle.id);
+            } else {
+                if (userDbInstance.user && userDbInstance.user.vehicles)
+                    Object.keys(userDbInstance.user.vehicles).forEach(iterateVehicle);
+            }
+            vm.services.sort(dateSort);
+
+            function dateSort(lhs, rhs) {
+                return rhs.srvc_date.localeCompare(lhs.srvc_date);
+            }
+
+            function iterateVehicle(vId) {
+                var vehicle = userDbInstance.user.vehicles[vId];
+                if (vehicle.services)
+                    Object.keys(vehicle.services).forEach(iterateServices);
+
+                function iterateServices(sId) {
+                    var service = vehicle.services[sId];
+                    if (service.status == 'paid')
+                        vm.paymentDone += parseFloat(service.cost);
+                    else
+                        vm.paymentDue += parseFloat(service.cost);
+                    vm.services.push({
+                        cstmr_id: userDbInstance._id,
+                        vhcl_manuf: vehicle.manuf,
+                        vhcl_model: vehicle.model,
+                        vhcl_reg: vehicle.reg,
+                        vhcl_id: vId,
+                        srvc_id: sId,
+                        srvc_date: service.date,
+                        srvc_cost: service.cost,
+                        srvc_status: utils.convertToTitleCase(service.status),
+                        srvc_state: service.state
+                    });
+                }
+            }
+        }
+
         function changeVehicle(id) {
             if (!id) {
                 setDefaultVehicle();
+                loadServices();
                 return;
             }
             var found = $filter('filter')(vm.possibleVehicleList, {
                 id: id
             }, true);
             if (found.length > 0) {
-                vm.currentVehicle = found[0].name;
+                vm.currentVehicleId = found[0].id;
                 vm.vehicle.id = found[0].id;
                 vm.vehicle.reg = found[0].reg;
                 vm.vehicle.manuf = found[0].manuf;
                 vm.vehicle.model = found[0].model;
-            	if (found[0].nextdue && (found[0].nextdue.localeCompare(moment().format()) > 0)) {
-                    vm.isNextDueService = true;
-                    vm.nextDueDate = new Date(found[0].nextdue);
-                }
                 changeVehicleRegLabel();
                 autofillVehicle = true;
             } else
                 setDefaultVehicle();
+            loadServices();
         }
 
         function setDefaultVehicle() {
-            vm.currentVehicle = 'New Vehicle';
+            vm.currentVehicleId = undefined;
             vm.vehicle.id = undefined;
             vm.vehicle.reg = '';
             vm.vehicle.manuf = '';
             vm.vehicle.model = '';
             autofillVehicle = false;
         }
-
-        //  choose different existing vehicle
-        function chooseVehicle($mdOpenMenu, ev) {
-            $mdOpenMenu(ev);
-        }
-
-        function convertNameToTitleCase() {
-            vm.user.name = utils.convertToTitleCase(vm.user.name);
-        }
-
-        function convertRegToCaps() {
-            vm.vehicle.reg = vm.vehicle.reg.toUpperCase();
-        }
-
-        //  query search for manufacturers [autocomplete]
-        function manufacturersQuerySearch() {
-            var tracker = $q.defer();
-            var results = (vm.vehicle.manuf ? vm.manufacturers.filter(createFilterForManufacturers(vm.vehicle.manuf)) : vm.manufacturers);
-
-            if (results.length > 0) {
-                return results;
-            }
-
-            amCustomers.getManufacturers().then(allotManufacturers).catch(noManufacturers);
-            return tracker.promise;
-
-            function allotManufacturers(res) {
-                vm.manufacturers = res;
-                results = (vm.vehicle.manuf ? vm.manufacturers.filter(createFilterForManufacturers(vm.vehicle.manuf)) : vm.manufacturers);
-                tracker.resolve(results);
-            }
-
-            function noManufacturers(error) {
-                results = [];
-                tracker.resolve(results);
-            }
-        }
-
-        //  create filter for manufacturers' query list
-        function createFilterForManufacturers(query) {
-            var lcQuery = angular.lowercase(query);
-            return function filterFn(item) {
-                item = angular.lowercase(item);
-                return (item.indexOf(lcQuery) === 0);
-            }
-        }
-
-        //  query search for model [autocomplete]
-        function modelQuerySearch() {
-            var tracker = $q.defer();
-            var results = (vm.vehicle.model ? vm.models.filter(createFilterForModel(vm.vehicle.model)) : vm.models);
-
-            if (results.length > 0)
-                return results;
-
-            amCustomers.getModels(vm.vehicle.manuf).then(allotModels).catch(noModels);
-            return tracker.promise;
-
-            function allotModels(res) {
-                vm.models = res;
-                results = (vm.vehicle.model ? vm.models.filter(createFilterForModel(vm.vehicle.model)) : vm.models);
-                tracker.resolve(results);
-            }
-
-            function noModels(err) {
-                results = [];
-                tracker.resolve(results);
-            }
-        }
-
-        //  create filter for models' query list
-        function createFilterForModel(query) {
-            var lcQuery = angular.lowercase(query);
-            return function filterFn(item) {
-                item = angular.lowercase(item);
-                return (item.indexOf(lcQuery) === 0);
-            }
-        }
-
-        function searchVehicleChange(e) {
-            autoCapitalizeVehicleManuf();
-            if (!autofillVehicle) {
-                vm.models = [];
-                vm.vehicle.model = '';
-                autofillVehicle = false;
-            } else
-                autofillVehicle = false;
-        }
-
-        //  return boolean response to different configurations [BEGIN]
-        function isAddOperation() {
-            return false;
-        }
-        //  return boolean response to different configurations [END]
-
-        //  change vehicle table selector variable
-        function changeVehicleTab(bool) {
-            vm.vehicleTab = bool;
-        }
-
-        //  listen to changes in input fields [BEGIN]
-        function changeUserNameLabel(force) {
-            vm.isUserName = (force != undefined || vm.user.name != '');
-            vm.label_userName = vm.isUserName ? 'Name:' : 'Enter Full Name:';
-        }
-        function changeUserMobileLabel(force) {
-            vm.isUserMobile = (force != undefined || vm.user.mobile != ''); 
-            vm.label_userMobile = vm.isUserMobile ? 'Mobile:' : 'Enter Mobile Number:';
-        }
-        function changeUserEmailLabel(force) {
-            vm.isUserEmail = (force != undefined || vm.user.email != '');
-            vm.label_userEmail = vm.isUserEmail ? 'Email:' : 'Enter Email:';
-        }
-        function changeUserAddressLabel(force) {
-            vm.isUserAddress = (force != undefined || vm.user.address != '');
-            vm.label_userAddress = vm.isUserAddress ? 'Address:' : 'Enter Address:';
-        }
-        function changeVehicleRegLabel(force) {
-            vm.isVehicleReg = (force != undefined || vm.vehicle.reg != ''); 
-            vm.label_vehicleReg = vm.isVehicleReg ? 'Vehcile Registration Number:' : 'Enter Vehicle Registration Number:';
-        }
-        //  listen to changes in input fields [END]
 
         function isSame() {
             var checkuser = userDbInstance.user.mobile == vm.user.mobile && userDbInstance.user.name == vm.user.name && userDbInstance.user.email == vm.user.email && userDbInstance.user.address == vm.user.address;
@@ -713,6 +632,7 @@
             userDbInstance.user.name = vm.user.name;
             userDbInstance.user.email = vm.user.email;
             userDbInstance.user.address = vm.user.address;
+            userDbInstance.user.type = vm.user.type;
             
             if (vm.membershipChips != undefined) {
                 var smArray = $.extend([], vm.membershipChips);
@@ -720,35 +640,21 @@
                 smArray.forEach(addMembershipsToUser);
             }
 
-            if (!((vm.vehicle.reg == '' || vm.vehicle.reg == undefined) && (vm.vehicle.manuf == '' || vm.vehicle.manuf == undefined) && (vm.vehicle.model == '' || vm.vehicle.model == undefined))) {
-                if (!userDbInstance.user.vehicles)
-                    userDbInstance.user.vehicles = {}
-                var vehicleDbInstance = userDbInstance.user.vehicles[vm.vehicle.id];
-                if (vehicleDbInstance) {
-                    vehicleDbInstance.reg = vm.vehicle.reg;
-                    vehicleDbInstance.manuf = vm.vehicle.manuf;
-                    vehicleDbInstance.model = vm.vehicle.model;
-                    if (vm.isNextDueService)
-                        vehicleDbInstance.nextdue = vm.nextDueDate;
-                    else if (vehicleDbInstance.nextdue)
-                        delete vehicleDbInstance['nextdue'];
-                } else {
-                    var prefixVehicle = 'vhcl' + ((vm.vehicle.manuf && vm.vehicle.model) ? '-' + angular.lowercase(vm.vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vm.vehicle.model).replace(' ', '-') : '');
-                    var vo = {
-                        reg: (vm.vehicle.reg == undefined ? '' : vm.vehicle.reg),
-                        manuf: (vm.vehicle.manuf == undefined ? '' : vm.vehicle.manuf),
-                        model: (vm.vehicle.model == undefined ? '' : vm.vehicle.model)
-                    }
-                    if (vm.isNextDueService)
-                        vo.nextdue = vm.nextDueDate;
-                    userDbInstance.user.vehicles[utils.generateUUID(prefixVehicle)] = vo;
-                }
-            }
+            if (Object.keys(vm.vNextDue))
+                Object.keys(vm.vNextDue).forEach(iterateDueDates);
             
             if (vm.user.id)
                 amCustomers.saveCustomer(userDbInstance).then(successfullSave).catch(failedSave);
             else
                 failedSave();
+
+            function iterateDueDates(vId) {
+                var t = vm.vNextDue[vId];
+                if (t.isNextDue)
+                    userDbInstance.user.vehicles[vId].nextdue = moment(t.nextdue).format();
+                else if (!t.isNextDue)
+                    delete userDbInstance.user.vehicles[vId].nextdue;
+            }
                 
             function addMembershipsToUser(membership) {
                 var mTreatments = $.extend([], membership.treatments);

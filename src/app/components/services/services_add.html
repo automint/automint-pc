@@ -10,7 +10,7 @@
         transition: all 600ms ease;
         background: rgba(180, 180, 180, 0.1) !important;
     }
-    
+
     .am-box-input {
         border: 0;
         padding: 0 15px;
@@ -20,15 +20,6 @@
         color: #000;
         transition: all 600ms ease;
         background: rgba(180, 180, 180, 0.1);
-    }
-    
-    .am-service-input-box {
-        margin: 0.6rem;
-    }
-    
-    .am-service-input-box label {
-        margin-bottom: 0;
-        margin-right: 0.4rem;
     }
     
     .am-select {
@@ -136,16 +127,15 @@
         <span class="md-subhead">{{vm.label_titleCustomerMoreInfo()}} Information</span>
     </md-toolbar>
     <md-content layout-margin layout="column" class="md-hue-1">
-        <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+        <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
             <label class="am-form-label" flex="15">Email: </label>
             <input md-autofocus type="email" class="am-box-input md-whiteframe-z1" placeholder="Enter Email Address" ng-model="vm.user.email" flex>
         </div>
-        <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+        <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
             <label class="am-form-label" flex="15">Address: </label>
-            <textarea class="am-box-input md-whiteframe-z1" style="line-height: normal; padding: 10px 15px" placeholder="Enter Address" ng-model="vm.user.address" ng-change="vm.autoCapitalizeCustomerAddress()" rows="2" md-select-on-focus ng-blur="vm.changeUserAddressLabel()" ng-focus="vm.changeUserAddressLabel(true)"
-                flex></textarea>
+            <textarea class="am-box-input md-whiteframe-z1" style="line-height: normal; padding: 10px 15px" placeholder="Enter Address" ng-model="vm.user.address" ng-change="vm.autoCapitalizeCustomerAddress()" rows="2" md-select-on-focus flex></textarea>
         </div>
-        <div layout="column" layout-align="start" class="am-service-input-box">
+        <div layout="column" layout-align="start" class="am-input-box">
             <label class="am-form-label" style="color: rgba(30, 30, 30, 0.7);">Memberships <i>(AMC Contracts)</i>:</label>
             <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-on-remove="vm.unsubscribeMembership($event, $chip)" md-require-match="true">
                 <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
@@ -172,37 +162,37 @@
             <img src="assets/img/logo-250x125px.png" id="am-sp-cover-pic" style="box-shadow: 1px 1px 3px 1px #212121; background: #212121">
         </md-toolbar>
         <div layout="column" layout-margin>
-            <div layout="row" layout-align="start center" class="am-service-input-box" ng-if="vm.WhichServiceStateEnabled(2)">
+            <div layout="row" layout-align="start center" class="am-input-box" ng-if="vm.WhichServiceStateEnabled(2)">
                 <label class="am-form-label" flex="60">Invoice # :</label>
                 <input id="ami-service-invoice-no" type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Invoice Number" ng-model="vm.service.invoiceno" flex>
             </div>
-            <div layout="row" layout-align="start center" class="am-service-input-box" ng-if="vm.WhichServiceStateEnabled(1)">
+            <div layout="row" layout-align="start center" class="am-input-box" ng-if="vm.WhichServiceStateEnabled(1)">
                 <label class="am-form-label" flex="60">Estimate # :</label>
                 <input id="ami-service-invoice-no" type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Estimate Number" ng-model="vm.service.estimateno" flex>
             </div>
-            <div layout="row" layout-align="start center" class="am-service-input-box" ng-if="vm.WhichServiceStateEnabled(0)">
+            <div layout="row" layout-align="start center" class="am-input-box" ng-if="vm.WhichServiceStateEnabled(0)">
                 <label class="am-form-label" flex="60">Job Card # :</label>
                 <input id="ami-service-invoice-no" type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Job Card Number" ng-model="vm.service.jobcardno" flex>
             </div>
-            <div layout="row" layout-align="start center" class="am-service-input-box">
+            <div layout="row" layout-align="start center" class="am-input-box">
                 <label class="am-form-label" flex="60">Odometer<span style="font-size: x-small;">&nbsp;(km)</span>:</label>
                 <input type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Odometer Reading" ng-model="vm.service.odo" flex>
             </div>
-            <div layout="row" layout-align="start center" class="am-service-input-box">
+            <div layout="row" layout-align="start center" class="am-input-box">
                 <label class="am-form-label" flex="30">Service:</label>
                 <md-select aria-label="Service Type" class="am-select" ng-model="vm.serviceType" ng-change="vm.changeServiceType()" id="ami-service-type" flex>
                     <md-option class="am-hover-option" ng-value="type" ng-repeat="type in vm.serviceTypeList" ng-selected="$first">{{type}}</md-option>
                 </md-select>
             </div>
-            <div layout="column" class="am-service-input-box" style="margin: 0.6rem 0.6rem 0 0.6rem">
+            <div layout="column" class="am-input-box" style="margin: 0.6rem 0.6rem 0 0.6rem">
                 <label class="am-form-label">Vehicle Type:</label>
-                <div layout="row" layout-align="start center" class="am-service-input-box" style="margin: 0.6rem 0.6rem 0 0.6rem">
+                <div layout="row" layout-align="start center" class="am-input-box" style="margin: 0.6rem 0.6rem 0 0.6rem">
                     <md-radio-group ng-model="vm.vehicle.type" ng-change="vm.changeVehicleType()">
                         <md-radio-button class="am-service-radio" ng-value="type" ng-repeat="type in vm.vehicleTypeList" class="md-body-1">{{type}}</md-radio-button>
                     </md-radio-group>
                 </div>
             </div>
-            <div layout="column" class="am-service-input-box">
+            <div layout="column" class="am-input-box">
                 <md-checkbox aria-label="Payment" ng-model="vm.isNextDueService" ng-blur="!vm.isNextDueService && vm.fetchFocusItemAfterSS()" style="margin-bottom: 4px"><span class="md-body-2">Next Service Reminder<span ng-show="vm.isNextDueService" class="md-caption">:</span></span></md-checkbox>
                 <div layout="row" layout-align="start center" ng-show="vm.isNextDueService">
                     <md-datepicker class="md-hue-1" ng-blur="vm.fetchFocusItemAfterSS()" ng-model="vm.nextDueDate" md-placeholder="Enter Date" style="margin: 0 0 0 0.2rem; padding-right: 0" md-open-on-focus></md-datepicker>
@@ -222,7 +212,7 @@
                 </div>
                 <div layout="column" layout-fill class="expanded">
                     <div layout="column">
-                        <div layout="row" layout-align="start center" flex="60" class="am-service-input-box">
+                        <div layout="row" layout-align="start center" flex="60" class="am-input-box">
                             <label class="am-form-label" flex="10">Name: </label>
                             <md-autocomplete md-autofocus ng-disabled="!vm.isAddOperation()" flex md-no-cache md-selected-item="vm.currentUser" md-search-text-change="vm.convertNameToTitleCase()" md-search-text="vm.user.name" md-selected-item-change="vm.selectedUserChange()" md-items="user in vm.userQuerySearch()" md-item-text="user.name" md-min-length="1" placeholder="Enter Full Name" id="ami-user-name">
                                 <md-item-template>
@@ -230,11 +220,11 @@
                                 </md-item-template>
                             </md-autocomplete>
                         </div>
-                        <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+                        <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
                             <label class="am-form-label" flex="10">Mobile: </label>
                             <input type="text" class="am-box-input md-whiteframe-z1" placeholder="Enter Mobile Number" ng-model="vm.user.mobile" ng-blur="vm.selectUserBasedOnMobile()" ng-change="vm.changeUserMobile(true)" flex>
                         </div>
-                        <div layout="row" layout-align="end" flex="auto" class="am-service-input-box">
+                        <div layout="row" layout-align="end" flex="auto" class="am-input-box">
                             <md-button class="md-accent" ng-keydown="vm.changeVehicleInfoState(true, $event)" ng-click="vm.openCustomerMoreDetails()">
                                 <span layout-margin>More Details</span>
                                 <md-icon>more</md-icon>
@@ -258,7 +248,7 @@
                 </div>
                 <div layout="column" layout-fill class="expanded">
                     <div layout="column">
-                        <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+                        <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
                             <label class="am-form-label" flex="20">Manufacturer:</label>
                             <md-autocomplete id="ami-vehicle-manuf" class="am-full-width" md-selected-item="vm.selectedManuf" md-search-text="vm.vehicle.manuf" md-items="manuf in vm.manufacturersQuerySearch()" md-item-text="manuf" placeholder="Type Manufacturer Name" md-search-text-change="vm.searchVehicleChange()" flex>
                                 <md-item-template>
@@ -266,7 +256,7 @@
                                 </md-item-template>
                             </md-autocomplete>
                         </div>
-                        <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+                        <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
                             <label class="am-form-label" flex="20">Model:</label>
                             <md-autocomplete class="am-full-width" md-selected-item="vm.selectedModel" md-search-text="vm.vehicle.model" md-items="model in vm.modelQuerySearch()" md-item-text="model" placeholder="Type Model Name" md-no-cache="true" md-min-length="0" md-search-text-change="vm.autoCapitalizeVehicleModel()" flex>
                                 <md-item-template>
@@ -275,7 +265,7 @@
                             </md-autocomplete>
                         </div>
                         <div layout="row">
-                            <div layout="row" layout-align="start center" flex="auto" class="am-service-input-box">
+                            <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
                                 <label class="am-form-label" style="font-size: 9pt" flex="20">Registration No: </label>
                                 <input type="text" class="am-box-input md-whiteframe-z1 am-vehicle-reg" ng-model="vm.vehicle.reg" ng-keydown="!vm.isAddOperation() && vm.changeServiceInfoState(true, $event)" ng-change="vm.convertRegToCaps()" placeholder="e.g GJ01AB9999" flex>
                                 <md-menu ng-show="vm.isAddOperation()">

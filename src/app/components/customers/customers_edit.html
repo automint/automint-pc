@@ -1,0 +1,248 @@
+<style>
+    .am-box-input {
+        border: 0;
+        border-bottom: 1px solid #BDBDBD;
+        padding: 0 10px;
+        line-height: 30px;
+        font-size: small;
+        outline: none;
+        color: #000;
+        transition: all 600ms ease;
+    }
+
+    .am-box-input:hover {
+        border-bottom: 1px solid #9E9E9E;
+    }
+
+    .am-box-input:focus {
+        border-bottom: 1px solid #424242;
+    }
+
+    .md-datepicker-button {
+        margin: 0 !important;
+    }
+
+    .md-datepicker-input-container {
+        margin-left: 0 !important;
+    }
+
+    .md-datepicker-input-container .md-datepicker-input, .md-datepicker-triangle-button {
+        display: none;
+    }
+
+    .am-vehicle-selector {
+        margin: 2px 16px;
+        outline: none;
+        border-radius: 4px;
+        padding: 2px 16px;
+        transition: background 500ms ease, color 100ms ease;
+    }
+
+    .am-vehicle-selector.all-vehicles {
+        padding: 8px 16px;
+        color: #1976D2;
+        border: 1px solid #1976D2;
+        transition: border 200ms ease;
+    }
+
+    .am-vehicle-selector.all-vehicles:hover {
+        border: 1px solid #2196F3;
+    }
+
+    .am-vehicle-selector.selected {
+        background: #2196F3;
+        color: #fff;
+    }
+
+    .am-vehicle-selector .am-button {
+        padding: 8px 14px;
+        border-radius: 4px;
+        outline: none;
+        cursor: pointer;
+        transition: background 500ms ease, color 500ms ease;
+    }
+
+    .am-vehicle-selector .md-body-1 {
+        outline: none;
+        cursor: pointer;
+    }
+
+    .am-vehicle-selector .md-body-1:hover {
+        color: #2196F3;
+    }
+
+    .am-vehicle-selector.selected:hover .md-body-1 {
+        color: #fff;
+    }
+
+    .am-vehicle-selector .am-button:hover {
+        background: #1565C0;
+        color: #fff;
+    }
+
+    .am-vehicle-selector.selected .am-button {
+        border-radius: 0;
+    }
+
+    .am-vehicle-selector .am-button span {
+        text-transform: uppercase;
+        font-weight: 500;
+        letter-spacing: 1px;
+    }
+
+    .am-vehicle-selector .am-button md-icon {
+        color: #fff;
+        margin-right: 6px;
+    }
+
+    .am-blue-bar .am-table-header {
+        color: #fff;
+    }
+
+    md-select-menu md-content {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .am-eci-block {
+        margin-top: 16px;
+        margin-bottom: 16px;
+    }
+
+    .am-eci-block.first {
+        margin-top: 0;
+        margin-bottom: 16px;
+    }
+
+    .am-eci-block.last {
+        margin-top: 16px;
+        margin-bottom: 0;
+    }
+</style>
+<md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
+    <md-icon aria-label="Back">arrow_back</md-icon>
+</md-button>
+<md-content layout="column">
+    <md-card class="md-hue-1">
+        <md-button class="md-warn md-raised" style="position: absolute; right: 10px" ng-click="vm.save()">
+            <md-icon>done</md-icon>
+            <span layout-margin>Save</span>
+        </md-button>
+        <md-card-title layout="row" layout-align="center center" class="am-blue-bar c600" style="padding: 14px">
+            <md-card-title-text style="text-align: center">
+                <span class="md-title">{{vm.user.name}}</span>
+            </md-card-title-text>
+        </md-card-title>
+        <md-card-content layout="row" style="padding: 16px 0">
+            <div flex="50" laout="column" style="padding: 0 6px">
+                <div layout="row" class="am-eci-block first">
+                    <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
+                        <label class="am-form-label">Mobile: </label>
+                        <input type="text" class="am-box-input" placeholder="Enter Mobile Number" ng-model="vm.user.mobile" flex>
+                    </div>
+                    <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
+                        <label class="am-form-label">Email: </label>
+                        <input type="email" class="am-box-input" placeholder="Enter Email Address" ng-model="vm.user.email" flex>
+                    </div>
+                </div>
+                <div layout="row" layout-align="start" flex="auto" class="am-input-box am-eci-block">
+                    <label class="am-form-label" style="padding: 6px 0">Address: </label>
+                    <textarea class="am-box-input" style="line-height: normal; padding: 10px 15px" ng-change="vm.autoCapitalizeCustomerAddress()" placeholder="Enter Address" ng-model="vm.user.address" rows="2" md-select-on-focus flex></textarea>
+                </div>
+                <div layout="row" class="am-eci-block">
+                    <div layout="row" layout-align="start center" flex="55" class="am-input-box">
+                        <label class="am-form-label">Type: </label>
+                        <md-select aria-label="Customer Type" class="am-select" style="margin: 0" ng-model="vm.user.type" flex>
+                            <md-option class="am-hover-option" ng-value="type" ng-repeat="type in vm.customerTypeList" ng-selected="$first">{{type}}</md-option>
+                        </md-select>
+                    </div>
+                    <div layout="row" layout-align="start end" flex="45" class="am-input-box">
+                        <label class="am-form-label">Services Done So Far: </label>
+                        <span style="color: #3949AB; font-weight: 500">{{vm.services.length}}</span>
+                    </div>
+                </div>
+                <div layout="column" layout-align="start" class="am-input-box am-eci-block">
+                    <label class="am-form-label" style="color: #000">Memberships <i>(AMC Contracts)</i>:</label>
+                    <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-on-remove="vm.unsubscribeMembership($event, $chip)" md-require-match="true">
+                        <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
+                            <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
+                        </md-autocomplete>
+                        <md-chip-template>
+                            <span>
+                            <span style="font-size: small">{{$chip.name}}</span>
+                            </span>
+                        </md-chip-template>
+                    </md-chips>
+                    <span class="md-caption" style="line-height: 2rem"><address>*&nbsp;Click on Membership for details</address></span>
+                </div>
+                <div layout="row" class="am-eci-block last">
+                    <div layout="row" layout-align="start end" flex="45" class="am-input-box">
+                        <label class="am-form-label">Payment So Far: </label>
+                        <span style="color: #4CAF50; font-weight: 500;"><span style="font-size: small">Rs.</span>{{vm.paymentDone}}</span>
+                    </div>
+                    <div layout="row" layout-align="start end" flex="45" class="am-input-box">
+                        <label class="am-form-label">Payment Due: </label>
+                        <span style="color: #F44336; font-weight: 500;"><span style="font-size: small">Rs.</span>{{vm.paymentDue}}</span>
+                    </div>
+                </div>
+            </div>
+            <md-divider></md-divider>
+            <div flex="50" style="padding: 0 10px" layout="column">
+                <div layout="row" layout-align="start center">
+                    <span class="md-subhead" style="margin: 8px" flex>Vehicles: </span>
+                    <div class="am-vehicle-selector all-vehicles" ng-class="{'selected': vm.IsVehicleSelected(undefined)}" ng-click="vm.changeVehicle(undefined)">
+                        <span class="md-body-1">All Vehicles</span>
+                    </div>
+                </div>
+                <div layout="row" layout-align="start center" ng-repeat="vehicle in vm.possibleVehicleList" class="am-vehicle-selector" ng-class="{'selected': vm.IsVehicleSelected(vehicle.id), 'all-vehicles': !vehicle.id}">
+                    <span class="md-body-1" ng-click="vm.changeVehicle(vehicle.id)" flex>{{vehicle.shortname}}<md-tooltip ng-if="vehicle.isLongName">{{vehicle.name}}</md-tooltip></span>
+                    <div layout="row" layout-align="start center" class="am-button" ng-show="vehicle.id" ng-click="vm.editVehicle(vehicle.id)">
+                        <md-icon>edit</md-icon>
+                        <span class="md-caption">Edit</span>
+                    </div>
+                </div>
+                <div flex></div>
+                <div layout="row" layout-align="start center">
+                    <div layout="row" layout-align="start center" ng-show="vm.vehicle.id">
+                        <md-checkbox aria-label="Next Due" ng-model="vm.vNextDue[vm.vehicle.id].isNextDue" style="margin-bottom: 0"><span class="md-body-2">Next Service Reminder<span ng-show="vm.vNextDue[vm.vehicle.id].isNextDue" class="md-caption">:</span></span></md-checkbox>
+                        <div layout="row" layout-align="start center" ng-show="vm.vNextDue[vm.vehicle.id].isNextDue">
+                            <md-datepicker class="md-hue-1" ng-model="vm.vNextDue[vm.vehicle.id].nextdue" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem; padding-right: 0" md-open-on-focus></md-datepicker>
+                            <span style="font-size: 10pt; padding-top: 2px">{{vm.getDate(vm.vNextDue[vm.vehicle.id].nextdue)}}</span>
+                        </div>
+                    </div>
+                    <div flex></div>
+                    <md-button class="md-accent" ng-click="vm.editVehicle(undefined)">
+                        <md-icon>add</md-icon>
+                        <span layout-margin>Add Vehicle</span>
+                    </md-button>
+                </div>
+            </div>
+        </md-card-content>
+    </md-card>
+    <md-card class="md-hue-1">
+        <md-card-content style="padding: 0">
+            <md-table-container>
+                <table md-table>
+                    <thead md-head>
+                        <tr md-row class="am-blue-bar c600">
+                            <th md-column><span class="am-table-header">Vehicle</span></th>
+                            <th md-column><span class="am-table-header">Date</span></th>
+                            <th md-column><span class="am-table-header">Amount&nbsp;<span class="md-caption">(Rs.)</span></span></th>
+                            <th md-column><span class="am-table-header">Payment</span></th>
+                            <th md-column></th>
+                        </tr>
+                    </thead>
+                    <tbody md-body>
+                        <tr md-row ng-repeat="service in vm.services | limitTo: vm.serviceQuery.limit: (vm.serviceQuery.page - 1)*(vm.serviceQuery.limit)" class="am-select-table-row">
+                            <td md-cell ng-click="vm.editService(service)">{{service.vhcl_manuf + ' ' + service.vhcl_model}}<span ng-if="service.vhcl_reg">&nbsp;({{service.vhcl_reg}})</span></td>
+                            <td md-cell ng-click="vm.editService(service)">{{vm.getServiceDate(service.srvc_date)}}</td>
+                            <td md-cell ng-click="vm.editService(service)">{{service.srvc_cost}}</td>
+                            <td md-cell ng-click="vm.editService(service)"><span ng-class="{'am-red-text': vm.IsServiceDue(service.srvc_status)}">{{service.srvc_status}}</span></td>
+                            <td md-cell ng-click="vm.editService(service)"><span ng-class="{'am-jobcard-text': vm.IsServiceStateJc(service.srvc_state), 'am-estimate-text': vm.IsServiceStateEs(service.srvc_state), 'am-invoice-text': vm.IsServiceStateIv(service.srvc_state)}">{{service.srvc_state}}</span></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </md-table-container>
+        </md-card-content>
+    </md-card>
+</md-content>

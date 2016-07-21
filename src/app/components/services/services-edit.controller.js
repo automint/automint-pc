@@ -2,7 +2,7 @@
  * Controller for Edit Service component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.5
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -887,8 +887,7 @@
                     case 'customers.edit.services':
                         transitState = 'restricted.customers.edit';
                         transitParams = {
-                            id: $state.params.userId,
-                            openTab: 'services'
+                            id: $state.params.userId
                         }
                         break;
                 }

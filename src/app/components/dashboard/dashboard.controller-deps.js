@@ -2,7 +2,7 @@
  * Controller for dashboard sub-views
  * @author ndkcha
  * @since 0.6.4
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -246,7 +246,6 @@
         function editCustomer(cId) {
             $state.go('restricted.customers.edit', {
                 id: cId,
-                openTab: 'vehicle',
                 fromState: 'dashboard.nextdueservices'
             });
             $mdDialog.hide();
