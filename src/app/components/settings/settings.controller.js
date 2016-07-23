@@ -8,6 +8,7 @@
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
+    const ipcRenderer = require('electron').ipcRenderer;
     const electron = require('electron').remote;
     const fse = require('fs-extra');
     const amApp = electron.app;
@@ -152,15 +153,14 @@
             var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
             if (newPath) {
                 ammPreferences.storePreference('automint.userDataPath', newPath[0]);
-                fse.move(amApp.getPath('userData'), newPath[0], {
+                fse.copy(amApp.getPath('userData'), newPath[0], {
                     clobber: true
                 }, success);
             }
             
             function success(res) {
-                var exec = require('child_process').exec;
-                exec(process.argv.join(' '));
-                amApp.quit();
+                fse.removeSync(amApp.getPath('userData'));
+                ipcRenderer.send('am-do-restart', true);
             }
             // /Users/ndkcha/Library/Application Support/Automint
         }

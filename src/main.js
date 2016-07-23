@@ -89,6 +89,13 @@
 
     ipcMain.on('am-quit-update', updateAndRestartApp);
 
+    ipcMain.on('am-do-restart', restartApp);
+
+    function restartApp(event, args) {
+        app.relaunch();
+        app.exit(0);
+    }
+
     function updateAndRestartApp(event, args) {
         autoUpdater.quitAndInstall();
     }
