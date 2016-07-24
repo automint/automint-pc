@@ -2,7 +2,7 @@
  * Controller for dashboard view
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -423,7 +423,7 @@
                 openDuePayments();
 
             function iterateUnbilledServices(ubs) {
-                vm.totalPendingPayments += parseFloat(ubs.srvc_cost);
+                vm.totalPendingPayments += (ubs.srvc_payreceived) ? (parseFloat(ubs.srvc_cost) - parseFloat(ubs.srvc_payreceived)) : parseFloat(ubs.srvc_cost);
             }
         }
 
@@ -465,6 +465,8 @@
                 ++vm.totalServicesDone;
                 if (service.srvc_status == 'Paid')
                     vm.totalRevenueEarned += parseFloat(service.srvc_cost);
+                else
+                    vm.totalRevenueEarned += (service.srvc_payreceived ? parseFloat(service.srvc_payreceived) : 0);
                 var d = moment(service.srvc_date).format('DD MMM YYYY');
                 if (!spd[d]) {
                     spd[d] = 0;

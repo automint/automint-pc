@@ -2,7 +2,7 @@
  * Closure for root level service
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -174,6 +174,7 @@
                             function iterateServices(sId) {
                                 var service = vehicle.services[sId];
                                 var cd = moment(service.date).format('MMM YYYY');
+                                var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.state == "paid") ? service.cost : 0);
                                 cd = angular.lowercase(cd).replace(' ', '-');
                                 if (service._deleted == true) {
                                     if (cachedoc[cd][sId] != undefined)
@@ -194,7 +195,8 @@
                                     srvc_date: service.date,
                                     srvc_cost: service.cost,
                                     srvc_status: service.status,
-                                    srvc_state: service.state
+                                    srvc_state: service.state,
+                                    srvc_payreceived: payreceived
                                 };
                             }
                         }
@@ -254,6 +256,7 @@
 
                             function iterateServices(sId) {
                                 var service = vehicle.services[sId];
+                                var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.state == "paid") ? service.cost : 0);
                                 var cd = moment(service.date).format('MMM YYYY');
                                 cd = angular.lowercase(cd).replace(' ', '-');
                                 if (service._deleted == true) {
@@ -281,7 +284,8 @@
                                     srvc_date: service.date,
                                     srvc_cost: service.cost,
                                     srvc_status: service.status,
-                                    srvc_state: service.state
+                                    srvc_state: service.state,
+                                    srvc_payreceived: payreceived
                                 };
                             }
                         }

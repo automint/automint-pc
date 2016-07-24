@@ -36,11 +36,16 @@
         vm.services = unbilledServices;
         vm.editService = editService;
         vm.closeDialog = closeDialog;
+        vm.getCost = getCost;
         
         //  default execution steps
         vm.services.sort(sortFunction);
         
         //  function definitions
+
+        function getCost(service) {
+            return (service.srvc_payreceived ? (parseFloat(service.srvc_cost) - parseFloat(service.srvc_payreceived)) : parseFloat(service.srvc_cost));
+        }
         
         function sortFunction(lhs, rhs) {
             return (rhs.srvc_date.localeCompare(lhs.srvc_date));

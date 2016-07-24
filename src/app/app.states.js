@@ -476,6 +476,7 @@
         function loadSeCIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
+                'app/components/services/tmpl/dialog_partialpayment.controller.js',
                 'app/components/services/services-add.controller.js'
             ])
         }
@@ -489,6 +490,7 @@
         function loadSeUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
+                'app/components/services/tmpl/dialog_partialpayment.controller.js',
                 'app/components/services/services-edit.controller.js'
             ])
         }

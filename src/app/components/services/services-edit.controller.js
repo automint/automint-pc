@@ -190,6 +190,10 @@
         vm.getDate = getDate;
         vm.IsProblemFocusIndex = IsProblemFocusIndex;
         vm.IsInventoryFocusIndex = IsInventoryFocusIndex;
+        vm.openPartialPaymentBox = openPartialPaymentBox;
+        vm.calculateDue = calculateDue;
+        vm.IsPartialPayment = IsPartialPayment;
+        vm.changeServiceStatus = changeServiceStatus;
 
         //  default execution steps
         setCoverPic();
@@ -203,6 +207,49 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function changeServiceStatus() {
+            if (vm.servicestatus) {
+                if (vm.service.partialpayment) {
+                    if ((vm.service.partialpayment.total - vm.service.cost) != 0)
+                        vm.service.partialpayment[moment().format()] = vm.service.cost - vm.service.partialpayment.total;
+                }
+            } else
+                openPartialPaymentBox();
+        }
+
+        function IsPartialPayment() {
+            return (vm.service.partialpayment && !vm.servicestatus);
+        }
+
+        function calculateDue() {
+            return (vm.service.cost - vm.service.partialpayment.total);
+        }
+
+        function openPartialPaymentBox() {
+            $mdDialog.show({
+                controller: 'amCtrlSePp',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/services/tmpl/dialog_partialpayment.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    totalCost: vm.service.cost,
+                    partialPayments: vm.service.partialpayment
+                },
+                clickOutsideToClose: true
+            }).then(success).catch(success);
+
+            function success(res) {
+                if (!res) {
+                    vm.servicestatus = vm.service.partialpayment ? ((vm.service.partialpayment.total - vm.service.cost) == 0) : true;
+                    return;
+                }
+                if (res.total)
+                    vm.servicestatus = ((parseFloat(res.total) - parseFloat(vm.service.cost)) == 0);
+                vm.service.partialpayment = res;
+            }
+        }
 
         function IsInventoryFocusIndex(index) {
             return (vm.inventoryFocusIndex == index);
@@ -1240,6 +1287,8 @@
                 vm.service.cost = res.vehicle.service.cost;
                 vm.service.odo = res.vehicle.service.odo;
                 vm.service.status = res.vehicle.service.status;
+                if (res.vehicle.service.partialpayment)
+                    vm.service.partialpayment = res.vehicle.service.partialpayment;
                 vm.service.state = (res.vehicle.service.state == undefined) ? vm.serviceStateList[2] : res.vehicle.service.state;
                 vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
                 if (res.vehicle.service.discount) {
