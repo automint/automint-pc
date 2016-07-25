@@ -2,7 +2,7 @@
  * Factory that handles database interactions between customer database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -414,16 +414,11 @@
         }
 
         //  add new customer
-        function addNewCustomer(customer, vehicle) {
-            var prefixUser = 'usr-' + angular.lowercase(customer.name).replace(' ', '-'),
-                prefixVehicle;
+        function addNewCustomer(customer, vehicles) {
+            var prefixUser = 'usr-' + angular.lowercase(customer.name).replace(' ', '-');
 
-            if (vehicle) {
-                prefixVehicle = 'vhcl' + ((vehicle.manuf && vehicle.model) ? '-' + angular.lowercase(vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vehicle.model).replace(' ', '-') : '');
-                customer.vehicles = {};
-                delete vehicle.id;
-                customer.vehicles[utils.generateUUID(prefixVehicle)] = vehicle;
-            }
+            if (vehicles)
+                customer.vehicles = vehicles;
             
             if (customer.memberships != undefined) {
                 var smArray = $.extend([], customer.memberships);

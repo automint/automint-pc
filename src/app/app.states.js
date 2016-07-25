@@ -432,7 +432,9 @@
         function loadCuCIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/customers/customers-add.controller.js'
+                'assets/js/angular-elastic-input.min.js',
+                'app/components/customers/customers-add.controller.js',
+                'app/components/customers/tmpl/vehicle-crud.controller.js'
             ])
         }
         function loadCuUIDeps($ocLazyLoad) {
