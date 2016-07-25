@@ -47,7 +47,6 @@
     let mainWindow;
 
     var shouldQuit = app.makeSingleInstance(msiCallback);
-    console.log('shouldQuit: ' + shouldQuit);
 
     if (shouldQuit) {
         app.quit();
@@ -93,9 +92,7 @@
     ipcMain.on('am-do-restart', restartApp);
 
     function restartApp(event, args) {
-        app.relaunch({
-            args: process.argv.slice(1) + ['--relaunch']
-        });
+        app.relaunch({args: process.argv.slice(1).concat('--relaunch')});
         app.quit();
     }
 
