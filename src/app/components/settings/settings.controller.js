@@ -159,7 +159,14 @@
             }
             
             function success(res) {
-                fse.removeSync(amApp.getPath('userData'));
+                if (res)
+                    console.error(res);
+                fse.remove(amApp.getPath('userData'), removeSuccess);
+            }
+
+            function removeSuccess(err) {
+                if (err)
+                    console.error(err);
                 ipcRenderer.send('am-do-restart', true);
             }
             // /Users/ndkcha/Library/Application Support/Automint

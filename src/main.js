@@ -47,6 +47,7 @@
     let mainWindow;
 
     var shouldQuit = app.makeSingleInstance(msiCallback);
+    console.log('shouldQuit: ' + shouldQuit);
 
     if (shouldQuit) {
         app.quit();
@@ -92,8 +93,10 @@
     ipcMain.on('am-do-restart', restartApp);
 
     function restartApp(event, args) {
-        app.relaunch();
-        app.exit(0);
+        app.relaunch({
+            args: process.argv.slice(1) + ['--relaunch']
+        });
+        app.quit();
     }
 
     function updateAndRestartApp(event, args) {
@@ -120,9 +123,7 @@
         function openCorrectFileUrl() {
             var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
             ammPreferences.storePreference('automint.userDataPath', newPath[0]);
-            var exec = require('child_process').exec;
-            exec(process.argv.join(' '));
-            app.quit();
+            restartApp();
         }
     }
 
