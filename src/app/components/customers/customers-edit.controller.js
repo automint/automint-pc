@@ -57,7 +57,6 @@
 
         //  function maps
         vm.changeVehicle = changeVehicle;
-        vm.isAddOperation = isAddOperation;
         vm.save = save;
         vm.queryMembershipChip = queryMembershipChip;
         vm.OnClickMembershipChip = OnClickMembershipChip;
@@ -499,10 +498,6 @@
                 vm.user.address = res.user.address;
                 if (res.user.type)
                     vm.user.type = res.user.type;
-                changeUserMobileLabel();
-                changeUserEmailLabel();
-                changeUserNameLabel();
-                changeUserAddressLabel();
                 if (res.user.memberships)
                     Object.keys(res.user.memberships).forEach(iterateMemberships);
                 if (res.user.vehicles)
@@ -540,6 +535,7 @@
             }
 
             function failure(err) {
+                console.log(err);
                 utils.showSimpleToast('Something went wrong!');
                 $state.go('restricted.customers.all');
             }
@@ -604,7 +600,6 @@
                 vm.vehicle.reg = found[0].reg;
                 vm.vehicle.manuf = found[0].manuf;
                 vm.vehicle.model = found[0].model;
-                changeVehicleRegLabel();
                 autofillVehicle = true;
             } else
                 setDefaultVehicle();
