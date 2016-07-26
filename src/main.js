@@ -139,6 +139,13 @@
 
         // mainWindow.webContents.openDevTools();
 
+        fs.watchFile(app.getPath('userData'), (curr, prev) => {
+            if (curr.ino == 0) {
+                fs.unwatchFile(app.getPath('userData'));
+                restartApp();
+            }
+        });
+
         // Emitted when the window is closed.
         mainWindow.on('closed', function() {
             // Dereference the window object, usually you would store windows
