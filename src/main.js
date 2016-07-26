@@ -101,7 +101,8 @@
     }
 
     function OnAutomintUpdated(event, releaseNotes, releaseName, releaseDate, updateURL) {
-        mainWindow.webContents.send('automint-updated', true);
+        if (mainWindow && mainWindow.webContents)
+            mainWindow.webContents.send('automint-updated', true);
     }
 
     function OnAppReady() {
@@ -119,7 +120,8 @@
 
         function openCorrectFileUrl() {
             var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
-            ammPreferences.storePreference('automint.userDataPath', newPath[0]);
+            if (newPath)
+                ammPreferences.storePreference('automint.userDataPath', newPath[0]);
             restartApp();
         }
     }
