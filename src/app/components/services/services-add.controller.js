@@ -1495,6 +1495,8 @@
 
         //  replace all the treatment values with updated vehicle type
         function changeVehicleType() {
+            if (vm.vehicleTypeList.length < 1)
+                return;
             vm.service.problems.forEach(iterateProblem);
             iterateProblem(vm.problem);
             calculatePackageTax();

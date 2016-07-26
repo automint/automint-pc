@@ -106,6 +106,8 @@
                 if (!res)
                     return;
                 var vId = res.id;
+                if (res.id == undefined)
+                    res.id = '';
                 if (!userDbInstance.user.vehicles)
                     userDbInstance.user.vehicles = {};
 

@@ -68,6 +68,7 @@
 
     .am-vehicle-selector .am-button {
         padding: 8px 14px;
+        outline: none;
     }
 
     .am-vehicle-selector .am-button span {
@@ -79,6 +80,11 @@
     .am-vehicle-selector .am-button md-icon {
         color: #fff;
         margin-right: 6px;
+    }
+
+    .am-vehicle-selector.selected {
+        color: #fff;
+        background: #1565C0;
     }
 
     .am-vehicle-selector:hover {
@@ -171,9 +177,9 @@
                 <div layout="row" layout-align="start center">
                     <span class="md-subhead" style="margin: 8px" flex>Vehicles: </span>
                 </div>
-                <div layout="row" layout-align="start center" ng-repeat="vehicle in vm.possibleVehicleList" class="am-vehicle-selector" ng-click="vm.editVehicle(vehicle.id)">
+                <div layout="row" layout-align="start center" ng-repeat="vehicle in vm.possibleVehicleList" class="am-vehicle-selector" ng-click="vm.changeVehicle(vehicle.id)" ng-class="{'selected': vm.IsVehicleSelected(vehicle.id)}">
                     <span class="md-body-1" flex>{{vehicle.shortname}}<md-tooltip ng-if="vehicle.isLongName">{{vehicle.name}}</md-tooltip></span>
-                    <div layout="row" layout-align="start center" class="am-button">
+                    <div layout="row" layout-align="start center" class="am-button" ng-click="vm.editVehicle(vehicle.id)">
                         <md-icon>edit</md-icon>
                         <span class="md-caption">Edit</span>
                     </div>

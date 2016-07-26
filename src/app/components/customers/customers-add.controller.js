@@ -18,8 +18,11 @@
     function CustomerAddController($state, $filter, $q, $log, $mdDialog, utils, amCustomers) {
         //  initialize view model
         var vm = this;
+
+        //  temporary named assignments
         var nextDueDate = new Date(); 
         nextDueDate.setMonth(nextDueDate.getMonth() + 3);
+        var vehicles;
 
         //  vm assignments to keep track of UI related elements
         vm.user = {
@@ -56,6 +59,8 @@
         vm.getDate = getDate;
         vm.editVehicle = editVehicle;
         vm.blurAddVehicle = blurAddVehicle;
+        vm.IsVehicleSelected = IsVehicleSelected;
+        vm.changeVehicle = changeVehicle;
         
         //  default execution steps
         setTimeout(focusCustomerName, 300);
@@ -64,6 +69,10 @@
         getVehicleTypes();
 
         //  function definitions
+
+        function IsVehicleSelected(id) {
+            return (vm.currentVehicleId == id);
+        }
 
         function blurAddVehicle(event) {
             if (event.keyCode == 9)
@@ -120,26 +129,28 @@
                 if (!res)
                     return;
                 var vId = res.id;
-                if (!vm.vehicles)
-                    vm.vehicles = {};
+                if (res.id == undefined)
+                    res.id = '';
+                if (!vehicles)
+                    vehicles = {};
 
                 var prefixVehicle = 'vhcl' + ((vm.vehicle.manuf && vm.vehicle.model) ? '-' + angular.lowercase(vm.vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vm.vehicle.model).replace(' ', '-') : '');
 
                 if (vId == undefined)
                     vId = utils.generateUUID(prefixVehicle);
                 
-                if (vm.vehicles[vId]) {
-                    var tv = vm.vehicles[vId];
+                if (vehicles[vId]) {
+                    var tv = vehicles[vId];
                     if ((tv.manuf != res.manuf) || (tv.model != res.model)) {
                         vId = utils.generateUUID(prefixVehicle);
-                        vm.vehicles[vId] = tv;
+                        vehicles[vId] = tv;
                         vm.vNextDue[vId] = vm.vNextDue[res.id];
-                        delete vm.vehicles[res.id];
+                        delete vehicles[res.id];
                         delete vm.vNextDue[res.id];
                     }
                 } else
-                    vm.vehicles[vId] = {};
-                var intermvehicle = vm.vehicles[vId];
+                    vehicles[vId] = {};
+                var intermvehicle = vehicles[vId];
                 intermvehicle.reg = res.reg;
                 intermvehicle.manuf = res.manuf;
                 intermvehicle.model = res.model;
@@ -411,14 +422,14 @@
                 ndKeys.forEach(iterateNextDue);
             if (vm.membershipChips.length > 0)
                 vm.user.memberships = vm.membershipChips;
-            if (vm.vehicles && Object.keys(vm.vehicles.length > 0))
-                amCustomers.addNewCustomer(vm.user, vm.vehicles).then(successfullSave).catch(failedSave);
+            if (vehicles && Object.keys(vehicles.length > 0))
+                amCustomers.addNewCustomer(vm.user, vehicles).then(successfullSave).catch(failedSave);
             else
                 amCustomers.addNewCustomer(vm.user).then(successfullSave).catch(failedSave);
 
             function iterateNextDue(nd) {
                 if (vm.vNextDue[nd].isNextDue)
-                    vm.vehicles[nd].nextdue = moment(vm.vNextDue[nd].nextdue).format();
+                    vehicles[nd].nextdue = moment(vm.vNextDue[nd].nextdue).format();
             }
         }
         
