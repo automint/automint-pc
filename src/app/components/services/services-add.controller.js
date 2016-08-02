@@ -198,12 +198,13 @@
         vm.calculateDue = calculateDue;
         vm.IsPartialPayment = IsPartialPayment;
         vm.changeServiceStatus = changeServiceStatus;
+        vm.openDiscountBox = openDiscountBox;
 
         //  default execution steps
         setCoverPic();
-        changeUserInfoState(true);   //  ammToDo: Enable this while commiting
+        // changeUserInfoState(true);   //  ammToDo: Enable this while commiting
         setTimeout(focusUserName, 700);
-        // changeServiceInfoState(true);   //  ammToDo: Testing Purpose, Disable while commiting
+        changeServiceInfoState(true);   //  ammToDo: Testing Purpose, Disable while commiting
         buildDelayedToggler('service-details-left');
         getDefaultServiceType();
         getTreatmentDisplayFormat();
@@ -220,6 +221,29 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function openDiscountBox() {
+            $mdDialog.show({
+                controller: 'amCtrlSeDc',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/services/tmpl/dialog_discount.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    discountValue: vm.discountValue,
+                    treatmentLength: (vm.selectedProblems.length ? vm.selectedProblems.length : 0),
+                    partLength: (vm.selectedInventories.length ? vm.selectedInventories.length : 0),
+                    discountObj: undefined
+                },
+                clickOutsideToClose: true
+            }).then(success).catch(success);
+
+            function success(res) {
+                if (!res)
+                    return;
+                console.log(res);
+            }
+        }
 
         function changeServiceStatus() {
             if (vm.servicestatus) {

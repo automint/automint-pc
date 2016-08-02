@@ -746,9 +746,14 @@
                             </span>
                             <span><md-checkbox aria-label="Round Off Amount" ng-model="vm.isRoundOffVal" ng-change="vm.calculateRoundOff(false)" flex="33" flex-xs><span class="md-body-1">Round Off</span></md-checkbox>
                             </span>
-                            <span>
-                <md-checkbox aria-label="Apply Discount" ng-model="vm.isDiscountApplied" ng-change="vm.calculateCost()"><span class="md-body-1">Discount</span></md-checkbox>
-                            <span ng-show="vm.isDiscountApplied">:&nbsp;<input type="number" ng-change="vm.calculateDiscount(true)" ng-model="vm.discountPercentage" class="am-discount-inline-input" style="width: 32px;">&nbsp;<span style="font-size: small">%</span></span>
+                            <span layout="row" layout-align="start center">
+                                <md-checkbox aria-label="Apply Discount" ng-model="vm.isDiscountApplied" ng-change="vm.calculateCost()" style="margin-bottom: 0;"><span class="md-body-1">Discount</span></md-checkbox>
+                                <span ng-show="vm.isDiscountApplied">:&nbsp;<input type="number" ng-change="vm.calculateDiscount(true)" ng-model="vm.discountPercentage" class="am-discount-inline-input" style="width: 32px;">&nbsp;<span style="font-size: small">%</span></span>
+                                <span flex></span>
+                                <span class="am-parpay-button" ng-click="vm.openDiscountBox()">
+                                    <md-icon>more</md-icon>
+                                    <md-tooltip>Manage Discounts</md-tooltip>
+                                </span>
                             </span>
                         </div>
                         <div flex></div>
