@@ -747,10 +747,9 @@
                             <span><md-checkbox aria-label="Round Off Amount" ng-model="vm.isRoundOffVal" ng-change="vm.calculateRoundOff(false)" flex="33" flex-xs><span class="md-body-1">Round Off</span></md-checkbox>
                             </span>
                             <span layout="row" layout-align="start center">
-                                <md-checkbox aria-label="Apply Discount" ng-model="vm.isDiscountApplied" ng-change="vm.calculateCost()" style="margin-bottom: 0;"><span class="md-body-1">Discount</span></md-checkbox>
-                                <span ng-show="vm.isDiscountApplied">:&nbsp;<input type="number" ng-change="vm.calculateDiscount(true)" ng-model="vm.discountPercentage" class="am-discount-inline-input" style="width: 32px;">&nbsp;<span style="font-size: small">%</span></span>
+                                <md-checkbox aria-label="Apply Discount" ng-model="vm.isDiscountApplied" ng-change="vm.OnDiscountStateChange()" style="margin-bottom: 0;"><span class="md-body-1">Discount</span></md-checkbox>
                                 <span flex></span>
-                                <span class="am-parpay-button" ng-click="vm.openDiscountBox()">
+                                <span ng-show="vm.isDiscountApplied" class="am-parpay-button" ng-click="vm.openDiscountBox()">
                                     <md-icon>more</md-icon>
                                     <md-tooltip>Manage Discounts</md-tooltip>
                                 </span>
@@ -758,16 +757,16 @@
                         </div>
                         <div flex></div>
                         <div layout="column" class="am-toolbar-strip">
-                            <span ng-if="vm.IsSubtotalEnabled()" layout="row"><span class="md-body-2">Subtotal:&nbsp</span><span flex></span><span><span class="am-rupee">Rs.</span> {{vm.calculateSubtotal()}}</span></span>
+                            <span ng-if="vm.IsSubtotalEnabled()" layout="row"><span class="md-body-2">Subtotal:&nbsp</span><span flex></span><span><span class="am-rupee">Rs.</span> {{vm.service.subtotal}}</span></span>
                             <span ng-if="vm.IsSubtotalEnabled()" style="line-height: 0.5rem">&nbsp;</span>
-                            <span ng-if="vm.sTaxSettings.applyTax" layout="row"><span class="md-body-2">Service Tax:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span> {{vm.calculateTax()}}</span></span>
-                            <span ng-if="vm.sTaxSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
-                            <span ng-if="vm.vatSettings.applyTax" layout="row"><span class="md-body-2">VAT:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span> {{vm.calculateVat()}}</span></span>
-                            <span ng-if="vm.vatSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
-                            <span ng-if="vm.isDiscountApplied" layout="row"><span class="md-body-2">Discount:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span> <input type="text" ng-change="vm.calculateDiscount(false)" ng-model="vm.discountValue" class="am-discount-inline-input" style="text-align: right"></span></span>
+                            <span ng-if="vm.isDiscountApplied" layout="row"><span class="md-body-2">Discount:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span> <input type="text" ng-change="vm.calculateDiscount()" ng-model="vm.discount.total" class="am-discount-inline-input" style="text-align: right"></span></span>
                             <span ng-if="vm.isDiscountApplied" style="line-height: 0.5rem">&nbsp;</span>
                             <span ng-if="vm.isRoundOffVal" layout="row"><span class="md-body-2">Round Off:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span> <input type="text" ng-change="vm.calculateRoundOff(true)" ng-model="vm.roundedOffVal" class="am-discount-inline-input" style="text-align: right"></span></span>
                             <span ng-if="vm.isRoundOffVal" style="line-height: 0.5rem">&nbsp;</span>
+                            <span ng-if="vm.sTaxSettings.applyTax" layout="row"><span class="md-body-2">Service Tax:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span> {{vm.service.taxes.serviceTax}}</span></span>
+                            <span ng-if="vm.sTaxSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
+                            <span ng-if="vm.vatSettings.applyTax" layout="row"><span class="md-body-2">VAT:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span> {{vm.service.taxes.vat}}</span></span>
+                            <span ng-if="vm.vatSettings.applyTax" style="line-height: 0.5rem">&nbsp;</span>
                             <span layout="row" layout-align="end end"><span class="md-body-2">Total Cost:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span>&nbsp<span ng-if="vm.isRoD()"><input type="number" ng-focus="vm.changeForceStopCalCost(true)" ng-blur="vm.changeForceStopCalCost(false)" ng-change="vm.populateRoD()" ng-model="vm.service.cost" class="am-discount-inline-input" style="width: 74px; text-align: right; font-size: x-large; color: #000"></span><span ng-if="!vm.isRoD()" style="font-size: x-large">{{vm.service.cost}}</span></span></span>
                         </div>
                         <md-divider class="am-tab-margin"></md-divider>

@@ -10,14 +10,11 @@
 (function() {
     angular.module('automintApp').controller('amCtrlSeDc', DiscountController);
 
-    DiscountController.$inject = ['$mdDialog', 'treatmentLength', 'partLength', 'discountObj', 'discountValue'];
+    DiscountController.$inject = ['$mdDialog', 'treatmentLength', 'partLength', 'treatmentTotal', 'partTotal', 'discountObj'];
 
-    function DiscountController($mdDialog, treatmentLength, partLength,  discountObj, discountValue) {
+    function DiscountController($mdDialog, treatmentLength, partLength, treatmentTotal, partTotal,  discountObj) {
         //  initiailize view model
         var vm = this;
-
-        //  adjustments to input assignments
-        discountValue = (discountValue ? parseFloat(discountValue) : 0); 
 
         //  named assignments for view model
         vm.treatmentDiscount = 0;
@@ -33,6 +30,7 @@
         vm.calculateTotal = calculateTotal;
         vm.checkTreatmentDiscount = checkTreatmentDiscount;
         vm.checkPartDiscount = checkPartDiscount;
+        vm.save = save;
 
         //  default execution steps
         initialize();
@@ -50,11 +48,11 @@
         }
 
         function initialize() {
-            if (discountObj == undefined) {
-                if (partLength > 0)
-                    vm.partDiscount = (treatmentLength > 0) ? (discountValue / 2) : discountValue;
-                if (treatmentLength > 0)
-                    vm.treatmentDiscount = (partLength > 0) ? (discountValue / 2) : discountValue;
+            if (discountObj != undefined) {
+                vm.treatmentDiscount = parseFloat(discountObj.treatment);
+                vm.partDiscount = parseFloat(discountObj.part);
+                vm.treatmentDiscount = (vm.treatmentDiscount % 1 != 0) ? parseFloat(vm.treatmentDiscount.toFixed(2)) : parseInt(vm.treatmentDiscount);
+                vm.partDiscount = (vm.partDiscount % 1 != 0) ? parseFloat(vm.partDiscount.toFixed(2)) : parseInt(vm.partDiscount);
                 vm.isTreatmentSelected = (vm.treatmentDiscount > 0);
                 vm.isPartSelected = (vm.partDiscount > 0);
                 calculateTotal();
@@ -63,6 +61,16 @@
 
         function calculateTotal() {
             vm.totalDiscount = (vm.isTreatmentSelected ? parseFloat(vm.treatmentDiscount) : 0) + (vm.isPartSelected ? parseFloat(vm.partDiscount) : 0);
+            vm.totalDiscount = (vm.totalDiscount % 1 != 0) ? parseFloat(vm.totalDiscount.toFixed(2)) : parseInt(vm.totalDiscount);
+        }
+
+        function save() {
+            var discount = {
+                treatment: (vm.isTreatmentSelected ? vm.treatmentDiscount : 0),
+                part: (vm.isPartSelected ? vm.partDiscount : 0),
+                total: vm.totalDiscount
+            }
+            $mdDialog.hide(discount);
         }
         
         function cancel() {
