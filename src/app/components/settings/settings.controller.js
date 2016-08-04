@@ -149,13 +149,16 @@
 
         //  function definitions
 
-        function setAmAppDataPath() {
+        function setAmAppDataPath(move) {
             var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
             if (newPath) {
                 ammPreferences.storePreference('automint.userDataPath', newPath[0]);
-                fse.copy(amApp.getPath('userData'), newPath[0], {
-                    clobber: true
-                }, success);
+                if (move) {
+                    fse.copy(amApp.getPath('userData'), newPath[0], {
+                        clobber: true
+                    }, success);
+                } else
+                    removeSuccess();
             }
             
             function success(res) {

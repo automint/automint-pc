@@ -250,14 +250,17 @@
                     </md-card>
                     <md-card class="md-hue-1 am-box-shadow">
                         <md-card-content>
-                            <div layout="row">
-                                <span class="md-title">App Data</span>
-                            </div>
                             <div layout="row" layout-align="start center">
-                                <span class="md-caption">{{vm.amAppPath}}</span>
-                                <span flex></span>
-                                <md-button class="md-raised hue-1" ng-click="vm.setAmAppDataPath()">
-                                    <span layout-margin>Change</span>
+                                <span class="md-title">App Data</span>
+                                <span class="md-caption">: {{vm.amAppPath}}</span>
+                            </div>
+                            <div layout="row" layout-align="start center" style="margin-top: 6px;">
+                                <md-button class="md-raised hue-1" ng-click="vm.setAmAppDataPath(true)">
+                                    <md-icon>create_new_folder</md-icon>
+                                    <span layout-margin>Change and Move</span>
+                                </md-button>
+                                <md-button class="md-raised hue-1" ng-click="vm.setAmAppDataPath(false)">
+                                    <span layout-margin>Select Existing</span>
                                     <md-icon>folder_open</md-icon>
                                 </md-button>
                             </div>
