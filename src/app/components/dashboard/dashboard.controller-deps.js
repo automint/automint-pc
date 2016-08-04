@@ -103,6 +103,7 @@
         
         //  default execution steps
         populateYearRange();
+        detectUnavailable();
 
         //  function mappings
         vm.IsNextYear = IsNextYear;
@@ -115,6 +116,27 @@
         vm.confirm = confirm;
 
         //  function definitions
+
+        function detectUnavailable() {
+            var newlist = [];
+            vm.selectedDateSet.forEach(iterateDateSet);
+            vm.selectedDateSet = newlist;
+
+            function iterateDateSet(ds) {
+                var found = $filter('filter')(filterRange, {
+                    year: ds.year,
+                    month: ds.month
+                }, true);
+
+                if (found.length == 1) {
+                    newlist.push(found[0]);
+                }
+            }
+
+            function deleteSelected(ds) {
+                vm.selectedDateSet.splice(ds, 1);
+            }
+        }
 
         function confirm() {
             if (vm.selectedDateSet.length < 1)
