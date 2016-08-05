@@ -2,7 +2,7 @@
  * Closure to create factories for handling databases
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.7.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -238,7 +238,9 @@
 
         //  setup database
         function setDatabase(name) {
-            database = new PouchDB(name);
+            database = new PouchDB(name, {
+                auto_compaction: true
+            });
         }
         
         //  return change listeners of database

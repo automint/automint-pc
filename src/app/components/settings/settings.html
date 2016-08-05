@@ -11,29 +11,22 @@
     
     .am-tax-inline-input {
         border: 0;
-        border-bottom: 1px solid black;
-        width: 97%;
+        border-bottom: 1px solid #BDBDBD;
+        min-width: 40px;
         font-weight: 400;
         padding: 6px;
         outline: none;
         background: transparent;
-        color: rgba(30, 30, 30, 0.7);
-        -webkit-transition: background 1s ease 0s, box-shadow 1s ease 0s, border-bottom 1s ease 0s;
-        -moz-transition: background 1s ease 0s, box-shadow 1s ease 0s, border-bottom 1s ease 0s;
-        transition: background 1s ease 0s, box-shadow 1s ease 0s, border-bottom 1s ease 0s;
-        box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0);
+        color: #000;
+        transition: border-bottom 1s ease 0s;
     }
     
     .am-tax-inline-input:focus {
-        border-bottom: 0;
-        background: white;
-        box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.3);
+        border-bottom: 1px solid #424242;
     }
     
     .am-tax-inline-input:hover {
-        border-bottom: 0;
-        background: white;
-        box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.2);
+        border-bottom: 1px solid #9E9E9E;
     }
     
     .am-tax-adjust md-switch .md-bar {
@@ -138,16 +131,6 @@
                             </md-checkbox>
                         </md-card-content>
                     </md-card>
-                    <md-card class="md-hue-1 am-box-shadow">
-                        <md-card-content layout="column" style="padding: 12px 18px 18px 18px">
-                            <div layout="row">
-                                <span class="md-body-2">Default Service Type</span>
-                            </div>
-                            <md-radio-group ng-model="vm.serviceState" ng-change="vm.saveDefaultServiceType()" layout="row" layout-align="start center" style="padding-top: 10px">
-                                <md-radio-button ng-value="state" ng-repeat="state in vm.serviceStateList" class="md-body-1">{{state}}</md-radio-button>
-                            </md-radio-group>
-                        </md-card-content>
-                    </md-card>
                 </div>
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card class="md-hue-1 am-box-shadow">
@@ -204,52 +187,6 @@
                     </md-card>
                     <md-card class="md-hue-1 am-box-shadow">
                         <md-card-content>
-                            <div layout="row">
-                                <span class="md-title">Service Tax</span>
-                                <div flex></div>
-                                <md-checkbox ng-model="vm.sTaxSettings.applyTax" ng-click="vm.sTaxSettings.inclusive = (vm.sTaxSettings.inclusive == undefined) ? true : vm.sTaxSettings.inclusive" ng-change="vm.saveServiceTaxSettings()" aria-label="Apply Service Tax">
-                                    <span class="md-body-1">Apply Service Tax</span>
-                                </md-checkbox>
-                            </div>
-                            <div layout="row" layout-xs="column" ng-show="vm.sTaxSettings.applyTax">
-                                <div layout="row" layout-align="start center" class="am-tax-adjust">
-                                    <span class="md-body-1 am-pt-cursor" layout-padding ng-click="vm.sTaxSettings.inclusive = false">Exclusive</span>
-                                    <md-switch aria-label="Adjust Service Tax" ng-change="vm.saveServiceTaxSettings()" ng-model="vm.sTaxSettings.inclusive" style="margin: 0"></md-switch>
-                                    <span class="md-body-1 am-pt-cursor" ng-click="vm.sTaxSettings.inclusive = true">Inclusive</span>
-                                </div>
-                                <div flex></div>
-                                <div layout="row" layout-align="center center" flex="40">
-                                    <span class="md-body-1">Service Tax <small>(%)</small>:</span>
-                                    <input type="number" ng-blur="vm.saveServiceTaxSettings()" ng-model="vm.sTaxSettings.tax" class="am-tax-inline-input" value="0" flex>
-                                </div>
-                            </div>
-                        </md-card-content>
-                    </md-card>
-                    <md-card class="md-hue-1 am-box-shadow">
-                        <md-card-content>
-                            <div layout="row">
-                                <span class="md-title">VAT</span>
-                                <div flex></div>
-                                <md-checkbox ng-model="vm.vatSettings.applyTax" ng-click="vm.vatSettings.inclusive = (vm.vatSettings.inclusive == undefined) ? true : vm.vatSettings.inclusive" ng-change="vm.saveVatSettings()" aria-label="Apply VAT">
-                                    <span class="md-body-1">Apply VAT</span>
-                                </md-checkbox>
-                            </div>
-                            <div layout="row" layout-xs="column" ng-show="vm.vatSettings.applyTax">
-                                <div layout="row" layout-align="start center" class="am-tax-adjust">
-                                    <span class="md-body-1 am-pt-cursor" layout-padding ng-click="vm.vatSettings.inclusive = false">Exclusive</span>
-                                    <md-switch aria-label="Adjust VAT" ng-change="vm.saveVatSettings()" ng-model="vm.vatSettings.inclusive" style="margin: 0"></md-switch>
-                                    <span class="md-body-1 am-pt-cursor" ng-click="vm.vatSettings.inclusive = true">Inclusive</span>
-                                </div>
-                                <div flex></div>
-                                <div layout="row" layout-align="center center" flex="30">
-                                    <span class="md-body-1">VAT <small>(%)</small>:</span>
-                                    <input type="number" ng-blur="vm.saveVatSettings()" ng-model="vm.vatSettings.tax" class="am-tax-inline-input" value="0" flex>
-                                </div>
-                            </div>
-                        </md-card-content>
-                    </md-card>
-                    <md-card class="md-hue-1 am-box-shadow">
-                        <md-card-content>
                             <div layout="row" layout-align="start center">
                                 <span class="md-title">App Data</span>
                                 <span class="md-caption">: {{vm.amAppPath}}</span>
@@ -266,10 +203,19 @@
                             </div>
                         </md-card-content>
                     </md-card>
+                    <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-content layout="column" style="padding: 12px 18px 18px 18px">
+                            <div layout="row">
+                                <span class="md-body-2">Default Service Type</span>
+                            </div>
+                            <md-radio-group ng-model="vm.serviceState" ng-change="vm.saveDefaultServiceType()" layout="row" layout-align="start center" style="padding-top: 10px">
+                                <md-radio-button ng-value="state" ng-repeat="state in vm.serviceStateList" class="md-body-1">{{state}}</md-radio-button>
+                            </md-radio-group>
+                        </md-card-content>
+                    </md-card>
                 </div>
             </md-content>
         </md-tab>
-
         <md-tab label="Invoice Settings" md-active="vm.invoiceTab" md-on-deselect="vm.changeInvoiceTab(false)">
             <md-content class="md-padding" layout-xs="column" layout="row">
                 <div flex-xs flex-gt-xs="50" layout="column">
@@ -423,6 +369,63 @@
                         </md-card-content>
                     </md-card>
                 </div>
+            </md-content>
+        </md-tab>
+        <style>
+            .am-tax-addnew {
+                padding: 16px;
+                outline: none;
+                cursor: pointer;
+                transition: background 400ms ease;
+            }
+            .am-tax-addnew:hover {
+                background: #EEEEEE;
+            }
+            .am-tax-addnew:focus {
+                background: #FAFAFA;
+            }
+        </style>
+        <md-tab label="Tax Settings" md-active="vm.taxTab" md-on-deselect="vm.changeTaxTab(false)">
+            <md-content class="md-padding" layout="column" layout-align="start center">
+                <md-card class="md-hue-1" style="min-width: 600px;">
+                    <md-card-content style="padding: 0">
+                        <div layout="row" layout-align="start center" class="am-tax-addnew" ng-click="vm.addNewTax()">
+                            <md-icon style="margin: 0 6px">add</md-icon>
+                            <span class="md-body-1" style="margin-left: 10px">Add New</span>
+                        </div>
+                        <md-divider></md-divider>
+                        <div style="padding: 16px" layout="row" layout-align="start start" ng-repeat-start="tax in vm.taxSettings">
+                            <md-button class="md-icon-button" style="position: absolute; right: 14rem" ng-click="vm.deleteTax(tax)">
+                                <md-icon style="color: #F44336">delete</md-icon>
+                                <md-tooltip>Delete Tax</md-tooltip>
+                            </md-button>
+                            <div flex="10" style="padding-top: 9px" layout="column" layout-align="center center">
+                                <md-checkbox aria-label="Apply Tax" ng-model="tax.isTaxApplied" ng-change="vm.saveTax(tax)">
+                                    <md-tooltip>Apply Tax</md-tooltip>
+                                </md-checkbox>
+                            </div>
+                            <div flex="40">
+                                <input type="text" am-custom-autofocus="vm.IsTaxFocused($index)" pu-elastic-input ng-model="tax.name" ng-change="vm.autoCapitalizeName(tax)" ng-blur="vm.saveTax(tax)" class="am-tax-inline-input" style="min-width: 100px; font-size: 14pt" placeholder="Enter Tax Name">
+                                <div layout="row" layout-align="start center" class="am-tax-adjust" style="margin-top: 6px">
+                                    <span class="md-body-1 am-pt-cursor" style="margin-right: 6px">Exclusive</span>
+                                    <md-switch aria-label="Adjust Tax" ng-model="tax.inclusive" ng-change="vm.saveTax(tax)" style="margin: 0"></md-switch>
+                                    <span class="md-body-1 am-pt-cursor">Inclusive</span>
+                                </div>
+                                <div layout="row" layout-align="start center">
+                                    <span class="md-body-1">Tax:</span>
+                                    <input type="number" ng-model="tax.percent" ng-blur="vm.saveTax(tax)" pu-elastic-input class="am-tax-inline-input" value="0">
+                                    <small>%</small>
+                                </div>
+                            </div>
+                            <div flex="50" style="padding-top: 4px">
+                                <p class="md-body-1">Applicable To:</p>
+                                <md-checkbox aria-label="Treatments" ng-model="tax.isForTreatments" ng-change="vm.saveTax(tax)" style="margin-bottom: 4px"><span class="md-body-1">Treatments</span></md-checkbox>
+                                <md-checkbox aria-label="Inventory" ng-model="tax.isForInventory" ng-change="vm.saveTax(tax)" style="margin-bottom: 4px"><span class="md-body-1">Parts</span></md-checkbox>
+                            </div>
+                        </div>
+                        <md-divider ng-repeat-end></md-divider>
+                    </md-card-content>
+                </md-card>
             </md-content>
         </md-tab>
     </md-tabs>

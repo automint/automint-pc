@@ -17,24 +17,20 @@
 
     angular.module('automintApp').controller('amCtrlSettings', SettingsController);
 
-    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings', 'amSeTaxSettings', 'amSettings'];
+    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings', 'amTaxSettings', 'amSettings'];
 
-    function SettingsController($rootScope, $scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings, amSeTaxSettings, amSettings) {
+    function SettingsController($rootScope, $scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings, amTaxSettings, amSettings) {
         //  initialize view model
         var vm = this;
         
         //  temporary named assignments
-        var olino = 0, 
-            oljbno = 0, 
-            oleno = 0, 
-            oPasscode = '1234', 
-            oPasscodeEnabled, 
-            oIvAlignTop = '', 
-            oIvAlignBottom = '',
-            ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oIvWorkshopName, oIvWorkshopPhone, oIvWorkshopAddress1, oIvWorkshopAddress2, oIvWorkshopCity, oDefaultServiceType;
+        var olino = 0, oljbno = 0, oleno = 0; 
+        var oPasscode = '1234', oPasscodeEnabled;
+        var oIvAlignTop = '', oIvAlignBottom = '';
+        var ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oIvWorkshopName, oIvWorkshopPhone, oIvWorkshopAddress1, oIvWorkshopAddress2, oIvWorkshopCity, oDefaultServiceType;
+        var currentTaxFocusIndex = -1;
 
         //  named assignments to keep track of UI [BEGIN]
-        //  general settings
         vm.user = {
             username: '',
             password: ''
@@ -44,7 +40,6 @@
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
         vm.serviceState = vm.serviceStateList[2];
         vm.amAppPath = 'Default';
-        //  invoice settings
         vm.workshop = {
             name: '',
             phone: '',
@@ -69,11 +64,11 @@
         };
         vm.label_ivAlignTopAlignment = 'Enter Top Margin:';
         vm.label_ivAlignBottomAlignment = 'Enter Bottom Margin:';
+        vm.taxSettings = [];
         //  named assignments to keep track of UI [END]
         
         //  function maps [BEGIN]
         vm.changeInvoiceTab = changeInvoiceTab;
-        //  general settings
         vm.changeUsernameLabel = changeUsernameLabel;
         vm.changePasswordLabel = changePasswordLabel;
         vm.doBackup = doBackup;
@@ -85,7 +80,6 @@
         vm.handlePasscodeVisibility = handlePasscodeVisibility;
         vm.saveDefaultServiceType = saveDefaultServiceType;
         vm.setAmAppDataPath = setAmAppDataPath;
-        //  invoice settings
         vm.changeWorkshopNameLabel = changeWorkshopNameLabel;
         vm.changeWorkshopPhoneLabel = changeWorkshopPhoneLabel;
         vm.changeWorkshopAddress1Label = changeWorkshopAddress1Label;
@@ -101,8 +95,6 @@
         vm.saveFacebookLink = saveFacebookLink;
         vm.saveInstagramLink = saveInstagramLink;
         vm.saveTwitterLink = saveTwitterLink;
-        vm.saveServiceTaxSettings = saveServiceTaxSettings;
-        vm.saveVatSettings = saveVatSettings;
         vm.savePasscode = savePasscode;
         vm.changeTopAlignLabel = changeTopAlignLabel;
         vm.changeBottomAlignLabel = changeBottomAlignLabel;
@@ -121,6 +113,11 @@
         vm.autoCapitalizeAddressLine2 = autoCapitalizeAddressLine2;
         vm.autoCapitalizeWorkshopName = autoCapitalizeWorkshopName;
         vm.autoCapitalizeEmailSubject = autoCapitalizeEmailSubject;
+        vm.addNewTax = addNewTax;
+        vm.deleteTax = deleteTax;
+        vm.saveTax = saveTax;
+        vm.autoCapitalizeName = autoCapitalizeName;
+        vm.IsTaxFocused = IsTaxFocused;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -131,23 +128,95 @@
             default:
                 break;
         }
-        //  general settings
         checkLogin();
         getPasscode();
         getDefaultServiceType();
         getAmAppDataPath();
-        //  invoice settings
         getWorkshopDetails();
         getInvoiceSettings();
         loadInvoiceWLogo();
         getIvAlignMargins();
-        //  service tax settings
-        getServiceTaxSettings();
-        getVatSettings();
+        getAllTaxSettings();
         // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
+        changeTaxTab(true);     //  testing purposes amTODO: remove it
+        
         //  default execution steps [END]
 
         //  function definitions
+
+        function IsTaxFocused(index) {
+            return (currentTaxFocusIndex == index);
+        }
+
+        function autoCapitalizeName(tax) {
+            tax.name = utils.autoCapitalizeWord(tax.name);
+        }
+
+        function getAllTaxSettings() {
+            amTaxSettings.getAllTaxSettings().then(success).catch(failure);
+
+            function success(res) {
+                if (angular.isArray(res))
+                    vm.taxSettings = res;
+                else
+                    failure('No Taxes Found!');
+            }
+
+            function failure(err) {
+                console.warn(err);
+            }
+        }
+
+        function saveTax(tax) {
+            if ((tax.name == '') || (tax.name == undefined)) {
+                utils.showSimpleToast('Please enter name of tax in order to save it!');
+                return;
+            }
+            amTaxSettings.saveTaxSettings(tax).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok)
+                    utils.showSimpleToast(tax.name + ' settings saved successfully!');
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Could not save ' + tax.name + ' settings. Try Again Later!');
+            }
+        }
+
+        function deleteTax(tax) {
+            amTaxSettings.deleteTaxSettings(tax).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok) {
+                    utils.showSimpleToast(tax.name + ' deleted successfully!');
+                    getAllTaxSettings();
+                } else
+                    failure();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Could not delete ' + tax.name + ' settings. Try Again Later!');
+            }
+        }
+
+        function addNewTax() {
+            vm.taxSettings.push({
+                name: '',
+                isTaxApplied: false,
+                inclusive: false,
+                percent: 0,
+                isForTreatments: true,
+                isForInventory: true
+            });
+            currentTaxFocusIndex = vm.taxSettings.length - 1;
+        }
+
+        function changeTaxTab(bool) {
+            vm.taxTab = bool;
+        }
 
         function setAmAppDataPath(move) {
             var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
@@ -697,60 +766,6 @@
             }
             function failure(err) {
                 utils.showSimpleToast('Could not save settings at moment. Please try again!');
-            }
-        }
-        
-        function getServiceTaxSettings() {
-            amSeTaxSettings.getServiceTaxSettings().then(success).catch(failure);
-            
-            function success(res) {
-                vm.sTaxSettings = res;
-            }
-            
-            function failure(err) {
-                vm.sTaxSettings = {};
-            }
-        }
-        
-        function saveServiceTaxSettings() {
-            amSeTaxSettings.saveServiceTaxSettings(vm.sTaxSettings).then(success).catch(failure);
-            
-            function success(res) {
-                if (res.ok)
-                    utils.showSimpleToast('Service Tax Settings Saved Successfully!');
-                else
-                    failure();
-            }
-            
-            function failure(err) {
-                utils.showSimpleToast('Failed to save Service Tax Settings. Please Try Again!');
-            }
-        }
-
-        function getVatSettings() {
-            amSeTaxSettings.getVatSettings().then(success).catch(failure);
-
-            function success(res) {
-                vm.vatSettings = res;
-            }
-
-            function failure(err) {
-                vm.vatSettings = {};
-            }
-        }
-
-        function saveVatSettings() {
-            amSeTaxSettings.saveVatSettings(vm.vatSettings).then(success).catch(failure);
-
-            function success(res) {
-                if (res.ok)
-                    utils.showSimpleToast('VAT Settings Saved Successfully!');
-                else
-                    failure();
-            }
-            
-            function failure(err) {
-                utils.showSimpleToast('Failed to save VAT Settings. Please Try Again!');
             }
         }
         
