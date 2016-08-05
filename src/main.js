@@ -120,9 +120,11 @@
 
         function openCorrectFileUrl() {
             var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
-            if (newPath)
+            if (newPath) {
                 ammPreferences.storePreference('automint.userDataPath', newPath[0]);
-            restartApp();
+                restartApp();
+            } else
+                app.exit(0);
         }
     }
 
