@@ -58,15 +58,15 @@
             estimateno: 1,
             problems: [],
             taxes: {
-                serviceTax: 0,
-                vat: 0
+                inventory: 0,
+                treatments: 0
             },
             subtotal: 0
         };
         vm.problem = {
             details: '',
             rate: '',
-            tax: '',
+            tax: {},
             amount: ''
         };
         vm.servicestatus = true;
@@ -85,7 +85,7 @@
         vm.inventory = {
             name: '',
             rate: '',
-            tax: '',
+            tax: {},
             qty: 1,
             amount: '',
             total: ''
@@ -106,7 +106,8 @@
             treatment: 0,
             part: 0,
             total: 0
-        }
+        };
+        vm.taxSettings = [];
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -139,11 +140,9 @@
         vm.navigateToSubscribeMembership = navigateToSubscribeMembership;
         vm.goBack = goBack;
         vm.changeProblemRate = changeProblemRate;
-        vm.changeServiceTax = changeServiceTax;
-        vm.OnServiceTaxEnabledChange = OnServiceTaxEnabledChange;
+        vm.OnTaxEnabledChange = OnTaxEnabledChange;
         vm.convertPbToTitleCase = convertPbToTitleCase;
         vm.convertInToTitleCase = convertInToTitleCase;
-        vm.changeVat = changeVat;
         vm.onInventorySelected = onInventorySelected;
         vm.onInventoryDeselected = onInventoryDeselected;
         vm.changeInventoryRate = changeInventoryRate;
@@ -169,14 +168,9 @@
         vm.IsMembershipEnabled = IsMembershipEnabled;
         vm.IsPackageEnabled = IsPackageEnabled;
         vm.convertVehicleTypeToAF = convertVehicleTypeToAF;
-        vm.IsTreatmentAmountEditable = IsTreatmentAmountEditable;
-        vm.IsTreatmentAmountText = IsTreatmentAmountText;
         vm.IsPackageEnabled = IsPackageEnabled;
         vm.changeDisplayAsList = changeDisplayAsList;
-        vm.IsTreatmentRateDisplayed = IsTreatmentRateDisplayed;
         vm.changeInventoryAsList = changeInventoryAsList;
-        vm.IsInventoryTotalEditable = IsInventoryTotalEditable;
-        vm.IsInventoryTotalText = IsInventoryTotalText;
         vm.IsServiceStateSelected = IsServiceStateSelected;
         vm.selectServiceState = selectServiceState;
         vm.WhichServiceStateEnabled = WhichServiceStateEnabled;
@@ -226,9 +220,82 @@
         function calculate() {
             calculateSubtotal();
             calculateTotalDiscount();
-            calculateServiceTax();
-            calculateVat();
+            calculateTaxes();
             calculateCost();
+        }
+
+        function calculateTaxes() {
+            vm.taxSettings.forEach(iterateTaxes);
+            vm.service.problems.forEach(iterateProblems);
+            iterateProblem(vm.problem);
+            if (vm.packages)
+                vm.packages.forEach(iteratePackages);
+            vm.selectedInventories.forEach(iterateProblems);
+            iterateProblem(vm.inventory);
+            if (vm.isDiscountApplied)
+                vm.taxSettings.forEach(iterateTaxesAfter);
+
+            function iterateTaxesAfter(tax) {
+                if (tax.isTaxApplied && tax.isForTreatments)
+                    tax.tax = (dTreatment * tax.percent / 100);
+                if (tax.isTaxApplied && tax.isForInventory)
+                    tax.tax = (dInventory * tax.percent / 100);
+                tax.tax = (tax.tax % 1 != 0) ? parseFloat(tax.tax.toFixed(2)) : parseInt(tax.tax);
+            }
+
+            function iterateTaxes(tax) {
+                tax.tax = 0;
+            }            
+
+            function iteratePackages(package) {
+                if (!package.checked)
+                    return;
+                package.selectedTreatments.forEach(iterateProblems);
+            }
+
+            function iterateProblems(problem) {
+                if (!problem.checked)
+                    return;
+                if (problem.tax) {
+                    Object.keys(problem.tax).forEach(iterateTaxes);
+
+                    function iterateTaxes(tax) {
+                        var found = $filter('filter')(vm.taxSettings, {
+                            name: tax
+                        }, true);
+                        
+                        if (found.length == 1) {
+                            if (!found[0].isTaxApplied)
+                                return;
+                            if (!found[0].tax)
+                                found[0].tax = 0;
+                            found[0].tax += problem.tax[tax];
+                        }
+                    }
+                }
+            }
+
+            function iterateProblem(problem) {
+                if (problem.tax) {
+                    Object.keys(problem.tax).forEach(iterateTaxes);
+
+                    function iterateTaxes(tax) {
+                        if (problem.tax[tax] > 0) {
+                            var found = $filter('filter')(vm.taxSettings, {
+                                name: tax
+                            }, true);
+                            
+                            if (found.length == 1) {
+                                if (!found[0].isTaxApplied)
+                                    return;
+                                if (!found[0].tax)
+                                    found[0].tax = 0;
+                                found[0].tax += problem.tax[tax];
+                            }
+                        }
+                    }
+                }
+            }
         }
 
         function OnDiscountStateChange() {
@@ -346,7 +413,14 @@
         }
 
         function IsSubtotalEnabled() {
-            return (vm.isDiscountApplied || vm.isRoundOffVal || (vm.sTaxSettings && vm.sTaxSettings.applyTax) || (vm.vatSettings && vm.vatSettings.applyTax));
+            var isTaxEnabled = false;
+            vm.taxSettings.forEach(iterateTaxes);
+            return (vm.isDiscountApplied || vm.isRoundOffVal || isTaxEnabled);
+
+            function iterateTaxes(tax) {
+                if (tax.isTaxApplied)
+                    isTaxEnabled = true;
+            }
         }
 
         function isRoD() {
@@ -444,21 +518,9 @@
             $('#ami-display-as').focus();
         }
 
-        function IsInventoryTotalText() {
-            return (vm.vatSettings && !vm.vatSettings.inclusive && vm.vatSettings.applyTax);
-        }
-
-        function IsInventoryTotalEditable() {
-            return (vm.vatSettings && (vm.vatSettings.inclusive || !vm.vatSettings.applyTax));
-        }
-
         function changeInventoryAsList(bool) {
             vm.displayInventoriesAsList = bool;
             setTimeout(focusShowAllInventoriesButton, 300);
-        }
-
-        function IsTreatmentRateDisplayed() {
-            return (vm.sTaxSettings && vm.sTaxSettings.applyTax && !vm.sTaxSettings.inclusive);
         }
 
         function changeDisplayAsList(bool) {
@@ -468,14 +530,6 @@
 
         function IsPackageEnabled() {
             return (vm.packages.length < 1);
-        }
-
-        function IsTreatmentAmountText() {
-            return (vm.sTaxSettings && !vm.sTaxSettings.inclusive && vm.sTaxSettings.applyTax);
-        }
-
-        function IsTreatmentAmountEditable() {
-            return (vm.sTaxSettings && (vm.sTaxSettings.inclusive || !vm.sTaxSettings.applyTax));
         }
 
         function convertVehicleTypeToAF() {
@@ -623,25 +677,6 @@
             changeInventoryRate(inventory);
         }
 
-        function calculateVat() {
-            if (vm.isDiscountApplied && (vm.discount.total > 0)) {
-                vm.service.taxes.vat = dInventoryTax;
-                return;
-            }
-            var totalTax = 0.0;
-            if ((vm.vatSettings && vm.vatSettings.applyTax) && vm.inventory.tax && (vm.inventory.amount > 0))
-                totalTax += parseFloat(vm.inventory.tax * vm.inventory.qty);
-            vm.selectedInventories.forEach(iterateInventories);
-            totalTax = (totalTax % 1 != 0) ? totalTax.toFixed(2) : totalTax;
-            vm.service.taxes.vat = totalTax;
-
-            function iterateInventories(element) {
-                if ((vm.vatSettings && !vm.vatSettings.applyTax) || !element.tax || !element.checked)
-                    return;
-                totalTax += parseFloat(element.tax * element.qty);
-            }
-        }
-
         function getInventoriesSettings() {
             amServices.getInventoriesSettings().then(success).catch(failure);
 
@@ -713,37 +748,36 @@
                     name: vm.inventory.name
                 }, true);
                 if (found.length == 1) {
-                    var rate;
-                    if (vm.vatSettings.applyTax)
-                        rate = (vm.vatSettings.inclusive) ? found[0].amount : found[0].rate;
-                    else
-                        rate = found[0].rate;
-                    vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
-                    if (vm.vatSettings.applyTax) {
-                        if (vm.vatSettings.inclusive) {
-                            vm.inventory.rate = (vm.inventory.amount * 100) / (vm.vatSettings.tax + 100);
-                            vm.inventory.tax = (vm.inventory.rate * vm.vatSettings.tax / 100);
-                        } else {
-                            vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
-                            vm.inventory.tax = (vm.inventory.rate * vm.vatSettings.tax / 100);
-                            vm.inventory.amount = Math.round(vm.inventory.rate + vm.inventory.tax);
-                        }
-                    } else {
-                        if (vm.vatSettings.inclusive)
-                            vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
-                        else {
-                            vm.inventory.amount = (rate == '' || rate == undefined ? vm.inventory.amount : rate);
-                            vm.inventory.rate = (rate == '' || rate == undefined ? vm.inventory.rate : rate);
-                        }
-                    }
+                    var taxable = vm.inventory.amount;
+                    vm.inventory.tax = {};
+                    vm.taxSettings.forEach(iterateTaxes);
+                    vm.inventory.rate = taxable;
                     vm.inventory.total = vm.inventory.amount * vm.inventory.qty;
                     vm.inventory.checked = true;
                     calculate();
+
+                    function iterateTaxes(tax) {
+                        if (!tax.isForInventory)
+                            return;
+                        if (tax.isTaxApplied) {
+                            if (tax.inclusive) {
+                                var temptax = 0;
+                                vm.inventory.rate = (taxable * 100) / (tax.percent + 100);
+                                temptax = (vm.inventory.rate * tax.percent / 100);
+                                vm.inventory.tax[tax.name] = temptax;
+                                taxable = vm.inventory.rate;
+                            } else {
+                                var temptax = 0;
+                                temptax = (taxable * tax.percent / 100);
+                                vm.inventory.tax[tax.name] = temptax;
+                            }
+                        }
+                    }
                 }
             } else {
                 vm.inventory.checked = false;
                 vm.inventory.rate = '';
-                vm.inventory.tax = 0;
+                vm.inventory.tax = {};
                 vm.inventory.amount = '';
                 vm.inventory.total = '';
             }
@@ -778,26 +812,35 @@
 
             function success(res) {
                 vm.inventories = res;
-                getVatSettings();
+                getInventoryTax();
             }
 
             function failure(err) {
                 vm.inventories = [];
-                getVatSettings();
+                getInventoryTax();
             }
         }
 
-        function getVatSettings() {
-            amServices.getVatSettings().then(success).catch(failure);
+        function getInventoryTax() {
+            amServices.getInventoryTax().then(success).catch(failure);
 
             function success(res) {
-                vm.vatSettings = res;
-                vm.orgApplyVat = res.applyTax;
-                changeVat();
+                res.forEach(iterateTaxes);
+                OnTaxEnabledChange();
+
+                function iterateTaxes(tax) {
+                    tax.tax = 0;
+                    var found = $filter('filter')(vm.taxSettings, {
+                        name: tax.name
+                    }, true);
+
+                    if (found.length == 0)
+                        vm.taxSettings.push(tax);
+                }
             }
 
             function failure(err) {
-                vm.vatSettings = {};
+                console.warn(err);
             }
         }
 
@@ -805,62 +848,52 @@
             vm.inventory.name = utils.autoCapitalizeWord(vm.inventory.name);
         }
 
-        function changeVat() {
-            vm.inventories.forEach(iterateInventories);
-            changeInventoryRate(vm.inventory, true);
-
-            function iterateInventories(inventory) {
-                changeInventoryRate(inventory, true);
-            }
-        }
-
         function changeQty(inventory) {
-            inventory.total = ((vm.vatSettings.applyTax ? inventory.amount : inventory.rate) * inventory.qty);
+            inventory.total = (inventory.amount * inventory.qty);
             calculate();
-
-            if (!vm.vatSettings.applyTax)
-                inventory.amount = inventory.rate;
         }
 
         function changeInventoryRate(inventory, force) {
-            if (vm.vatSettings.applyTax) {
-                if (vm.vatSettings.inclusive) {
-                    inventory.rate = (inventory.amount * 100) / (vm.vatSettings.tax + 100);
-                    inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
-                } else {
-                    if (!inventory.rate)
-                        inventory.rate = inventory.amount;
-                    inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
-                    inventory.amount = inventory.rate + inventory.tax;
-                }
-            } else if (force) {
-                if (vm.vatSettings.inclusive)
-                    inventory.rate = inventory.amount;
-                else
-                    inventory.amount = inventory.rate;
-            } else
-                inventory.rate = inventory.amount;
+            var taxable = inventory.amount;
+            inventory.tax = {};
+            vm.taxSettings.forEach(iterateTaxes);
+            inventory.rate = taxable;
             changeQty(inventory);
             calculate();
+
+            function iterateTaxes(tax) {
+                if (!tax.isForInventory)
+                    return;
+                if (tax.isTaxApplied) {
+                    if (tax.inclusive) {
+                        var temptax = 0;
+                        inventory.rate = (taxable * 100) / (tax.percent + 100);
+                        temptax = (inventory.rate * tax.percent / 100);
+                        inventory.tax[tax.name] = temptax;
+                        taxable = inventory.rate;
+                    } else {
+                        var temptax = 0;
+                        temptax = (taxable * tax.percent / 100);
+                        inventory.tax[tax.name] = temptax;
+                    }
+                }
+            }
         }
 
         function convertPbToTitleCase() {
             vm.problem.details = utils.autoCapitalizeWord(vm.problem.details);
         }
 
-        function OnServiceTaxEnabledChange() {
-            vm.service.problems.forEach(iterateProblems);
-            calculatePackageTax();
-
-            function iterateProblems(problem) {
-                changeProblemRate(problem, true);
-            }
-        }
-
-        function changeServiceTax() {
+        function OnTaxEnabledChange() {
             vm.service.problems.forEach(iterateProblems);
             changeProblemRate(vm.problem, true);
             calculatePackageTax();
+            vm.inventories.forEach(iterateInventories);
+            changeInventoryRate(vm.inventory, true);
+
+            function iterateInventories(inventory) {
+                changeInventoryRate(inventory, true);
+            }
 
             function iterateProblems(problem) {
                 changeProblemRate(problem, true);
@@ -868,39 +901,51 @@
         }
 
         function changeProblemRate(problem, force) {
-            if (vm.sTaxSettings.applyTax) {
-                if (vm.sTaxSettings.inclusive) {
-                    problem.rate = (problem.amount * 100) / (vm.sTaxSettings.tax + 100);
-                    problem.tax = (problem.rate * vm.sTaxSettings.tax / 100);
-                } else {
-                    if (!problem.rate)
-                        problem.rate = problem.amount;
-                    problem.tax = (problem.rate * vm.sTaxSettings.tax / 100);
-                    problem.amount = problem.rate + problem.tax;
-                }
-            } else if (force) {
-                if (vm.sTaxSettings.inclusive)
-                    problem.rate = problem.amount;
-                else
-                    problem.amount = problem.rate;
-            } else
-                problem.rate = problem.amount;
+            var taxable = problem.amount;
+            problem.tax = {};
+            vm.taxSettings.forEach(iterateTaxes);
+            problem.rate = parseFloat(taxable);
             calculate();
+
+            function iterateTaxes(tax) {
+                if (!tax.isForTreatments)
+                    return;
+                if (tax.isTaxApplied) {
+                    if (tax.inclusive) {
+                        var temptax = 0;
+                        problem.rate = (taxable * 100) / (tax.percent + 100);
+                        temptax = (problem.rate * tax.percent / 100);
+                        problem.tax[tax.name] = temptax;
+                        taxable = problem.rate;
+                    } else {
+                        var temptax = 0;
+                        temptax = (taxable * tax.percent / 100);
+                        problem.tax[tax.name] = temptax;
+                    }
+                }
+            }
         }
 
-        function getServiceTaxSettings() {
-            amServices.getServiceTaxSettings().then(success).catch(failure);
+        function getTreatmentsTax() {
+            amServices.getTreatmentsTax().then(success).catch(failure);
 
             function success(res) {
-                vm.sTaxSettings = res;
-                vm.orgApplyTax = res.applyTax;
-                changeServiceTax();
+                res.forEach(iterateTaxes);
                 getPackages();
-                OnServiceTaxEnabledChange();
+                OnTaxEnabledChange();
+
+                function iterateTaxes(tax) {
+                    tax.tax = 0;
+                    var found = $filter('filter')(vm.taxSettings, {
+                        name: tax.name
+                    }, true);
+
+                    if (found.length == 0)
+                        vm.taxSettings.push(tax);
+                }
             }
 
             function failure(err) {
-                vm.sTaxSettings = {};
                 getPackages();
             }
         }
@@ -1177,23 +1222,29 @@
                         }
                     }
 
-                    function changeTreatmentTax(treatment, force) {
+                    function changeTreatmentTax(problem, force) {
                         var cvt = vm.vehicle.type.toLowerCase().replace(' ', '-');
-                        if (vm.sTaxSettings.applyTax) {
-                            if (treatment.tax == undefined)
-                                treatment.tax = {};
-                            if (vm.sTaxSettings.inclusive) {
-                                treatment.rate[cvt] = (treatment.amount[cvt] * 100) / (vm.sTaxSettings.tax + 100);
-                                treatment.tax[cvt] = (treatment.rate[cvt] * vm.sTaxSettings.tax / 100);
-                            } else {
-                                treatment.tax[cvt] = (treatment.rate[cvt] * vm.sTaxSettings.tax / 100);
-                                treatment.amount[cvt] = treatment.rate[cvt] + treatment.tax[cvt];
+                        var taxable = problem.amount;
+                        problem.tax = {};
+                        vm.taxSettings.forEach(iterateTaxes);
+                        problem.rate = parseFloat(taxable);
+
+                        function iterateTaxes(tax) {
+                            if (!tax.isForTreatments)
+                                return;
+                            if (tax.isTaxApplied) {
+                                if (tax.inclusive) {
+                                    var temptax = 0;
+                                    problem.rate = (taxable * 100) / (tax.percent + 100);
+                                    temptax = (problem.rate * tax.percent / 100);
+                                    problem.tax[tax.name] = temptax;
+                                    taxable = problem.rate;
+                                } else {
+                                    var temptax = 0;
+                                    temptax = (taxable * tax.percent / 100);
+                                    problem.tax[tax.name] = temptax;
+                                }
                             }
-                        } else if (force) {
-                            if (vm.sTaxSettings.inclusive)
-                                treatment.rate[cvt] = treatment.amount[cvt];
-                            else
-                                treatment.amount[cvt] = treatment.rate[cvt];
                         }
                     }
 
@@ -1562,19 +1613,27 @@
                 });
                 if (found.length == 1) {
                     var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
-                    if (vm.sTaxSettings.applyTax) {
-                        if (vm.sTaxSettings.inclusive) {
-                            problem.amount = (rate == '' || rate == undefined ? problem.amount : rate);
-                            problem.rate = (problem.amount * 100) / (vm.sTaxSettings.tax + 100);
-                            problem.tax = (problem.rate * vm.sTaxSettings.tax / 100);
-                        } else {
-                            problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
-                            problem.tax = (problem.rate * vm.sTaxSettings.tax / 100);
-                            problem.amount = problem.rate + problem.tax;
+                    var taxable = problem.amount;
+                    problem.tax = {};
+                    vm.taxSettings.forEach(iterateTaxes);
+                    problem.rate = parseFloat(taxable);
+
+                    function iterateTaxes(tax) {
+                        if (!tax.isForTreatments)
+                            return;
+                        if (tax.isTaxApplied) {
+                            if (tax.inclusive) {
+                                var temptax = 0;
+                                problem.rate = (taxable * 100) / (tax.percent + 100);
+                                temptax = (problem.rate * tax.percent / 100);
+                                problem.tax[tax.name] = temptax;
+                                taxable = problem.rate;
+                            } else {
+                                var temptax = 0;
+                                temptax = (taxable * tax.percent / 100);
+                                problem.tax[tax.name] = temptax;
+                            }
                         }
-                    } else {
-                        problem.rate = (rate == '' || rate == undefined ? problem.rate : rate);
-                        problem.amount = (rate == '' || rate == undefined ? problem.rate : rate);
                     }
                 }
             }
@@ -1604,7 +1663,7 @@
         //  load treatment list into problem list
         function loadTreatmentIntoProblems() {
             vm.treatments.forEach(iterateTreatment);
-            getServiceTaxSettings();
+            getTreatmentsTax();
 
             function iterateTreatment(treatment) {
                 vm.service.problems.push({
@@ -1645,6 +1704,8 @@
         }
 
         function populateRoD() {
+            var isTreatmentTaxed = false, isInventoryTaxed = false, treatmentTaxPercent = 0, inventoryTaxPercent = 0;
+            vm.taxSettings.forEach(iterateTaxes);
             if (vm.isDiscountApplied) {
                 var noTerminate = true, tp = 0.5, ip = 1 - tp;
                 if (treatmentTotal == 0) {
@@ -1655,7 +1716,7 @@
                     tp = 1;
                 }
                 while (noTerminate) {
-                    var xt = (tp * vm.service.cost * 100) / (vm.sTaxSettings.tax + 100);
+                    var xt = (tp * vm.service.cost * 100) / (treatmentTaxPercent + 100);
                     if (treatmentTotal < xt) {
                         tp -= 0.1;
                         ip = 1 - tp;
@@ -1664,7 +1725,7 @@
                         continue;
                     }
                     vm.discount.treatment = treatmentTotal - xt;
-                    var xi = (ip * vm.service.cost * 100) / (vm.vatSettings.tax + 100);
+                    var xi = (ip * vm.service.cost * 100) / (inventoryTaxPercent + 100);
                     if (inventoryTotal < xi) {
                         ip -= 0.1;
                         tp = 1 - ip;
@@ -1681,6 +1742,17 @@
                 calculate();
             } else if (vm.isRoundOffVal)
                 vm.roundedOffVal = vm.service.cost - serviceTcRo;
+
+            function iterateTaxes(tax) {
+                if (tax.isTaxApplied && tax.isForTreatments) {
+                    isTreatmentTaxed = true;
+                    treatmentTaxPercent += tax.percent;
+                }
+                if (tax.isTaxApplied && tax.isForInventory) {
+                    isInventoryTaxed = true;
+                    inventoryTaxPercent += tax.percent;
+                }
+            }
         }
 
         function calculateRoundOff(isRoundOffManual) {
@@ -1717,13 +1789,27 @@
         function calculateTotalDiscount() {
             if (!vm.isDiscountApplied)
                 return;
+            var isTreatmentTaxed = false, isInventoryTaxed = false, treatmentTaxPercent = 0, inventoryTaxPercent = 0;
             dTreatment = treatmentTotal - vm.discount.treatment;
             dInventory = inventoryTotal - vm.discount.part;
 
-            dTreatmentTax = (vm.sTaxSettings.applyTax) ? (dTreatment * vm.sTaxSettings.tax / 100) : 0;
-            dInventoryTax = (vm.vatSettings.applyTax) ? (dInventory * vm.vatSettings.tax / 100) : 0;
+            vm.taxSettings.forEach(iterateTaxes);
+
+            dTreatmentTax = (isTreatmentTaxed) ? (dTreatment * treatmentTaxPercent / 100) : 0;
+            dInventoryTax = (isInventoryTaxed) ? (dInventory * inventoryTaxPercent / 100) : 0;
             dTreatmentTax = (dTreatmentTax % 1 != 0) ? parseFloat(dTreatmentTax.toFixed(2)) : dTreatmentTax;    
             dInventoryTax = (dInventoryTax % 1 != 0) ? parseFloat(dInventoryTax.toFixed(2)) : dInventoryTax;
+
+            function iterateTaxes(tax) {
+                if (tax.isTaxApplied && tax.isForTreatments) {
+                    isTreatmentTaxed = true;
+                    treatmentTaxPercent += tax.percent;
+                }
+                if (tax.isTaxApplied && tax.isForInventory) {
+                    isInventoryTaxed = true;
+                    inventoryTaxPercent += tax.percent;
+                }
+            }
         }
 
         function changeForceStopCalCost(bool) {
@@ -1733,9 +1819,10 @@
         function calculateCost() {
             if (forceStopCalCost)
                 return;
-            var totalCost = 0;
+            var totalCost = 0, taxes = 0;
             var discountedSubtotal = parseFloat(dTreatment + dTreatmentTax) + parseFloat(dInventory + dInventoryTax);
-            totalCost = (vm.isDiscountApplied && (vm.discount.total > 0)) ? Math.round(discountedSubtotal) : (parseFloat(vm.service.subtotal) + parseFloat(vm.service.taxes.serviceTax) + parseFloat(vm.service.taxes.vat)); 
+            vm.taxSettings.forEach(iterateTaxes);
+            totalCost = (vm.isDiscountApplied && (vm.discount.total > 0)) ? Math.round(discountedSubtotal) : (parseFloat(vm.service.subtotal) + parseFloat(taxes)); 
             serviceTcDc = totalCost;
             serviceTcRo = totalCost;
             if (vm.isRoundOffVal) {
@@ -1745,38 +1832,9 @@
             totalCost = (totalCost % 1 != 0) ? parseFloat(totalCost.toFixed(2)) : totalCost;
             totalCost = (totalCost % 1).toFixed(2) == 0.00 ? Math.round(totalCost) : totalCost;
             vm.service.cost = parseFloat(totalCost);
-        }
 
-        function calculateServiceTax() {
-            if (vm.isDiscountApplied && (vm.discount.total > 0)) {
-                vm.service.taxes.serviceTax = dTreatmentTax;
-                return;
-            }
-            var totalTax = 0.0;
-            if ((vm.problem.amount > 0) && (vm.sTaxSettings && vm.sTaxSettings.applyTax) && vm.problem.tax)
-                totalTax += parseFloat(vm.problem.tax);
-            vm.service.problems.forEach(iterateProblems);
-            if (vm.serviceType == vm.serviceTypeList[1])
-                vm.packages.forEach(iteratePackages);
-            totalTax = (totalTax % 1 != 0) ? totalTax.toFixed(2) : parseInt(totalTax);
-            vm.service.taxes.serviceTax = parseFloat(totalTax);
-
-            function iterateProblems(problem) {
-                if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !problem.tax || !problem.checked)
-                    return;
-                totalTax += parseFloat(problem.tax);
-            }
-
-            function iteratePackages(package) {
-                if (!package.checked)
-                    return;
-                package.selectedTreatments.forEach(ipt);
-            }
-
-            function ipt(treatment) {
-                if ((vm.sTaxSettings && !vm.sTaxSettings.applyTax) || !treatment.tax)
-                    return;
-                totalTax += parseFloat(treatment.tax[vm.vehicle.type.toLowerCase().replace(' ', '-')]);
+            function iterateTaxes(tax) {
+                taxes += tax.tax;
             }
         }
 
@@ -1814,7 +1872,7 @@
                 vm.problem.details = '';
                 vm.problem.amount = '';
                 vm.problem.rate = '';
-                vm.problem.tax = '';
+                vm.problem.tax = {};
                 calculate();
                 if (isFromAutocomplete || foundExisting.length != 0)
                     vm.problemFocusIndex = (foundExisting.length == 0) ? vm.selectedProblems.length - 1 : vm.selectedProblems.indexOf(foundExisting[0]);
@@ -1835,27 +1893,34 @@
                 if (found.length == 1) {
                     var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
                     vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
-                    if (vm.sTaxSettings.applyTax) {
-                        if (vm.sTaxSettings.inclusive) {
-                            vm.problem.rate = (vm.problem.amount * 100) / (vm.sTaxSettings.tax + 100);
-                            vm.problem.tax = (vm.problem.rate * vm.sTaxSettings.tax / 100);
-                        } else {
-                            vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
-                            vm.problem.tax = (vm.problem.rate * vm.sTaxSettings.tax / 100);
-                            vm.problem.amount = vm.problem.rate + vm.problem.tax;
-                        }
-                    } else {
-                        if (vm.sTaxSettings.inclusive)
-                            vm.problem.rate = (rate == '' || rate == undefined ? vm.problem.rate : rate);
-                        else
-                            vm.problem.amount = (rate == '' || rate == undefined ? vm.problem.amount : rate);
-                    }
+                    var taxable = vm.problem.amount;
+                    vm.problem.tax = {};
+                    vm.taxSettings.forEach(iterateTaxes);
+                    vm.problem.rate = taxable;
                     vm.problem.checked = true;
                     calculate();
+
+                    function iterateTaxes(tax) {
+                        if (!tax.isForTreatments)
+                            return;
+                        if (tax.isTaxApplied) {
+                            if (tax.inclusive) {
+                                var temptax = 0;
+                                vm.problem.rate = (taxable * 100) / (tax.percent + 100);
+                                temptax = (vm.problem.rate * tax.percent / 100);
+                                vm.problem.tax[tax.name] = temptax;
+                                taxable = vm.problem.rate;
+                            } else {
+                                var temptax = 0;
+                                temptax = (taxable * tax.percent / 100);
+                                vm.problem.tax[tax.name] = temptax;
+                            }
+                        }
+                    }
                 }
             } else {
                 vm.problem.rate = '';
-                vm.problem.tax = 0;
+                vm.problem.tax = {};
                 vm.problem.amount = '';
                 vm.problem.checked = false;
             }
@@ -1932,20 +1997,8 @@
                 vm.service['roundoff'] = vm.roundedOffVal;
             }
             vm.service.problems.forEach(iterateProblems);
-            if (vm.sTaxSettings != undefined) {
-                vm.service.serviceTax = {
-                    applyTax: vm.sTaxSettings.applyTax,
-                    taxIncType: (vm.sTaxSettings.inclusive) ? 'inclusive' : 'exclusive',
-                    tax: vm.sTaxSettings.tax
-                };
-            }
-            if (vm.vatSettings != undefined) {
-                vm.service.vat = {
-                    applyTax: vm.vatSettings.applyTax,
-                    taxIncType: (vm.vatSettings.inclusive) ? 'inclusive' : 'exclusive',
-                    tax: vm.vatSettings.tax
-                }
-            }
+            vm.service.taxes = {};
+            vm.taxSettings.forEach(iterateTaxes);
             if (vm.inventory.name)
                 finalizeNewInventory();
             vm.selectedInventories.forEach(iterateInventories);
@@ -1965,6 +2018,17 @@
                     break;
             }
             amServices.saveService(vm.user, vm.vehicle, vm.service, options).then(success).catch(failure);
+
+            function iterateTaxes(tax) {
+                vm.service.taxes[tax.name] = {
+                    tax: tax.tax,
+                    type: (tax.inclusive) ? "inclusive" : "exclusive",
+                    isTaxApplied: tax.isTaxApplied,
+                    isForTreatments: tax.isForTreatments,
+                    isForInventory: tax.isForInventory,
+                    percent: tax.percent
+                }
+            }
 
             function addMsToService(membership) {
                 if (!membership.checked)
@@ -1991,16 +2055,12 @@
             }
 
             function iterateProblems(problem) {
-                if (!vm.sTaxSettings || (vm.sTaxSettings && !vm.sTaxSettings.applyTax && vm.sTaxSettings.inclusive))
-                    problem.rate = problem.amount;
                 delete problem.checked;
                 delete problem['amount'];
                 delete problem['$$hashKey'];
             }
 
             function iterateInventories(inventory) {
-                if (!vm.vatSettings || (vm.vatSettings && vm.vatSettings.applyTax && vm.vatSettings.inclusive))
-                    inventory.rate = inventory.amount;
                 delete inventory.checked;
                 delete inventory['total'];
                 delete inventory['amount'];

@@ -138,7 +138,7 @@
         getIvAlignMargins();
         getAllTaxSettings();
         // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
-        changeTaxTab(true);     //  testing purposes amTODO: remove it
+        // changeTaxTab(true);     //  testing purposes amTODO: remove it
         
         //  default execution steps [END]
 

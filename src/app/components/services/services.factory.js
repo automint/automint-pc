@@ -2,7 +2,7 @@
  * Factory that handles database interactions between services database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -30,20 +30,90 @@
             getLastInvoiceNo: getLastInvoiceNo,
             getPackages: getPackages,
             getMemberships: getMemberships,
-            getServiceTaxSettings: getServiceTaxSettings,
             getServices: getServices,
             getInventories: getInventories,
-            getVatSettings: getVatSettings,
             getInventoriesSettings: getInventoriesSettings,
             getLastEstimateNo : getLastEstimateNo,
             getLastJobCardNo: getLastJobCardNo,
             getDefaultServiceType: getDefaultServiceType,
-            getFilterMonths: getFilterMonths
+            getFilterMonths: getFilterMonths,
+            getTreatmentsTax: getTreatmentsTax,
+            getInventoryTax: getInventoryTax
         }
 
         return factory;
 
         //  function definitions
+
+        function getTreatmentsTax() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
+            }
+
+            function getSettingsObj(res) {
+                var result = [];
+                if (res.settings && res.settings.tax)
+                    Object.keys(res.settings.tax).forEach(iterateTaxes);
+                tracker.resolve(result);
+
+                function iterateTaxes(tax) {
+                    var t = res.settings.tax[tax];
+                    if (t.isForTreatments) {
+                        result.push({
+                            inclusive: (t.type == "inclusive"),
+                            isTaxApplied: t.isTaxApplied,
+                            isForTreatments: t.isForTreatments,
+                            isForInventory: t.isForInventory,
+                            percent: t.percent,
+                            name: tax
+                        });
+                    }
+                }
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function getInventoryTax() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
+            }
+
+            function getSettingsObj(res) {
+                var result = [];
+                if (res.settings && res.settings.tax)
+                    Object.keys(res.settings.tax).forEach(iterateTaxes);
+                tracker.resolve(result);
+
+                function iterateTaxes(tax) {
+                    var t = res.settings.tax[tax];
+                    if (t.isForInventory) {
+                        result.push({
+                            inclusive: (t.type == "inclusive"),
+                            isTaxApplied: t.isTaxApplied,
+                            isForTreatments: t.isForTreatments,
+                            isForInventory: t.isForInventory,
+                            percent: t.percent,
+                            name: tax
+                        });
+                    }
+                }
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function getFilterMonths() {
             var tracker = $q.defer();
@@ -125,37 +195,6 @@
             }
         }
 
-        function getVatSettings() {
-            var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
-            return tracker.promise;
-            
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
-            }
-            
-            function getSettingsObj(res) {
-                if (res.settings && res.settings.vat) {
-                    tracker.resolve({
-                        applyTax: res.settings.vat.applyTax,
-                        inclusive: (res.settings.vat.taxIncType == 'inclusive') ? true : false,
-                        tax: res.settings.vat.tax
-                    });
-                } else
-                    failure();
-            }
-            
-            function failure(err) {
-                if (!err) {
-                    err = {
-                        success: false,
-                        message: 'VAT Settings Not Found!'
-                    }
-                }
-                tracker.reject(err);
-            }
-        }
-
         function getInventories() {
             var tracker = $q.defer();
             var response = [];
@@ -185,37 +224,6 @@
             }
 
             function failure(err) {
-                tracker.reject(err);
-            }
-        }
-        
-        function getServiceTaxSettings() {
-            var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
-            return tracker.promise;
-            
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
-            }
-            
-            function getSettingsObj(res) {
-                if (res.settings && res.settings.servicetax) {
-                    tracker.resolve({
-                        applyTax: res.settings.servicetax.applyTax,
-                        inclusive: (res.settings.servicetax.taxIncType == 'inclusive') ? true : false,
-                        tax: res.settings.servicetax.tax
-                    });
-                } else
-                    failure();
-            }
-            
-            function failure(err) {
-                if (!err) {
-                    err = {
-                        success: false,
-                        message: 'Service Tax Settings Not Found!'
-                    }
-                }
                 tracker.reject(err);
             }
         }
