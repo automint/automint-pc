@@ -270,6 +270,7 @@
                             if (!found[0].tax)
                                 found[0].tax = 0;
                             found[0].tax += problem.tax[tax];
+                            found[0].tax = (found[0].tax % 1 != 0) ? parseFloat(found[0].tax.toFixed(2)) : parseInt(found[0].tax);
                         }
                     }
                 }
@@ -291,6 +292,7 @@
                                 if (!found[0].tax)
                                     found[0].tax = 0;
                                 found[0].tax += problem.tax[tax];
+                                found[0].tax = (found[0].tax % 1 != 0) ? parseFloat(found[0].tax.toFixed(2)) : parseInt(found[0].tax);
                             }
                         }
                     }
