@@ -2,7 +2,7 @@
  * Factory that handles database interactions between dashboard dataset and controller
  * @author ndkcha
  * @since 0.6.0
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').factory('amDashboard', DashboardFactory);
     
-    DashboardFactory.$inject = ['$q', '$filter', 'utils', 'constants', 'pdbCache', 'pdbCustomers'];
+    DashboardFactory.$inject = ['$q', '$filter', '$amRoot', 'utils', 'constants', 'pdbConfig', 'pdbCache', 'pdbCustomers'];
     
-    function DashboardFactory($q, $filter, utils, constants, pdbCache, pdbCustomers) {
+    function DashboardFactory($q, $filter, $amRoot, utils, constants, pdbConfig, pdbCache, pdbCustomers) {
         //  initialize dashboard factory and funtion mappings
         var factory = {
             getTotalCustomerServed: getTotalCustomerServed,
@@ -21,12 +21,34 @@
             getFilterMonths: getFilterMonths,
             getNextDueCustomers: getNextDueCustomers,
             deleteServiceReminder: deleteServiceReminder,
-            changeServiceReminderDate: changeServiceReminderDate
+            changeServiceReminderDate: changeServiceReminderDate,
+            getCurrencySymbol: getCurrencySymbol
         }
         
         return factory;
         
         //  function definitions
+
+        function getCurrencySymbol() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.currency)
+                    tracker.resolve(res.currency);
+                else
+                    failure('No Currency Symbol Found!');
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function changeServiceReminderDate(cId, vId, nextdue) {
             var tracker = $q.defer();

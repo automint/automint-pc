@@ -178,11 +178,11 @@
                 <div layout="row" class="am-eci-block last">
                     <div layout="row" layout-align="start end" flex="45" class="am-input-box">
                         <label class="am-form-label">Payment So Far: </label>
-                        <span style="color: #4CAF50; font-weight: 500;"><span style="font-size: small">Rs.</span>{{vm.paymentDone}}</span>
+                        <span style="color: #4CAF50; font-weight: 500;"><span style="font-size: small">{{vm.currencySymbol}}&nbsp;</span>{{vm.paymentDone}}</span>
                     </div>
                     <div layout="row" layout-align="start end" flex="45" class="am-input-box">
                         <label class="am-form-label">Payment Due: </label>
-                        <span style="color: #F44336; font-weight: 500;"><span style="font-size: small">Rs.</span>{{vm.paymentDue}}</span>
+                        <span style="color: #F44336; font-weight: 500;"><span style="font-size: small">{{vm.currencySymbol}}&nbsp;</span>{{vm.paymentDue}}</span>
                     </div>
                 </div>
             </div>
@@ -227,7 +227,7 @@
                         <tr md-row class="am-blue-bar c600">
                             <th md-column><span class="am-table-header">Vehicle</span></th>
                             <th md-column><span class="am-table-header">Date</span></th>
-                            <th md-column><span class="am-table-header">Amount&nbsp;<span class="md-caption">(Rs.)</span></span></th>
+                            <th md-column><span class="am-table-header">Amount&nbsp;<span class="md-caption">({{vm.currencySymbol}})</span></span></th>
                             <th md-column><span class="am-table-header">Payment</span></th>
                             <th md-column></th>
                         </tr>

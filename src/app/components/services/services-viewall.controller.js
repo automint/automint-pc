@@ -2,7 +2,7 @@
  * Controller for View Services module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -32,6 +32,7 @@
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
         vm.currentTimeSet = [];
         vm.ddTimeSet = '';
+        vm.currencySymbol = "Rs.";
 
         //  function maps
         vm.addService = addService;
@@ -50,10 +51,23 @@
 
         //  default execution steps
         $scope.$watch('vm.serviceQuery', watchServiceQuery);
+        getCurrencySymbol();
         getFilterMonths(processPreferences);
         initCurrentTimeSet();
         
         //  function definitions
+
+        function getCurrencySymbol() {
+            amServices.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                vm.currencySymbol = "Rs.";
+            }
+        }
 
         function openTimeFilter(event) {
             $mdDialog.show({

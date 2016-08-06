@@ -31,6 +31,8 @@
         vm.isFabOpen = true;
         vm.fabClass = '';
         vm.subtotal = 0;
+        vm.currencySymbol = "Rs.";
+        vm.taxSettings = [];
 
         //  function maps
         vm.printInvoice = printInvoice;
@@ -51,6 +53,7 @@
         vm.IsInvoiceAvailable = IsInvoiceAvailable;
         vm.IsSubtotalEnabled = IsSubtotalEnabled;
         vm.calculateSubtotal = calculateSubtotal;
+        vm.IsTaxEnabled = IsTaxEnabled;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -58,6 +61,7 @@
             $state.go('restricted.services.all');
             return;
         }
+        getCurrencySymbol();
         fillInvoiceDetails();
         loadInvoiceWLogo();
         getIvAlignMargins();
@@ -67,8 +71,38 @@
 
         //  function definitions
 
+        function IsTaxEnabled() {
+            var iTe = false;
+            vm.taxSettings.forEach(iterateTaxes);
+            return iTe;
+
+            function iterateTaxes(tax) {
+                if (tax.isTaxApplied)
+                    iTe = true;
+            }
+        }
+
+        function getCurrencySymbol() {
+            amInvoices.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                vm.currencySymbol = "Rs.";
+            }
+        }
+
         function IsSubtotalEnabled() {
-            return (vm.isDiscountApplied || vm.isRoundOff || (vm.sTaxSettings && vm.sTaxSettings.applyTax) || (vm.vatSettings && vm.vatSettings.applyTax));
+            var isTaxEnabled = false;
+            vm.taxSettings.forEach(iterateTaxes);
+            return (vm.isDiscountApplied || vm.isRoundOffVal || isTaxEnabled);
+
+            function iterateTaxes(tax) {
+                if (tax.isTaxApplied)
+                    isTaxEnabled = true;
+            }
         }
 
         function calculateSubtotal() {
@@ -171,17 +205,7 @@
             function iterateInventories(inventory) {
                 if (inventory.qty == undefined)
                     inventory.qty = 1;
-                if (vm.vatSettings.applyTax) {
-                    inventory.amount = inventory.rate;
-                    if (vm.vatSettings.inclusive) {
-                        inventory.rate = (inventory.amount * 100) / (vm.vatSettings.tax + 100);
-                        inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
-                    } else {
-                        inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
-                        inventory.amount = Math.round(inventory.rate + inventory.tax);
-                    }
-                }
-                inventory.total = (inventory.rate * inventory.qty) + ((inventory.tax ? inventory.tax : 0) * inventory.qty);
+                inventory.total = inventory.rate * inventory.qty;
                 inventory.total = (inventory.total % 1 != 0) ? inventory.total.toFixed(2) : parseInt(inventory.total);
             }
         }
@@ -204,18 +228,28 @@
                 vm.service = res.service;
                 vm.isRoundOff = (vm.service.roundoff != undefined);
                 vm.isDiscountApplied = (vm.service.discount != undefined);
-                vm.sTaxSettings = {
-                    applyTax: res.service.serviceTax.applyTax,
-                    inclusive: (res.service.serviceTax.taxIncType == 'inclusive'),
-                    tax: res.service.serviceTax.tax
-                };
-                vm.vatSettings = {
-                    applyTax: res.service.vat.applyTax,
-                    inclusive: (res.service.vat.taxIncType == 'inclusive'),
-                    tax: res.service.vat.tax
+                if (vm.isDiscountApplied) {
+                    vm.discountValue = (vm.service.discount.amount || vm.service.discount.total);
                 }
+                if (res.service.taxes)
+                    Object.keys(res.service.taxes).forEach(iterateTaxes);
+                console.log(vm.taxSettings);
                 calculateInventoryValues();
                 calculateSubtotal();
+
+                function iterateTaxes(tax) {
+                    var t = res.service.taxes[tax];
+
+                    vm.taxSettings.push({
+                        tax: t.tax,
+                        inclusive: (t.type == "inclusive"),
+                        isTaxApplied: t.isTaxApplied,
+                        isForTreatments: t.isForTreatments,
+                        isForInventory: t.isForInventory,
+                        percent: t.percent,
+                        name: tax
+                    });
+                }
             }
 
             function failure(err) {

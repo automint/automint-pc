@@ -687,24 +687,24 @@
                         </div>
                         <div flex></div>
                         <div layout="column" class="am-toolbar-strip">
-                            <span ng-if="vm.IsSubtotalEnabled()" layout="row"><span class="md-body-2">Subtotal:&nbsp</span><span flex></span><span><span class="am-rupee">Rs.</span> {{vm.service.subtotal}}</span></span>
+                            <span ng-if="vm.IsSubtotalEnabled()" layout="row"><span class="md-body-2">Subtotal:&nbsp</span><span flex></span><span><span class="am-rupee">{{vm.currencySymbol}}</span> {{vm.service.subtotal}}</span></span>
                             <span ng-if="vm.IsSubtotalEnabled()" style="line-height: 0.5rem">&nbsp;</span>
-                            <span ng-if="vm.isDiscountApplied" layout="row"><span class="md-body-2">Discount:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span> <input type="text" ng-change="vm.calculateDiscount()" ng-model="vm.discount.total" class="am-discount-inline-input" style="text-align: right"></span></span>
+                            <span ng-if="vm.isDiscountApplied" layout="row"><span class="md-body-2">Discount:&nbsp;</span><span flex></span><span><span class="am-rupee">{{vm.currencySymbol}}</span> <input type="text" ng-change="vm.calculateDiscount()" ng-model="vm.discount.total" class="am-discount-inline-input" style="text-align: right"></span></span>
                             <span ng-if="vm.isDiscountApplied" style="line-height: 0.5rem">&nbsp;</span>
-                            <span ng-if="vm.isRoundOffVal" layout="row"><span class="md-body-2">Round Off:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span> <input type="text" ng-change="vm.calculateRoundOff(true)" ng-model="vm.roundedOffVal" class="am-discount-inline-input" style="text-align: right"></span></span>
+                            <span ng-if="vm.isRoundOffVal" layout="row"><span class="md-body-2">Round Off:&nbsp;</span><span flex></span><span><span class="am-rupee">{{vm.currencySymbol}}</span> <input type="text" ng-change="vm.calculateRoundOff(true)" ng-model="vm.roundedOffVal" class="am-discount-inline-input" style="text-align: right"></span></span>
                             <span ng-if="vm.isRoundOffVal" style="line-height: 0.5rem">&nbsp;</span>
                             <span ng-repeat-start="tax in vm.taxSettings" ng-show="tax.isTaxApplied" layout="row">
-                                <span class="md-body-2">{{tax.name}}:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span> {{tax.tax}}</span>
+                                <span class="md-body-2">{{tax.name}}:&nbsp;</span><span flex></span><span><span class="am-rupee">{{vm.currencySymbol}}</span> {{tax.tax}}</span>
                             </span>
                             <span ng-repeat-end ng-show="tax.isTaxApplied" style="line-height: 0.5rem">&nbsp;</span>
-                            <span layout="row" layout-align="end end"><span class="md-body-2">Total Cost:&nbsp;</span><span flex></span><span><span class="am-rupee">Rs.</span>&nbsp<span ng-if="vm.isRoD()"><input type="number" ng-focus="vm.changeForceStopCalCost(true)" ng-blur="vm.changeForceStopCalCost(false)" ng-change="vm.populateRoD()" ng-model="vm.service.cost" class="am-discount-inline-input" style="width: 74px; text-align: right; font-size: x-large; color: #000"></span><span ng-if="!vm.isRoD()" style="font-size: x-large">{{vm.service.cost}}</span></span></span>
+                            <span layout="row" layout-align="end end"><span class="md-body-2">Total Cost:&nbsp;</span><span flex></span><span><span class="am-rupee">{{vm.currencySymbol}}</span>&nbsp<span ng-if="vm.isRoD()"><input type="number" ng-focus="vm.changeForceStopCalCost(true)" ng-blur="vm.changeForceStopCalCost(false)" ng-change="vm.populateRoD()" ng-model="vm.service.cost" class="am-discount-inline-input" style="width: 74px; text-align: right; font-size: x-large; color: #000"></span><span ng-if="!vm.isRoD()" style="font-size: x-large">{{vm.service.cost}}</span></span></span>
                         </div>
                         <md-divider class="am-tab-margin"></md-divider>
                         <div layout="column" class="am-toolbar-strip" ng-if="vm.IsPartialPayment()">
                             <span style="line-height: 0.5rem">&nbsp;</span>
-                            <span layout="row"><span class="md-body-2">Received:&nbsp;</span><span flex></span><span class="am-pp-dr" ng-click="vm.openPartialPaymentBox()"><span class="am-rupee">Rs.</span>&nbsp;{{vm.service.partialpayment.total}}</span></span>
+                            <span layout="row"><span class="md-body-2">Received:&nbsp;</span><span flex></span><span class="am-pp-dr" ng-click="vm.openPartialPaymentBox()"><span class="am-rupee">{{vm.currencySymbol}}</span>&nbsp;{{vm.service.partialpayment.total}}</span></span>
                             <span style="line-height: 0.5rem">&nbsp;</span>
-                            <span layout="row"><span class="md-body-2">Due:&nbsp;</span><span flex></span><span class="am-pp-dr" ng-click="vm.openPartialPaymentBox()"><span class="am-rupee">Rs.</span>&nbsp;{{vm.calculateDue()}}</span></span>
+                            <span layout="row"><span class="md-body-2">Due:&nbsp;</span><span flex></span><span class="am-pp-dr" ng-click="vm.openPartialPaymentBox()"><span class="am-rupee">{{vm.currencySymbol}}</span>&nbsp;{{vm.calculateDue()}}</span></span>
                         </div>
                         <div layout="row" class="am-tab-margin">
                             <md-button class="md-raised md-warn" ng-click="vm.save()">

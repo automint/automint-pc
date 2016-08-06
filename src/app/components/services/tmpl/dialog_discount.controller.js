@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlSeDc', DiscountController);
 
-    DiscountController.$inject = ['$mdDialog', 'treatmentLength', 'partLength', 'treatmentTotal', 'partTotal', 'discountObj'];
+    DiscountController.$inject = ['$mdDialog', 'treatmentLength', 'partLength', 'treatmentTotal', 'partTotal', 'discountObj', 'currencySymbol'];
 
-    function DiscountController($mdDialog, treatmentLength, partLength, treatmentTotal, partTotal,  discountObj) {
+    function DiscountController($mdDialog, treatmentLength, partLength, treatmentTotal, partTotal,  discountObj, currencySymbol) {
         //  initiailize view model
         var vm = this;
 
@@ -23,7 +23,8 @@
         vm.isTreatment = (treatmentLength > 0);
         vm.isPart = (partLength > 0);
         vm.isTreatmentSelected = false;
-        vm.isPartSelected = false; 
+        vm.isPartSelected = false;
+        vm.currencySymbol = currencySymbol;
 
         //  function maps to view model
         vm.cancel = cancel;

@@ -65,6 +65,7 @@
         vm.label_ivAlignTopAlignment = 'Enter Top Margin:';
         vm.label_ivAlignBottomAlignment = 'Enter Bottom Margin:';
         vm.taxSettings = [];
+        vm.currencySymbol = "Rs.";
         //  named assignments to keep track of UI [END]
         
         //  function maps [BEGIN]
@@ -118,6 +119,7 @@
         vm.saveTax = saveTax;
         vm.autoCapitalizeName = autoCapitalizeName;
         vm.IsTaxFocused = IsTaxFocused;
+        vm.saveCurrencySymbol = saveCurrencySymbol;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -137,12 +139,42 @@
         loadInvoiceWLogo();
         getIvAlignMargins();
         getAllTaxSettings();
+        getCurrencySymbol();
         // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
         // changeTaxTab(true);     //  testing purposes amTODO: remove it
         
         //  default execution steps [END]
 
         //  function definitions
+
+        function getCurrencySymbol() {
+            amSettings.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                vm.currencySymbol = "Rs.";
+            }
+        }
+
+        function saveCurrencySymbol() {
+            if ((vm.currencySymbol == '') || (vm.currencySymbol == undefined))
+                vm.currencySymbol = "Rs.";
+            amSettings.saveCurrencySymbol(vm.currencySymbol).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok)
+                    utils.showSimpleToast('Currency saved successfully!');
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Could not save Currency at moment! Try Again Later!');
+            }
+        }
 
         function IsTaxFocused(index) {
             return (currentTaxFocusIndex == index);

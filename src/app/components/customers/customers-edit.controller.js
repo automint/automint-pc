@@ -54,6 +54,7 @@
         vm.customerTypeList = ['Customer', 'Agency'];
         vm.paymentDone = 0;
         vm.paymentDue = 0;
+        vm.currencySymbol = "Rs.";
 
         //  function maps
         vm.changeVehicle = changeVehicle;
@@ -79,6 +80,7 @@
         //  default execution steps
         // $state.params.id = ($state.params.id == undefined) ? "usr-anand-kacha-772d071e-852c-4a45-aaaf-089d80f73449" : $state.params.id;
         if ($state.params.id != undefined) {
+            getCurrencySymbol();
             getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
             setTimeout(focusCustomerMobile, 300);
         } else {
@@ -87,6 +89,18 @@
         }
 
         //  function definitions
+
+        function getCurrencySymbol() {
+            amCustomers.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                vm.currencySymbol = "Rs.";
+            }
+        }
 
         function editVehicle(id) {
             changeVehicle(id);

@@ -100,7 +100,7 @@
                     <div layout="column" flex>
                         <span class="am-card-label">Income</span>
                     </div>
-                    <span ng-click="vm.displayIncome = !vm.displayIncome" class="am-clickable-amount"><span class="am-color green bold" ng-if="!vm.displayIncome"><span class="am-card-label small">Rs.</span>$$$</span><span class="am-color green bold" ng-if="vm.displayIncome"><span class="am-card-label small">Rs.</span>{{vm.totalRevenueEarned}}</span></span>
+                    <span ng-click="vm.displayIncome = !vm.displayIncome" class="am-clickable-amount"><span class="am-color green bold" ng-if="!vm.displayIncome"><span class="am-card-label small">{{vm.currencySymbol}}&nbsp;</span>$$$</span><span class="am-color green bold" ng-if="vm.displayIncome"><span class="am-card-label small">{{vm.currencySymbol}}&nbsp;</span>{{vm.totalRevenueEarned}}</span></span>
                 </div>
             </md-card-content>
         </md-card>
@@ -110,7 +110,7 @@
                     <div layout="column" flex>
                         <span class="am-card-label">Due Payments</span>
                     </div>
-                    <span class="am-color red bold"><span class="am-card-label small">Rs.</span>{{vm.totalPendingPayments}}</span>
+                    <span class="am-color red bold"><span class="am-card-label small">{{vm.currencySymbol}}&nbsp;</span>{{vm.totalPendingPayments}}</span>
                 </div>
             </md-card-content>
         </md-card>

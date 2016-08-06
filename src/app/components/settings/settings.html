@@ -131,6 +131,12 @@
                             </md-checkbox>
                         </md-card-content>
                     </md-card>
+                    <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-content layout="row" layout-align="start center">
+                            <span class="md-title">Currency:</span>
+                            <input type="text" pu-elastic-input ng-model="vm.currencySymbol" ng-blur="vm.saveCurrencySymbol()" class="am-tax-inline-input" style="min-width: 100px; font-size: 11pt; margin-bottom: -4px; margin-left: 6px">
+                        </md-card-content>
+                    </md-card>
                 </div>
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card class="md-hue-1 am-box-shadow">

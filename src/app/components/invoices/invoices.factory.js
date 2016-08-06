@@ -2,7 +2,7 @@
  * Factory that handles database interactions between invoices database and controller
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -20,12 +20,34 @@
             getWorkshopDetails: getWorkshopDetails,
             getIvSettings: getIvSettings,
             getIvAlignMargins: getIvAlignMargins,
-            saveCustomerEmail: saveCustomerEmail
+            saveCustomerEmail: saveCustomerEmail,
+            getCurrencySymbol: getCurrencySymbol
         }
 
         return factory;
 
         //  function definitions
+
+        function getCurrencySymbol() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.currency)
+                    tracker.resolve(res.currency);
+                else
+                    failure('No Currency Symbol Found!');
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function saveCustomerEmail(userId, email) {
             var tracker = $q.defer();

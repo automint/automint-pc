@@ -82,6 +82,7 @@
         vm.nextServiceDueCustomers = [];
         vm.nsdcTimeRange = ['Today', 'This Week', 'This Month', 'All'];
         vm.nsdcTime = vm.nsdcTimeRange[0];
+        vm.currencySymbol = "Rs.";
 
         //  function maps
         vm.addNewService = addNewService;
@@ -102,8 +103,21 @@
         getFilterMonths();
         $amRoot.ccViews();
         processPreferences();
+        getCurrencySymbol();
 
         //  function definitions
+
+        function getCurrencySymbol() {
+            amDashboard.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                vm.currencySymbol = "Rs.";
+            }
+        }
 
         function IsNoNextDueReminders() {
             return (vm.nextServiceDueCustomers.length == 0);

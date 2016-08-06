@@ -2,7 +2,7 @@
  * Conroller for View All Memberships component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.0
+ * @version 0.7.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -24,6 +24,7 @@
         };
         vm.selectedMembership = undefined;
         vm.isExpandAll = false;
+        vm.currencySymbol = "Rs.";
         
         //  function maps
         vm.changeExpandValues = changeExpandValues;
@@ -34,9 +35,22 @@
         vm.IsMembershipVisible = IsMembershipVisible;
         
         //  default execution steps
+        getCurrencySymbol();
         getMemberships(changeExpandValues);
         
         //  function definitions
+
+        function getCurrencySymbol() {
+            amTreatments.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                vm.currencySymbol = "Rs.";
+            }
+        }
         
         function changeExpandValues() {
             vm.isExpandAll = !vm.isExpandAll;

@@ -2,7 +2,7 @@
  * Factory that handles database interactions between treatments database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -31,10 +31,32 @@
             getMemberships: getMemberships,
             getMembershipInfo: getMembershipInfo,
             deleteMembership: deleteMembership,
-            saveMembership: saveMembership
+            saveMembership: saveMembership,
+            getCurrencySymbol: getCurrencySymbol
         }
         
         return factory;
+
+        function getCurrencySymbol() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.currency)
+                    tracker.resolve(res.currency);
+                else
+                    failure('No Currency Symbol Found!');
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
         
         //  retrieve vehicle types from config database
         function getVehicleTypes() {

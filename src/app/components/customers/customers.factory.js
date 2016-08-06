@@ -26,12 +26,34 @@
             getMemberships: getMemberships,
             getRegularTreatments: getRegularTreatments,
             getVehicleTypes: getVehicleTypes,
-            getCustomerByMobile: getCustomerByMobile
+            getCustomerByMobile: getCustomerByMobile,
+            getCurrencySymbol: getCurrencySymbol
         };
 
         return factory;
 
         //  function definitions
+
+        function getCurrencySymbol() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.currency)
+                    tracker.resolve(res.currency);
+                else
+                    failure('No Currency Symbol Found!');
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function getCustomerByMobile(mobile) {
             var tracker = $q.defer();

@@ -35,7 +35,7 @@
                         <th md-column md-order-by="customerName"><span class="am-table-header">Customer</span></th>
                         <th md-column md-order-by="vehicle"><span class="am-table-header">Vehicle</span></th>
                         <th md-column md-order-by="date"><span class="am-table-header">Date</span></th>
-                        <th md-column md-order-by="amount"><span class="am-table-header">Amount</span><br>(Rs.)</th>
+                        <th md-column md-order-by="amount"><span class="am-table-header">Amount</span><br>({{vm.currencySymbol}})</th>
                         <th md-column md-order-by="payment"><span class="am-table-header">Payment</span></th>
                     </tr>
                 </thead>
@@ -48,7 +48,7 @@
                         <td md-cell ng-click="vm.editService(service)"><span ng-class="{'am-red-text': vm.IsServiceDue(service.srvc_status)}">{{service.srvc_status}}</span></td>
                         <td md-cell ng-click="vm.editService(service)"><span ng-class="{'am-jobcard-text': vm.IsServiceStateJc(service.srvc_state), 'am-estimate-text': vm.IsServiceStateEs(service.srvc_state), 'am-invoice-text': vm.IsServiceStateIv(service.srvc_state)}">{{service.srvc_state}}</span></td>
                         <td md-cell class="am-datatable-actions view-all-services">
-                            <md-button class="md-icon-button" ng-click="vm.deleteService(service, $event)">
+                            <md-button class="md-icon-button" ng-click="vm.goToInvoice(service, $event)">
                                 <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
                             </md-button>
                         </td>

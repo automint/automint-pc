@@ -108,6 +108,7 @@
             total: 0
         };
         vm.taxSettings = [];
+        vm.currencySymbol = "Rs.";
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -193,6 +194,7 @@
         setCoverPic();
         buildDelayedToggler('service-details-left');
         changeServiceInfoState(true);
+        getCurrencySymbol();
         getVehicleTypes();
         getPackages();
         getMemberships();
@@ -201,6 +203,18 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function getCurrencySymbol() {
+            amServices.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                vm.currencySymbol = "Rs.";
+            }
+        }
 
         function calculate() {
             calculateSubtotal();

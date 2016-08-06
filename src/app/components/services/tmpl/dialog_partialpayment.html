@@ -49,7 +49,7 @@
             <div layout="row" layout-align="start center">
                 <span class="md-body-2">{{$index+1}}.&nbsp;Received:&nbsp;&nbsp;</span>
                 <input type="number" class="am-dpp-box-input" placeholder="Enter Amount" ng-model="payment.amount" am-custom-autofocus="vm.IsPaymentFocusIndex($index)" ng-change="vm.calculateRemaining(payment)" flex>
-                <span class="md-caption">&nbsp;Rs.</span>
+                <span class="md-caption">&nbsp;{{vm.currencySymbol}}</span>
             </div>
             <div layout="row" layout-align="end center" style="margin: 4px 0;">
                 <md-datepicker class="md-hue-1" ng-model="payment.date" md-placeholder="Enter Date" style="margin: 0 0 0 0.2rem; padding-right: 0"></md-datepicker>
@@ -65,7 +65,7 @@
         <div layout="row" layout-align="start center" style="margin: 0 16px 6px;">
             <span class="md-body-2">Remaining:&nbsp;&nbsp;</span>
             <input type="number" class="am-dpp-box-input" placeholder="Enter Amount" ng-change="vm.calculateReceived()" ng-model="vm.tc" flex>
-            <span class="md-caption">&nbsp;Rs.</span>
+            <span class="md-caption">&nbsp;{{vm.currencySymbol}}</span>
         </div>
         <div layout="row" layout-align="center center">
             <md-button class="md-warn" ng-click="vm.save()">

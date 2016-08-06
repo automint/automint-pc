@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlSePp', PartialPaymentController);
 
-    PartialPaymentController.$inject = ['$mdDialog', '$filter', 'totalCost', 'partialPayments'];
+    PartialPaymentController.$inject = ['$mdDialog', '$filter', 'totalCost', 'partialPayments', 'currencySymbol'];
 
-    function PartialPaymentController($mdDialog, $filter, totalCost, partialPayments) {
+    function PartialPaymentController($mdDialog, $filter, totalCost, partialPayments, currencySymbol) {
         //  initialize view model
         var vm = this;
 
@@ -20,6 +20,7 @@
         vm.partialPayments = [];
         vm.tc = totalCost;
         vm.paymentFocusIndex = -1;
+        vm.currencySymbol = currencySymbol;
 
         //  function mappings to view model
         vm.getDate = getDate;

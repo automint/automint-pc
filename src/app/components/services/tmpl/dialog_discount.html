@@ -18,17 +18,17 @@
             <div layout="row" layout-align="start center" style="padding: 16px 0">
                 <md-checkbox ng-disabled="!vm.isTreatment" ng-change="vm.calculateTotal()" ng-model="vm.isTreatmentSelected" aria-label="Treatments" style="margin-bottom: 0; margin-right: 10px;" flex><span class="md-body-2">Treatments:</span></md-checkbox>
                 <input ng-disabled="!vm.isTreatment" type="number" ng-model="vm.treatmentDiscount" ng-change="vm.checkTreatmentDiscount()" class="am-discount-inline-input" style="text-align: right; margin-right: 6px">
-                <span class="md-caption">Rs.</span>
+                <span class="md-caption">{{vm.currencySymbol}}</span>
             </div>
             <div layout="row" layout-align="start center" style="padding: 0 0 16px">
                 <md-checkbox ng-disabled="!vm.isPart" ng-change="vm.calculateTotal()" ng-model="vm.isPartSelected" aria-label="Parts" style="margin-bottom: 0; margin-right: 10px;" flex><span class="md-body-2">Parts:</span></md-checkbox>
                 <input ng-disabled="!vm.isPart" type="number" ng-model="vm.partDiscount" ng-change="vm.checkPartDiscount()" class="am-discount-inline-input" style="text-align: right; margin-right: 6px">
-                <span class="md-caption">Rs.</span>
+                <span class="md-caption">{{vm.currencySymbol}}</span>
             </div>
             <div layout="row" layout-align="start center" style="padding: 0 0 16px">
                 <span class="md-body-2" style="margin-right: 10px" flex>Total:</span>
                 <span class="md-body-2" style="margin-right: 6px">{{vm.totalDiscount}}</span>
-                <span class="md-caption">Rs.</span>
+                <span class="md-caption">{{vm.currencySymbol}}</span>
             </div>
             <div layout="row" layout-align="center center">
                 <md-button class="md-warn md-raised" ng-click="vm.save()">

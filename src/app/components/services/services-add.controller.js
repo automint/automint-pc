@@ -108,6 +108,7 @@
             total: 0
         };
         vm.taxSettings = [];
+        vm.currencySymbol = "Rs.";
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -201,6 +202,7 @@
         setTimeout(focusUserName, 700);
         // changeServiceInfoState(true);   //  ammToDo: Testing Purpose, Disable while commiting
         buildDelayedToggler('service-details-left');
+        getCurrencySymbol();
         getDefaultServiceType();
         getTreatmentDisplayFormat();
         getInventoriesSettings();
@@ -216,6 +218,18 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function getCurrencySymbol() {
+            amServices.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                vm.currencySymbol = "Rs.";
+            }
+        }
 
         function calculate() {
             calculateSubtotal();
@@ -313,6 +327,7 @@
                 parent: angular.element(document.body),
                 targetEvent: event,
                 locals: {
+                    currencySymbol: vm.currencySymbol,
                     treatmentLength: (vm.selectedProblems.length ? vm.selectedProblems.length : 0) + ((parseFloat(vm.problem.amount) > 0) ? 1 : 0),
                     partLength: (vm.selectedInventories.length ? vm.selectedInventories.length : 0) + ((parseFloat(vm.inventory.amount) > 0) ? 1 : 0),
                     discountObj: vm.discount,
@@ -358,6 +373,7 @@
                 parent: angular.element(document.body),
                 targetEvent: event,
                 locals: {
+                    currencySymbol: vm.currencySymbol,
                     totalCost: vm.service.cost,
                     partialPayments: vm.service.partialpayment
                 },
