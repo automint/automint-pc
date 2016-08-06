@@ -30,6 +30,8 @@
         vm.calculateRemaining = calculateRemaining;
         vm.calculateReceived = calculateReceived;
         vm.IsPaymentFocusIndex = IsPaymentFocusIndex;
+        vm.deleteAllEntries = deleteAllEntries;
+        vm.deleteEntry = deleteEntry;
 
         //  default execution steps
         setTimeout(setViewportHeight, 400);
@@ -38,6 +40,19 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function deleteAllEntries() {
+            vm.partialPayments = [];
+            calculateRemaining();
+            addPayment();
+        }
+
+        function deleteEntry(index) {
+            vm.partialPayments.splice(index, 1);
+            calculateRemaining();
+            if (vm.partialPayments.length == 0)
+                addPayment();
+        }
 
         function feedExistingPayments() {
             var keys = (partialPayments) ? Object.keys(partialPayments) : undefined;

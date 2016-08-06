@@ -360,6 +360,7 @@
                 parent: angular.element(document.body),
                 targetEvent: event,
                 locals: {
+                    currencySymbol: vm.currencySymbol,
                     treatmentLength: (vm.selectedProblems.length ? vm.selectedProblems.length : 0) + ((parseFloat(vm.problem.amount) > 0) ? 1 : 0),
                     partLength: (vm.selectedInventories.length ? vm.selectedInventories.length : 0) + ((parseFloat(vm.inventory.amount) > 0) ? 1 : 0),
                     discountObj: vm.discount,
@@ -405,6 +406,7 @@
                 parent: angular.element(document.body),
                 targetEvent: event,
                 locals: {
+                    currencySymbol: vm.currencySymbol,
                     totalCost: vm.service.cost,
                     partialPayments: vm.service.partialpayment
                 },
