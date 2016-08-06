@@ -2,7 +2,7 @@
  * Closure for root level directives
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -53,6 +53,7 @@
 
                 function callback() {
                     var checkTitle = (toState.data && toState.data.pageTitle);
+                    $rootScope.sidebarItemIndex = (toState.data && (toState.data.sidebarItemIndex != undefined)) ? toState.data.sidebarItemIndex : -1;
                     $rootScope.module_title = checkTitle ? toState.data.pageTitle : '';
                     $rootScope.page_title = checkTitle ? toState.data.pageTitle + ' - ' + default_title : default_title;
                 }

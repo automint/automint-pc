@@ -62,7 +62,8 @@
                     deps: ['$ocLazyLoad', loadDashboardDeps]
                 },
                 data: {
-                    pageTitle: 'Dashboard'
+                    pageTitle: 'Dashboard',
+                    sidebarItemIndex: 0
                 }
             })
             //  customers
@@ -83,7 +84,8 @@
                     deps: ['$ocLazyLoad', loadCuRADeps]
                 },
                 data: {
-                    pageTitle: 'All Customers'
+                    pageTitle: 'All Customers',
+                    sidebarItemIndex: 1
                 }
             })
             .state('restricted.customers.add', {
@@ -95,7 +97,8 @@
                     deps: ['$ocLazyLoad', loadCuCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add a Customer'
+                    pageTitle: 'Add a Customer',
+                    sidebarItemIndex: 1
                 }
             })
             .state('restricted.customers.edit', {
@@ -111,7 +114,8 @@
                     deps: ['$ocLazyLoad', loadCuUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Customer'
+                    pageTitle: 'Edit Customer',
+                    sidebarItemIndex: 1
                 }
             })
             //  treatments
@@ -135,7 +139,8 @@
                     deps: ['$ocLazyLoad', loadTrMasterDeps]
                 },
                 data: {
-                    pageTitle: 'All Treatments'
+                    pageTitle: 'All Treatments',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.treatments.add', {
@@ -147,7 +152,8 @@
                     deps: ['$ocLazyLoad', loadTrCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add a Treatment'
+                    pageTitle: 'Add a Treatment',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.treatments.edit', {
@@ -162,7 +168,8 @@
                     deps: ['$ocLazyLoad', loadTrUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Treatment'
+                    pageTitle: 'Edit Treatment',
+                    sidebarItemIndex: 2
                 }
             })
             //  services
@@ -183,7 +190,8 @@
                     deps: ['$ocLazyLoad', loadSeRADeps]
                 },
                 data: {
-                    pageTitle: 'All Services'
+                    pageTitle: 'All Services',
+                    sidebarItemIndex: -1
                 }
             })
             .state('restricted.services.add', {
@@ -198,7 +206,8 @@
                     deps: ['$ocLazyLoad', loadSeCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add a Service'
+                    pageTitle: 'Add a Service',
+                    sidebarItemIndex: -1
                 }
             })
             .state('restricted.services.edit', {
@@ -216,7 +225,8 @@
                     deps: ['$ocLazyLoad', loadSeUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Service'
+                    pageTitle: 'Edit Service',
+                    sidebarItemIndex: -1
                 }
             })
             //  settings
@@ -232,7 +242,8 @@
                     deps: ['$ocLazyLoad', loadSettingsDeps]
                 },
                 data: {
-                    pageTitle: 'Settings'
+                    pageTitle: 'Settings',
+                    sidebarItemIndex: 4
                 }
             })
             //  invoices
@@ -259,7 +270,8 @@
                     deps: ['$ocLazyLoad', loadIvRIDeps]
                 },
                 data: {
-                    pageTitle: 'View Invoice'
+                    pageTitle: 'View Invoice',
+                    sidebarItemIndex: -1
                 }
             })
             //  packages
@@ -280,7 +292,8 @@
                     deps: ['$ocLazyLoad', loadPkCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add Package'
+                    pageTitle: 'Add Package',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.packages.edit', {
@@ -295,7 +308,8 @@
                     deps: ['$ocLazyLoad', loadPkUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Package'
+                    pageTitle: 'Edit Package',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.memberships', {
@@ -315,7 +329,8 @@
                     deps: ['$ocLazyLoad', loadMsCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add Membership'
+                    pageTitle: 'Add Membership',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.memberships.edit', {
@@ -330,7 +345,8 @@
                     deps: ['$ocLazyLoad', loadMsUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Membership'
+                    pageTitle: 'Edit Membership',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.inventory', {
@@ -350,7 +366,8 @@
                     deps: ['$ocLazyLoad', loadInRADeps]
                 },
                 data: {
-                    pageTitle: 'All Inventories'
+                    pageTitle: 'All Inventories',
+                    sidebarItemIndex: 3
                 }
             })
             .state('restricted.inventory.add', {
@@ -362,7 +379,8 @@
                     deps: ['$ocLazyLoad', loadInCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add Inventory'
+                    pageTitle: 'Add Inventory',
+                    sidebarItemIndex: 3
                 }
             })
             .state('restricted.inventory.edit', {
@@ -377,7 +395,8 @@
                     deps: ['$ocLazyLoad', loadInUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Inventory'
+                    pageTitle: 'Edit Inventory',
+                    sidebarItemIndex: 3
                 }
             });
 

@@ -20,7 +20,7 @@
         .controller('appSideBarCtrl', SidebarController);
 
     HeaderbarController.$inject = ['$rootScope', '$scope', '$state', '$timeout', '$mdSidenav', 'amRootFactory'];
-    SidebarController.$inject = ['$scope', '$state', '$http', '$mdSidenav'];
+    SidebarController.$inject = ['$rootScope', '$scope', '$state', '$http', '$mdSidenav'];
     LockScreenController.$inject = ['$rootScope', '$state', '$window', 'amRootFactory', 'utils'];
 
     function LockScreenController($rootScope, $state, $window, amRootFactory, utils) {
@@ -129,7 +129,7 @@
         }
     }
 
-    function SidebarController($scope, $state, $http, $mdSidenav) {
+    function SidebarController($rootScope, $scope, $state, $http, $mdSidenav) {
         var vm = this;
 
         //  objects passed to view model
@@ -159,12 +159,17 @@
         //  map functions to view model
         vm.openState = openState;
         vm.doUpdate = doUpdate;
+        vm.isSelected = isSelected;
 
         //  default execution steps
         ipcRenderer.on('automint-updated', listenToAutomintUpdates);
         getPackageFile();
 
         //  function definitions
+
+        function isSelected(index) {
+            return ($rootScope.sidebarItemIndex == index);
+        }
 
         function listenToAutomintUpdates(event, arg) {
             vm.isAutomintUpdateAvailable = arg;

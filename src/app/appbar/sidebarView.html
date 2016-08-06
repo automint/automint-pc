@@ -1,13 +1,28 @@
+<style>
+    .am-side-nav md-list-item .md-no-style, md-list-item.md-no-proxy {
+        padding: 0;
+    }
+
+    .am-side-nav .selector {
+        width: 4px;
+        background: transparent;
+        height: 100%;
+        transition: background 300ms ease;
+    }
+
+    .am-side-nav .selector.selected {
+        background: white;
+    }
+</style>
 <md-toolbar>
     <img src="assets/img/logo-250x125px.png" id="am-cover-pic" style="box-shadow: 1px 1px 3px 1px #212121; background: #212121">
 </md-toolbar>
 <md-list ng-cloak class="am-side-nav">
     <md-list-item ng-repeat="item in sidebarVm.items" ng-click="sidebarVm.openState(item.state)">
-        <div layout="column">
-            <div layout="row" layout-align="center center">
-                <div layout-padding><md-icon class="item-color">{{ item.icon }}</md-icon></div>
-                <div layout-padding><span class="md-body-1 item-color strong"> {{ item.name }} </span></div>
-            </div>
+        <div layout="row" layout-align="center center">
+            <span class="selector" ng-class="{'selected': sidebarVm.isSelected($index)}">&nbsp;</span>
+            <div layout-padding><md-icon class="item-color">{{ item.icon }}</md-icon></div>
+            <div layout-padding><span class="md-body-1 item-color strong"> {{ item.name }} </span></div>
         </div>
     </md-list-item>
 </md-list>
