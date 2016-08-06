@@ -30,6 +30,7 @@
         var serviceTcRo = 0, serviceTcDc = 0;
         var treatmentTotal = 0, inventoryTotal = 0;
         var dTreatmentTax, dInventoryTax, dTreatment, dInventory;
+        var taxSettingsSnap = [], lastServiceState;
 
         //  vm assignments to keep track of UI related elements
         vm.vehicleTypeList = [];
@@ -109,6 +110,7 @@
         };
         vm.taxSettings = [];
         vm.currencySymbol = "Rs.";
+        vm.areTaxesHidden = false;
 
         //  named assignments to handle behaviour of UI elements
         vm.redirect = {
@@ -244,8 +246,8 @@
             iterateProblem(vm.problem);
             if (vm.packages)
                 vm.packages.forEach(iteratePackages);
-            vm.selectedInventories.forEach(iterateProblems);
-            iterateProblem(vm.inventory);
+            vm.selectedInventories.forEach(iterateInventories);
+            iterateInventory(vm.inventory);
             if (vm.isDiscountApplied)
                 vm.taxSettings.forEach(iterateTaxesAfter);
 
@@ -265,6 +267,29 @@
                 if (!package.checked)
                     return;
                 package.selectedTreatments.forEach(iterateProblems);
+            }
+
+            function iterateInventories(inventory) {
+                if (!inventory.checked)
+                    return;
+                if (inventory.tax) {
+                    Object.keys(inventory.tax).forEach(iterateTaxes);
+
+                    function iterateTaxes(tax) {
+                        var found = $filter('filter')(vm.taxSettings, {
+                            name: tax
+                        }, true);
+                        
+                        if (found.length == 1) {
+                            if (!found[0].isTaxApplied)
+                                return;
+                            if (!found[0].tax)
+                                found[0].tax = 0;
+                            found[0].tax += (inventory.tax[tax] * (inventory.qty ? inventory.qty : 1));
+                            found[0].tax = (found[0].tax % 1 != 0) ? parseFloat(found[0].tax.toFixed(2)) : parseInt(found[0].tax);
+                        }
+                    }
+                }
             }
 
             function iterateProblems(problem) {
@@ -306,6 +331,29 @@
                                 if (!found[0].tax)
                                     found[0].tax = 0;
                                 found[0].tax += problem.tax[tax];
+                                found[0].tax = (found[0].tax % 1 != 0) ? parseFloat(found[0].tax.toFixed(2)) : parseInt(found[0].tax);
+                            }
+                        }
+                    }
+                }
+            }
+
+            function iterateInventory(inventory) {
+                if (inventory.tax) {
+                    Object.keys(inventory.tax).forEach(iterateTaxes);
+
+                    function iterateTaxes(tax) {
+                        if (inventory.tax[tax] > 0) {
+                            var found = $filter('filter')(vm.taxSettings, {
+                                name: tax
+                            }, true);
+                            
+                            if (found.length == 1) {
+                                if (!found[0].isTaxApplied)
+                                    return;
+                                if (!found[0].tax)
+                                    found[0].tax = 0;
+                                found[0].tax += (inventory.tax[tax] * (inventory.qty ? inventory.qty : 1));
                                 found[0].tax = (found[0].tax % 1 != 0) ? parseFloat(found[0].tax.toFixed(2)) : parseInt(found[0].tax);
                             }
                         }
@@ -522,6 +570,29 @@
         function selectServiceState(state) {
             vm.service.state = state;
             vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
+            if (vm.service.state != vm.serviceStateList[2]) {
+                vm.areTaxesHidden = true;
+                if ((lastServiceState == vm.serviceStateList[2]) || !lastServiceState) {
+                    taxSettingsSnap = [];
+                    vm.taxSettings.forEach(iterateTaxes);
+                }
+            } else {
+                vm.areTaxesHidden = false;
+                vm.taxSettings = [];
+                taxSettingsSnap.forEach(restoreTaxes);
+            }
+            lastServiceState = vm.service.state;
+            OnTaxEnabledChange();
+
+            function restoreTaxes(tax) {
+                vm.taxSettings.push(tax);
+            }
+
+            function iterateTaxes(tax) {
+                var t = $.extend({}, tax)
+                taxSettingsSnap.push(t);
+                tax.isTaxApplied = false;
+            }
         }
 
         function IsServiceStateSelected(state) {

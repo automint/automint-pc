@@ -668,7 +668,7 @@
                                     <md-tooltip>Manage Payments</md-tooltip>
                                 </span>
                             </span>
-                            <span ng-repeat="tax in vm.taxSettings">
+                            <span ng-repeat="tax in vm.taxSettings" ng-hide="vm.areTaxesHidden">
                                 <md-checkbox aria-label="Tax" ng-model="tax.isTaxApplied" ng-change="vm.OnTaxEnabledChange()">
                                     <span class="md-body-1">{{tax.name}}</span>
                                 </md-checkbox>
