@@ -118,13 +118,16 @@
             }, openCorrectFileUrl);
         }
 
-        function openCorrectFileUrl() {
-            var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
-            if (newPath) {
-                ammPreferences.storePreference('automint.userDataPath', newPath[0]);
-                restartApp();
-            } else
-                app.exit(0);
+        function openCorrectFileUrl(buttonIndex) {
+            if (buttonIndex == 0) {
+                var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
+                if (newPath) {
+                    ammPreferences.storePreference('automint.userDataPath', newPath[0]);
+                    restartApp();
+                    return;
+                }
+            }
+            app.exit(0);
         }
     }
 

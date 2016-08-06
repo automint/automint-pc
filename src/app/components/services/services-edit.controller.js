@@ -865,6 +865,7 @@
 
                 function iterateTaxes(tax) {
                     tax.tax = 0;
+                    tax.isTaxApplied = false;
                     var found = $filter('filter')(vm.taxSettings, {
                         name: tax.name
                     }, true);
@@ -993,6 +994,7 @@
 
                 function iterateTaxes(tax) {
                     tax.tax = 0;
+                    tax.isTaxApplied = false;
                     var found = $filter('filter')(vm.taxSettings, {
                         name: tax.name
                     }, true);
