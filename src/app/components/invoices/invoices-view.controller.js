@@ -61,6 +61,7 @@
         vm.IsHeaderAvailable = IsHeaderAvailable;
         vm.IsLastPage = IsLastPage;
         vm.currentPage = currentPage;
+        vm.IsNotSinglePage = IsNotSinglePage;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -78,6 +79,10 @@
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
+
+        function IsNotSinglePage() {
+            return (vm.pages.length > 1);
+        }
 
         function currentPage(index) {
             return (index + 1);

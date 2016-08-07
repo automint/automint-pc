@@ -273,7 +273,7 @@
                             </div>
                         </center>
                     </section>
-                    <div style="text-align: center; font-size: 9pt">Page {{vm.currentPage(page.index)}} of {{vm.pages.length}}</div>
+                    <div style="text-align: center; font-size: 9pt" ng-if="vm.IsNotSinglePage()">Page {{vm.currentPage(page.index)}} of {{vm.pages.length}}</div>
                 </div>
             </body>
 
