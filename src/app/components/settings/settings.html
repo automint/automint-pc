@@ -374,6 +374,18 @@
                             </md-input-container>
                         </md-card-content>
                     </md-card>
+                    <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-content>
+                            <div layout="row" layout-align="start center">
+                                <span class="md-title">Print Settings</span>
+                                <span flex></span>
+                                <span class="md-body-1">Page Size:&nbsp;</span>
+                                <md-select ng-model="vm.invoicePageSize" ng-change="vm.saveInvoicePageSize()" aria-label="Invoice Page Size" style="margin: 0">
+                                    <md-option class="am-hover-option" ng-repeat="page in vm.invoicePageSizeList" value="{{page}}">{{page}}</md-option>
+                                </md-select>
+                            </div>
+                        </md-card-content>
+                    </md-card>
                 </div>
             </md-content>
         </md-tab>

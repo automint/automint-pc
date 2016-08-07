@@ -26,6 +26,7 @@
         var vm = this;
 
         var oCustomerEmail;
+        var rowCount = 0, membershipTreatmentCount = 0, packageTreatmentCount = 0, treatmentCount = 0, inventoryCount = 0, packageCount = {}, membershipCount = {};
 
         //  named assignments to keep track of UI elements
         vm.isFabOpen = true;
@@ -33,6 +34,9 @@
         vm.subtotal = 0;
         vm.currencySymbol = "Rs.";
         vm.taxSettings = [];
+        vm.invoicePageSizeList = ['Single Page', 'A4'];
+        vm.invoicePageSize = vm.invoicePageSizeList[0];
+        vm.pages = [];
 
         //  function maps
         vm.printInvoice = printInvoice;
@@ -54,6 +58,8 @@
         vm.IsSubtotalEnabled = IsSubtotalEnabled;
         vm.calculateSubtotal = calculateSubtotal;
         vm.IsTaxEnabled = IsTaxEnabled;
+        vm.IsHeaderAvailable = IsHeaderAvailable;
+        vm.IsLastPage = IsLastPage;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -65,11 +71,219 @@
         fillInvoiceDetails();
         loadInvoiceWLogo();
         getIvAlignMargins();
+        getInvoicePageSize();
     
         //  electron watchers
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
+
+        function IsLastPage(index) {
+            return (index == (vm.pages.length - 1));
+        }
+
+        function doPagination() {
+            vm.pages = [];
+            if (rowCount > 15) {
+                var pageCount = Math.ceil(rowCount / 15);
+                var mtc = membershipTreatmentCount, ptc = packageTreatmentCount, tc = treatmentCount, ic = inventoryCount;
+                for (var i = 0; i < pageCount; i++) {
+                    if (mtc > 15) {
+                        var ms = 0, mst = 0;
+                        Object.keys(membershipCount).forEach(iterateMemberships);
+                        pushPages(ms, 0, 0, 0);
+                        mtc -= mst;
+                        continue;
+
+                        function iterateMemberships(membership) {
+                            mst += membershipCount[membership];
+                            if (mst < 15) {
+                                ms++;
+                                delete membershipCount[membership];
+                            }
+                        }
+                    }
+                    var total = 0;
+                    total = mtc + ptc;
+                    if (total > 15) {
+                        var ps = 0, ms = 0, pst = 0, mst = 0;
+                        Object.keys(membershipCount).forEach(iterateMemberships);
+                        Object.keys(packageCount).forEach(iteratePackages);
+                        ptc = 15 - mtc;
+                        pushPages(ms, ps, 0, 0);
+                        mtc = 0;
+                        continue;
+
+                        function iterateMemberships(membership) {
+                            mst += membershipCount[membership];
+                            if (mst < 15) {
+                                ms++;
+                                delete membershipCount[membership];
+                            }
+                        }
+
+                        function iteratePackages(package) {
+                            pst += packageCount[package];
+                            if (pst < 15) {
+                                ps++;
+                                delete packageCount[package];
+                            }
+                        }
+                    }
+                    total = mtc + ptc + tc;
+                    if (total > 15) {
+                        var ps = 0, ms = 0, pst = 0, mst = 0;
+                        Object.keys(membershipCount).forEach(iterateMemberships);
+                        Object.keys(packageCount).forEach(iteratePackages);
+                        tc = 15 - mtc - ptc;
+                        pushPages(ms, ps, tc, 0);
+                        mtc = 0;
+                        ptc = 0;
+                        continue;
+
+                        function iterateMemberships(membership) {
+                            mst += membershipCount[membership];
+                            if (mst < 15) {
+                                ms++;
+                                delete membershipCount[membership];
+                            }
+                        }
+
+                        function iteratePackages(package) {
+                            pst += packageCount[package];
+                            if (pst < 15) {
+                                ps++;
+                                delete packageCount[package];
+                            }
+                        }
+                    }
+                    total = mtc + ptc + tc + ic;
+                    if (total > 15) {
+                        var ps = 0, ms = 0, pst = 0, mst = 0;
+                        Object.keys(membershipCount).forEach(iterateMemberships);
+                        Object.keys(packageCount).forEach(iteratePackages);
+                        ic = 15 - mtc - ptc - tc;
+                        pushPages(ms, ps, tc, ic);
+                        mtc = 0;
+                        ptc = 0;
+                        tc = 0;
+                        ic = inventoryCount - ic;
+                        continue;
+
+                        function iterateMemberships(membership) {
+                            mst += membershipCount[membership];
+                            if (mst < 15) {
+                                ms++;
+                                delete membershipCount[membership];
+                            }
+                        }
+
+                        function iteratePackages(package) {
+                            pst += packageCount[package];
+                            if (pst < 15) {
+                                ps++;
+                                delete packageCount[package];
+                            }
+                        }
+                    }
+                    var ps = 0, ms = 0, pst = 0, mst = 0;
+                    Object.keys(membershipCount).forEach(iterateMemberships);
+                    Object.keys(packageCount).forEach(iteratePackages);
+                    pushPages(ms, ps, tc, ic);
+
+                    function iterateMemberships(membership) {
+                        mst += membershipCount[membership];
+                        if (mst < 15) {
+                            ms++;
+                            delete membershipCount[membership];
+                        }
+                    }
+
+                    function iteratePackages(package) {
+                        pst += packageCount[package];
+                        if (pst < 15) {
+                            ps++;
+                            delete packageCount[package];
+                        }
+                    }
+                }
+            } else {
+                var ps = 0, ms = 0, pst = 0, mst = 0;
+                Object.keys(membershipCount).forEach(iterateMemberships);
+                Object.keys(packageCount).forEach(iteratePackages);
+                pushPages(ms, ps, treatmentCount, inventoryCount);
+
+                function iterateMemberships(membership) {
+                    mst += membershipCount[membership];
+                    if (mst < 15) {
+                        ms++;
+                        delete membershipCount[membership];
+                    }
+                }
+
+                function iteratePackages(package) {
+                    pst += packageCount[package];
+                    if (pst < 15) {
+                        ps++;
+                        delete packageCount[package];
+                    }
+                }
+            }
+
+            function pushPages(pmtc, pptc, pagetc, pic) {
+                var index = vm.pages.length;
+                vm.pages.push({
+                    index: index,
+                    membershipTreatmentCount: pmtc,
+                    packageTreatmentCount: pptc,
+                    treatmentCount: pagetc,
+                    inventoryCount: pic
+                });
+            }
+        }
+
+        function IsHeaderAvailable() {
+            return ((vm.ivSettings && vm.ivSettings.display && vm.ivSettings.display.workshopDetails) || (vm.ivSettings && vm.ivSettings.display && vm.ivSettings.display.workshopLogo));
+        }
+
+        function getInvoicePageSize() {
+            amInvoices.getInvoicePageSize().then(success).catch(failure);
+
+            function success(res) {
+                vm.invoicePageSize = res;
+                switch (res) {
+                    case "A4":
+                        A4Size();
+                        doPagination();
+                        break;
+                    default:
+                        normalPageSize();
+                        vm.pages.push({
+                            index: 0,
+                            membershipTreatmentCount: membershipTreatmentCount,
+                            packageTreatmentCount: packageTreatmentCount,
+                            treatmentCount: treatmentCount,
+                            inventoryCount: inventoryCount
+                        });
+                        break;
+                }
+            }
+
+            function failure(err) {
+                vm.invoicePageSize = vm.invoicePageSizeList[0];
+                normalPageSize();
+            }
+        }
+
+        function normalPageSize() {
+            vm.pageWidth = "100%";
+            vm.pageHeight = "auto";
+        }
+
+        function A4Size() {
+            vm.pageWidth = "210mm";
+            vm.pageHeight = "297mm";
+        }
 
         function IsTaxEnabled() {
             var iTe = false;
@@ -77,7 +291,7 @@
             return iTe;
 
             function iterateTaxes(tax) {
-                if (tax.isTaxApplied)
+                if (tax.isTaxApplied && (tax.tax > 0))
                     iTe = true;
             }
         }
@@ -222,20 +436,46 @@
             }
 
             function fillServiceDetails(res) {
+                rowCount = 0, membershipTreatmentCount = 0, packageTreatmentCount = 0, treatmentCount = 0, inventoryCount = 0;
                 vm.user = res.user;
                 oCustomerEmail = res.user.email;
                 vm.vehicle = res.vehicle;
                 vm.service = res.service;
                 vm.isRoundOff = (vm.service.roundoff != undefined);
                 vm.isDiscountApplied = (vm.service.discount != undefined);
-                if (vm.isDiscountApplied) {
+                if (vm.isDiscountApplied)
                     vm.discountValue = (vm.service.discount.amount || vm.service.discount.total);
-                }
                 if (res.service.taxes)
                     Object.keys(res.service.taxes).forEach(iterateTaxes);
-                console.log(vm.taxSettings);
                 calculateInventoryValues();
+                if (vm.service.memberships)
+                    Object.keys(vm.service.memberships).forEach(iterateMemberships);
+                if (vm.service.packages)
+                    Object.keys(vm.service.packages).forEach(iteratePackages);
+                if (vm.service.problems) {
+                    rowCount += vm.service.problems.length;
+                    treatmentCount += vm.service.problems.length;
+                }
+                if (vm.service.inventories) {
+                    rowCount += vm.service.inventories.length;
+                    inventoryCount += vm.service.inventories.length;
+                }
+                console.log(rowCount);
                 calculateSubtotal();
+
+                function iteratePackages(package) {
+                    var tempp = vm.service.packages[package];
+                    packageCount[package] = Object.keys(tempp.treatments).length; 
+                    rowCount += Object.keys(tempp.treatments).length;
+                    packageTreatmentCount += Object.keys(tempp.treatments).length;
+                }
+
+                function iterateMemberships(membership) {
+                    var tempm = vm.service.memberships[membership];
+                    membershipCount[membership] = Object.keys(tempm.treatments).length;
+                    rowCount += Object.keys(tempm.treatments).length;
+                    membershipTreatmentCount += Object.keys(tempm.treatments).length;
+                }
 
                 function iterateTaxes(tax) {
                     var t = res.service.taxes[tax];
@@ -352,7 +592,7 @@
                     amInScTw.src = ic.toDataURL();
                 }
             }
-            var printObj = document.getElementById('am-invoice-body');
+            var printObj = document.getElementById('am-invoice-mail-body');
             ammPrint.doPrint(printObj.innerHTML);
             if (vm.workshop && vm.workshop.social && vm.workshop.social.enabled) {
                 if (IsSocialFacebook()) {
@@ -403,11 +643,6 @@
                 utils.showSimpleToast(vm.user.name + '\'s email has not been set. Email can not be sent!');
                 return;
             }
-            var t = document.getElementById('am-invoice-body');
-            if (vm.alignmentMargins && vm.alignmentMargins.enabled) {
-                t.style.paddingTop = 0;
-                t.style.paddingBottom = 0;
-            }
             var amInScFb = document.getElementById('am-invoice-social-facebook');
             var amInScIn = document.getElementById('am-invoice-social-instagram');
             var amInScTw = document.getElementById('am-invoice-social-twitter');
@@ -448,10 +683,6 @@
             }
             if (vm.ivSettings.display.workshopLogo)
                 addInvoiceWLogo();
-            if (vm.alignmentMargins && vm.alignmentMargins.enabled) {
-                t.style.paddingTop = vm.alignmentMargins.top + 'cm';
-                t.style.paddingBottom = vm.alignmentMargins.bottom + 'cm';
-            }
         }
 
         function goBack() {

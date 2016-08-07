@@ -243,11 +243,13 @@
         function calculateTaxes() {
             vm.taxSettings.forEach(iterateTaxes);
             vm.service.problems.forEach(iterateProblems);
-            iterateProblem(vm.problem);
+            if (vm.problem.details != '')
+                iterateProblem(vm.problem);
             if (vm.packages)
                 vm.packages.forEach(iteratePackages);
             vm.selectedInventories.forEach(iterateInventories);
-            iterateInventory(vm.inventory);
+            if (vm.inventory.name != '')
+                iterateInventory(vm.inventory);
             if (vm.isDiscountApplied)
                 vm.taxSettings.forEach(iterateTaxesAfter);
 
@@ -503,9 +505,11 @@
             var totalCost = 0;
             treatmentTotal = 0, inventoryTotal = 0;
             vm.service.problems.forEach(iterateProblem);
-            totalCost += (vm.problem.rate) ? parseFloat(vm.problem.rate) : 0;
+            if (vm.problem.details != '')
+                totalCost += (vm.problem.rate) ? parseFloat(vm.problem.rate) : 0;
             vm.selectedInventories.forEach(iterateInventories);
-            totalCost += (vm.inventory.rate) ? (parseFloat(vm.inventory.rate) * parseFloat(vm.inventory.qty)) : 0;
+            if (vm.inventory.name != '')
+                totalCost += (vm.inventory.rate) ? (parseFloat(vm.inventory.rate) * parseFloat(vm.inventory.qty)) : 0;
             if (vm.serviceType == vm.serviceTypeList[1]) {
                 vm.packages.forEach(iteratePackages);
             }
@@ -816,7 +820,7 @@
                 vm.inventory.name = '';
                 vm.inventory.amount = '';
                 vm.inventory.rate = '';
-                vm.inventory.tax = '';
+                vm.inventory.tax = {};
                 vm.inventory.qty = 1;
                 vm.inventory.total = '';
                 calculate();

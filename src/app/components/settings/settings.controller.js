@@ -66,6 +66,8 @@
         vm.label_ivAlignBottomAlignment = 'Enter Bottom Margin:';
         vm.taxSettings = [];
         vm.currencySymbol = "Rs.";
+        vm.invoicePageSizeList = ['Single Page', 'A4'];
+        vm.invoicePageSize = vm.invoicePageSizeList[0];
         //  named assignments to keep track of UI [END]
         
         //  function maps [BEGIN]
@@ -120,6 +122,7 @@
         vm.autoCapitalizeName = autoCapitalizeName;
         vm.IsTaxFocused = IsTaxFocused;
         vm.saveCurrencySymbol = saveCurrencySymbol;
+        vm.saveInvoicePageSize = saveInvoicePageSize;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -140,12 +143,40 @@
         getIvAlignMargins();
         getAllTaxSettings();
         getCurrencySymbol();
+        getInvoicePageSize();
         // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
         // changeTaxTab(true);     //  testing purposes amTODO: remove it
         
         //  default execution steps [END]
 
         //  function definitions
+
+        function getInvoicePageSize() {
+            amIvSettings.getInvoicePageSize().then(success).catch(failure);
+
+            function success(res) {
+                vm.invoicePageSize = res;
+            }
+
+            function failure(err) {
+                vm.invoicePageSize = vm.invoicePageSizeList[0];
+            }
+        }
+
+        function saveInvoicePageSize() {
+            amIvSettings.saveInvoicePageSize(vm.invoicePageSize).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok)
+                    utils.showSimpleToast('Invoice settings saved successfully');
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Could not save invoice settings! Please try again!');
+            }
+        }
 
         function getCurrencySymbol() {
             amSettings.getCurrencySymbol().then(success).catch(failure);

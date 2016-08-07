@@ -21,12 +21,34 @@
             getIvSettings: getIvSettings,
             getIvAlignMargins: getIvAlignMargins,
             saveCustomerEmail: saveCustomerEmail,
-            getCurrencySymbol: getCurrencySymbol
+            getCurrencySymbol: getCurrencySymbol,
+            getInvoicePageSize: getInvoicePageSize
         }
 
         return factory;
 
         //  function definitions
+
+        function getInvoicePageSize() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.invoices && res.settings.invoices.pageSize)
+                    tracker.resolve(res.settings.invoices.pageSize);
+                else
+                    failure('No PageSize Found!');
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function getCurrencySymbol() {
             var tracker = $q.defer();

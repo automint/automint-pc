@@ -13,29 +13,28 @@
 <md-content layout="row" layout-xs="column" layout-margin>
     <md-button aria-label="Back" class="md-fab md-raised md-mini" ng-click="vm.goBack()">
         <md-icon aria-label="Back">arrow_back</md-icon>
-        <md-tooltip md-direction="top">Back</md-tooltip>
     </md-button>
     <div flex></div>
     <md-button aria-label="Email" class="md-fab md-raised md-mini" ng-click="vm.initiateMailInvoiceProcess($event)">
         <md-icon aria-label="Email">email</md-icon>
-        <md-tooltip md-direction="top">Email</md-tooltip>
+        <md-tooltip md-direction="bottom">Email</md-tooltip>
     </md-button>
     <md-button aria-label="Print" class="md-fab md-raised md-mini" ng-click="vm.printInvoice()">
         <md-icon aria-label="Print">print</md-icon>
-        <md-tooltip md-direction="top">Print</md-tooltip>
+        <md-tooltip md-direction="bottom">Print</md-tooltip>
     </md-button>
     <md-button aria-label="SMS" class="md-fab md-raised md-mini" ng-hide="true">
         <md-icon aria-label="SMS">sms</md-icon>
-        <md-tooltip md-direction="top">SMS</md-tooltip>
+        <md-tooltip md-direction="bottom">SMS</md-tooltip>
     </md-button>
     <md-button aria-label="Edit Info" class="md-fab md-raised md-mini" ng-click="vm.editService()">
         <md-icon aria-label="Edit Info">edit</md-icon>
-        <md-tooltip md-direction="top">Edit Service</md-tooltip>
+        <md-tooltip md-direction="bottom">Edit Service</md-tooltip>
     </md-button>
 </md-content>
-<md-content class="md-hue-1">
-    <div id="am-invoice-mail-body">
-        <div id="am-invoice-body" style="box-shadow: 1px 1px 3px rgba(30,30,30,0.3); padding:1rem; margin: 0.1rem;">
+<md-content>
+    <div id="am-invoice-mail-body" layout="column" layout-align="center center">
+        <div class="am-invoice-body" style="background:white; box-shadow: 1px 1px 3px rgba(30,30,30,0.3); padding:1rem; margin: 0.1rem; width: {{vm.pageWidth}}; height: {{vm.pageHeight}}" ng-repeat="page in vm.pages">
             <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
             <html xmlns="http://www.w3.org/1999/xhtml" style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; box-sizing: border-box; margin: 0;">
 
@@ -51,19 +50,19 @@
                     
                     .am-invoice-table td {
                         font-size: small;
-                        padding: 1rem;
+                        padding: 12px;
                     }
                     
                     .am-invoice-table .m-d {
-                        padding: 1rem 1rem 0.3rem 1rem !important;
+                        padding: 12px 12px 2px 12px !important;
                     }
                     
                     .am-invoice-table .m-dt {
-                        padding: 0.3rem 1rem 0.3rem 1rem !important;
+                        padding: 2px 12px 2px 12px !important;
                         font-size: 9pt;
                     }
                     .am-invoice-table .m-dtl {
-                        padding: 0.3rem 1rem 1rem 1rem !important;
+                        padding: 2px 12px 12px 12px !important;
                         font-size: 9pt;
                     }
                     
@@ -82,17 +81,17 @@
                     .am-invoice-table .total td {
                         border-top: 1px solid #ECEFF1;
                         font-weight: 800;
-                        padding: 0.5rem 1rem 1rem 1rem !important;
+                        padding: 8px 12px 12px 12px !important;
                     }
 
                     .am-invoice-table .subt td {
                         border-top: 1px solid #ECEFF1;
-                        padding: 0.5rem 1rem 0.5rem 1rem !important;
+                        padding: 8px 12px 8px 12px !important;
                     }
                     
                     .am-invoice-table .tax td {
                         border-top: 2px solid #37474F;
-                        padding: 1rem 1rem 0.5rem 1rem !important;
+                        padding: 12px 12px 8px 12px !important;
                     }
                     
                     .am-invoice-link {
@@ -140,8 +139,8 @@
                 </style>
             </head>
 
-            <body style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif;">
-                <div id="am-invoice-body" style="margin-top: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.top : 0}}cm; margin-bottom: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.bottom : 0}}cm">
+            <body style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; background: white">
+                <div id="am-actual-invoice-body" style="margin-top: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.top : 0}}cm; margin-bottom: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.bottom : 0}}cm">
                     <section class="am-invoice-w-area">
                         <div class="parent">
                             <div class="left" ng-if="vm.ivSettings.display.workshopDetails">
@@ -155,8 +154,8 @@
                             <div class="right" id="am-invoice-w-logo-holder"></div>
                         </div>
                     </section>
-                    <hr style="margin-top: 1.6rem; margin-bottom: 1rem; opacity: 0.3">
-                    <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; margin: 1rem;">
+                    <hr style="margin-top: 1.6rem; opacity: 0.3" ng-if="vm.IsHeaderAvailable()">
+                    <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; margin: 0 1rem;">
                         <center>
                             <table class="am-invoice-table">
                                 <tr class="caption">
@@ -177,7 +176,7 @@
                                     <td ng-if="vm.service.inventories.length > 0"><span style="font-weight: 700">Qty</span></td>
                                     <td style="text-align: right"><span style="font-weight: 700">Amount</span></td>
                                 </tr>
-                                <tr class="row dark-line" ng-repeat-start="(key, membership) in vm.service.memberships">
+                                <tr class="row dark-line" ng-repeat-start="(key, membership) in vm.service.memberships | limitTo: page.membershipTreatmentCount: (page.index * page.membershipTreatmentCount)">
                                     <td class="m-d">{{key}}</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
@@ -189,7 +188,7 @@
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">&nbsp;</td>
                                 </tr>
-                                <tr class="row" ng-class="{'dark-line': $first && !vm.service.memberships}" ng-repeat-start="package in vm.service.packages">
+                                <tr class="row" ng-class="{'dark-line': $first && !vm.service.memberships}" ng-repeat-start="package in vm.service.packages | limitTo: page.packageTreatmentCount: (page.index * page.packageTreatmentCount)">
                                     <td class="m-d">{{package.name}}</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
@@ -201,43 +200,43 @@
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right" ng-class="{'m-dt': !$last, 'm-dtl': $last}">{{vm.currencySymbol}} {{treatment.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                                 </tr>
-                                <tr class="row" ng-class="{'dark-line': $first && !vm.service.packages && !vm.service.memberships}" ng-repeat="problem in vm.service.problems">
+                                <tr class="row" ng-class="{'dark-line': $first && !vm.service.packages && !vm.service.memberships}" ng-repeat="problem in vm.service.problems | limitTo: page.treatmentCount: (page.index * page.treatmentCount)">
                                     <td>{{problem.details}}</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right">{{vm.currencySymbol}} {{problem.rate | number: (vm.sTaxSettings.applyTax) ? ((vm.sTaxSettings.inclusive) ? 2 : 0) : 0}}</td>
                                 </tr>
-                                <tr class="row" ng-repeat="inventory in vm.service.inventories">
+                                <tr class="row" ng-repeat="inventory in vm.service.inventories | limitTo: page.inventoryCount: (page.index * page.inventoryCount)">
                                     <td>{{inventory.name}}</td>
                                     <td ng-if="vm.service.inventories.length > 0">{{vm.currencySymbol}} {{inventory.rate | number: (vm.vatSettings.applyTax) ? ((vm.vatSettings.inclusive) ? 2 : 0) : 0}}</td>
                                     <td ng-if="vm.service.inventories.length > 0">{{inventory.qty}}</td>
                                     <td align="right">{{vm.currencySymbol}} {{inventory.total}}</td>
                                 </tr>
-                                <tr class="tax" ng-if="vm.IsSubtotalEnabled()">
+                                <tr class="tax" ng-if="vm.IsSubtotalEnabled() && vm.IsLastPage(page.index)">
                                     <td>Sub Total</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right">{{vm.currencySymbol}} {{vm.subtotal}}</td>
                                 </tr>
-                                <tr ng-class="{'tax': !vm.IsSubtotalEnabled(), 'subt': vm.IsSubtotalEnabled()}" ng-if="vm.isDiscountApplied">
-                                    <td>Discount ({{vm.service.discount.percent}}<small>%</small>)</td>
+                                <tr ng-class="{'tax': !vm.IsSubtotalEnabled(), 'subt': vm.IsSubtotalEnabled()}" ng-if="vm.isDiscountApplied && vm.IsLastPage(page.index)">
+                                    <td>Discount</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right">{{vm.currencySymbol}} {{vm.discountValue}}</td>
                                 </tr>
-                                <tr class="subt" ng-repeat="tax in vm.taxSettings" ng-if="vm.IsTaxEnabled()">
+                                <tr class="subt" ng-repeat="tax in vm.taxSettings" ng-if="vm.IsTaxEnabled() && vm.IsLastPage(page.index)">
                                     <td>{{tax.name}} ({{tax.percent}}<small>%</small>)</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right">{{vm.currencySymbol}} {{tax.tax}}</td>
                                 </tr>
-                                <tr ng-class="{'tax': !vm.IsSubtotalEnabled() && !vm.isDiscountApplied, 'subt': vm.IsSubtotalEnabled() || vm.isDiscountApplied}" class="subt" ng-if="vm.isRoundOff">
+                                <tr ng-class="{'tax': !vm.IsSubtotalEnabled() && !vm.isDiscountApplied, 'subt': vm.IsSubtotalEnabled() || vm.isDiscountApplied}" class="subt" ng-if="vm.isRoundOff && vm.IsLastPage(page.index)">
                                     <td>Round Off</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right">{{vm.currencySymbol}} {{vm.service.roundoff}}</td>
                                 </tr>
-                                <tr class="total" ng-class="{'tax': !vm.IsSubtotalEnabled() && !vm.isDiscountApplied && !vm.isRoundOff}">
+                                <tr class="total" ng-class="{'tax': !vm.IsSubtotalEnabled() && !vm.isDiscountApplied && !vm.isRoundOff}" ng-if="vm.IsLastPage(page.index)">
                                     <td>Total</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>

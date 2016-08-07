@@ -2,7 +2,7 @@
  * Factory to fetch and retrieve invoice settings from database
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -25,12 +25,75 @@
             saveIvAlignMargins : saveIvAlignMargins,
             getIvAlignMargins: getIvAlignMargins,
             changeLastJobCardNo: changeLastJobCardNo,
-            changeLastEstimateNo: changeLastEstimateNo
+            changeLastEstimateNo: changeLastEstimateNo,
+            saveInvoicePageSize: saveInvoicePageSize,
+            getInvoicePageSize: getInvoicePageSize
         }
         
         return factory;
         
         //  function definitions
+
+        function saveInvoicePageSize(pageSize) {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
+            }
+
+            function getSettingsObject(res) {
+                if (!res.settings)
+                    res.settings = {};
+                if (!res.settings.invoices)
+                    res.settings.invoices = {};
+                res.settings.invoices.pageSize = pageSize;
+                pdbConfig.save(res).then(success).catch(failure);
+            }
+
+            function writeSettingsDoc(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    settings: {
+                        invoices: {
+                            pageSize: pageSize
+                        }
+                    }
+                }
+                pdbConfig.save(doc).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function getInvoicePageSize() {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
+            }
+
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.invoices && res.settings.invoices.pageSize)
+                    tracker.resolve(res.settings.invoices.pageSize);
+                else
+                    failure('No PageSize Found!');
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
         
         //  get workshop details from config database
         function getWorkshopDetails() {
