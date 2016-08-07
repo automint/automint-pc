@@ -72,6 +72,7 @@
         getCurrencySymbol();
         fillInvoiceDetails();
         loadInvoiceWLogo();
+        loadInvoiceFLogo();
         getIvAlignMargins();
         getInvoicePageSize();
     
@@ -79,6 +80,37 @@
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
+
+        function loadInvoiceFLogo() {
+            var source = localStorage.getItem('invoice-f-pic');
+            vm.invoiceFLogo = source;
+        }
+
+        function addInvoiceFLogo() {
+            var elems = document.getElementsByName('am-invoice-f-logo-holder');
+            elems.forEach(iterateElements);
+
+            function iterateElements(elem) {
+                if (elem.hasChildNodes())
+                    return;
+                var x = document.createElement("IMG");
+                x.setAttribute("src", vm.invoiceFLogo);
+                x.setAttribute("width", "250");
+                x.setAttribute("height", "125");
+                elem.appendChild(x);
+            }
+        }
+
+        function removeInvoiceFogo() {
+            var elems = document.getElementsByName('am-invoice-f-logo-holder');
+            elems.forEach(iterateElements);
+
+            function iterateElements(elem) {
+                while (elem.firstChild) {
+                    elem.removeChild(elem.firstChild);
+                }
+            }
+        }
 
         function IsNotSinglePage() {
             return (vm.pages.length > 1);
@@ -562,10 +594,19 @@
                 vm.ivSettings = res;
                 if (res.display.workshopLogo)
                     setTimeout(addInvoiceWLogo, 1000);
+                if (res.display.footerLogo)
+                    setTimeout(addInvoiceFLogo, 1000);
             }
 
             function failure(err) {
                 console.warn(err);
+                vm.ivSettings = {
+                    display: {
+                        workshopLogo: false,
+                        footerLogo: false,
+                        workshopDetails: false
+                    }
+                }
                 $log.info('Could not load display settings!');
             }
         }
@@ -674,6 +715,7 @@
                 }
             }
             removeInvoiceWLogo();
+            removeInvoiceFogo();
             var printObj = document.getElementById('am-invoice-mail-body');
             utils.showSimpleToast('Sending Mail...');
             ammMailApi.send(printObj.innerHTML, vm.user, (vm.workshop) ? vm.workshop.name : undefined, (vm.ivSettings) ? vm.ivSettings.emailsubject : undefined);
@@ -693,6 +735,8 @@
             }
             if (vm.ivSettings.display.workshopLogo)
                 addInvoiceWLogo();
+            if (vm.ivSettings.display.footerLogo)
+                addInvoiceFLogo();
         }
 
         function goBack() {

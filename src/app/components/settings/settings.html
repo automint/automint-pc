@@ -288,6 +288,26 @@
                             </div>
                         </md-card-content>
                     </md-card>
+                    <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-title layout-xs="column" layout-align="center center" layout-wrap style="padding: 16px 24px">
+                            <md-card-title-text>
+                                <span class="md-title">Footer Logo</span>
+                            </md-card-title-text>
+                        </md-card-title>
+                        <md-card-content layout="column" layout-align="center center" layout-margin layout-wrap style="padding: 0">
+                            <img ng-src="{{vm.invoiceFLogo}}" id="am-invoice-f-logo">
+                        </md-card-content>
+                        <input type="file" id="am-upload-invoice-f-logo" am-upload-files="vm.changeInvoiceFLogo" ng-hide="true">
+                        <md-card-actions layout="row" layout-align="end center">
+                            <md-switch dir="rtl" ng-model="vm.ivSettings.display.footerLogo" ng-change="vm.saveIvDisplaySettings()" style="margin: 0">
+                                <span layout-padding class="am-form-label">Display in Invoice</span>
+                            </md-switch>
+                            <md-button class="md-accent" ng-click="vm.uploadInvoiceFLogo()">
+                                <md-icon>collections</md-icon>
+                                <span layout-padding>Change</span>
+                            </md-button>
+                        </md-card-actions>
+                    </md-card>
                 </div>
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card class="md-hue-1 am-box-shadow">

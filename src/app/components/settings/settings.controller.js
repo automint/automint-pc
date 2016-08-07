@@ -123,6 +123,8 @@
         vm.IsTaxFocused = IsTaxFocused;
         vm.saveCurrencySymbol = saveCurrencySymbol;
         vm.saveInvoicePageSize = saveInvoicePageSize;
+        vm.changeInvoiceFLogo = changeInvoiceFLogo;
+        vm.uploadInvoiceFLogo = uploadInvoiceFLogo;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -140,6 +142,7 @@
         getWorkshopDetails();
         getInvoiceSettings();
         loadInvoiceWLogo();
+        loadInvoiceFLogo();
         getIvAlignMargins();
         getAllTaxSettings();
         getCurrencySymbol();
@@ -150,6 +153,42 @@
         //  default execution steps [END]
 
         //  function definitions
+
+        function uploadInvoiceFLogo() {
+            angular.element(document.querySelector('#am-upload-invoice-f-logo')).click();
+        }
+
+        function changeInvoiceFLogo(e) {
+            var files = e.target.files;
+            if (!files[0].type.match(/image/g)) {
+                utils.showSimpleToast('Please upload photo');
+                return;
+            }
+            if (files && files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = loadReader;
+                reader.readAsDataURL(files[0]);
+            }
+
+            function loadReader(e) {
+                $('#am-invoice-f-logo').attr('src', e.target.result);
+                var coverPicElem = document.getElementById('am-invoice-f-logo');
+                var ic = document.createElement('canvas'),
+                    icontext = ic.getContext('2d');
+                ic.width = coverPicElem.width;
+                ic.height = coverPicElem.height;
+                icontext.drawImage(coverPicElem, 0, 0, coverPicElem.width, coverPicElem.height);
+                localStorage.setItem('invoice-f-pic', ic.toDataURL(files[0].type));
+                loadInvoiceFLogo();
+            }
+        }
+        
+        //  load workshop logo in invoice settings
+        function loadInvoiceFLogo() {
+            var source = localStorage.getItem('invoice-f-pic');
+            vm.invoiceFLogo = source;
+        }
 
         function getInvoicePageSize() {
             amIvSettings.getInvoicePageSize().then(success).catch(failure);
