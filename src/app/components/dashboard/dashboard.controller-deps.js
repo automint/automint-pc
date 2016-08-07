@@ -231,11 +231,16 @@
         vm.editCustomer = editCustomer;
         vm.deleteServiceReminder = deleteServiceReminder;
         vm.changeDate = changeDate;
+        vm.IsReminderInPast = IsReminderInPast;
 
         //  default execution steps
         manageCustomers(dueCustomers);
         
         //  function definitions
+
+        function IsReminderInPast(date) {
+            return (moment().format().localeCompare(moment(date).format()) > 0);
+        }
 
         function changeDate(customer) {
             amDashboard.changeServiceReminderDate(customer.cstmr_id, customer.vhcl_id, moment(customer.vhcl_nextdue).format()).then(success).catch(failure);

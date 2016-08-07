@@ -53,12 +53,12 @@
                     </thead>
                     <tbody md-body>
                         <tr md-row ng-repeat="customer in vm.customers | limitTo: vm.query.limit: (vm.query.page - 1)*(vm.query.limit)" class="am-select-table-row">
-                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.cstmr_name}}</td>
-                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.cstmr_mobile}}</td>
-                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)">{{customer.vhcl_manuf + ' ' + customer.vhcl_model}}<span ng-if="customer.vhcl_reg">&nbsp;({{customer.vhcl_reg}})</span></td>
+                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)"><span ng-class="{'am-red-text': vm.IsReminderInPast(customer.vhcl_nextdue)}">{{customer.cstmr_name}}</span></td>
+                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)"><span ng-class="{'am-red-text': vm.IsReminderInPast(customer.vhcl_nextdue)}">{{customer.cstmr_mobile}}</span></td>
+                            <td md-cell ng-click="vm.editCustomer(customer.cstmr_id)"><span ng-class="{'am-red-text': vm.IsReminderInPast(customer.vhcl_nextdue)}">{{customer.vhcl_manuf + ' ' + customer.vhcl_model}}<span ng-if="customer.vhcl_reg">&nbsp;({{customer.vhcl_reg}})</span></span></td>
                             <td md-cell>
                                 <md-datepicker class="am-nxtdue-datepicker" ng-model="customer.vhcl_nextdue" ng-change="vm.changeDate(customer)" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem; padding: 0" md-open-on-focus></md-datepicker>
-                                <span style="cursor: default">{{vm.getDate(customer.vhcl_nextdue)}}</span>
+                                <span style="cursor: default" ng-class="{'am-red-text': vm.IsReminderInPast(customer.vhcl_nextdue)}">{{vm.getDate(customer.vhcl_nextdue)}}</span>
                             </td>
                             <td md-cell class="am-datatable-actions view-all-customers">
                                 <md-button class="md-icon-button" ng-click="vm.deleteServiceReminder(customer.cstmr_id, customer.vhcl_id, $event)">

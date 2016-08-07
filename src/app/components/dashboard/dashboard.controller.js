@@ -97,6 +97,7 @@
         vm.IsNextDueFieldLong = IsNextDueFieldLong;
         vm.openNextDueServices = openNextDueServices;
         vm.IsNoNextDueReminders = IsNoNextDueReminders;
+        vm.IsReminderInPast = IsReminderInPast;
 
         //  default execution steps
         initCurrentTimeSet();
@@ -106,6 +107,10 @@
         getCurrencySymbol();
 
         //  function definitions
+
+        function IsReminderInPast(date) {
+            return (moment().format().localeCompare(date) > 0);
+        }
 
         function getCurrencySymbol() {
             amDashboard.getCurrencySymbol().then(success).catch(failure);

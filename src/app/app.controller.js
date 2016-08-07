@@ -160,12 +160,18 @@
         vm.openState = openState;
         vm.doUpdate = doUpdate;
         vm.isSelected = isSelected;
+        vm.goToDashboard = goToDashboard;
 
         //  default execution steps
         ipcRenderer.on('automint-updated', listenToAutomintUpdates);
         getPackageFile();
 
         //  function definitions
+
+        function goToDashboard() {
+            $mdSidenav('main-nav-left').close()
+            $state.go(vm.items[0].state);
+        }
 
         function isSelected(index) {
             return ($rootScope.sidebarItemIndex == index);

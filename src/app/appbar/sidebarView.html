@@ -15,7 +15,7 @@
     }
 </style>
 <md-toolbar>
-    <img src="assets/img/logo-250x125px.png" id="am-cover-pic" style="box-shadow: 1px 1px 3px 1px #212121; background: #212121">
+    <img src="assets/img/logo-250x125px.png" ng-click="sidebarVm.goToDashboard()" id="am-cover-pic" style="box-shadow: 1px 1px 3px 1px #212121; background: #212121; outline: none; cursor: pointer">
 </md-toolbar>
 <md-list ng-cloak class="am-side-nav">
     <md-list-item ng-repeat="item in sidebarVm.items" ng-click="sidebarVm.openState(item.state)">
@@ -28,8 +28,8 @@
 </md-list>
 <div flex></div>
 <div layout="row" layout-align="start center" class="am-side-nav" layout-margin ng-show="sidebarVm.automintVersion">
+    <span class="md-caption" style="color: #fff; text-align: right" flex>{{sidebarVm.automintVersion}}</span>
     <md-button class="md-accent md-hue-1" ng-show="sidebarVm.isAutomintUpdateAvailable" ng-click="sidebarVm.doUpdate()">
-        <span style="font-size: 8pt" layout-margin>Apply Update</span>
+        <span style="font-size: 8pt" layout-margin>Update Now</span>
     </md-button>
-    <span class="md-caption" style="color: #fff; text-align: right" flex>v{{sidebarVm.automintVersion}}</span>
 </div>

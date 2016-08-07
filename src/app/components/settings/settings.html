@@ -109,7 +109,7 @@
                                 <md-button class="md-raised" ng-click="vm.uploadCSV()">
                                     <span layout-padding>Click to upload</span>
                                 </md-button>
-                                <input type="file" am-upload-files="vm.handleUploadedFile" id="csv-file-select"> or
+                                <input type="file" am-upload-files="vm.handleUploadedFile" style="display:none" id="csv-file-select"> or
                                 <br>Drop CSV File
                             </div>
                             <md-progress-linear md-mode="determinate" value="{{vm.currentCsvProgress}}" ng-show="vm.isCsvProcessed"></md-progress-linear>
@@ -194,7 +194,7 @@
                     <md-card class="md-hue-1 am-box-shadow">
                         <md-card-content>
                             <div layout="row" layout-align="start center">
-                                <span class="md-title">App Data</span>
+                                <span class="md-title">App Data Location</span>
                                 <span class="md-caption">: {{vm.amAppPath}}</span>
                             </div>
                             <div layout="row" layout-align="start center" style="margin-top: 6px;">
@@ -413,10 +413,6 @@
                         </div>
                         <md-divider></md-divider>
                         <div style="padding: 16px" layout="row" layout-align="start start" ng-repeat-start="tax in vm.taxSettings">
-                            <md-button class="md-icon-button" style="position: absolute; right: 14rem" ng-click="vm.deleteTax(tax)">
-                                <md-icon style="color: #F44336">delete</md-icon>
-                                <md-tooltip>Delete Tax</md-tooltip>
-                            </md-button>
                             <div flex="10" style="padding-top: 9px" layout="column" layout-align="center center">
                                 <md-checkbox aria-label="Apply Tax" ng-model="tax.isTaxApplied" ng-change="vm.saveTax(tax)">
                                     <md-tooltip>Apply Tax</md-tooltip>
@@ -424,22 +420,26 @@
                             </div>
                             <div flex="40">
                                 <input type="text" am-custom-autofocus="vm.IsTaxFocused($index)" pu-elastic-input ng-model="tax.name" ng-change="vm.autoCapitalizeName(tax)" ng-blur="vm.saveTax(tax)" class="am-tax-inline-input" style="min-width: 100px; font-size: 14pt" placeholder="Enter Tax Name">
-                                <div layout="row" layout-align="start center" class="am-tax-adjust" style="margin-top: 6px">
-                                    <span class="md-body-1 am-pt-cursor" style="margin-right: 6px">Exclusive</span>
-                                    <md-switch aria-label="Adjust Tax" ng-model="tax.inclusive" ng-change="vm.saveTax(tax)" style="margin: 0"></md-switch>
-                                    <span class="md-body-1 am-pt-cursor">Inclusive</span>
-                                </div>
-                                <div layout="row" layout-align="start center">
+                                <div layout="row" layout-align="start center" style="margin-top: 6px">
                                     <span class="md-body-1">Tax:</span>
                                     <input type="number" ng-model="tax.percent" ng-blur="vm.saveTax(tax)" pu-elastic-input class="am-tax-inline-input" value="0">
                                     <small>%</small>
                                 </div>
+                                <div layout="row" layout-align="start center" class="am-tax-adjust" style="margin-top: 4px">
+                                    <span class="md-body-1 am-pt-cursor" style="margin-right: 6px">Exclusive</span>
+                                    <md-switch aria-label="Adjust Tax" ng-model="tax.inclusive" ng-change="vm.saveTax(tax)" style="margin: 0"></md-switch>
+                                    <span class="md-body-1 am-pt-cursor">Inclusive</span>
+                                </div>
                             </div>
-                            <div flex="50" style="padding-top: 4px">
-                                <p class="md-body-1">Applicable To:</p>
+                            <div flex="40" style="padding-top: 24px">
+                                <p class="md-body-1">Applicable On:</p>
                                 <md-checkbox aria-label="Treatments" ng-model="tax.isForTreatments" ng-change="vm.saveTax(tax)" style="margin-bottom: 4px"><span class="md-body-1">Treatments</span></md-checkbox>
                                 <md-checkbox aria-label="Inventory" ng-model="tax.isForInventory" ng-change="vm.saveTax(tax)" style="margin-bottom: 4px"><span class="md-body-1">Parts</span></md-checkbox>
                             </div>
+                            <md-button class="md-icon-button"ng-click="vm.deleteTax(tax)">
+                                <md-icon style="color: #F44336">delete</md-icon>
+                                <md-tooltip>Delete Tax</md-tooltip>
+                            </md-button>
                         </div>
                         <md-divider ng-repeat-end></md-divider>
                     </md-card-content>

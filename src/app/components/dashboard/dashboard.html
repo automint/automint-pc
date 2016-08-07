@@ -177,9 +177,9 @@
                 <table class="am-dashboard-table-nxtdue">
                     <tbody>
                         <tr ng-repeat="customer in vm.nextServiceDueCustomers | limitTo: 5">
-                            <td><span class="md-caption">{{vm.getNxtDueField(customer.cstmr_name)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_name)">{{customer.cstmr_name}}</md-tooltip></span></td>
-                            <td><span class="md-caption">{{vm.getNxtDueField(customer.cstmr_mobile)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_mobile)">{{customer.cstmr_mobile}}</md-tooltip></span></td>
-                            <td><span class="md-caption">{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg)}}<md-tooltip>{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg, true)}}</md-tooltip></span></td>
+                            <td><span class="md-caption" ng-class="{'am-red-text': vm.IsReminderInPast(customer.vhcl_nextdue)}">{{vm.getNxtDueField(customer.cstmr_name)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_name)">{{customer.cstmr_name}}</md-tooltip></span></td>
+                            <td><span class="md-caption" ng-class="{'am-red-text': vm.IsReminderInPast(customer.vhcl_nextdue)}">{{vm.getNxtDueField(customer.cstmr_mobile)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_mobile)">{{customer.cstmr_mobile}}</md-tooltip></span></td>
+                            <td><span class="md-caption" ng-class="{'am-red-text': vm.IsReminderInPast(customer.vhcl_nextdue)}">{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg)}}<md-tooltip>{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg, true)}}</md-tooltip></span></td>
                         </tr>
                     </tbody>
                 </table>

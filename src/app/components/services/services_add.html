@@ -1,4 +1,15 @@
 <style>
+    .am-loading-icon {
+        position: fixed;
+        top: 14rem;
+        left: 26rem;
+        z-index: 99999;
+        background: white;
+        padding: 0 16px;
+        box-shadow: 1px 1px 3px 1px rgba(30,30,30,0.3);
+        border-radius: 4px;
+    }
+
     .am-rupee {
         font-size: small;
     }
@@ -260,7 +271,7 @@
                             </md-button>
                         </div>
                     </div>
-                    <div layout="row" layout-align="center center" ng-show="vm.loadingBasedOnMobile">
+                    <div layout="row" layout-align="center center" ng-show="vm.loadingBasedOnMobile" class="am-loading-icon">
                         <md-progress-circular md-mode="indeterminate"></md-progress-circular>
                         <span>Please wait</span>
                     </div>
