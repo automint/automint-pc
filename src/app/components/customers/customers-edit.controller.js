@@ -581,10 +581,9 @@
 
                 function iterateServices(sId) {
                     var service = vehicle.services[sId];
-                    if (service.status == 'paid')
-                        vm.paymentDone += parseFloat(service.cost);
-                    else
-                        vm.paymentDue += parseFloat(service.cost);
+                    var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.status == "paid") ? service.cost : 0);
+                    vm.paymentDone += parseFloat(payreceived);
+                    vm.paymentDue += ((service.status != "paid") ? (parseFloat(service.cost) - parseFloat(payreceived)) : 0);
                     vm.services.push({
                         cstmr_id: userDbInstance._id,
                         vhcl_manuf: vehicle.manuf,

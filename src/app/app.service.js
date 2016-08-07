@@ -174,7 +174,7 @@
                             function iterateServices(sId) {
                                 var service = vehicle.services[sId];
                                 var cd = moment(service.date).format('MMM YYYY');
-                                var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.state == "paid") ? service.cost : 0);
+                                var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.status == "paid") ? service.cost : 0);
                                 cd = angular.lowercase(cd).replace(' ', '-');
                                 if (service._deleted == true) {
                                     if (cachedoc[cd][sId] != undefined)
@@ -256,7 +256,7 @@
 
                             function iterateServices(sId) {
                                 var service = vehicle.services[sId];
-                                var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.state == "paid") ? service.cost : 0);
+                                var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.status == "paid") ? service.cost : 0);
                                 var cd = moment(service.date).format('MMM YYYY');
                                 cd = angular.lowercase(cd).replace(' ', '-');
                                 if (service._deleted == true) {
