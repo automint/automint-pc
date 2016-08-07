@@ -151,7 +151,7 @@
                                 <span class="am-invoice-workshop-detail"><span style="font-size: x-small;">{{vm.workshop.label_phone}}</span> {{vm.workshop.phone}}</span>
                             </div>
                             <div style="flex-grow: 1"></div>
-                            <div class="right" id="am-invoice-w-logo-holder"></div>
+                            <div class="right" name="am-invoice-w-logo-holder"></div>
                         </div>
                     </section>
                     <hr style="margin-top: 1.6rem; opacity: 0.3" ng-if="vm.IsHeaderAvailable()">
@@ -273,6 +273,7 @@
                             </div>
                         </center>
                     </section>
+                    <div style="text-align: center; font-size: 9pt">Page {{vm.currentPage(page.index)}} of {{vm.pages.length}}</div>
                 </div>
             </body>
 

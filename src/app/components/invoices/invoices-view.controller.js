@@ -60,6 +60,7 @@
         vm.IsTaxEnabled = IsTaxEnabled;
         vm.IsHeaderAvailable = IsHeaderAvailable;
         vm.IsLastPage = IsLastPage;
+        vm.currentPage = currentPage;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -77,6 +78,10 @@
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
+
+        function currentPage(index) {
+            return (index + 1);
+        }
 
         function IsLastPage(index) {
             return (index == (vm.pages.length - 1));
@@ -551,7 +556,7 @@
             function success(res) {
                 vm.ivSettings = res;
                 if (res.display.workshopLogo)
-                    addInvoiceWLogo();
+                    setTimeout(addInvoiceWLogo, 1000);
             }
 
             function failure(err) {
@@ -705,20 +710,28 @@
         }
 
         function addInvoiceWLogo() {
-            var elem = document.getElementById('am-invoice-w-logo-holder');
-            if (elem.hasChildNodes())
-                return;
-            var x = document.createElement("IMG");
-            x.setAttribute("src", vm.invoiceWLogo);
-            x.setAttribute("width", "250");
-            x.setAttribute("height", "125");
-            elem.appendChild(x);
+            var elems = document.getElementsByName('am-invoice-w-logo-holder');
+            elems.forEach(iterateElements);
+
+            function iterateElements(elem) {
+                if (elem.hasChildNodes())
+                    return;
+                var x = document.createElement("IMG");
+                x.setAttribute("src", vm.invoiceWLogo);
+                x.setAttribute("width", "250");
+                x.setAttribute("height", "125");
+                elem.appendChild(x);
+            }
         }
 
         function removeInvoiceWLogo() {
-            var elem = document.getElementById('am-invoice-w-logo-holder');
-            while (elem.firstChild) {
-                elem.removeChild(elem.firstChild);
+            var elems = document.getElementsByName('am-invoice-w-logo-holder');
+            elems.forEach(iterateElements);
+
+            function iterateElements(elem) {
+                while (elem.firstChild) {
+                    elem.removeChild(elem.firstChild);
+                }
             }
         }
     }
