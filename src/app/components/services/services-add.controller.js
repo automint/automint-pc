@@ -171,7 +171,6 @@
         vm.IsMembershipEnabled = IsMembershipEnabled;
         vm.IsPackageEnabled = IsPackageEnabled;
         vm.convertVehicleTypeToAF = convertVehicleTypeToAF;
-        vm.IsPackageEnabled = IsPackageEnabled;
         vm.changeDisplayAsList = changeDisplayAsList;
         vm.changeInventoryAsList = changeInventoryAsList;
         vm.IsServiceStateSelected = IsServiceStateSelected;
@@ -510,7 +509,7 @@
             vm.selectedInventories.forEach(iterateInventories);
             if (vm.inventory.name != '')
                 totalCost += (vm.inventory.rate) ? (parseFloat(vm.inventory.rate) * parseFloat(vm.inventory.qty)) : 0;
-            if (vm.serviceType == vm.serviceTypeList[1]) {
+            if (vm.packages) {
                 vm.packages.forEach(iteratePackages);
             }
             totalCost = (totalCost % 1 != 0) ? totalCost.toFixed(2) : parseInt(totalCost);
@@ -535,7 +534,7 @@
             }
 
             function ipt(treatment) {
-                var temp = treatment.rate[vm.vehicle.type.toLowerCase().replace(' ', '-')];
+                var temp = treatment.amount[convertVehicleTypeToAF()];
                 totalCost += temp;
                 treatmentTotal += temp;
             }
@@ -622,15 +621,11 @@
         }
 
         function IsPackageEnabled() {
-            return (vm.packages.length < 1);
+            return (vm.packages && (vm.packages.length > 0));
         }
 
         function convertVehicleTypeToAF() {
             return (vm.vehicle.type.toLowerCase().replace(' ', '-'));
-        }
-
-        function IsPackageEnabled() {
-            return (vm.serviceType == vm.serviceTypeList[1]);
         }
 
         function IsMembershipEnabled() {
@@ -1317,10 +1312,10 @@
 
                     function changeTreatmentTax(problem, force) {
                         var cvt = vm.vehicle.type.toLowerCase().replace(' ', '-');
-                        var taxable = problem.amount;
+                        var taxable = problem.amount[cvt];
                         problem.tax = {};
                         vm.taxSettings.forEach(iterateTaxes);
-                        problem.rate = parseFloat(taxable);
+                        problem.rate[cvt] = parseFloat(taxable);
 
                         function iterateTaxes(tax) {
                             if (!tax.isForTreatments)
@@ -1328,10 +1323,10 @@
                             if (tax.isTaxApplied) {
                                 if (tax.inclusive) {
                                     var temptax = 0;
-                                    problem.rate = (taxable * 100) / (tax.percent + 100);
-                                    temptax = (problem.rate * tax.percent / 100);
+                                    problem.rate[cvt] = (taxable * 100) / (tax.percent + 100);
+                                    temptax = (problem.rate[cvt] * tax.percent / 100);
                                     problem.tax[tax.name] = temptax;
-                                    taxable = problem.rate;
+                                    taxable = problem.rate[cvt];
                                 } else {
                                     var temptax = 0;
                                     temptax = (taxable * tax.percent / 100);
