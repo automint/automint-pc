@@ -48,6 +48,7 @@
         vm.IsServiceStateEs = IsServiceStateEs;
         vm.IsServiceStateIv = IsServiceStateIv;
         vm.openTimeFilter = openTimeFilter;
+        vm.IsCustomerAnonymous = IsCustomerAnonymous;
 
         //  default execution steps
         $scope.$watch('vm.serviceQuery', watchServiceQuery);
@@ -56,6 +57,10 @@
         initCurrentTimeSet();
         
         //  function definitions
+
+        function IsCustomerAnonymous(name) {
+            return (name == 'Anonymous');
+        }
 
         function getCurrencySymbol() {
             amServices.getCurrencySymbol().then(success).catch(failure);

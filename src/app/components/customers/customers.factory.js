@@ -272,9 +272,10 @@
                 }
 
                 function iterateValues(value) {
-                    var customer = {},
-                        vehicles = [];
+                    var customer = {}, vehicles = [];
                     if (value) {
+                        if (value.name == 'Anonymous')
+                            return;
                         customer.id = value._id;
                         customer.name = value.name;
                         customer.mobile = value.mobile;
@@ -305,8 +306,9 @@
                     res.rows.forEach(iterateRow);
 
                     function iterateRow(row) {
-                        var customer = {},
-                            vehicles = [];
+                        if (row.doc.user.name == 'Anonymous')
+                            return;
+                        var customer = {}, vehicles = [];
                         if (row.doc && row.doc.user) {
                             customer.id = row.doc._id;
                             customer.name = row.doc.user.name;
