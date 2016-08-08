@@ -407,16 +407,13 @@
         
         function validate() {
             if (vm.user.name == '') {
-                setTimeout(focusCustomerName, 300);
-                utils.showSimpleToast('Please Enter Name');
-                return false;
+                vm.user.name = "Anonymous";
             }
-            return true;
         }
 
         //  save to database
         function save() {
-            if (!validate()) return;
+            validate();
             var ndKeys = Object.keys(vm.vNextDue);
             if (ndKeys.length > 0)
                 ndKeys.forEach(iterateNextDue);
