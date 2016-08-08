@@ -22,12 +22,45 @@
             getNextDueCustomers: getNextDueCustomers,
             deleteServiceReminder: deleteServiceReminder,
             changeServiceReminderDate: changeServiceReminderDate,
-            getCurrencySymbol: getCurrencySymbol
+            getCurrencySymbol: getCurrencySymbol,
+            saveCurrencySymbol: saveCurrencySymbol
         }
         
         return factory;
         
         //  function definitions
+
+        function saveCurrencySymbol(currency) {
+            var tracker = $q.defer();
+            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            return tracker.promise;
+
+            function getSettingsDoc(res) {
+                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
+            }
+
+            function getSettingsObject(res) {
+                res.currency = currency;
+                pdbConfig.save(res).then(success).catch(failure);
+            }
+
+            function writeSettingsObject(err) {
+                var doc = {
+                    _id: utils.generateUUID('sttngs'),
+                    creator: $amRoot.username,
+                    currency: currency
+                }
+                pdbConfig.save(doc).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function getCurrencySymbol() {
             var tracker = $q.defer();

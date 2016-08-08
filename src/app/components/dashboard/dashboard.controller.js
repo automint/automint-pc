@@ -108,6 +108,38 @@
 
         //  function definitions
 
+        function openCurrencyDialog() {
+            $mdDialog.show({
+                controller: 'amCtrlDashCurrency',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/dashboard/tmpl/dialog-setcurrency.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                clickOutsideToClose: false
+            }).then(success).catch(success);
+
+            function success(res) {
+                if (!res) {
+                    openCurrencyDialog();
+                    return;
+                }
+                vm.currencySymbol = res;
+                amDashboard.saveCurrencySymbol(vm.currencySymbol).then(success).catch(failure);
+
+                function success(res) {
+                    if (res.ok)
+                        utils.showSimpleToast('Currency saved successfully!');
+                    else
+                        failure();
+                }
+
+                function failure(err) {
+                    utils.showSimpleToast('Could not save Currency at moment! Try Again!');
+                    openCurrencyDialog();
+                }
+            }
+        }
+
         function IsReminderInPast(date) {
             return (moment().format().localeCompare(date) > 0);
         }
@@ -120,7 +152,7 @@
             }
 
             function failure(err) {
-                vm.currencySymbol = "Rs.";
+                openCurrencyDialog();
             }
         }
 

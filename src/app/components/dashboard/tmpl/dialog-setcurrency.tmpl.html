@@ -1,0 +1,36 @@
+<style>
+    .am-box-input {
+        width: 80px;
+        border: 0;
+        border-bottom: 1px solid #BDBDBD;
+        padding: 0 10px;
+        line-height: 30px;
+        font-size: small;
+        outline: none;
+        color: #000;
+        transition: all 600ms ease;
+    }
+</style>
+<md-dialog aria-label="Set Currency" ng-cloak class="md-hue-1">
+    <md-dialog-content>
+        <div class="md-dialog-content" layout="column" layout-align="center center" style="padding: 24px 24px 16px 24px">
+            <span style="font-size: 14pt">Which country are you from ?</span>
+            <div layout="row" layout-align="start center" style="margin-top: 16px">
+                <md-button class="md-accent" style="border: 1px solid #0288D1;" ng-class="{'md-raised': vm.IsCountrySelected(country)}" ng-repeat="country in vm.countries" ng-click="vm.selectCountry(country)">
+                    <span layout-margin>{{country.name}}</span>
+                </md-button>
+            </div>
+            <div layout="row" layout-align="start center" style="margin-top: 16px">
+                <md-checkbox aria-label="Symbol" ng-change="vm.changeCountry()" ng-model="vm.isOtherCountry" style="margin: 0"><span class="md-body-1">or Enter your currency: </span></md-checkbox>
+                <input id="ami-currency-symbol" type="text" class="am-box-input" ng-change="vm.changeCountry(true)" placeholder="Enter Here" ng-model="vm.currencySymbol" flex>
+            </div>
+        </div>
+        <div layout="row" layout-align="end center" style="padding: 0 24px 16px 0">
+            <md-button class="md-warn md-raised" ng-click="vm.save()">
+                <md-icon>done</md-icon>
+                <span layout-margin>Done</span>
+                <md-tooltip md-direction="top">Save Settings</md-tooltip>
+            </md-button>
+        </div>
+    </md-dialog-content>
+</md-dialog>

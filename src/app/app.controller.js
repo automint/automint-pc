@@ -165,6 +165,7 @@
         //  default execution steps
         ipcRenderer.on('automint-updated', listenToAutomintUpdates);
         getPackageFile();
+        $rootScope.hidePreloader = true;
 
         //  function definitions
 
