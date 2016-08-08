@@ -1,4 +1,29 @@
 <style>
+    #ami-customer-name {
+        min-width: 120px;
+        border: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.5);
+        padding: 6px;
+        font-size: medium;
+        outline: none;
+        color: #fff;
+        background: transparent;
+        transition: border-bottom 200ms ease;
+    }
+
+    #ami-customer-name:hover {
+        border-bottom: 1px solid rgba(255,255,255,0.7);
+    }
+
+    #ami-customer-name:focus {
+        border-bottom: 1px solid rgba(255,255,255,1);
+    }
+
+    #ami-customer-name::-webkit-input-placeholder {
+        color: #fff;
+        opacity: 0.6;
+    }
+    
     .am-box-input {
         border: 0;
         border-bottom: 1px solid #BDBDBD;
@@ -124,21 +149,20 @@
 </md-button>
 <md-content layout="column">
     <md-card class="md-hue-1">
-        <md-button class="md-warn md-raised" style="position: absolute; right: 10px" ng-click="vm.save()">
+        <md-button class="md-warn md-raised" style="position: absolute; top: 12px; right: 10px" ng-click="vm.save()">
             <md-icon>done</md-icon>
             <span layout-margin>Save</span>
         </md-button>
         <md-card-title layout="row" layout-align="center center" class="am-blue-bar c600" style="padding: 14px">
-            <md-card-title-text style="text-align: center">
-                <span class="md-title">{{vm.user.name}}</span>
-            </md-card-title-text>
+            <label class="am-form-label" style="color: #fff; margin-bottom: 0; margin-right: 0.4rem">Name:</label>
+            <input type="text" id="ami-customer-name" pu-elastic-input ng-change="vm.convertNameToTitleCase()" placeholder="Enter Name" ng-model="vm.user.name">
         </md-card-title>
         <md-card-content layout="row" style="padding: 16px 0">
             <div flex="50" laout="column" style="padding: 0 6px">
                 <div layout="row" class="am-eci-block first">
                     <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
                         <label class="am-form-label">Mobile: </label>
-                        <input type="text" class="am-box-input" placeholder="Enter Mobile Number" ng-model="vm.user.mobile" flex>
+                        <input type="text" class="am-box-input" placeholder="Enter Mobile Number"  ng-blur="vm.checkExistingCustomerMobile()" ng-model="vm.user.mobile" flex>
                     </div>
                     <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
                         <label class="am-form-label">Email: </label>

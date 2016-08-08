@@ -664,7 +664,7 @@
         //  save a service to database
         function saveService(newUser, newVehicle, newService, options) {
             var tracker = $q.defer();
-            var prefixVehicle = 'vhcl' + ((newVehicle.manuf && newVehicle.model) ? '-' + angular.lowercase(newVehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(newVehicle.model).replace(' ', '-') : '');
+            var prefixVehicle = 'vhcl';
             var prefixUser = 'usr-' + angular.lowercase(newUser.name).replace(' ', '-');
             var newServiceId = ((newService.id == undefined || newService.id == '') ? utils.generateUUID('srvc') : newService.id);
             var newVehicleId = ((newVehicle.id == undefined || newVehicle.id == '') ? utils.generateUUID(prefixVehicle) : newVehicle.id);
@@ -717,6 +717,19 @@
             return tracker.promise;
 
             function foundExistingUser(res) {
+                var splitname = res._id.split('-');
+                var name = splitname[1];
+                for (var i = 2; i < (splitname.length - 5); i++) {
+                    name += ' ' + splitname[i];
+                }
+                name = utils.convertToTitleCase(name);
+                if (name != newUser.name) { 
+                    res._deleted = true;
+                    pdbCustomers.save(res).then(logResponse).catch(logResponse);
+                    res._id = utils.generateUUID(prefixUser);
+                    delete res._deleted; 
+                    delete res._rev;
+                }
                 if (!res.user)
                     res.user = {};
                 Object.keys(newUser).forEach(iterateUserFields);
@@ -741,6 +754,10 @@
                         delete res.user.vehicles[newVehicleId][vfn];
                     res.user.vehicles[newVehicleId][vfn] = newVehicle[vfn];
                 }
+            }
+
+            function logResponse(res) {
+                console.info(res);
             }
 
             function noUserFound(err) {

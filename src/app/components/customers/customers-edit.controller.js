@@ -21,7 +21,7 @@
 
         //  temporary named assignments
         var autofillVehicle = false;
-        var userDbInstance;
+        var userDbInstance, userMobile;
         var nextDueDate = new Date(); 
         nextDueDate.setMonth(nextDueDate.getMonth() + 3);
 
@@ -76,6 +76,8 @@
         vm.getDate = getDate;
         vm.IsVehicleSelected = IsVehicleSelected;
         vm.editVehicle = editVehicle;
+        vm.convertNameToTitleCase = convertNameToTitleCase;
+        vm.checkExistingCustomerMobile = checkExistingCustomerMobile;
 
         //  default execution steps
         // $state.params.id = ($state.params.id == undefined) ? "usr-anand-kacha-772d071e-852c-4a45-aaaf-089d80f73449" : $state.params.id;
@@ -89,6 +91,42 @@
         }
 
         //  function definitions
+
+        function checkExistingCustomerMobile(ev) {
+            vm.loadingBasedOnMobile = true;
+            amCustomers.getCustomerByMobile(vm.user.mobile).then(success).catch(failure);
+
+            function success(res) {
+                vm.loadingBasedOnMobile = false;
+                var confirm = $mdDialog.confirm()
+                    .title('Do you want to edit customer details ?')
+                    .textContent('Customer record for  ' + res.name + ' with ' + vm.user.mobile + ' already exists')
+                    .ariaLabel('Edit Customer')
+                    .targetEvent(ev)
+                    .ok('Yes')
+                    .cancel('No');
+                
+                $mdDialog.show(confirm).then(doEdit, ignore);
+                
+                function doEdit() {
+                    $state.go('restricted.customers.edit', {
+                        id: res.id
+                    });
+                }
+                
+                function ignore() {
+                    vm.user.mobile = userMobile;
+                }                
+            }
+
+            function failure(err) {
+                vm.loadingBasedOnMobile = false;
+            }
+        }
+
+        function convertNameToTitleCase() {
+            vm.user.name = utils.convertToTitleCase(vm.user.name);
+        }
 
         function getCurrencySymbol() {
             amCustomers.getCurrencySymbol().then(success).catch(failure);
@@ -509,6 +547,7 @@
                 var pvl = [];
                 vm.user.id = res._id;
                 vm.user.mobile = res.user.mobile;
+                userMobile = res.user.mobile;
                 vm.user.email = res.user.email;
                 vm.user.name = res.user.name;
                 vm.user.address = res.user.address;
@@ -643,6 +682,15 @@
             userDbInstance.user.email = vm.user.email;
             userDbInstance.user.address = vm.user.address;
             userDbInstance.user.type = vm.user.type;
+
+            if (userDbInstance.user.name != vm.user.name) {
+                userDbInstance._deleted = true;
+                amCustomers.saveCustomer(userDbInstance).then(logResponse).catch(logResponse);
+                var prefixUser = 'usr-' + angular.lowercase(vm.user.name).replace(' ', '-');
+                userDbInstance._id = utils.generateUUID(prefixUser);
+                delete userDbInstance._deleted;
+                delete userDbInstance._rev;
+            }
             
             if (vm.membershipChips != undefined) {
                 var smArray = $.extend([], vm.membershipChips);
@@ -684,6 +732,10 @@
                     delete membership.treatments[treatment.name].checked;
                     delete membership.treatments[treatment.name]['$$hashKey'];
                 }
+            }
+
+            function logResponse(res) {
+                console.info(res);
             }
         }
 

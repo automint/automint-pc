@@ -1539,8 +1539,6 @@
                 vm.user.name = res.name;
                 vm.user.address = (res.address == undefined) ? '' : res.address;
                 if (res.memberships) {
-                    if (Object.keys(res.memberships).length > 0)
-                        vm.serviceType = vm.serviceTypeList[2];
                     Object.keys(res.memberships).forEach(iterateMemberships);
                 }
                 vm.possibleVehicleList = res.possibleVehicleList;

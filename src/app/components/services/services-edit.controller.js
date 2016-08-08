@@ -33,6 +33,7 @@
         var treatmentTotal = 0, inventoryTotal = 0;
         var dTreatmentTax, dInventoryTax, dTreatment, dInventory;
         var taxSettingsSnap = [], lastServiceState;
+        var orgVehicle = {}, userMobile = undefined;
 
         //  vm assignments to keep track of UI related elements
         vm.vehicleTypeList = [];
@@ -190,6 +191,7 @@
         vm.changeServiceStatus = changeServiceStatus;
         vm.openDiscountBox = openDiscountBox;
         vm.OnDiscountStateChange = OnDiscountStateChange;
+        vm.selectUserBasedOnMobile = selectUserBasedOnMobile;
 
         //  default execution steps
         setCoverPic();
@@ -204,6 +206,25 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function selectUserBasedOnMobile() {
+            if (vm.user.mobile != '') {
+                vm.loadingBasedOnMobile = true;
+                amServices.getCustomerByMobile(vm.user.mobile).then(success).catch(failure);
+            }
+
+            function success(res) {
+                vm.loadingBasedOnMobile = false;
+                if (vm.user.id != res.id) {
+                    utils.showSimpleToast('This mobile number is already in registered with ' + res.name);
+                    vm.user.mobile = userMobile;
+                }
+            }
+
+            function failure(err) {
+                vm.loadingBasedOnMobile = false;
+            }
+        }
 
         function getCurrencySymbol() {
             amServices.getCurrencySymbol().then(success).catch(failure);
@@ -489,7 +510,6 @@
             var totalCost = 0;
             treatmentTotal = 0, inventoryTotal = 0;
             vm.service.problems.forEach(iterateProblem);
-            console.log(vm.problem);
             if (vm.problem.details != '')
                 totalCost += (vm.problem.rate) ? parseFloat(vm.problem.rate) : 0;
             vm.selectedInventories.forEach(iterateInventories);
@@ -1450,6 +1470,7 @@
                 vm.user.name = res.name;
                 vm.user.email = res.email;
                 vm.user.mobile = res.mobile;
+                userMobile = res.mobile;
                 vm.user.address = res.address;
                 if (res.memberships)
                     Object.keys(res.memberships).forEach(iterateMemberships);
