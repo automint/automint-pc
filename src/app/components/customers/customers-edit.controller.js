@@ -677,6 +677,8 @@
 
         //  save to database
         function save() {
+            if (vm.user.name == '')
+                vm.user.name = "Anonymous";
             userDbInstance.user.mobile = vm.user.mobile;
             userDbInstance.user.name = vm.user.name;
             userDbInstance.user.email = vm.user.email;
