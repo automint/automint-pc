@@ -489,6 +489,7 @@
             var totalCost = 0;
             treatmentTotal = 0, inventoryTotal = 0;
             vm.service.problems.forEach(iterateProblem);
+            console.log(vm.problem);
             if (vm.problem.details != '')
                 totalCost += (vm.problem.rate) ? parseFloat(vm.problem.rate) : 0;
             vm.selectedInventories.forEach(iterateInventories);
@@ -810,13 +811,13 @@
                     });
                     vm.selectedInventories.push(vm.inventories[vm.inventories.length - 1]);
                 }
-                calculate();
                 vm.inventory.name = '';
                 vm.inventory.amount = '';
                 vm.inventory.rate = '';
                 vm.inventory.tax = {};
                 vm.inventory.qty = 1;
                 vm.inventory.total = '';
+                calculate();
                 if (isFromAutocomplete || foundExisting.length != 0)
                     vm.inventoryFocusIndex = (foundExisting.length == 0) ? vm.selectedInventories.length - 1 : vm.selectedInventories.indexOf(foundExisting[0]);
                 else
@@ -1981,11 +1982,11 @@
                     });
                     vm.selectedProblems.push(vm.service.problems[vm.service.problems.length - 1]);
                 }
-                calculate();
                 vm.problem.details = '';
-                vm.problem.amount = '';
-                vm.problem.rate = '';
+                vm.problem.amount = 0;
+                vm.problem.rate = 0;
                 vm.problem.tax = {};
+                calculate();
                 if (isFromAutocomplete || foundExisting.length != 0)
                     vm.problemFocusIndex = (foundExisting.length == 0) ? vm.selectedProblems.length - 1 : vm.selectedProblems.indexOf(foundExisting[0]);
                 else
@@ -2042,16 +2043,13 @@
             var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
 
             if (isVehicleBlank) {
-                changeVehicleInfoState(true);
-                utils.showSimpleToast('Please Enter At Least One Vehicle Detail');
-                return false;
+                vm.vehicle.reg = 'Any';
             }
-            return true;
         }
 
         //  save to database
         function save(redirect) {
-            if (!validate()) return;
+            validate();
             switch (vm.serviceType) {
                 case vm.serviceTypeList[0]:
                     if (checkBasic() == false) {

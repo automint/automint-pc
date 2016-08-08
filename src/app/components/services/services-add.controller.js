@@ -2038,28 +2038,18 @@
 
         function validate() {
             if (vm.user.name == '') {
-                changeUserInfoState(true);
-                setTimeout(doFocus, 300);
-                utils.showSimpleToast('Please Enter Name');
-
-                function doFocus() {
-                    $('#ami-user-name').focus();
-                }
-                return false
+                vm.user.name = 'Anonymous';
             }
             var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
 
             if (isVehicleBlank) {
-                changeVehicleInfoState(true);
-                utils.showSimpleToast('Please Enter At Least One Vehicle Detail');
-                return false;
+                vm.vehicle.reg = 'Any';
             }
-            return true;
         }
 
         //  save to database
         function save(redirect) {
-            if (!validate()) return;
+            validate();
             switch (vm.serviceType) {
                 case vm.serviceTypeList[0]:
                     if (checkBasic() == false) {

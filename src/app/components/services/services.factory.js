@@ -559,6 +559,8 @@
                         name += ' ' + splitname[i];
                     }
                     name = utils.convertToTitleCase(name);
+                    if (name == 'Anonymous')
+                        return;
                     customers.push({
                         id: row.id,
                         name: name
