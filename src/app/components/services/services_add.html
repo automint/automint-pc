@@ -283,7 +283,7 @@
                     <div layout="column">
                         <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
                             <label class="am-form-label" flex="20">Manufacturer:</label>
-                            <md-autocomplete id="ami-vehicle-manuf" class="am-full-width" md-selected-item="vm.selectedManuf" md-search-text="vm.vehicle.manuf" md-items="manuf in vm.manufacturersQuerySearch()" md-item-text="manuf" placeholder="Type Manufacturer Name" md-search-text-change="vm.searchVehicleChange()" flex>
+                            <md-autocomplete ng-disabled="!vm.isAddOperation()" id="ami-vehicle-manuf" class="am-full-width" md-selected-item="vm.selectedManuf" md-search-text="vm.vehicle.manuf" md-items="manuf in vm.manufacturersQuerySearch()" md-item-text="manuf" placeholder="Type Manufacturer Name" md-search-text-change="vm.searchVehicleChange()" flex>
                                 <md-item-template>
                                     <span md-highlight-text="vm.vehicle.manuf">{{manuf}}</span>
                                 </md-item-template>
@@ -291,35 +291,33 @@
                         </div>
                         <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
                             <label class="am-form-label" flex="20">Model:</label>
-                            <md-autocomplete class="am-full-width" md-selected-item="vm.selectedModel" md-search-text="vm.vehicle.model" md-items="model in vm.modelQuerySearch()" md-item-text="model" placeholder="Type Model Name" md-no-cache="true" md-min-length="0" md-search-text-change="vm.autoCapitalizeVehicleModel()" flex>
+                            <md-autocomplete ng-disabled="!vm.isAddOperation()" class="am-full-width" md-selected-item="vm.selectedModel" md-search-text="vm.vehicle.model" md-items="model in vm.modelQuerySearch()" md-item-text="model" placeholder="Type Model Name" md-no-cache="true" md-min-length="0" md-search-text-change="vm.autoCapitalizeVehicleModel()" flex>
                                 <md-item-template>
                                     <span md-highlight-text="vm.vehicle.model">{{model}}</span>
                                 </md-item-template>
                             </md-autocomplete>
                         </div>
-                        <div layout="row">
-                            <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
-                                <label class="am-form-label" style="font-size: 9pt" flex="20">Registration No: </label>
-                                <input type="text" class="am-box-input md-whiteframe-z1 am-vehicle-reg" ng-model="vm.vehicle.reg" ng-keydown="!vm.isAddOperation() && vm.changeServiceInfoState(true, $event)" ng-change="vm.convertRegToCaps()" placeholder="e.g GJ01AB9999" flex>
-                                <md-menu ng-show="vm.isAddOperation()">
-                                    <md-button aria-label="Choose from existing vehicles" class="md-accent md-icon-button" ng-keydown="vm.changeServiceInfoState(true, $event)" ng-click="vm.chooseVehicle($mdOpenMenu, $event)">
-                                        <md-icon>directions_car</md-icon>
-                                        <md-tooltip>Change Vehicle</md-tooltip>
-                                    </md-button>
-                                    <md-menu-content width="6" class="md-hue-1">
-                                        <md-menu-item ng-repeat="vehicle in vm.possibleVehicleList">
-                                            <md-button ng-click="vm.changeVehicle(vehicle.id, true)">
-                                                <span>{{vehicle.name}}</span>
-                                            </md-button>
-                                        </md-menu-item>
-                                        <md-menu-item>
-                                            <md-button ng-click="vm.changeVehicle()">
-                                                <span>New Vehicle</span>
-                                            </md-button>
-                                        </md-menu-item>
-                                    </md-menu-content>
-                                </md-menu>
-                            </div>
+                        <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
+                            <label class="am-form-label" style="font-size: 9pt" flex="20">Registration No: </label>
+                            <input type="text" class="am-box-input md-whiteframe-z1 am-vehicle-reg" ng-model="vm.vehicle.reg" ng-keydown="!vm.isAddOperation() && vm.changeServiceInfoState(true, $event)" ng-change="vm.convertRegToCaps()" ng-blur="vm.findVehicleByReg()" placeholder="e.g GJ01AB9999" flex>
+                            <md-menu ng-show="vm.isAddOperation()" style="padding: 0">
+                                <md-button aria-label="Choose from existing vehicles" class="md-accent" ng-keydown="vm.changeServiceInfoState(true, $event)" ng-click="vm.chooseVehicle($mdOpenMenu, $event)">
+                                    <span layout-margin>Change Vehicle</span>
+                                    <md-tooltip>Change Vehicle</md-tooltip>
+                                </md-button>
+                                <md-menu-content width="6" class="md-hue-1">
+                                    <md-menu-item ng-repeat="vehicle in vm.possibleVehicleList">
+                                        <md-button ng-click="vm.changeVehicle(vehicle.id, true)">
+                                            <span>{{vehicle.name}}</span>
+                                        </md-button>
+                                    </md-menu-item>
+                                    <md-menu-item>
+                                        <md-button ng-click="vm.changeVehicle()">
+                                            <span>New Vehicle</span>
+                                        </md-button>
+                                    </md-menu-item>
+                                </md-menu-content>
+                            </md-menu>
                         </div>
                     </div>
                 </div>

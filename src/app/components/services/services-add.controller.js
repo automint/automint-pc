@@ -196,6 +196,7 @@
         vm.changeServiceStatus = changeServiceStatus;
         vm.openDiscountBox = openDiscountBox;
         vm.OnDiscountStateChange = OnDiscountStateChange;
+        vm.findVehicleByReg = findVehicleByReg;
 
         //  default execution steps
         setCoverPic();
@@ -219,6 +220,16 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function findVehicleByReg() {
+            var vfound = $filter('filter')(vm.possibleVehicleList, {
+                reg: vm.vehicle.reg
+            }, true);
+
+            if (vfound.length == 1) {
+                changeVehicle(vfound[0].id);
+            }
+        }
 
         function getCurrencySymbol() {
             amServices.getCurrencySymbol().then(success).catch(failure);
@@ -1679,11 +1690,22 @@
         //  vehicle manufacturer is updated from UI, clear model list to populate new list w.r.t. manufacturer
         function searchVehicleChange() {
             autoCapitalizeVehicleManuf();
-            if (!autofillVehicle) {
-                vm.models = [];
-                vm.vehicle.model = '';
+            if (autofillVehicle) {
                 autofillVehicle = false;
+                return;
             }
+            vm.currentVehicle = 'New Vehicle';
+            vm.vehicle.id = undefined;
+            vm.vehicle.model = '';
+            vm.vehicle.reg = '';
+            vm.models = [];
+            if (vm.vehicleTypeList.length > 0) {
+                vm.vehicle.type = vm.vehicleTypeList[0];
+                changeVehicleType();
+            }
+            vm.isNextDueService = false;
+            vm.nextDueDate = new Date();
+            vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
         }
 
         //  replace all the treatment values with updated vehicle type
