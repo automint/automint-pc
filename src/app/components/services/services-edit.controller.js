@@ -1359,7 +1359,7 @@
                 }
             }
 
-            function changeTreatmentTax(treatment, force) {
+            function changeTreatmentTax(problem, force) {
                 var cvt = vm.vehicle.type.toLowerCase().replace(' ', '-');
                 var taxable = problem.amount[cvt];
                 problem.tax = {};
