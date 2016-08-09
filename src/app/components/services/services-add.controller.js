@@ -265,14 +265,16 @@
             vm.selectedInventories.forEach(iterateInventories);
             if (vm.inventory.name != '')
                 iterateInventory(vm.inventory);
-            if (vm.isDiscountApplied)
+            if (vm.isDiscountApplied && (parseFloat(vm.discount.total) > 0)) {
+                vm.taxSettings.forEach(iterateTaxes);
                 vm.taxSettings.forEach(iterateTaxesAfter);
+            }
 
             function iterateTaxesAfter(tax) {
                 if (tax.isTaxApplied && tax.isForTreatments)
-                    tax.tax = (dTreatment * tax.percent / 100);
+                    tax.tax += (dTreatment * tax.percent / 100);
                 if (tax.isTaxApplied && tax.isForInventory)
-                    tax.tax = (dInventory * tax.percent / 100);
+                    tax.tax += (dInventory * tax.percent / 100);
                 tax.tax = (tax.tax % 1 != 0) ? parseFloat(tax.tax.toFixed(2)) : parseInt(tax.tax);
             }
 
@@ -415,11 +417,16 @@
         function changeServiceStatus() {
             if (vm.servicestatus) {
                 if (vm.service.partialpayment) {
-                    if ((vm.service.partialpayment.total - vm.service.cost) != 0)
+                    if ((vm.service.partialpayment.total - vm.service.cost) != 0) {
                         vm.service.partialpayment[moment().format()] = vm.service.cost - vm.service.partialpayment.total;
+                        vm.service.partialpayment.total = vm.service.cost;
+                    }
                 }
-            } else
-                openPartialPaymentBox();
+            } else {
+                vm.service.partialpayment = {
+                    total: 0
+                }
+            }
         }
 
         function IsPartialPayment() {
@@ -1725,7 +1732,7 @@
                     name: problem.details
                 });
                 if (found.length == 1) {
-                    var rate = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
+                    problem.amount = found[0].rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
                     var taxable = problem.amount;
                     problem.tax = {};
                     vm.taxSettings.forEach(iterateTaxes);
