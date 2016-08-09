@@ -163,7 +163,7 @@
                 if (!userDbInstance.user.vehicles)
                     userDbInstance.user.vehicles = {};
 
-                var prefixVehicle = 'vhcl' + ((vm.vehicle.manuf && vm.vehicle.model) ? '-' + angular.lowercase(vm.vehicle.manuf).replace(' ', '-') + '-' + angular.lowercase(vm.vehicle.model).replace(' ', '-') : '');
+                var prefixVehicle = 'vhcl';
 
                 if (vId == undefined)
                     vId = utils.generateUUID(prefixVehicle);

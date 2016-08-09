@@ -123,7 +123,7 @@
 
         function getNextDueCustomers(dateRange) {
             var tracker = $q.defer();
-            pdbCache.get(constants.pdb_cache_views.view_services).then(generateNextDueCustomers).catch(failure);
+            pdbCache.get(constants.pdb_cache_views.view_next_due_vehicles).then(generateNextDueCustomers).catch(failure);
             return tracker.promise;
 
             function generateNextDueCustomers(res) {
@@ -156,16 +156,17 @@
                 function iterateDateRange(dr) {
                     if (dr.match(/_id|_rev/g))
                         return;
-                    Object.keys(res[dr]).forEach(iterateService);
+                    Object.keys(res[dr]).forEach(iterateVehicles);
 
-                    function iterateService(sId) {
-	                    if (res[dr][sId].vhcl_nextdue && ((dateRange == 'All') || ((moment(res[dr][sId].vhcl_nextdue).format(dateFormat).localeCompare(startdate) >= 0) && (moment(res[dr][sId].vhcl_nextdue).format(dateFormat).localeCompare(enddate) <= 0)))) {
+                    function iterateVehicles(vId) {
+                        res[dr][vId].vhcl_id = vId;
+	                    if (res[dr][vId].vhcl_nextdue && ((dateRange == 'All') || ((moment(res[dr][vId].vhcl_nextdue).format(dateFormat).localeCompare(startdate) >= 0) && (moment(res[dr][vId].vhcl_nextdue).format(dateFormat).localeCompare(enddate) <= 0)))) {
                             var cfound = $filter('filter')(result, {
-                                cstmr_id: res[dr][sId].cstmr_id
+                                cstmr_id: res[dr][vId].cstmr_id
                             }, true);
 
                             if (cfound.length == 0)
-                                result.push(res[dr][sId]);
+                                result.push(res[dr][vId]);
                         } 
                     }
                 }
