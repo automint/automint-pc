@@ -2077,14 +2077,10 @@
                 isLastJobCardNoChanged: (vm.service.jobcardno == olJobCardNo)
             }
             vm.user.memberships = vm.membershipChips;
-            switch (vm.serviceType) {
-                case vm.serviceTypeList[1]:
-                    vm.packages.forEach(addPkToService);
-                    break;
-                case vm.serviceTypeList[2]:
-                    vm.membershipChips.forEach(addMsToService);
-                    break;
-            }
+            if (vm.packages)
+                vm.packages.forEach(addPkToService);
+            if (vm.membershipChips)
+                vm.membershipChips.forEach(addMsToService);
             vm.service.status = vm.servicestatus ? 'paid' : 'due';
             vm.service.date = moment(vm.service.date).format();
             if (vm.isNextDueService)
@@ -2154,14 +2150,12 @@
 
             function iterateProblems(problem) {
                 delete problem.checked;
-                delete problem['amount'];
                 delete problem['$$hashKey'];
             }
 
             function iterateInventories(inventory) {
                 delete inventory.checked;
                 delete inventory['total'];
-                delete inventory['amount'];
                 delete inventory['$$hashKey'];
             }
 

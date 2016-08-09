@@ -948,14 +948,14 @@
                     if (found.length == 1) {
                         found[0].checked = true;
                         found[0].rate = inventory.rate;
-                        found[0].amount = inventory.rate;
+                        found[0].amount = (inventory.amount) ? inventory.amount : inventory.rate;
                         found[0].qty = inventory.qty;
                         vm.selectedInventories.push(found[0]);
                     } else {
                         vm.inventories.push({
                             name: inventory.name,
                             rate: inventory.rate,
-                            amount: inventory.rate,
+                            amount: (inventory.amount) ? inventory.amount : inventory.rate,
                             qty: inventory.qty,
                             checked: true
                         });
@@ -1784,14 +1784,14 @@
                 if (found.length == 1) {
                     found[0].checked = true;
                     found[0].rate = problem.rate;
-                    found[0].amount = Math.round(problem.rate);
+                    found[0].amount = (problem.amount) ? problem.amount : Math.round(problem.rate);
                     found[0].tax = problem.tax;
                     vm.selectedProblems.push(found[0]);
                 } else {
                     vm.service.problems.push({
                         details: problem.details,
                         rate: problem.rate,
-                        amount: Math.round(problem.rate),
+                        amount: (problem.amount) ? problem.amount : Math.round(problem.rate),
                         tax: problem.tax,
                         checked: true
                     });
@@ -1803,7 +1803,7 @@
                 vm.service.problems.push({
                     details: treatment.name,
                     rate: treatment.rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')],
-                    amount: treatment.rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')],
+                    amount: (treatment.amount) ? treatment.amount : treatment.rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')],
                     checked: false
                 });
             }
@@ -2093,14 +2093,10 @@
             }
             vm.service.problems = vm.selectedProblems;
             vm.user.memberships = vm.membershipChips;
-            switch (vm.serviceType) {
-                case vm.serviceTypeList[1]:
-                    vm.packages.forEach(addPkToService);
-                    break;
-                case vm.serviceTypeList[2]:
-                    vm.membershipChips.forEach(addMsToService);
-                    break;
-            }
+            if (vm.packages)
+                vm.packages.forEach(addPkToService);
+            if (vm.membershipChips)
+                vm.membershipChips.forEach(addMsToService);
             vm.service.status = vm.servicestatus ? 'paid' : 'due';
             vm.service.date = moment(vm.service.date).format();
             if (vm.isNextDueService)
@@ -2185,14 +2181,12 @@
 
             function iterateProblems(problem) {
                 delete problem.checked;
-                delete problem['amount'];
                 delete problem['$$hashKey'];
             }
 
             function iterateInventories(inventory) {
                 delete inventory.checked;
                 delete inventory['total'];
-                delete inventory['amount'];
                 delete inventory['$$hashKey'];
             }
 
