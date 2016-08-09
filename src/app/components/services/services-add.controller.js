@@ -100,7 +100,6 @@
         vm.label_invoice = 'Invoice';
         vm.isNextDueService = false;
         vm.nextDueDate = new Date(); 
-        vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
         vm.problemFocusIndex = -1;
         vm.inventoryFocusIndex = -1;
         vm.discount = {
@@ -199,6 +198,8 @@
         vm.findVehicleByReg = findVehicleByReg;
         vm.IsCustomerNotAnonymus = IsCustomerNotAnonymus;
         vm.goToDashboard = goToDashboard;
+        vm.IsCustomerSelected = IsCustomerSelected;
+        vm.openCustomerProfile = openCustomerProfile;
 
         //  default execution steps
         setCoverPic();
@@ -222,6 +223,18 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function openCustomerProfile() {
+            $state.go('restricted.customers.edit', {
+                id: vm.user.id
+            });
+        }
+
+        function IsCustomerSelected() {
+            if (vm.user.id == undefined)
+                return false;
+            return (vm.user.id != '');
+        }
 
         function goToDashboard() {
             $mdSidenav('main-nav-left').close()
@@ -1619,7 +1632,6 @@
             }
             vm.isNextDueService = false;
             vm.nextDueDate = new Date();
-            vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
             autofillVehicle = false;
         }
 
@@ -1721,7 +1733,6 @@
             }
             vm.isNextDueService = false;
             vm.nextDueDate = new Date();
-            vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
         }
 
         //  replace all the treatment values with updated vehicle type

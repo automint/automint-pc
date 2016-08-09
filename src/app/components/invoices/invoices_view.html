@@ -136,11 +136,17 @@
                     a:hover {
                         color: #424242;
                     }
+
+                    .am-flex-box {
+                        height: 100%;
+                        display: flex;
+                        flex-direction: column;
+                    }
                 </style>
             </head>
 
             <body style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; background: white">
-                <div id="am-actual-invoice-body" style="margin-top: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.top : 0}}cm; margin-bottom: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.bottom : 0}}cm">
+                <div id="am-actual-invoice-body" class="am-flex-box" style="margin-top: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.top : 0}}cm; margin-bottom: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.bottom : 0}}cm">
                     <section class="am-invoice-w-area">
                         <div class="parent">
                             <div class="left" ng-if="vm.ivSettings.display.workshopDetails">
@@ -153,9 +159,9 @@
                             <div style="flex-grow: 1"></div>
                             <div class="right" name="am-invoice-w-logo-holder"></div>
                         </div>
+                        <hr style="margin-top: 1.6rem; opacity: 0.3" ng-if="vm.IsHeaderAvailable()">
                     </section>
-                    <hr style="margin-top: 1.6rem; opacity: 0.3" ng-if="vm.IsHeaderAvailable()">
-                    <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; margin: 0 1rem;">
+                    <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; margin: 0 1rem; flex-grow: 1">
                         <center>
                             <table class="am-invoice-table">
                                 <tr class="caption">
@@ -245,11 +251,11 @@
                             </table>
                         </center>
                     </section>
-                    <hr style="margin-top: 1.6rem; margin-bottom: 1rem; opacity: 0.3">
-                    <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; margin-top: 1rem; margin-bottomt: 1rem; margin-left: 4rem; margin-right: 4rem;" ng-if="vm.workshop.social.enabled">
-                        <center><span class="md-body-2">Follow Us:</span></center>
+                    <section style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; margin-top: 1rem; margin-bottom: 1rem; margin-left: 4rem; margin-right: 4rem;">
+                        <hr style="margin-top: 1.6rem; margin-bottom: 1rem; opacity: 0.3">
+                        <center><span class="md-body-2" ng-if="vm.workshop.social.enabled">Follow Us:</span></center>
                         <center>
-                            <div style="margin-top: 0.6rem; display: table;">
+                            <div style="margin-top: 0.6rem; display: table;" ng-if="vm.workshop.social.enabled">
                                 <div style="display: table-row">
                                     <div style="display: table-cell">
                                         <a href="" ng-if="vm.IsSocialFacebook()" id="am-invoice-link-facebook">
@@ -271,10 +277,10 @@
                                     </div>
                                 </div>
                             </div>
+                            <div style="width: 100%; text-align: center" name="am-invoice-f-logo-holder"></div>
+                            <div style="text-align: center; font-size: 9pt" ng-if="vm.IsNotSinglePage()">Page {{vm.currentPage(page.index)}} of {{vm.pages.length}}</div>
                         </center>
                     </section>
-                    <div style="width: 100%; text-align: center" name="am-invoice-f-logo-holder"></div>
-                    <div style="text-align: center; font-size: 9pt" ng-if="vm.IsNotSinglePage()">Page {{vm.currentPage(page.index)}} of {{vm.pages.length}}</div>
                 </div>
             </body>
 

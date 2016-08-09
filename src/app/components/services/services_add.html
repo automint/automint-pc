@@ -172,7 +172,7 @@
         </div>
         <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
             <label class="am-form-label" flex="15">Address: </label>
-            <textarea class="am-box-input md-whiteframe-z1" style="line-height: normal; padding: 10px 15px" placeholder="Enter Address" ng-model="vm.user.address" ng-change="vm.autoCapitalizeCustomerAddress()" rows="2" md-select-on-focus flex></textarea>
+            <input type="text" class="am-box-input md-whiteframe-z1" placeholder="Enter Address" ng-model="vm.user.address" ng-change="vm.autoCapitalizeCustomerAddress()" flex>
         </div>
         <div layout="column" layout-align="start" class="am-input-box">
             <label class="am-form-label" style="color: rgba(30, 30, 30, 0.7);">Memberships <i>(AMC Contracts)</i>:</label>
@@ -193,6 +193,9 @@
             <span layout-margin>Continue</span>
             <md-tooltip>Continue to Add Service</md-tooltip>
         </md-button>
+        <md-button class="md-raised md-accent" ng-click="vm.openCustomerProfile()" ng-show="vm.IsCustomerSelected()">
+            <span layout-margin>View Customer Profile</span>
+            <md-tooltip>View {{vm.user.name}}'s Profile
     </md-content>
 </md-sidenav>
 <md-sidenav class="md-sidenav-left md-whiteframe-4dp md-hue-1 am-service-details-panel" md-component-id="service-details-left" style="position: fixed" md-disable-backdrop md-is-locked-open="vm.lockServiceNavbar">

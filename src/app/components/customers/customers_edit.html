@@ -171,12 +171,12 @@
                 </div>
                 <div layout="row" layout-align="start" flex="auto" class="am-input-box am-eci-block">
                     <label class="am-form-label" style="padding: 6px 0">Address: </label>
-                    <textarea class="am-box-input" style="line-height: normal; padding: 10px 15px" ng-change="vm.autoCapitalizeCustomerAddress()" placeholder="Enter Address" ng-model="vm.user.address" rows="2" md-select-on-focus flex></textarea>
+                    <input type="text" class="am-box-input" placeholder="Enter Address" ng-model="vm.user.address" ng-change="vm.autoCapitalizeCustomerAddress()" flex>
                 </div>
                 <div layout="row" class="am-eci-block">
                     <div layout="row" layout-align="start center" flex="55" class="am-input-box">
                         <label class="am-form-label">Type: </label>
-                        <md-select aria-label="Customer Type" class="am-select" style="margin: 0" ng-model="vm.user.type" flex>
+                        <md-select aria-label="Customer Type" class="am-select" style="margin: 0" ng-model="vm.user.type" flex="60">
                             <md-option class="am-hover-option" ng-value="type" ng-repeat="type in vm.customerTypeList" ng-selected="$first">{{type}}</md-option>
                         </md-select>
                     </div>
@@ -186,18 +186,20 @@
                     </div>
                 </div>
                 <div layout="column" layout-align="start" class="am-input-box am-eci-block">
-                    <label class="am-form-label" style="color: #000">Memberships <i>(AMC Contracts)</i>:</label>
-                    <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-on-remove="vm.unsubscribeMembership($event, $chip)" md-require-match="true">
-                        <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
-                            <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
-                        </md-autocomplete>
-                        <md-chip-template>
-                            <span>
-                            <span style="font-size: small">{{$chip.name}}</span>
-                            </span>
-                        </md-chip-template>
-                    </md-chips>
-                    <span class="md-caption" style="line-height: 2rem"><address>*&nbsp;Click on Membership for details</address></span>
+                    <div layout="row" layout-align="start center">
+                        <label class="am-form-label" style="color: #000">Memberships <br><i>(AMC Contracts)</i>:&nbsp;</label>
+                        <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-on-remove="vm.unsubscribeMembership($event, $chip)" md-require-match="true" flex>
+                            <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
+                                <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
+                            </md-autocomplete>
+                            <md-chip-template>
+                                <span>
+                                <span style="font-size: small">{{$chip.name}}</span>
+                                </span>
+                            </md-chip-template>
+                        </md-chips>
+                    </div>
+                    <span class="md-caption" style="line-height: 2rem; text-align: right"><address>*&nbsp;Click on Membership for details</address></span>
                 </div>
                 <div layout="row" class="am-eci-block last">
                     <div layout="row" layout-align="start end" flex="45" class="am-input-box">

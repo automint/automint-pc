@@ -21,7 +21,6 @@
 
         //  temporary named assignments
         var nextDueDate = new Date(); 
-        nextDueDate.setMonth(nextDueDate.getMonth() + 3);
         var vehicles;
 
         //  vm assignments to keep track of UI related elements
@@ -42,7 +41,7 @@
         vm.membershipChips = [];
         vm.vehicleTypeList = [];
         vm.loadingBasedOnMobile = false;
-        vm.customerTypeList = ['Customer', 'Agency'];
+        vm.customerTypeList = ['Lead', 'Customer', 'Agency'];
         vm.possibleVehicleList = [];
         vm.vNextDue = {};
 

@@ -23,7 +23,6 @@
         var autofillVehicle = false;
         var userDbInstance, userMobile;
         var nextDueDate = new Date(); 
-        nextDueDate.setMonth(nextDueDate.getMonth() + 3);
 
         //  vm assignments to keep track of UI related elements
         vm.user = {
@@ -51,7 +50,7 @@
         };
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
         vm.vNextDue = {};
-        vm.customerTypeList = ['Customer', 'Agency'];
+        vm.customerTypeList = ['Lead', 'Customer', 'Agency'];
         vm.paymentDone = 0;
         vm.paymentDue = 0;
         vm.currencySymbol = "Rs.";
