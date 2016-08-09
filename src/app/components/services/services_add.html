@@ -240,8 +240,8 @@
         <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isUserInfoExpanded }" flex>
             <md-item-content class="el-item service-form tile" ng-class="{'selected': vm.isUserInfoExpanded}" layout="column" flex>
                 <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeUserInfoState(true)" class="folded am-blue-bar c800">
-                    <span ng-class="{'md-headline': vm.isUserInfoExpanded, 'md-body-2': !vm.isUserInfoExpanded}">Customer<span class="md-caption" ng-if="!vm.isUserInfoExpanded && (vm.user.name || vm.user.mobile)">:</span></span>
-                    <span class="md-body-2" style="margin: 0 0.4rem" ng-show="!vm.isUserInfoExpanded">{{vm.user.name}}<span ng-if="vm.user.name">,&nbsp</span><span class="md-caption" ng-if="vm.user.mobile">(M)&nbsp;</span>{{vm.user.mobile}}</span>
+                    <span ng-class="{'md-headline': vm.isUserInfoExpanded, 'md-body-2': !vm.isUserInfoExpanded}">Customer<span class="md-caption" ng-if="!vm.isUserInfoExpanded && (vm.user.name || vm.user.mobile) && vm.IsCustomerNotAnonymus()">:</span></span>
+                    <span class="md-body-2" style="margin: 0 0.4rem" ng-show="!vm.isUserInfoExpanded && vm.IsCustomerNotAnonymus()">{{vm.user.name}}<span ng-if="vm.user.name">,&nbsp</span><span class="md-caption" ng-if="vm.user.mobile">(M)&nbsp;</span>{{vm.user.mobile}}</span>
                 </div>
                 <div layout="column" layout-fill class="expanded">
                     <div layout="column">
@@ -277,8 +277,8 @@
         <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isVehicleInfoExpanded }" flex>
             <md-item-content class="el-item service-form tile" ng-class="{ 'selected': vm.isVehicleInfoExpanded}" layout="column">
                 <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeVehicleInfoState(true)" class="folded am-blue-bar c800">
-                    <span ng-class="{'md-headline': vm.isVehicleInfoExpanded, 'md-body-2': !vm.isVehicleInfoExpanded}">Vehicle<span class="md-caption" ng-if="!vm.isVehicleInfoExpanded && (vm.vehicle.manuf || vm.vehicle.model || vm.vehicle.reg)">:</span></span>
-                    <span class="md-body-2" style="margin: 0 0.4rem" ng-show="!vm.isVehicleInfoExpanded">{{vm.vehicle.manuf}}<span ng-if="vm.vehicle.manuf">&nbsp</span>{{vm.vehicle.model}}<span ng-if="(vm.vehicle.manuf || vm.vehicle.model) && vm.vehicle.reg">&nbsp;-&nbsp;</span>{{vm.vehicle.reg}}</span>
+                    <span ng-class="{'md-headline': vm.isVehicleInfoExpanded, 'md-body-2': !vm.isVehicleInfoExpanded}">Vehicle<span class="md-caption" ng-if="!vm.isVehicleInfoExpanded && (vm.vehicle.manuf || vm.vehicle.model || vm.vehicle.reg) && vm.IsCustomerNotAnonymus()">:</span></span>
+                    <span class="md-body-2" style="margin: 0 0.4rem" ng-show="!vm.isVehicleInfoExpanded && vm.IsCustomerNotAnonymus()">{{vm.vehicle.manuf}}<span ng-if="vm.vehicle.manuf">&nbsp</span>{{vm.vehicle.model}}<span ng-if="(vm.vehicle.manuf || vm.vehicle.model) && vm.vehicle.reg">&nbsp;-&nbsp;</span>{{vm.vehicle.reg}}</span>
                 </div>
                 <div layout="column" layout-fill class="expanded">
                     <div layout="column">

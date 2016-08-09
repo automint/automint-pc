@@ -67,7 +67,7 @@
         vm.taxSettings = [];
         vm.currencySymbol = "Rs.";
         vm.invoicePageSizeList = ['Single Page', 'A4'];
-        vm.invoicePageSize = vm.invoicePageSizeList[0];
+        vm.invoicePageSize = vm.invoicePageSizeList[1];
         //  named assignments to keep track of UI [END]
         
         //  function maps [BEGIN]
@@ -289,6 +289,11 @@
         }
 
         function deleteTax(tax) {
+            if (tax.name == '') {
+                var index = vm.taxSettings.indexOf(tax);
+                vm.taxSettings.splice(index, 1);
+                return;
+            }
             amTaxSettings.deleteTaxSettings(tax).then(success).catch(failure);
 
             function success(res) {
@@ -310,8 +315,8 @@
                 isTaxApplied: false,
                 inclusive: false,
                 percent: 0,
-                isForTreatments: true,
-                isForInventory: true
+                isForTreatments: false,
+                isForInventory: false
             });
             currentTaxFocusIndex = vm.taxSettings.length - 1;
         }

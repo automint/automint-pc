@@ -312,8 +312,7 @@
             }
 
             function failure(err) {
-                vm.invoicePageSize = vm.invoicePageSizeList[0];
-                normalPageSize();
+                success(vm.invoicePageSizeList[1]);
             }
         }
 
@@ -592,6 +591,8 @@
 
             function success(res) {
                 vm.ivSettings = res;
+                if (!res.display)
+                    return;
                 if (res.display.workshopLogo)
                     setTimeout(addInvoiceWLogo, 1000);
                 if (res.display.footerLogo)

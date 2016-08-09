@@ -192,6 +192,7 @@
         vm.openDiscountBox = openDiscountBox;
         vm.OnDiscountStateChange = OnDiscountStateChange;
         vm.selectUserBasedOnMobile = selectUserBasedOnMobile;
+        vm.IsCustomerNotAnonymus = IsCustomerNotAnonymus;
 
         //  default execution steps
         setCoverPic();
@@ -206,6 +207,10 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function IsCustomerNotAnonymus() {
+            return (vm.user.name != 'Anonymous');
+        }
 
         function selectUserBasedOnMobile() {
             if (vm.user.mobile != '') {

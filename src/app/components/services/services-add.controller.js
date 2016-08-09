@@ -197,6 +197,7 @@
         vm.openDiscountBox = openDiscountBox;
         vm.OnDiscountStateChange = OnDiscountStateChange;
         vm.findVehicleByReg = findVehicleByReg;
+        vm.IsCustomerNotAnonymus = IsCustomerNotAnonymus;
 
         //  default execution steps
         setCoverPic();
@@ -220,6 +221,10 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function IsCustomerNotAnonymus() {
+            return (vm.user.name != 'Anonymous');
+        }
 
         function findVehicleByReg() {
             var vfound = $filter('filter')(vm.possibleVehicleList, {
