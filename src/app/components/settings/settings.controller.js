@@ -328,6 +328,7 @@
         function setAmAppDataPath(move) {
             var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
             if (newPath) {
+                $rootScope.isAppBeingRestarted = true;
                 ammPreferences.storePreference('automint.userDataPath', newPath[0]);
                 if (move) {
                     fse.copy(amApp.getPath('userData'), newPath[0], {
@@ -346,7 +347,6 @@
             function removeSuccess(err) {
                 if (err)
                     console.error(err);
-                $rootScope.isAppBeingRestarted = true;
                 ipcRenderer.send('am-do-restart', true);
             }
             // /Users/ndkcha/Library/Application Support/Automint
