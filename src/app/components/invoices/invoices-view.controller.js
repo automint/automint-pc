@@ -95,8 +95,6 @@
                     return;
                 var x = document.createElement("IMG");
                 x.setAttribute("src", vm.invoiceFLogo);
-                x.setAttribute("width", "250");
-                x.setAttribute("height", "125");
                 elem.appendChild(x);
             }
         }

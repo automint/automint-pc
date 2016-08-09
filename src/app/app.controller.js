@@ -20,7 +20,7 @@
         .controller('appSideBarCtrl', SidebarController);
 
     HeaderbarController.$inject = ['$rootScope', '$scope', '$state', '$timeout', '$mdSidenav', 'amRootFactory'];
-    SidebarController.$inject = ['$rootScope', '$scope', '$state', '$http', '$mdSidenav'];
+    SidebarController.$inject = ['$rootScope', '$scope', '$state', '$http', '$mdSidenav', 'amRootFactory'];
     LockScreenController.$inject = ['$rootScope', '$state', '$window', 'amRootFactory', 'utils'];
 
     function LockScreenController($rootScope, $state, $window, amRootFactory, utils) {
@@ -129,7 +129,7 @@
         }
     }
 
-    function SidebarController($rootScope, $scope, $state, $http, $mdSidenav) {
+    function SidebarController($rootScope, $scope, $state, $http, $mdSidenav, amRootFactory) {
         var vm = this;
 
         //  objects passed to view model
@@ -166,8 +166,25 @@
         ipcRenderer.on('automint-updated', listenToAutomintUpdates);
         getPackageFile();
         $rootScope.hidePreloader = true;
+        amRootFactory.getPasscode().then(gps).catch(unlock);
 
         //  function definitions
+
+        function gps(res) {
+            if ($rootScope.isAutomintLocked == false)
+                return;
+            if (!res || res.enabled == false) {
+                unlock();
+                return;
+            }
+            if (res.enabled == true) {
+                $state.go('locked');
+            }
+        }
+
+        function unlock() {
+            console.info('unlocked');
+        }
 
         function goToDashboard() {
             $mdSidenav('main-nav-left').close()

@@ -14,7 +14,7 @@
     StateConfigs.$inject = ['$stateProvider', '$urlRouterProvider'];
 
     function StateConfigs($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.when('/', '/locked').otherwise('/locked');
+        $urlRouterProvider.when('/', '/dashboard').otherwise('/dashboard');
 
         $stateProvider
             .state('locked', {
