@@ -98,6 +98,8 @@
 
             function success(res) {
                 vm.loadingBasedOnMobile = false;
+                if (vm.user.id == res.id)
+                    return;
                 var confirm = $mdDialog.confirm()
                     .title('Do you want to edit customer details ?')
                     .textContent('Customer record for  ' + res.name + ' with ' + vm.user.mobile + ' already exists')

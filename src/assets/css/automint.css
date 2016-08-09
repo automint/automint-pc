@@ -5,6 +5,20 @@
  * @version 0.7.0
  */
 
+ .am-restart-app {
+    position: fixed;
+    z-index: 99999;
+    width: 100%;
+    height: 100%;
+    background: rgba(10, 10, 10, 0.5);
+ }
+
+.am-loading-icon {
+    background: white;
+    box-shadow: 1px 1px 3px 1px rgba(30,30,30,0.3);
+    border-radius: 4px;
+}
+
  #page_preloader {
      width: 100%;
      height: 100%;

@@ -54,6 +54,12 @@ Automint CRM Software
 </head>
 
 <body layout="column" ng-cloak>
+    <div layout="row" layout-align="center center" class="am-restart-app" ng-show="isAppBeingRestarted">
+        <div layout="column" layout-sm="column" layout-align="center center" class="am-loading-icon">
+            <span style="padding: 24px 100px">Restarting App</span>
+            <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+        </div>
+    </div>
     <div id="page_preloader" layout="column" layout-align="center center" ng-hide="hidePreloader"><img src="assets/img/loader.gif" alt=""/></div>
     <div class="am-lockscreen {{ cRootLock }}" ui-view="lockscreen"></div>
     <section layout="row" flex>

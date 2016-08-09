@@ -341,6 +341,7 @@
             function removeSuccess(err) {
                 if (err)
                     console.error(err);
+                $rootScope.isAppBeingRestarted = true;
                 ipcRenderer.send('am-do-restart', true);
             }
             // /Users/ndkcha/Library/Application Support/Automint
