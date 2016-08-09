@@ -198,6 +198,7 @@
         vm.OnDiscountStateChange = OnDiscountStateChange;
         vm.findVehicleByReg = findVehicleByReg;
         vm.IsCustomerNotAnonymus = IsCustomerNotAnonymus;
+        vm.goToDashboard = goToDashboard;
 
         //  default execution steps
         setCoverPic();
@@ -221,6 +222,11 @@
         $(window).on('resize', OnWindowResize);
 
         //  function definitions
+
+        function goToDashboard() {
+            $mdSidenav('main-nav-left').close()
+            $state.go('restricted.dashboard');
+        }
 
         function IsCustomerNotAnonymus() {
             return (vm.user.name != 'Anonymous');

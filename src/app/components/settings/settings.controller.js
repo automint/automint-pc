@@ -173,12 +173,12 @@
 
             function loadReader(e) {
                 $('#am-invoice-f-logo').attr('src', e.target.result);
-                var coverPicElem = document.getElementById('am-invoice-f-logo');
+                var footerPic = document.getElementById('am-invoice-f-logo');
                 var ic = document.createElement('canvas'),
                     icontext = ic.getContext('2d');
-                ic.width = coverPicElem.width;
-                ic.height = coverPicElem.height;
-                icontext.drawImage(coverPicElem, 0, 0, coverPicElem.width, coverPicElem.height);
+                ic.width = footerPic.width;
+                ic.height = footerPic.height;
+                icontext.drawImage(footerPic, 0, 0, footerPic.width, footerPic.height);
                 localStorage.setItem('invoice-f-pic', ic.toDataURL(files[0].type));
                 loadInvoiceFLogo();
             }

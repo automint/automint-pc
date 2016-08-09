@@ -28,8 +28,10 @@
 </md-list>
 <div flex></div>
 <div layout="row" layout-align="start center" class="am-side-nav" layout-margin ng-show="sidebarVm.automintVersion">
-    <span class="md-caption" style="color: #fff; text-align: right" flex>{{sidebarVm.automintVersion}}</span>
-    <md-button class="md-accent md-hue-1" ng-show="sidebarVm.isAutomintUpdateAvailable" ng-click="sidebarVm.doUpdate()">
+    <span flex="33"></span>
+    <span class="md-caption" style="color: #fff; text-align: center" flex>{{sidebarVm.automintVersion}}</span>
+    <span flex="33" ng-if="!sidebarVm.isAutomintUpdateAvailable"></span>
+    <md-button flex="33" class="md-accent md-hue-1" ng-if="sidebarVm.isAutomintUpdateAvailable" ng-click="sidebarVm.doUpdate()">
         <span style="font-size: 8pt" layout-margin>Update Now</span>
     </md-button>
 </div>

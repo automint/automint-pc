@@ -198,7 +198,7 @@
 <md-sidenav class="md-sidenav-left md-whiteframe-4dp md-hue-1 am-service-details-panel" md-component-id="service-details-left" style="position: fixed" md-disable-backdrop md-is-locked-open="vm.lockServiceNavbar">
     <md-content layout="column" class="md-hue-1">
         <md-toolbar>
-            <img src="assets/img/logo-250x125px.png" id="am-sp-cover-pic" style="box-shadow: 1px 1px 3px 1px #212121; background: #212121">
+            <img src="assets/img/logo-250x125px.png" id="am-sp-cover-pic" style="box-shadow: 1px 1px 3px 1px #212121; background: #212121; outline: none; cursor:pointer" ng-click="vm.goToDashboard()">
         </md-toolbar>
         <div layout="column" layout-margin>
             <div layout="row" layout-align="start center" class="am-input-box" ng-if="vm.WhichServiceStateEnabled(2)">
@@ -345,6 +345,58 @@
                                     <span layout-margin class="md-caption">{{state}}</span>
                                 </md-button>
                                 <span class="am-form-label" style="padding-bottom: 0; margin-bottom: 0" ng-hide="$last" ng-repeat-end>>></span>
+                            </div>
+                            <div ng-show="vm.IsMembershipEnabled()" aria-label="Memberships" class="md-hue-1" style="margin: 24px 0 6px 0">
+                                <div layout="column">
+                                    <div layout="row">
+                                        <div aria-label="checkbox" layout="row" layout-align="center center" flex="5">
+                                            <md-checkbox aria-label="Check All" style="opacity: 0; cursor: default"></md-checkbox>
+                                        </div>
+                                        <div aria-label="name" style="margin-left: 30px" flex>
+                                            <span class="am-form-label large">Membership</span>
+                                        </div>
+                                    </div>
+                                    <md-divider></md-divider>
+                                    <div layout="column" ng-repeat="membership in vm.membershipChips">
+                                        <div layout="row" style="font-size: small">
+                                            <div aria-label="checkbox" flex="15" layout="row" layout-align="end center">
+                                                <md-checkbox class="am-checkbox-dt" ng-disabled="membership.IsExpired()" ng-model="membership.checked" aria-label="Check"></md-checkbox>
+                                                <md-button class="md-icon-button md-primary" ng-click="membership.expandMembership()">
+                                                    <md-icon ng-hide="membership.expanded">add_circle_outline</md-icon>
+                                                    <md-icon ng-show="membership.expanded">remove_circle_outline</md-icon>
+                                                    <md-tooltip><span ng-if="membership.expanded">Collapse</span><span ng-if="!membership.expanded">Expand</span> Membership</md-tooltip>
+                                                </md-button>
+                                            </div>
+                                            <div aria-label="name" flex layout="column" layout-align="center start">
+                                                <span>{{membership.name}}</span>
+                                            </div>
+                                        </div>
+                                        <div layout="column" style="font-size: small" ng-show="membership.expanded">
+                                            <md-table-container style="margin-left: 6rem" ng-if="membership.treatments.length > 0">
+                                                <table md-table md-row-select multiple ng-model="membership.selectedTreatments">
+                                                    <thead md-head>
+                                                        <tr md-row>
+                                                            <th md-column><span class="am-table-header">Treatments</span></th>
+                                                            <th md-column style="text-align: center"><span class="am-datatable-actions membership-addons">Services Left<br><small>(number)</small><md-tooltip>Count before Service</md-tooltip></span></th>
+                                                            <th md-column style="text-align: center"><span class="am-datatable-actions membership-addons">Duration Left<br><small>(months)</small><md-tooltip>Count before Service</md-tooltip></span></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody md-body>
+                                                        <tr md-row md-select="treatment" ng-disabled="vm.IsMembershipTreatmentsDisabled(membership, treatment)" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected" ng-repeat="treatment in membership.treatments">
+                                                            <td md-cell style="width: auto">{{treatment.name}}</td>
+                                                            <td md-cell style="text-align: center">{{membership.calculateTOccurenceLeft(treatment)}}</td>
+                                                            <td md-cell style="text-align: center">{{membership.calculateTDurationLeft(treatment)}}</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </md-table-container>
+                                        </div>
+                                        <md-divider ng-hide="$last"></md-divider>
+                                    </div>
+                                    <div layout="column" layout-align="centere center" ng-if="vm.IsNoMembershipSubscribed()">
+                                        <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>{{vm.user.name || 'Customer'}} has not subscribed to any memberships. <span class="am-membership-subscribe-button" ng-click="vm.navigateToSubscribeMembership()">Click here</span>                                        to subscribe to one</span>
+                                    </div>
+                                </div>
                             </div>
                             <div class="md-hue-1">
                                 <md-table-container ng-if="!vm.displayTreatmentAsList">
@@ -525,7 +577,7 @@
                                     </table>
                                 </md-table-container>
                             </div>
-                            <div ng-show="vm.IsPackageEnabled()" aria-label="Packages" class="md-hue-1" style="margin: 24px 0 0 16px">
+                            <div ng-show="vm.IsPackageEnabled()" aria-label="Packages" class="md-hue-1" style="margin: 24px 6px 0 0">
                                 <div layout="column">
                                     <div layout="row">
                                         <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
@@ -533,7 +585,7 @@
                                             <span class="am-form-label" style="opacity: 0">Actions</span>
                                         </div>
                                         <div aria-label="name" flex="50">
-                                            <span class="am-form-label large">Package</span>
+                                            <span class="am-form-label large" style="margin-right: 6px">Package</span>
                                         </div>
                                         <div aria-label="rate" flex="20">
                                             <span class="am-form-label large">Rate</span>
@@ -545,7 +597,7 @@
                                     <md-divider></md-divider>
                                     <div layout="column" ng-repeat="package in vm.packages">
                                         <div layout="row" style="font-size: small">
-                                            <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
+                                            <div aria-label="checkbox" flex="15" layout="row" layout-align="end center">
                                                 <md-checkbox class="am-checkbox-dt" ng-model="package.checked" aria-label="Check"></md-checkbox>
                                                 <md-button class="md-icon-button md-primary" ng-click="package.expandPackage()">
                                                     <md-icon ng-hide="package.expanded">add_circle_outline</md-icon>
@@ -553,7 +605,7 @@
                                                     <md-tooltip><span ng-if="package.expanded">Collapse</span><span ng-if="!package.expanded">Expand</span> Package</md-tooltip>
                                                 </md-button>
                                             </div>
-                                            <div aria-label="name" flex="50" layout="column" layout-align="center start">
+                                            <div aria-label="name" flex="45" layout="column" layout-align="center start">
                                                 <span>{{package.name}}</span>
                                             </div>
                                             <div aria-label="rate" flex="20" layout="column" layout-align="center start">
@@ -587,59 +639,6 @@
                                     </div>
                                     <div layout="column" layout-align="centere center" ng-if="vm.IsPackageAvailable()">
                                         <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>No Packages Found!</span>
-                                    </div>
-                                </div>
-                            </div>
-                            <div ng-show="vm.IsMembershipEnabled()" aria-label="Memberships" class="md-hue-1" style="margin: 24px 0 0 16px"">
-                                <div layout="column">
-                                    <div layout="row">
-                                        <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
-                                            <md-checkbox aria-label="Check All" style="opacity: 0; cursor: default"></md-checkbox>
-                                            <span class="am-form-label" style="opacity: 0">Actions</span>
-                                        </div>
-                                        <div aria-label="name" flex>
-                                            <span class="am-form-label large">Membership</span>
-                                        </div>
-                                    </div>
-                                    <md-divider></md-divider>
-                                    <div layout="column" ng-repeat="membership in vm.membershipChips">
-                                        <div layout="row" style="font-size: small">
-                                            <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
-                                                <md-checkbox class="am-checkbox-dt" ng-disabled="membership.IsExpired()" ng-model="membership.checked" aria-label="Check"></md-checkbox>
-                                                <md-button class="md-icon-button md-primary" ng-click="membership.expandMembership()">
-                                                    <md-icon ng-hide="membership.expanded">add_circle_outline</md-icon>
-                                                    <md-icon ng-show="membership.expanded">remove_circle_outline</md-icon>
-                                                    <md-tooltip><span ng-if="membership.expanded">Collapse</span><span ng-if="!membership.expanded">Expand</span> Membership</md-tooltip>
-                                                </md-button>
-                                            </div>
-                                            <div aria-label="name" flex layout="column" layout-align="center start">
-                                                <span>{{membership.name}}</span>
-                                            </div>
-                                        </div>
-                                        <div layout="column" style="font-size: small" ng-show="membership.expanded">
-                                            <md-table-container style="margin-left: 6rem" ng-if="membership.treatments.length > 0">
-                                                <table md-table md-row-select multiple ng-model="membership.selectedTreatments">
-                                                    <thead md-head>
-                                                        <tr md-row>
-                                                            <th md-column><span class="am-table-header">Treatments</span></th>
-                                                            <th md-column style="text-align: center"><span class="am-datatable-actions membership-addons">Services Left<br><small>(number)</small><md-tooltip>Count before Service</md-tooltip></span></th>
-                                                            <th md-column style="text-align: center"><span class="am-datatable-actions membership-addons">Duration Left<br><small>(months)</small><md-tooltip>Count before Service</md-tooltip></span></th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody md-body>
-                                                        <tr md-row md-select="treatment" ng-disabled="vm.IsMembershipTreatmentsDisabled(membership, treatment)" md-select-id="key" md-on-select="membership.onTreatmentSelected" md-on-deselect="membership.onTreatmentDeselected" ng-repeat="treatment in membership.treatments">
-                                                            <td md-cell style="width: auto">{{treatment.name}}</td>
-                                                            <td md-cell style="text-align: center">{{membership.calculateTOccurenceLeft(treatment)}}</td>
-                                                            <td md-cell style="text-align: center">{{membership.calculateTDurationLeft(treatment)}}</td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </md-table-container>
-                                        </div>
-                                        <md-divider ng-hide="$last"></md-divider>
-                                    </div>
-                                    <div layout="column" layout-align="centere center" ng-if="vm.IsNoMembershipSubscribed()">
-                                        <span class="md-body-1" style="color: rgba(30,30,30,0.7)" layout-padding>{{vm.user.name || 'Customer'}} has not subscribed to any memberships. <span class="am-membership-subscribe-button" ng-click="vm.navigateToSubscribeMembership()">Click here</span>                                        to subscribe to one</span>
                                     </div>
                                 </div>
                             </div>
