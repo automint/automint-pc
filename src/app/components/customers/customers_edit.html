@@ -160,11 +160,11 @@
         <md-card-content layout="row" style="padding: 16px 0">
             <div flex="50" laout="column" style="padding: 0 6px">
                 <div layout="row" class="am-eci-block first">
-                    <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
+                    <div layout="row" layout-align="start center" flex="50" class="am-input-box">
                         <label class="am-form-label">Mobile: </label>
-                        <input type="text" class="am-box-input" placeholder="Enter Mobile Number"  ng-blur="vm.checkExistingCustomerMobile()" ng-model="vm.user.mobile" flex>
+                        <input type="text" style="margin-left: 9px" class="am-box-input" placeholder="Enter Mobile Number"  ng-blur="vm.checkExistingCustomerMobile()" ng-model="vm.user.mobile" flex>
                     </div>
-                    <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
+                    <div layout="row" layout-align="start center" flex="50" class="am-input-box">
                         <label class="am-form-label">Email: </label>
                         <input type="email" class="am-box-input" placeholder="Enter Email Address" ng-model="vm.user.email" flex>
                     </div>
@@ -174,13 +174,13 @@
                     <input type="text" class="am-box-input" placeholder="Enter Address" ng-model="vm.user.address" ng-change="vm.autoCapitalizeCustomerAddress()" flex>
                 </div>
                 <div layout="row" class="am-eci-block">
-                    <div layout="row" layout-align="start center" flex="55" class="am-input-box">
+                    <div layout="row" layout-align="start center" flex="50" class="am-input-box">
                         <label class="am-form-label">Type: </label>
-                        <md-select aria-label="Customer Type" class="am-select" style="margin: 0" ng-model="vm.user.type" flex="60">
+                        <md-select aria-label="Customer Type" class="am-select" style="margin: 0 0 0 20px;" ng-model="vm.user.type" flex>
                             <md-option class="am-hover-option" ng-value="type" ng-repeat="type in vm.customerTypeList" ng-selected="$first">{{type}}</md-option>
                         </md-select>
                     </div>
-                    <div layout="row" layout-align="start end" flex="45" class="am-input-box">
+                    <div layout="row" layout-align="start end" flex="50" class="am-input-box">
                         <label class="am-form-label">Services Done So Far: </label>
                         <span style="color: #3949AB; font-weight: 500">{{vm.services.length}}</span>
                     </div>
@@ -202,11 +202,11 @@
                     <span class="md-caption" style="line-height: 2rem; text-align: right"><address>*&nbsp;Click on Membership for details</address></span>
                 </div>
                 <div layout="row" class="am-eci-block last">
-                    <div layout="row" layout-align="start end" flex="45" class="am-input-box">
+                    <div layout="row" layout-align="start end" flex="50" class="am-input-box">
                         <label class="am-form-label">Payment So Far: </label>
                         <span style="color: #4CAF50; font-weight: 500;"><span style="font-size: small">{{vm.currencySymbol}}&nbsp;</span>{{vm.paymentDone}}</span>
                     </div>
-                    <div layout="row" layout-align="start end" flex="45" class="am-input-box">
+                    <div layout="row" layout-align="start end" flex="50" class="am-input-box">
                         <label class="am-form-label">Payment Due: </label>
                         <span style="color: #F44336; font-weight: 500;"><span style="font-size: small">{{vm.currencySymbol}}&nbsp;</span>{{vm.paymentDue}}</span>
                     </div>

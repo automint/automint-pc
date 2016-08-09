@@ -92,6 +92,8 @@
         //  function definitions
 
         function checkExistingCustomerMobile(ev) {
+            if (vm.user.mobile == '')
+                return;
             vm.loadingBasedOnMobile = true;
             amCustomers.getCustomerByMobile(vm.user.mobile).then(success).catch(failure);
 
