@@ -2095,7 +2095,7 @@
             var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
 
             if (isVehicleBlank) {
-                vm.vehicle.reg = 'Any';
+                vm.vehicle.reg = 'Vehicle';
             }
         }
 

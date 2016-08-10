@@ -1968,6 +1968,7 @@
             }
             totalCost = (totalCost % 1 != 0) ? parseFloat(totalCost.toFixed(2)) : totalCost;
             totalCost = (totalCost % 1).toFixed(2) == 0.00 ? Math.round(totalCost) : totalCost;
+            totalCost = (totalCost % 1).toFixed(2) == 0.99 ? Math.round(totalCost) : totalCost;
             vm.service.cost = parseFloat(totalCost);
 
             function iterateTaxes(tax) {
@@ -2070,7 +2071,7 @@
             var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
 
             if (isVehicleBlank) {
-                vm.vehicle.reg = 'Any';
+                vm.vehicle.reg = 'Vehicle';
             }
         }
 

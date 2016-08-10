@@ -62,6 +62,7 @@
         vm.IsLastPage = IsLastPage;
         vm.currentPage = currentPage;
         vm.IsNotSinglePage = IsNotSinglePage;
+        vm.IsCustomerNotAnonymus = IsCustomerNotAnonymus;
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -80,6 +81,10 @@
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  function definitions
+
+        function IsCustomerNotAnonymus() {
+            return (vm.user.name != 'Anonymous');
+        }
 
         function loadInvoiceFLogo() {
             var source = localStorage.getItem('invoice-f-pic');
