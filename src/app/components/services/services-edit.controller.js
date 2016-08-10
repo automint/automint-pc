@@ -1996,6 +1996,7 @@
             }
             totalCost = (totalCost % 1 != 0) ? parseFloat(totalCost.toFixed(2)) : totalCost;
             totalCost = (totalCost % 1).toFixed(2) == 0.00 ? Math.round(totalCost) : totalCost;
+            totalCost = (totalCost % 1).toFixed(2) == 0.99 ? Math.round(totalCost) : totalCost;
             vm.service.cost = parseFloat(totalCost);
 
             function iterateTaxes(tax) {
