@@ -703,6 +703,8 @@
                 pdbMain.save(res).then(success).catch(failure);
 
                 function iterateUserFields(ufn) {
+                    if (ufn == 'type')
+                        newUser[ufn] = (res.user[ufn] == 'Lead') ? 'Customer' : newUser[ufn];
                     res.user[ufn] = newUser[ufn];
                 }
 
