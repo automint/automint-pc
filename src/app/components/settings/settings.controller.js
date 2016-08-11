@@ -17,9 +17,9 @@
 
     angular.module('automintApp').controller('amCtrlSettings', SettingsController);
 
-    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', 'utils', 'amBackup', 'amLogin', 'amImportdata', 'amIvSettings', 'amTaxSettings', 'amSettings'];
+    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', 'utils', 'amBackup', 'amLoginSettings', 'amImportdata', 'amIvSettings', 'amTaxSettings', 'amSettings'];
 
-    function SettingsController($rootScope, $scope, $state, $log, utils, amBackup, amLogin, amImportdata, amIvSettings, amTaxSettings, amSettings) {
+    function SettingsController($rootScope, $scope, $state, $log, utils, amBackup, amLoginSettings, amImportdata, amIvSettings, amTaxSettings, amSettings) {
         //  initialize view model
         var vm = this;
         
@@ -75,7 +75,6 @@
         vm.changeUsernameLabel = changeUsernameLabel;
         vm.changePasswordLabel = changePasswordLabel;
         vm.doBackup = doBackup;
-        vm.doLogin = doLogin;
         vm.uploadCSV = uploadCSV;
         vm.uploadCover = uploadCover;
         vm.handleUploadedFile = handleUploadedFile;
@@ -135,7 +134,6 @@
             default:
                 break;
         }
-        checkLogin();
         getPasscode();
         getDefaultServiceType();
         getAmAppDataPath();
@@ -502,7 +500,7 @@
         }
 
         function getPasscode() {
-            amLogin.getPasscode().then(success).catch(failure);
+            amLoginSettings.getPasscode().then(success).catch(failure);
 
             function success(res) {
                 if (!res) {
@@ -531,7 +529,7 @@
             }
             if (vm.passcode == oPasscode && vm.isPasscodeEnabled == oPasscodeEnabled)
                 return;
-            amLogin.savePasscode(vm.passcode, vm.isPasscodeEnabled).then(success).catch(failure);
+            amLoginSettings.savePasscode(vm.passcode, vm.isPasscodeEnabled).then(success).catch(failure);
 
             function success(res) {
                 if (res.ok) {
@@ -683,39 +681,6 @@
             function respond(res) {
                 amBackup.clearReferences();
                 $log.info(res);
-            }
-        }
-
-        //  check if user is signed in or not
-        function checkLogin() {
-            amLogin.loginDetails().then(success).catch(failure);
-
-            function success(res) {
-                if (res.username) {
-                    vm.isLoggedIn = true;
-                    vm.label_login = 'You are signed in';
-                    vm.user.username = res.username;
-                    changeUsernameLabel();
-                } else
-                    failure();
-            }
-
-            function failure() {
-                vm.isLoggedIn = false;
-                vm.label_login = 'Sign In';
-            }
-        }
-
-        //  store user's login information in database
-        function doLogin() {
-            amLogin.login(vm.user.username, vm.user.password).then(success);
-
-            function success(res) {
-                if (res.ok) {
-                    vm.isLoggedIn = true;
-                    vm.label_login = 'You are signed in';
-                    utils.showSimpleToast('You have successfully logged in!');
-                }
             }
         }
         

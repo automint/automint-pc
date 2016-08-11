@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .factory('amServices', ServicesFactory);
 
-    ServicesFactory.$inject = ['$http', '$timeout', '$q', '$log', '$filter', 'utils', '$amRoot', 'constants', 'pdbCustomers', 'pdbCommon', 'pdbConfig', 'pdbCache'];
+    ServicesFactory.$inject = ['$http', '$timeout', '$q', '$log', '$filter', 'utils', '$rootScope', 'constants', 'pdbMain', 'pdbCache'];
 
-    function ServicesFactory($http, $timeout, $q, $log, $filter, utils, $amRoot, constants, pdbCustomers, pdbCommon, pdbConfig, pdbCache) {
+    function ServicesFactory($http, $timeout, $q, $log, $filter, utils, $rootScope, constants, pdbMain, pdbCache) {
         //  initialize factory variable and function maps
         var factory = {
             getManufacturers: getManufacturers,
@@ -48,12 +48,8 @@
 
         function getCurrencySymbol() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.currency)
@@ -69,12 +65,8 @@
 
         function getTreatmentsTax() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObj).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
-            }
 
             function getSettingsObj(res) {
                 var result = [];
@@ -104,12 +96,8 @@
 
         function getInventoryTax() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObj).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
-            }
 
             function getSettingsObj(res) {
                 var result = [];
@@ -165,12 +153,8 @@
 
         function getDefaultServiceType() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.settings && res.settings.servicestate)
@@ -192,12 +176,8 @@
 
         function getInventoriesSettings() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(configFound).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(configDocFound).catch(failure);
             return tracker.promise;
-
-            function configFound(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(configDocFound).catch(failure);
-            }
 
             function configDocFound(res) {
                 if (res.settings && res.settings.inventory)
@@ -220,12 +200,8 @@
         function getInventories() {
             var tracker = $q.defer();
             var response = [];
-            $amRoot.isInventoryId().then(getInventoryDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.inventory).then(getInventoryObj).catch(failure);
             return tracker.promise;
-
-            function getInventoryDoc(res) {
-                pdbConfig.get($amRoot.docIds.inventory).then(getInventoryObj).catch(failure);
-            }
 
             function getInventoryObj(res) {
                 Object.keys(res).forEach(iterateInventories);
@@ -253,13 +229,8 @@
         //  retrieve current treatment settings
         function getTreatmentSettings() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            //  if settings configuration is tracked, fetch corrosponding document
-            function getSettingsDoc(response) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             //  if document call is successfull, return treatment settings if available
             function getSettingsObject(response) {
@@ -281,12 +252,8 @@
         //  retrieve vehicle types from config database
         function getVehicleTypes() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.vehicletypes)
@@ -303,7 +270,7 @@
         //  return service tree
         function serviceTree(userId, vehicleId, serviceId) {
             var tracker = $q.defer();
-            pdbCustomers.get(userId).then(getUserObject).catch(failure);
+            pdbMain.get(userId).then(getUserObject).catch(failure);
             return tracker.promise;
 
             function getUserObject(response) {
@@ -364,12 +331,12 @@
         //  delete service from UI
         function deleteService(userId, vehicleId, serviceId) {
             var tracker = $q.defer();
-            pdbCustomers.get(userId).then(getUserObject).catch(failure);
+            pdbMain.get(userId).then(getUserObject).catch(failure);
             return tracker.promise;
 
             function getUserObject(res) {
                 res.user.vehicles[vehicleId].services[serviceId]._deleted = true;
-                pdbCustomers.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function success(res) {
@@ -436,12 +403,8 @@
                 memberships: [],
                 total: 0
             }
-            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(getTreatmentObject).catch(failure);
             return tracker.promise;
-            
-            function getTreatmentsDoc(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
-            }
             
             function getTreatmentObject(res) {
                 if (res.memberships)
@@ -480,12 +443,8 @@
         function getPackages() {
             var tracker = $q.defer();
             var packages = [];
-            $amRoot.isTreatmentId().then(getConfigDocument).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(getConfigObject).catch(failure);
             return tracker.promise;
-            
-            function getConfigDocument(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(getConfigObject).catch(failure);
-            }
             
             function getConfigObject(res) {
                 if (res.packages)
@@ -511,12 +470,8 @@
         function getRegularTreatments() {
             var tracker = $q.defer();
             var treatments = [];
-            $amRoot.isTreatmentId().then(getConfigDocument).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(getConfigObject).catch(failure);
             return tracker.promise;
-
-            function getConfigDocument(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(getConfigObject).catch(failure);
-            }
 
             function getConfigObject(res) {
                 if (res.regular)
@@ -545,7 +500,7 @@
                 include_docs: false
             }
             var customers = [];
-            pdbCustomers.getAll(dbOptions).then(success).catch(failure);
+            pdbMain.getAll(dbOptions).then(success).catch(failure);
             return tracker.promise;
 
             function success(res) {
@@ -553,6 +508,8 @@
                 tracker.resolve(customers);
 
                 function iterateRows(row) {
+                    if ($rootScope.amGlobals.IsConfigDoc(row.id))
+                        return;
                     var splitname = row.id.split('-');
                     var name = splitname[1];
                     for (var i = 2; i < (splitname.length - 5); i++) {
@@ -576,7 +533,7 @@
         //  return customer information and their vehicles
         function getCustomerChain(uId) {
             var tracker = $q.defer();
-            pdbCustomers.get(uId).then(success).catch(failure);
+            pdbMain.get(uId).then(success).catch(failure);
             return tracker.promise;
 
             function success(res) {
@@ -615,7 +572,7 @@
         //  return customer information based on their mobile number
         function getCustomerByMobile(mobile) {
             var tracker = $q.defer();
-            pdbCustomers.query(mapView, {
+            pdbMain.query(mapView, {
                 include_docs: true,
                 key: mobile
             }).then(success).catch(failure);
@@ -713,7 +670,7 @@
                     saveLastJobCardNo(newService.jobcardno);
             }
             
-            pdbCustomers.get(newUserId).then(foundExistingUser).catch(noUserFound);
+            pdbMain.get(newUserId).then(foundExistingUser).catch(noUserFound);
             return tracker.promise;
 
             function foundExistingUser(res) {
@@ -725,7 +682,7 @@
                 name = utils.convertToTitleCase(name);
                 if (name != newUser.name) { 
                     res._deleted = true;
-                    pdbCustomers.save(res).then(logResponse).catch(logResponse);
+                    pdbMain.save(res).then(logResponse).catch(logResponse);
                     res._id = utils.generateUUID(prefixUser);
                     delete res._deleted; 
                     delete res._rev;
@@ -743,7 +700,7 @@
                         res.user.vehicles[newVehicleId].services = {};
                     res.user.vehicles[newVehicleId].services[newServiceId] = newService;
                 }
-                pdbCustomers.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
 
                 function iterateUserFields(ufn) {
                     res.user[ufn] = newUser[ufn];
@@ -769,10 +726,11 @@
                 }
                 var doc = {
                     _id: newUserId,
-                    creator: $amRoot.username,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     user: newUser
                 }
-                pdbCustomers.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
 
             function success(res) {
@@ -878,18 +836,13 @@
         function getManufacturers() {
             var tracker = $q.defer();
             var manufacturers = [];
-            pdbCommon.get('manuf-models').then(success).catch(missDb);
+            $http.get('data/manuf_model.json').success(success).catch(failure);
             return tracker.promise;
 
             //  success ? add manufacturers to an array and return it via promise
             function success(response) {
                 Object.keys(response).forEach(manufIterator);
                 tracker.resolve(manufacturers);
-            }
-
-            //  !success ? get manufacturer list from raw json file, then execute success sequence again
-            function missDb(error) {
-                $http.get('data/manuf_model.json').success(success).catch(failure);
             }
 
             //  iterate through manufacturer list and get individual manufacturer
@@ -908,7 +861,7 @@
         function getModels(manufacturer) {
             var tracker = $q.defer();
             var models = [];
-            pdbCommon.get('manuf-models').then(success).catch(missDb);
+            $http.get('data/manuf_model.json').success(success).catch(failure);
             return tracker.promise;
 
             //  success ? add models to an array and return it via promise
@@ -916,11 +869,6 @@
                 if (response[manufacturer] && response[manufacturer].models)
                     models = Object.keys(response[manufacturer].models);
                 tracker.resolve(models);
-            }
-
-            //  !success ? get manufacturer list from raw json file, then execute success sequence again
-            function missDb(error) {
-                $http.get('data/manuf_model.json').success(success).catch(failure);
             }
 
             //  throw an error via promise
@@ -931,12 +879,8 @@
 
         function getLastJobCardNo() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.settings && res.settings.invoices && res.settings.invoices.lastJobCardNo)
@@ -958,12 +902,8 @@
 
         function getLastEstimateNo() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.settings && res.settings.invoices && res.settings.invoices.lastEstimateNo)
@@ -986,12 +926,8 @@
         //  get last invoice number
         function getLastInvoiceNo() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-            
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
             
             function getSettingsObject(res) {
                 if (res.settings && res.settings.invoices && res.settings.invoices.lastInvoiceNumber)
@@ -1013,11 +949,7 @@
         
         //  save last invoice number
         function saveLastInvoiceNo(lino) {
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
-            
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
-            }
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsObject);
             
             function getSettingsObject(res) {
                 if (!res.settings)
@@ -1025,20 +957,21 @@
                 if (!res.settings.invoices)
                     res.settings.invoices = {};
                 res.settings.invoices.lastInvoiceNumber = lino;
-                pdbConfig.save(res);
+                pdbMain.save(res);
             }
             
             function writeSettingsObject(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         invoices: {
                             lastInvoiceNumber: 1
                         }
                     }
                 }
-                pdbConfig.save(doc);
+                pdbMain.save(doc);
             }
             
             function failure(err) {
@@ -1047,11 +980,7 @@
         }
 
         function saveLastEstimateNo(leno) {
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
-            }
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsObject);
 
             function getSettingsObject(res) {
                 if (!res.settings)
@@ -1059,20 +988,21 @@
                 if (!res.settings.invoices)
                     res.settings.invoices = {};
                 res.settings.invoices.lastEstimateNo = leno;
-                pdbConfig.save(res);
+                pdbMain.save(res);
             }
 
             function writeSettingsObject(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         invoices: {
                             lastEstimateNo: 1
                         }
                     }
                 }
-                pdbConfig.save(doc);
+                pdbMain.save(doc);
             }
 
             function failure(err) {
@@ -1081,11 +1011,7 @@
         }
 
         function saveLastJobCardNo(ljbno) {
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
-            }
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsObject);
 
             function getSettingsObject(res) {
                 if (!res.settings)
@@ -1093,20 +1019,21 @@
                 if (!res.settings.invoices)
                     res.settings.invoices = {};
                 res.settings.invoices.lastJobCardNo = ljbno;
-                pdbConfig.save(res);
+                pdbMain.save(res);
             }
 
             function writeSettingsObject(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         invoices: {
                             lastJobCardNo: 1
                         }
                     }
                 }
-                pdbConfig.save(doc);
+                pdbMain.save(doc);
             }
 
             function failure(err) {

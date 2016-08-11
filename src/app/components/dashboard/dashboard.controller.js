@@ -12,9 +12,9 @@
 
     angular.module('automintApp').controller('dashboardCtrl', DashboardController);
 
-    DashboardController.$inject = ['$state', '$filter', '$log', '$mdDialog', '$amRoot', 'utils', 'amDashboard'];
+    DashboardController.$inject = ['$state', '$filter', '$log', '$mdDialog', 'utils', 'amDashboard'];
 
-    function DashboardController($state, $filter, $log, $mdDialog, $amRoot, utils, amDashboard) {
+    function DashboardController($state, $filter, $log, $mdDialog, utils, amDashboard) {
         //  initialize view model
         var vm = this;
         var ubServices = [], nwCustomers = [], filterRange = [], isNextDueServicesOpened = false;
@@ -102,7 +102,6 @@
         //  default execution steps
         initCurrentTimeSet();
         getFilterMonths();
-        $amRoot.ccViews();
         processPreferences();
         getCurrencySymbol();
 

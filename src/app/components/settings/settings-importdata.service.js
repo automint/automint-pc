@@ -2,7 +2,7 @@
  * Service for Importing data to Automint
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .service('amImportdata', ImportDataService);
 
-    ImportDataService.$inject = ['pdbCustomers', '$filter', '$q', 'utils', '$amRoot', '$log'];
+    ImportDataService.$inject = ['pdbMain', '$filter', '$q', 'utils', '$rootScope', '$log'];
 
-    function ImportDataService(pdbCustomers, $filter, $q, utils, $amRoot, $log) {
+    function ImportDataService(pdbMain, $filter, $q, utils, $rootScope, $log) {
         var sVm = this;
         
         //  temporary named mappings
@@ -133,7 +133,7 @@
             function getDocuments() {
                 var tracker = $q.defer();
                 var documents = [];
-                pdbCustomers.getAll().then(docFound).catch(failure);
+                pdbMain.getAll().then(docFound).catch(failure);
                 return tracker.promise;
 
                 function docFound(res) {
@@ -146,6 +146,8 @@
                 }
 
                 function iterateDocuments(element) {
+                    if ($rootScope.amGlobals.IsConfigDoc(element.id))
+                        return;
                     documents.push(element.doc);
                 }
             }
@@ -196,7 +198,8 @@
                             var prefixUser = 'usr-' + angular.lowercase(customer.name).replace(' ', '-');
                             targetUser = {
                                 _id: utils.generateUUID(prefixUser),
-                                creator: $amRoot.username
+                                creator: $rootScope.amGlobals.creator,
+                                channel: $rootScope.amGlobals.channel
                             };
                             targetUser.user = $.extend({}, customer);
                             if (customer.vehicles && customer.vehicles.length > 0) {
@@ -217,7 +220,7 @@
                         });
                         customersToSave.push(targetUser);
                     }
-                    pdbCustomers.saveAll(customersToSave).then(saveSuccess).catch(failure);
+                    pdbMain.saveAll(customersToSave).then(saveSuccess).catch(failure);
                     tracker.resolve({
                         success: true,
                         message: addedCustomerCount + " customer(s) added!"

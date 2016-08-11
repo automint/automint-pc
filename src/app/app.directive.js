@@ -55,7 +55,7 @@
                     var checkTitle = (toState.data && toState.data.pageTitle);
                     $rootScope.sidebarItemIndex = (toState.data && (toState.data.sidebarItemIndex != undefined)) ? toState.data.sidebarItemIndex : -1;
                     $rootScope.module_title = checkTitle ? toState.data.pageTitle : '';
-                    $rootScope.page_title = checkTitle ? toState.data.pageTitle + ' - ' + default_title : default_title;
+                    $rootScope.page_title = checkTitle ? (default_title + ' | ' + toState.data.pageTitle) : default_title;
                 }
             }
         }

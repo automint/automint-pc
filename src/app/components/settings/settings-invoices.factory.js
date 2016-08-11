@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .factory('amIvSettings', IvSettingsFactory);
 
-    IvSettingsFactory.$inject = ['$q', '$amRoot', 'utils', 'pdbConfig'];
+    IvSettingsFactory.$inject = ['$q', '$rootScope', 'pdbMain'];
 
-    function IvSettingsFactory($q, $amRoot, utils, pdbConfig) {
+    function IvSettingsFactory($q, $rootScope, pdbMain) {
         //  initialize factory and function mappings
         var factory = {
             getWorkshopDetails: getWorkshopDetails,
@@ -36,12 +36,8 @@
 
         function saveInvoicePageSize(pageSize) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
-            }
 
             function getSettingsObject(res) {
                 if (!res.settings)
@@ -49,20 +45,21 @@
                 if (!res.settings.invoices)
                     res.settings.invoices = {};
                 res.settings.invoices.pageSize = pageSize;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function writeSettingsDoc(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         invoices: {
                             pageSize: pageSize
                         }
                     }
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
 
             function success(res) {
@@ -76,12 +73,8 @@
 
         function getInvoicePageSize() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.settings && res.settings.invoices && res.settings.invoices.pageSize)
@@ -98,12 +91,8 @@
         //  get workshop details from config database
         function getWorkshopDetails() {
             var tracker = $q.defer();
-            $amRoot.isWorkshopId().then(getWorkshopDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.workshop).then(getWorkshopObject).catch(failure);
             return tracker.promise;
-            
-            function getWorkshopDoc(res) {
-                pdbConfig.get($amRoot.docIds.workshop).then(getWorkshopObject).catch(failure);
-            }
             
             function getWorkshopObject(res) {
                 if (res.workshop)
@@ -126,25 +115,22 @@
         //  save workshop details to config database
         function saveWorkshopDetails(workshop) {
             var tracker = $q.defer();
-            $amRoot.isWorkshopId().then(getWorkshopDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.workshop).then(updateWorkshopDoc).catch(createWorkshopDoc);
             return tracker.promise;
-            
-            function getWorkshopDoc(res) {
-                pdbConfig.get($amRoot.docIds.workshop).then(updateWorkshopDoc).catch(createWorkshopDoc);
-            }
             
             function updateWorkshopDoc(res) {
                 res.workshop = workshop;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
             
             function createWorkshopDoc(err) {
                 var doc = {
-                    _id: utils.generateUUID('wrkshp'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.workshop,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     workshop: workshop
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
             
             function success(res) {
@@ -159,12 +145,8 @@
         //  get invoice settings
         function getInvoiceSettings() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-            
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
             
             function getSettingsObject(res) {
                 if (res.settings && res.settings.invoices)
@@ -187,12 +169,8 @@
         //  save invoice display settings
         function saveIvDisplaySettings(display) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
             return tracker.promise;
-            
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
-            }
             
             function getSettingsObject(res) {
                 if (!res.settings)
@@ -200,20 +178,21 @@
                 if (!res.settings.invoices)
                     res.settings.invoices = {};
                 res.settings.invoices.display = display;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
             
             function writeSettingsDoc(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         invoices: {
                             display: display
                         }
                     }
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
             
             function success(res) {
@@ -226,12 +205,8 @@
 
         function changeLastJobCardNo(jobcardno) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
-            }
 
             function getSettingsObject(res) {
                 if (!res.settings)
@@ -239,20 +214,21 @@
                 if (!res.settings.invoices)
                     res.settings.invoices = {};
                 res.settings.invoices.lastJobCardNo = jobcardno;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
-            function writeSettingsObject(err) {
+            function writeSettingsDoc(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         invoices: {
                             lastJobCardNo: jobcardno
                         }
                     }
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
 
             function success(res) {
@@ -266,12 +242,8 @@
 
         function changeLastEstimateNo(estimateno) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
-            }
 
             function getSettingsObject(res) {
                 if (!res.settings)
@@ -279,20 +251,21 @@
                 if (!res.settings.invoices)
                     res.settings.invoices = {};
                 res.settings.invoices.lastEstimateNo = estimateno;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
-            function writeSettingsObject(err) {
+            function writeSettingsDoc(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         invoices: {
                             lastEstimateNo: estimateno
                         }
                     }
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
 
             function success(res) {
@@ -307,12 +280,8 @@
         //  change last invoice number in database
         function changeLastInvoiceNo(invoiceno) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
             return tracker.promise;
-            
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
-            }
             
             function getSettingsObject(res) {
                 if (!res.settings)
@@ -320,20 +289,21 @@
                 if (!res.settings.invoices)
                     res.settings.invoices = {};
                 res.settings.invoices.lastInvoiceNumber = invoiceno;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
             
-            function writeSettingsObject(err) {
+            function writeSettingsDoc(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         invoices: {
                             lastInvoiceNumber: invoiceno
                         }
                     }
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
             
             function success(res) {
@@ -347,12 +317,8 @@
         
         function saveIvEmailSubject(emailsubject) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
             return tracker.promise;
-            
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
-            }
             
             function getSettingsObject(res) {
                 if (!res.settings)
@@ -360,20 +326,21 @@
                 if (!res.settings.invoices)
                     res.settings.invoices = {};
                 res.settings.invoices.emailsubject = emailsubject;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
             
-            function writeSettingsObject(err) {
+            function writeSettingsDoc(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         invoices: {
                             emailsubject: emailsubject
                         }
                     }
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
             
             function success(res) {
@@ -387,12 +354,8 @@
 
         function saveIvAlignMargins(margin) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsDoc);
-            }
 
             function getSettingsObject(res) {
                 if (!res.settings)
@@ -400,20 +363,21 @@
                 if (!res.settings.invoices)
                     res.settings.invoices = {};
                 res.settings.invoices.margin = margin;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function writeSettingsDoc(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         invoices: {
                             margin: margin
                         }
                     }
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
 
             function success(res) {
@@ -427,12 +391,8 @@
 
         function getIvAlignMargins() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.settings && res.settings.invoices && res.settings.invoices.margin)

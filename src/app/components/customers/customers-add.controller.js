@@ -204,7 +204,7 @@
             $mdDialog.show(confirm).then(performDelete, ignoreDelete);
 
             function performDelete() {
-                console.info('deleted');
+                console.info('membership deleted');
             }
 
             function ignoreDelete() {

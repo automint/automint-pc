@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').factory('amSettings', SettingsFactory);
 
-    SettingsFactory.$inject = ['$q', '$amRoot', 'utils', 'pdbConfig'];
+    SettingsFactory.$inject = ['$q', '$rootScope', 'pdbMain'];
 
-    function SettingsFactory($q, $amRoot, utils, pdbConfig) {
+    function SettingsFactory($q, $rootScope, pdbMain) {
         var factory = {
             getDefaultServiceType: getDefaultServiceType,
             saveDefaultServiceType: saveDefaultServiceType,
@@ -26,12 +26,8 @@
 
         function getCurrencySymbol() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.currency)
@@ -47,25 +43,22 @@
 
         function saveCurrencySymbol(currency) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsObject);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
-            }
 
             function getSettingsObject(res) {
                 res.currency = currency;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function writeSettingsObject(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     currency: currency
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
 
             function success(res) {
@@ -79,12 +72,8 @@
 
         function getDefaultServiceType() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.settings && res.settings.servicestate)
@@ -106,29 +95,26 @@
 
         function saveDefaultServiceType(servicestate) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(writeSettingsObject);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
-            } 
 
             function getSettingsObject(res) {
                 if (!res.settings)
                     res.settings = {};
                 res.settings.servicestate = servicestate;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function writeSettingsObject(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         servicestate: servicestate
                     }
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
 
             function success(res) {

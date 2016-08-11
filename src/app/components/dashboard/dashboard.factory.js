@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').factory('amDashboard', DashboardFactory);
     
-    DashboardFactory.$inject = ['$q', '$filter', '$amRoot', 'utils', 'constants', 'pdbConfig', 'pdbCache', 'pdbCustomers'];
+    DashboardFactory.$inject = ['$q', '$filter', '$rootScope', 'utils', 'constants', 'pdbMain', 'pdbCache'];
     
-    function DashboardFactory($q, $filter, $amRoot, utils, constants, pdbConfig, pdbCache, pdbCustomers) {
+    function DashboardFactory($q, $filter, $rootScope, utils, constants, pdbMain, pdbCache) {
         //  initialize dashboard factory and funtion mappings
         var factory = {
             getTotalCustomerServed: getTotalCustomerServed,
@@ -32,25 +32,22 @@
 
         function saveCurrencySymbol(currency) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds).then(getSettingsObject).catch(writeSettingsObject);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(writeSettingsObject);
-            }
 
             function getSettingsObject(res) {
                 res.currency = currency;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function writeSettingsObject(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     currency: currency
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
 
             function success(res) {
@@ -64,12 +61,8 @@
 
         function getCurrencySymbol() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.currency)
@@ -85,12 +78,12 @@
 
         function changeServiceReminderDate(cId, vId, nextdue) {
             var tracker = $q.defer();
-            pdbCustomers.get(cId).then(getCustomerDoc).catch(failure);
+            pdbMain.get(cId).then(getCustomerDoc).catch(failure);
             return tracker.promise;
 
             function getCustomerDoc(res) {
                 res.user.vehicles[vId].nextdue = nextdue;
-                pdbCustomers.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function success(res) {
@@ -104,12 +97,12 @@
 
         function deleteServiceReminder(cId, vId) {
             var tracker = $q.defer();
-            pdbCustomers.get(cId).then(getCustomerDoc).catch(failure);
+            pdbMain.get(cId).then(getCustomerDoc).catch(failure);
             return tracker.promise;
 
             function getCustomerDoc(res) {
                 delete res.user.vehicles[vId].nextdue;
-                pdbCustomers.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function success(res) {
@@ -236,7 +229,7 @@
         function getProblemsAndVehicleTypes(dateRange) {
             var problems = {}, vehicleTypes = {};
             var tracker = $q.defer();
-            pdbCustomers.getAll().then(success).catch(failure);
+            pdbMain.getAll().then(success).catch(failure);
             return tracker.promise;
             
             function success(res) {
@@ -247,6 +240,8 @@
                 });
                 
                 function iterateRows(row) {
+                    if ($rootScope.amGlobals.IsConfigDoc(row.id))
+                        return;
                     if (row.doc.user.vehicles)
                         Object.keys(row.doc.user.vehicles).forEach(iterateVehicles);
                         

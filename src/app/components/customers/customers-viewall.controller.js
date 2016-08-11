@@ -40,9 +40,6 @@
         //  default watchers
         $scope.$watch('vm.customerQuery', watchCustomerQuery);
         
-        //  default execution steps
-        getCustomers();
-        
         //  function definitions
         
         function watchCustomerQuery(newValue, oldValue) {
@@ -78,6 +75,7 @@
             }
             
             function failure(error) {
+                console.log(error);
                 vm.customers = [];
                 vm.query.total = 0;
             }

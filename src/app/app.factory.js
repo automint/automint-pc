@@ -2,20 +2,18 @@
  * Closure for root level factories
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.7.0
  */
 
 /// <reference path="../typings/main.d.ts" />
 
 (function() {
-    angular.module('automintApp')
-        .factory('amRootFactory', RootFactory)
-        .factory('utils', UtilsFactory);
+    angular.module('automintApp').factory('amRootFactory', RootFactory).factory('utils', UtilsFactory);
     
-    RootFactory.$inject = ['$q', '$amRoot', 'pdbConfig'];
+    RootFactory.$inject = ['$q', '$rootScope', 'pdbMain'];
     UtilsFactory.$inject = ['$mdToast'];
 
-    function RootFactory($q, $amRoot, pdbConfig) {
+    function RootFactory($q, $rootScope, pdbMain) {
         //  initialize factory object and map functions
         var factory = {
             getPasscode: getPasscode
@@ -27,12 +25,8 @@
 
         function getPasscode() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObj).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
-            }
 
             function getSettingsObj(res) {
                 tracker.resolve(res.passcode);

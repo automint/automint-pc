@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').factory('amTaxSettings', TaxSettings);
     
-    TaxSettings.$inject = ['$q', '$amRoot', 'utils', 'pdbConfig'];
+    TaxSettings.$inject = ['$q', '$rootScope', 'pdbMain'];
     
-    function TaxSettings($q, $amRoot, utils, pdbConfig) {
+    function TaxSettings($q, $rootScope, pdbMain) {
         //  intialize factory variable and function maps
         var factory = {
             getAllTaxSettings: getAllTaxSettings,
@@ -26,17 +26,13 @@
 
         function deleteTaxSettings(tax) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObj).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
-            }
 
             function getSettingsObj(res) {
                 if (res.settings && res.settings.tax && res.settings.tax[tax.name]) {
                     delete res.settings.tax[tax.name];
-                    pdbConfig.save(res).then(success).catch(failure);
+                    pdbMain.save(res).then(success).catch(failure);
                 }
             }
 
@@ -51,12 +47,8 @@
 
         function saveTaxSettings(tax) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObj).catch(writeSettingsDoc);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(writeSettingsDoc);
-            }
 
             function getSettingsObj(res) {
                 if (!res.settings)
@@ -70,13 +62,14 @@
                     isForInventory: tax.isForInventory,
                     percent: tax.percent
                 };
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function writeSettingsDoc(err) {
                 var doc = {
-                    _id: utils.generateUUID('sttngs'),
-                    creator: $amRoot.username,
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
                     settings: {
                         tax: {}
                     }
@@ -88,7 +81,7 @@
                     isForInventory: tax.isForInventory,
                     percent: tax.percent
                 }
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
 
             function success(res) {
@@ -102,12 +95,8 @@
 
         function getAllTaxSettings() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObj).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObj).catch(failure);
-            }
 
             function getSettingsObj(res) {
                 var result = [];

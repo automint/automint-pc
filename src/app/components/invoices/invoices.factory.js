@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .factory('amInvoices', InvoicesFactory);
 
-    InvoicesFactory.$inject = ['$q', '$amRoot', 'pdbCustomers', 'pdbConfig'];
+    InvoicesFactory.$inject = ['$q', '$rootScope', 'pdbMain'];
 
-    function InvoicesFactory($q, $amRoot, pdbCustomers, pdbConfig) {
+    function InvoicesFactory($q, $rootScope, pdbMain) {
         //  initialize factory variable and function mappings
         var factory = {
             getServiceDetails: getServiceDetails,
@@ -31,12 +31,8 @@
 
         function getInvoicePageSize() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.settings && res.settings.invoices && res.settings.invoices.pageSize)
@@ -52,12 +48,8 @@
 
         function getCurrencySymbol() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.currency)
@@ -73,12 +65,12 @@
 
         function saveCustomerEmail(userId, email) {
             var tracker = $q.defer();
-            pdbCustomers.get(userId).then(getUserObject).catch(failure);
+            pdbMain.get(userId).then(getUserObject).catch(failure);
             return tracker.promise;
 
             function getUserObject(res) {
                 res.user.email = email;
-                pdbCustomers.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function success(res) {
@@ -92,12 +84,8 @@
 
         function getIvAlignMargins() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.settings && res.settings.invoices && res.settings.invoices.margin)
@@ -120,7 +108,7 @@
         //  get service details from database
         function getServiceDetails(userId, vehicleId, serviceId) {
             var tracker = $q.defer();
-            pdbCustomers.get(userId).then(getUserObject).catch(failure);
+            pdbMain.get(userId).then(getUserObject).catch(failure);
             return tracker.promise;
 
             function getUserObject(res) {
@@ -214,12 +202,8 @@
         //  get workshop details from database
         function getWorkshopDetails() {
             var tracker = $q.defer();
-            $amRoot.isWorkshopId().then(getWorkshopDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.workshop).then(getWorkshopObject).catch(failure);
             return tracker.promise;
-            
-            function getWorkshopDoc(res) {
-                pdbConfig.get($amRoot.docIds.workshop).then(getWorkshopObject).catch(failure);
-            }
             
             function getWorkshopObject(res) {
                 if (res.workshop)
@@ -241,12 +225,8 @@
         //  get display configurations
         function getIvSettings() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-            
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
             
             function getSettingsObject(res) {
                 if (res.settings && res.settings.invoices)

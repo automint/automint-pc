@@ -30,6 +30,15 @@
                     fromState: undefined
                 }
             })
+            .state('login', {
+                url: '/login',
+                templateUrl: 'app/login/login.html',
+                controller: 'amLoginCtrl',
+                controllerAs: 'vm',
+                resolve: {
+                    deps: ['$ocLazyLoad', loadLoginDeps]
+                }
+            })
             .state('restricted', {
                 abstract: true,
                 url: '',
@@ -399,6 +408,12 @@
                     sidebarItemIndex: 3
                 }
             });
+
+        function loadLoginDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'app/login/login.controller.js'
+            ])
+        }
 
         function loadInUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([

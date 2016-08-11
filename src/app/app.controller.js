@@ -78,9 +78,17 @@
         vm.openLockScreen = openLockScreen;
         vm.openHelpWindow = openHelpWindow;
         vm.addService = addService;
-        $rootScope.setCoverPic();
 
+        //  default execution steps
+        setCoverPic();
         amRootFactory.getPasscode().then(gps).catch(failure);
+
+        //  function definitions
+
+        function setCoverPic() {
+            var source = localStorage.getItem('cover-pic');
+            $('#am-cover-pic').attr('src', (source) ? source : 'assets/img/logo-250x125px.png').width(250).height(125);
+        }
 
         function addService() {
             $state.go('restricted.services.add');
