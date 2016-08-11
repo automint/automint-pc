@@ -146,7 +146,8 @@
             </head>
 
             <body style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; background: white">
-                <div id="am-actual-invoice-body" class="am-flex-box" style="margin-top: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.top : 0}}cm; margin-bottom: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.bottom : 0}}cm">
+                <div id="am-actual-invoice-body" class="am-flex-box">
+                    <div style="height: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.top : 0}}cm;">&nbsp;</div>
                     <section class="am-invoice-w-area">
                         <div class="parent">
                             <div class="left" ng-if="vm.ivSettings.display.workshopDetails">
@@ -281,9 +282,9 @@
                             <div style="text-align: center; font-size: 9pt" ng-if="vm.IsNotSinglePage()">Page {{vm.currentPage(page.index)}} of {{vm.pages.length}}</div>
                         </center>
                     </section>
+                    <div style="height: {{(vm.alignmentMargins.enabled) ? vm.alignmentMargins.bottom : 0}}cm">&nbsp;</div>
                 </div>
             </body>
-
             </html>
         </div>
     </div>

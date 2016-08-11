@@ -1498,7 +1498,7 @@
             function success(res) {
                 autofillVehicle = true;
                 vm.user.id = $state.params.userId;
-                vm.user.name = res.name;
+                vm.user.name = (res.name == 'Anonymous') ? '' : res.name;
                 vm.user.email = res.email;
                 vm.user.mobile = res.mobile;
                 userMobile = res.mobile;
@@ -1506,7 +1506,7 @@
                 if (res.memberships)
                     Object.keys(res.memberships).forEach(iterateMemberships);
                 vm.vehicle.id = $state.params.vehicleId;
-                vm.vehicle.reg = res.vehicle.reg;
+                vm.vehicle.reg = (res.vehicle.reg == 'Vehicle') ? '' : res.vehicle.reg;
                 vm.vehicle.manuf = res.vehicle.manuf;
                 vm.vehicle.model = res.vehicle.model;
                 vm.vehicle.type = res.vehicle.type;
@@ -2093,6 +2093,9 @@
         }
 
         function validate() {
+            if (vm.user.name == '') {
+                vm.user.name = 'Anonymous';
+            }
             var isVehicleBlank = (vm.vehicle.manuf == undefined || vm.vehicle.manuf == '') && (vm.vehicle.model == undefined || vm.vehicle.model == '') && (vm.vehicle.reg == undefined || vm.vehicle.reg == '');
 
             if (isVehicleBlank) {
