@@ -208,7 +208,7 @@
                 tracker.resolve(response);
 
                 function iterateInventories(name) {
-                    if (name.match(/\b_id|\b_rev|\bcreator/i) || res[name]._deleted == true)
+                    if (name.match(/\b_id|\b_rev|\bcreator|\bchannel/i) || res[name]._deleted == true)
                         return;
                     var temp = res[name];
                     temp.name = name;
