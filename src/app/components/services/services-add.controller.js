@@ -10,14 +10,14 @@
 (function() {
     angular.module('automintApp').controller('amCtrlSeCI', ServiceAddController);
 
-    ServiceAddController.$inject = ['$scope', '$state', '$q', '$log', '$filter', '$timeout', '$mdEditDialog', '$mdDialog', '$mdSidenav', 'utils', 'amServices'];
+    ServiceAddController.$inject = ['$rootScope', '$scope', '$state', '$q', '$log', '$filter', '$timeout', '$mdEditDialog', '$mdDialog', '$mdSidenav', 'utils', 'amServices'];
 
     /*
     ====== NOTE =======
     > Do not create new method named moment() since it is used by moment.js
     */
 
-    function ServiceAddController($scope, $state, $q, $log, $filter, $timeout, $mdEditDialog, $mdDialog, $mdSidenav, utils, amServices) {
+    function ServiceAddController($rootScope, $scope, $state, $q, $log, $filter, $timeout, $mdEditDialog, $mdDialog, $mdSidenav, utils, amServices) {
         //  initialize view model
         var vm = this;
 
@@ -237,6 +237,8 @@
         }
 
         function goToDashboard() {
+            if ($state.params.fromState == 'locked')
+                $rootScope.isAutomintLocked = true;
             $mdSidenav('main-nav-left').close()
             $state.go('restricted.dashboard');
         }
@@ -1098,7 +1100,7 @@
                         }
                         break;
                     case 'locked':
-                        transitState = 'locked';
+                        $rootScope.isAutomintLocked = true;
                         break;
                 }
             }

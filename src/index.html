@@ -61,10 +61,10 @@ Automint CRM Software
             <md-progress-linear md-mode="indeterminate"></md-progress-linear>
         </div>
     </div>
+    <div ui-view="lockscreen" class="am-lockscreen" ng-if="isAutomintLocked"></div>
     <div id="page_preloader" layout="column" layout-align="center center" ng-hide="hidePreloader"><img src="assets/img/loader.gif" alt=""/></div>
-    <div class="am-lockscreen {{ cRootLock }}" ui-view="lockscreen"></div>
     <section layout="row" flex>
-        <md-sidenav class="md-sidenav-left am-side-nav" md-component-id="main-nav-left" md-is-locked-open="$mdMedia('gt-md')" md-disable-backdrop md-whiteframe="4" ng-if="!$state.is('login')">
+        <md-sidenav class="md-sidenav-left am-side-nav" md-component-id="main-nav-left" md-is-locked-open="$mdMedia('gt-md')" md-disable-backdrop md-whiteframe="4" ng-if="$state.includes('restricted')">
             <div ui-view="side_bar" layout="column" flex></div>
         </md-sidenav>
         <md-content layout="column" flex>

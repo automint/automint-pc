@@ -413,22 +413,17 @@ md-sidenav.md-closed.md-locked-open-add-active {
 
 .am-lockscreen {
     z-index: 997;
-    display: none;
     width: 100%;
     height: 100%;
 }
 
-.am-lockscreen.active {
-    display: block;
-}
-
 .am-lockscreen.ng-enter {
-    animation: fadeIn 0.5s both ease-in;
+    animation: fadeIn 300ms both ease-in;
 }
 
 .am-lockscreen.ng-leave {
     transform-origin: 0% 0%;
-    animation: fadeOut 1s both ease-in;
+    animation: fadeOut 300ms both ease-in;
 }
 
 

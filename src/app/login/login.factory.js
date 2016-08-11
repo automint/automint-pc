@@ -47,7 +47,7 @@
                 $rootScope.amGlobals = {};
             $rootScope.amGlobals.creator = username;
             $rootScope.amGlobals.channel = channel;
-            pdbLocal.get('login').then(getLoginDoc).catch(writeLoginDoc);
+            pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(writeLoginDoc);
             return tracker.promise;
 
             function getLoginDoc(res) {
@@ -60,7 +60,7 @@
 
             function writeLoginDoc(err) {
                 var doc = {
-                    _id: 'login',
+                    _id: constants.pdb_local_docs.login,
                     isLoggedIn: isLoggedIn,
                     username : username,
                     password: password,

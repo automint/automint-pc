@@ -8,35 +8,9 @@
 /// <reference path="../typings/main.d.ts" />
 
 (function() {
-    angular.module('automintApp').factory('amRootFactory', RootFactory).factory('utils', UtilsFactory);
+    angular.module('automintApp').factory('utils', UtilsFactory);
     
-    RootFactory.$inject = ['$q', '$rootScope', 'pdbMain'];
     UtilsFactory.$inject = ['$mdToast'];
-
-    function RootFactory($q, $rootScope, pdbMain) {
-        //  initialize factory object and map functions
-        var factory = {
-            getPasscode: getPasscode
-        }
-
-        return factory;
-
-        //  function definitions
-
-        function getPasscode() {
-            var tracker = $q.defer();
-            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObj).catch(failure);
-            return tracker.promise;
-
-            function getSettingsObj(res) {
-                tracker.resolve(res.passcode);
-            }
-
-            function failure(err) {
-                tracker.reject(err);
-            }
-        }
-    }
     
     function UtilsFactory($mdToast) {
         //  temporary named assignments

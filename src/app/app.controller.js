@@ -8,217 +8,70 @@
 /// <reference path="../typings/main.d.ts" />
 
 (function() {
-    const electron = require('electron').remote;
-    const ammHelp = require('./automint_modules/am-help.js');
-    const ipcRenderer = require("electron").ipcRenderer;
-    const amApp = electron.app;
-    const BrowserWindow = electron.BrowserWindow;
 
-    angular.module('automintApp')
-        .controller('lockScreenCtrl', LockScreenController)
-        .controller('appBarHeaderCtrl', HeaderbarController)
-        .controller('appSideBarCtrl', SidebarController);
+    angular.module('automintApp').controller('amCtrl', HomeController);
 
-    HeaderbarController.$inject = ['$rootScope', '$scope', '$state', '$timeout', '$mdSidenav', 'amRootFactory'];
-    SidebarController.$inject = ['$rootScope', '$scope', '$state', '$http', '$mdSidenav', 'amRootFactory'];
-    LockScreenController.$inject = ['$rootScope', '$state', '$window', 'amRootFactory', 'utils'];
+    HomeController.$inject = ['$rootScope', '$state', '$amRoot', 'utils', 'amLogin'];
 
-    function LockScreenController($rootScope, $state, $window, amRootFactory, utils) {
-        var vm = this, passcode, skip = true;
+    function HomeController($rootScope, $state, $amRoot, utils, amLogin) {
+        //  initialize view model
+        var vm = this;
 
-        $rootScope.cRootLock = 'active';
+        //  default execution steps
+        $amRoot.IsAutomintLoggedIn().then(checkLoginState).catch(doLogin);
 
-        vm.unlock = unlock;
-        vm.isMessage = false;
-        vm.addService = addService;
-        
-        var source = localStorage.getItem('cover-pic');
-        $('#am-lockscreen-img').attr('src', (source) ? source : 'assets/img/logo-250x125px.png').width(250).height(125);
-        amRootFactory.getPasscode().then(gps).catch(unlock);
+        //  function definitions
 
-        function addService() {
-            $rootScope.cRootLock = '';
-            $state.go('restricted.services.add', {
-                fromState: 'locked'
-            });
-        }
+        function checkLoginState(res) {
+            if (res && res.username && res.password) {
+                amLogin.loadCredentials(res.username, res.password);
+                amLogin.login(success, failure);
+            } else
+                doLogin();
 
-        function gps(res) {
-            if (!res || res.enabled == false) {
-                unlock();
-                skip = true;
-                return;
-            }
-            skip = false;
-            passcode = res.code;
-        }
-
-        function unlock() {
-            var transitState = 'restricted.dashboard';
-            if (skip == false) {
-                if (vm.passcode != passcode) {
-                    vm.message = "Wrong Passcode!!!";
-                    vm.isMessage = true;
-                    return;
+            function success(response) {
+                if (response.data && (response.statusText == "OK")) {
+                    if (response.data.userCtx && (response.data.userCtx.name != null) && response.data.userCtx.channels && (Object.keys(response.data.userCtx.channels).length > 0)) {
+                        if (Object.keys(response.data.userCtx.channels).length > 1) {
+                            amLogin.saveLoginCredentials(true, res.username, res.password, Object.keys(response.data.userCtx.channels)[1]).then(proceed).catch(doLogin);
+                            return;
+                        }
+                    }
                 }
+                utils.showSimpleToast('Please Login Again!');
+                doLogin();     
             }
-            $rootScope.isAutomintLocked = false;
-            $rootScope.cRootLock = '';
-            if ($state.params.fromState != undefined)
-                transitState = $state.params.fromState;
-            $state.go(transitState);
-        }
-    }
 
-    function HeaderbarController($rootScope, $scope, $state, $timeout, $mdSidenav, amRootFactory) {
-        var vm = this;
-
-        //  map functions to view model
-        vm.toggleSideNavbar = buildDelayedToggler('main-nav-left');
-        vm.openLockScreen = openLockScreen;
-        vm.openHelpWindow = openHelpWindow;
-        vm.addService = addService;
-
-        //  default execution steps
-        setCoverPic();
-        amRootFactory.getPasscode().then(gps).catch(failure);
-
-        //  function definitions
-
-        function setCoverPic() {
-            var source = localStorage.getItem('cover-pic');
-            $('#am-cover-pic').attr('src', (source) ? source : 'assets/img/logo-250x125px.png').width(250).height(125);
-        }
-
-        function addService() {
-            $state.go('restricted.services.add');
-        }
-
-        function openHelpWindow() {
-            ammHelp.openHelpWindow();
-        }
-
-        function gps(res) {
-            if (res == undefined)
-                return;
-            $rootScope.isPasscodeEnabled = res.enabled;
-        }
-
-        function failure(err) {
-            $rootScope.isPasscodeEnabled = false;
-        }
-
-        function openLockScreen() {
-            $rootScope.isAutomintLocked = true;
-            $state.go('locked', {
-                fromState: $state.current.name
-            });
-        }
-
-        //  Supplies a function that will continue to operate until the time is up.
-        function debounce(func, wait, context) {
-            var timer;
-            return function debounced() {
-                var context = $scope,
-                    args = Array.prototype.slice.call(arguments);
-                $timeout.cancel(timer);
-                timer = $timeout(function() {
-                    timer = undefined;
-                    func.apply(context, args);
-                }, wait || 10);
-            };
-        }
-
-        //  Build handler to open/close a SideNav; when animation finishes report completion in console
-        function buildDelayedToggler(navID) {
-            return debounce(function() {
-                $mdSidenav(navID).toggle();
-            }, 200);
-        }
-    }
-
-    function SidebarController($rootScope, $scope, $state, $http, $mdSidenav, amRootFactory) {
-        var vm = this;
-
-        //  objects passed to view model
-        vm.items = [{
-            name: 'Dashboard',
-            icon: 'dashboard',
-            state: 'restricted.dashboard'
-        }, {
-            name: 'Customers',
-            icon: 'group',
-            state: 'restricted.customers.all'
-        }, {
-            name: 'Treatments',
-            icon: 'local_car_wash',
-            state: 'restricted.treatments.master'
-        }, {
-            name: 'Inventory',
-            icon: 'build',
-            state: 'restricted.inventory.all'
-        }, {
-            name: 'Settings',
-            icon: 'settings',
-            state: 'restricted.settings'
-        }];
-        vm.isAutomintUpdateAvailable = undefined;
-        
-        //  map functions to view model
-        vm.openState = openState;
-        vm.doUpdate = doUpdate;
-        vm.isSelected = isSelected;
-        vm.goToDashboard = goToDashboard;
-
-        //  default execution steps
-        ipcRenderer.on('automint-updated', listenToAutomintUpdates);
-        getPackageFile();
-        $rootScope.hidePreloader = true;
-        amRootFactory.getPasscode().then(gps).catch(unlock);
-
-        //  function definitions
-
-        function gps(res) {
-            if ($rootScope.isAutomintLocked == false)
-                return;
-            if (!res || res.enabled == false) {
-                unlock();
-                return;
+            function failure(err) {
+                if (err.status == -1) {
+                    if (res.isLoggedIn == true) {
+                        proceed();
+                        return;
+                    }
+                }
+                utils.showSimpleToast('Please Login Again!');
+                doLogin();
             }
-            if (res.enabled == true) {
-                $state.go('locked');
+
+            function proceed() {
+                $rootScope.hidePreloader = true;
+                if (res.channel)
+                    $rootScope.amGlobals.channel = res.channel;
+                if (res.username)
+                    $rootScope.amGlobals.creator = res.username;
+                $rootScope.amGlobals.configDocIds = {
+                    settings: 'settings' + (res.channel ? '-' + res.channel : ''),
+                    treatment: 'treatments' + (res.channel ? '-' + res.channel : ''),
+                    inventory: 'inventory' + (res.channel ? '-' + res.channel : ''),
+                    workshop: 'workshop' + (res.channel ? '-' + res.channel : '')
+                }
+                $amRoot.dbAfterLogin();
             }
         }
 
-        function unlock() {
-            console.info('unlocked');
-        }
-
-        function goToDashboard() {
-            $mdSidenav('main-nav-left').close()
-            $state.go(vm.items[0].state);
-        }
-
-        function isSelected(index) {
-            return ($rootScope.sidebarItemIndex == index);
-        }
-
-        function listenToAutomintUpdates(event, arg) {
-            vm.isAutomintUpdateAvailable = arg;
-            $scope.$apply();
-        }
-
-        function doUpdate() {
-            ipcRenderer.send('am-quit-update', true);
-        }
-
-        function getPackageFile() {
-            vm.automintVersion = amApp.getVersion();
-        }
-
-        function openState(state) {
-            $mdSidenav('main-nav-left').close()
-            $state.go(state);
+        function doLogin(err) {
+            $rootScope.hidePreloader = true;
+            $state.go('login');
         }
     }
 })();

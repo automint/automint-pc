@@ -18,6 +18,9 @@
         //  initialize view model
         var vm = this;
 
+        //  temporary named assignments
+        var channel = undefined;
+
         //  named assignments for view model
         vm.isLogingIn = false;
         vm.username = '';
@@ -79,19 +82,26 @@
             amLogin.login(success, failure);
 
             function success(res) {
-                if (res.data && (res.ok == true)) {
+                if (res.data && (res.statusText == "OK")) {
                     if (res.data.userCtx && (res.data.userCtx.name != null) && res.data.userCtx.channels && (Object.keys(res.data.userCtx.channels).length > 0)) {
                         if (res.data.userCtx.channels.length <= 1) {
                             failure();
                             return;
                         }
-                        amLogin.saveLoginCredentials(true, vm.username, vm.password, res.data.userCtx.channels[1]).then(proceed).catch(docNotSaved);
+                        channel = Object.keys(res.data.userCtx.channels)[1];
+                        amLogin.saveLoginCredentials(true, vm.username, vm.password, Object.keys(res.data.userCtx.channels)[1]).then(proceed).catch(docNotSaved);
                     }
                 }
 
                 function proceed(res) {
+                    $rootScope.amGlobals.configDocIds = {
+                        settings: 'settings' + (channel ? '-' + channel : ''),
+                        treatment: 'treatments' + (channel ? '-' + channel : ''),
+                        inventory: 'inventory' + (channel ? '-' + channel : ''),
+                        workshop: 'workshop' + (channel ? '-' + channel : '')
+                    }
                     $amRoot.dbAfterLogin();
-                    $location.path('/');
+                    $location.path('/dashboard');
                 }
 
                 function docNotSaved(err) {

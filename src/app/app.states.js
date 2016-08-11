@@ -14,21 +14,14 @@
     StateConfigs.$inject = ['$stateProvider', '$urlRouterProvider'];
 
     function StateConfigs($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.when('/', '/dashboard').otherwise('/dashboard');
+        $urlRouterProvider.when('/', '/home').otherwise('/');
 
         $stateProvider
-            .state('locked', {
-                url: '/locked',
-                views: {
-                    'lockscreen': {
-                        templateUrl: 'app/views/lockscreen.html',
-                        controller: 'lockScreenCtrl',
-                        controllerAs: 'vm'
-                    }
-                },
-                params: {
-                    fromState: undefined
-                }
+            .state('home', {
+                url: '/home',
+                templateUrl: 'app/views/initializing.html',
+                controller: 'amCtrl',
+                controllerAs: 'vm'
             })
             .state('login', {
                 url: '/login',
@@ -43,19 +36,27 @@
                 abstract: true,
                 url: '',
                 views: {
+                    'lockscreen': {
+                        templateUrl: 'app/lock/lockscreen.html',
+                        controller: 'amCtrlLock',
+                        controllerAs: 'lockVm'
+                    },
                     'header_bar': {
-                        templateUrl: 'app/appbar/headerView.html',
-                        controller: 'appBarHeaderCtrl',
+                        templateUrl: 'app/appbar/headerbar.html',
+                        controller: 'amCtrlHeaderbar',
                         controllerAs: 'headerVm'
                     },
                     'side_bar': {
-                        templateUrl: 'app/appbar/sidebarView.html',
-                        controller: 'appSideBarCtrl',
+                        templateUrl: 'app/appbar/sidebar.html',
+                        controller: 'amCtrlSidebar',
                         controllerAs: 'sidebarVm'
                     },
                     '': {
                         templateUrl: 'app/views/restricted.html'
                     }
+                },
+                resolve: {
+                    deps: ['$ocLazyLoad', loadAppbarDeps]
                 }
             })
             //  dashboard
@@ -408,6 +409,15 @@
                     sidebarItemIndex: 3
                 }
             });
+
+        function loadAppbarDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'app/appbar/headerbar.controller.js',
+                'app/appbar/sidebar.controller.js',
+                'app/appbar/appbar.factory.js',
+                'app/lock/lockscreen.controller.js'
+            ])
+        }
 
         function loadLoginDeps($ocLazyLoad) {
             return $ocLazyLoad.load([

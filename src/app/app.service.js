@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').service('$amRoot', AutomintService);
 
-    AutomintService.$inject = ['$rootScope', '$state', '$q', 'utils', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal', 'amFactory', 'amLogin'];
+    AutomintService.$inject = ['$rootScope', '$state', '$location', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal'];
 
-    function AutomintService($rootScope, $state, $q, utils, constants, pdbMain, pdbCache, pdbLocal, amFactory, amLogin) {
+    function AutomintService($rootScope, $state, $location, constants, pdbMain, pdbCache, pdbLocal) {
         //  set up service view model
         var vm = this;
 
@@ -37,6 +37,7 @@
         //  map functions
         $rootScope.amGlobals.IsConfigDoc = IsConfigDoc;
         vm.initDb = initDb;
+        vm.IsAutomintLoggedIn = IsAutomintLoggedIn;
         vm.dbAfterLogin = dbAfterLogin;
 
         //  function definitions
@@ -59,10 +60,11 @@
             pdbMain.setDatabase(constants.pdb_main);
             pdbCache.setDatabase(constants.pdb_cache);
             pdbLocal.setDatabase(constants.pdb_local);
+        }
 
-            //  check for login
-            // pdbLocal.get(constants.pdb_local_docs.login).then(checkLoginState).catch(doLogin);
-            dbAfterLogin();
+        //  check for login
+        function IsAutomintLoggedIn() {
+            return pdbLocal.get(constants.pdb_local_docs.login);
         }
 
         function dbAfterLogin() {
@@ -75,50 +77,8 @@
                 since: 'now',
                 live: true
             }).on('change', OnChangeMainDb);
-        }
 
-        function checkLoginState(res) {
-            if (res && res.username && res.password) {
-                amLogin.loadCredentials(res.username, res.password);
-                amLogin.login(success, failure);
-            } else
-                doLogin();
-
-            function success(response) {
-                if (response.data && (response.ok == true)) {
-                    if (response.data.userCtx && (response.data.userCtx.name != null) && response.data.userCtx.channels && (Object.keys(response.data.userCtx.channels).length > 0)) {
-                        if (response.data.userCtx.channels.length > 1) {
-                            amLogin.saveLoginCredentials(true, res.username, res.password, response.data.userCtx.channels[1]).then(proceed).catch(doLogin);
-                            return;
-                        }
-                    }
-                }
-                utils.showSimpleToast('Please Login Again!');
-                doLogin();     
-            }
-
-            function failure(err) {
-                if (err.status == -1) {
-                    if (res.isLoggedIn == true) {
-                        proceed();
-                        return;
-                    }
-                }
-                utils.showSimpleToast('Please Login Again!');
-                doLogin();
-            }
-
-            function proceed() {
-                if (res.channel)
-                    $rootScope.amGlobals.channel = res.channel;
-                if (res.username)
-                    $rootScope.amGlobals.creator = res.username;
-                dbAfterLogin();
-            }
-        }
-
-        function doLogin(err) {
-            $state.go('login');
+            $location.path('/dashboard');
         }
 
         function OnChangeMainDb(change) {
