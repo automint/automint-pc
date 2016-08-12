@@ -77,6 +77,7 @@
         vm.editVehicle = editVehicle;
         vm.convertNameToTitleCase = convertNameToTitleCase;
         vm.checkExistingCustomerMobile = checkExistingCustomerMobile;
+        vm.IsVehicleAnonymous = IsVehicleAnonymous;
 
         //  default execution steps
         if ($rootScope.isAmDbLoaded)
@@ -85,6 +86,10 @@
             $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
 
         //  function definitions
+        function IsVehicleAnonymous(service) {
+            return (service.vhcl_reg == 'Vehicle');
+        }
+
         function defaultExecutionSteps(newValue, oldValue) {
             if (newValue) {
                 if ($state.params.id != undefined) {

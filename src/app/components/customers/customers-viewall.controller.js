@@ -36,11 +36,17 @@
         vm.deleteCustomer = deleteCustomer;
         vm.editCustomer = editCustomer;
         vm.changeQueryMode = changeQueryMode;
+        vm.IsVehicleAnonymous = IsVehicleAnonymous;
         
         //  default watchers
         $scope.$watch('vm.customerQuery', watchCustomerQuery);
+        getCustomers();
         
         //  function definitions
+
+        function IsVehicleAnonymous(vehicle) {
+            return (vehicle.reg == 'Vehicle');
+        }
         
         function watchCustomerQuery(newValue, oldValue) {
             if(queryChangedPromise){

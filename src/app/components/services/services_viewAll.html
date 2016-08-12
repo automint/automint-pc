@@ -42,7 +42,7 @@
                 <tbody md-body>
                     <tr md-row ng-repeat="service in vm.services | limitTo: vm.query.limit: (vm.query.page - 1)*(vm.query.limit)" class="am-select-table-row">
                         <td md-cell ng-click="vm.editService(service)"><span ng-hide="vm.IsCustomerAnonymous(service.cstmr_name)">{{service.cstmr_name}}</span></td>
-                        <td md-cell ng-click="vm.editService(service)"><span ng-hide="vm.IsCustomerAnonymous(service.cstmr_name)">{{service.vhcl_manuf + ' ' + service.vhcl_model}}<span ng-if="service.vhcl_reg">&nbsp;({{service.vhcl_reg}})</span></span></td>
+                        <td md-cell ng-click="vm.editService(service)"><span ng-hide="vm.IsVehicleAnonymous(service.vhcl_reg)">{{service.vhcl_manuf + ' ' + service.vhcl_model}}<span ng-if="service.vhcl_reg">&nbsp;({{service.vhcl_reg}})</span></span></td>
                         <td md-cell ng-click="vm.editService(service)">{{vm.getServiceDate(service.srvc_date)}}</td>
                         <td md-cell ng-click="vm.editService(service)">{{service.srvc_cost}}</td>
                         <td md-cell ng-click="vm.editService(service)"><span ng-class="{'am-red-text': vm.IsServiceDue(service.srvc_status)}">{{service.srvc_status}}</span></td>

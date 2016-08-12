@@ -1516,6 +1516,7 @@
                     Object.keys(res.memberships).forEach(iterateMemberships);
                 vm.vehicle.id = $state.params.vehicleId;
                 vm.vehicle.reg = (res.vehicle.reg == 'Vehicle') ? '' : res.vehicle.reg;
+                orgVehicle
                 vm.vehicle.manuf = res.vehicle.manuf;
                 vm.vehicle.model = res.vehicle.model;
                 vm.vehicle.type = res.vehicle.type;

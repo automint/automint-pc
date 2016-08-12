@@ -689,6 +689,8 @@
                 if (!res.user)
                     res.user = {};
                 Object.keys(newUser).forEach(iterateUserFields);
+                if (res.user.type && (res.user.type == 'Lead'))
+                    res.user.type = 'Customer';
                 if (!isVehicleBlank) {
                     if (!res.user.vehicles)
                         res.user.vehicles = {};
@@ -702,8 +704,6 @@
                 pdbMain.save(res).then(success).catch(failure);
 
                 function iterateUserFields(ufn) {
-                    if (ufn == 'type')
-                        newUser[ufn] = (res.user[ufn] == 'Lead') ? 'Customer' : newUser[ufn];
                     res.user[ufn] = newUser[ufn];
                 }
 

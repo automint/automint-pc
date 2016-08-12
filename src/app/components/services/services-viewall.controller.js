@@ -49,6 +49,7 @@
         vm.IsServiceStateIv = IsServiceStateIv;
         vm.openTimeFilter = openTimeFilter;
         vm.IsCustomerAnonymous = IsCustomerAnonymous;
+        vm.IsVehicleAnonymous = IsVehicleAnonymous;
 
         //  default execution steps
         $scope.$watch('vm.serviceQuery', watchServiceQuery);
@@ -59,6 +60,10 @@
             $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
         
         //  function definitions
+
+        function IsVehicleAnonymous(reg) {
+            return (reg == 'Vehicle');
+        }
 
         function defaultExecutionSteps(newValue, oldValue) {
             if (newValue) {
