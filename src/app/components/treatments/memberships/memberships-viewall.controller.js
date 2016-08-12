@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlMsRA', MembershipsViewAll);
     
-    MembershipsViewAll.$inject = ['$state', '$filter', 'utils', 'amTreatments'];
+    MembershipsViewAll.$inject = ['$rootScope', '$state', '$filter', 'utils', 'amTreatments'];
     
-    function MembershipsViewAll($state, $filter, utils, amTreatments) {
+    function MembershipsViewAll($rootScope, $state, $filter, utils, amTreatments) {
         //  initialize view model
         var vm = this;
         
@@ -35,10 +35,19 @@
         vm.IsMembershipVisible = IsMembershipVisible;
         
         //  default execution steps
-        getCurrencySymbol();
-        getMemberships(changeExpandValues);
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
         
         //  function definitions
+
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                getCurrencySymbol();
+                getMemberships(changeExpandValues);
+            }
+        }
 
         function getCurrencySymbol() {
             amTreatments.getCurrencySymbol().then(success).catch(failure);

@@ -2,7 +2,7 @@
  * Controller for View All Inventories component
  * @author ndkcha
  * @since 0.6.1
- * @version 0.6.1
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlInRA', ViewAllInventoryController);
 
-    ViewAllInventoryController.$inject = ['$state', 'utils', 'amInventory'];
+    ViewAllInventoryController.$inject = ['$rootScope', '$state', 'utils', 'amInventory'];
 
-    function ViewAllInventoryController($state, utils, amInventory) {
+    function ViewAllInventoryController($rootScope, $state, utils, amInventory) {
         //  Initialize view model
         var vm = this;
 
@@ -31,10 +31,19 @@
         vm.changeDisplayAsList = changeDisplayAsList;
 
         //  default execution steps
-        getInventories();
-        getDisplayAsList();
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
 
         //  function definitions
+
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                getInventories();
+                getDisplayAsList();
+            }
+        }
 
         function getDisplayAsList() {
             amInventory.getDisplayAsList().then(success).catch(failure);
@@ -86,7 +95,8 @@
         }
 
         function getInventories() {
-            vm.promise = amInventory.getInventories().then(success).catch(failure);
+            if ($rootScope.isAmDbLoaded)
+                vm.promise = amInventory.getInventories().then(success).catch(failure);
 
             function success(res) {
                 vm.inventories = res;

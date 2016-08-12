@@ -12,10 +12,10 @@
         .controller('amCtrlCuCI', CustomerAddController)
         .controller('amCtrlMeD', MembershipEditDialogController);
 
-    CustomerAddController.$inject = ['$state', '$filter', '$q', '$log', '$mdDialog', 'utils', 'amCustomers'];
+    CustomerAddController.$inject = ['$rootScope', '$state', '$filter', '$q', '$log', '$mdDialog', 'utils', 'amCustomers'];
     MembershipEditDialogController.$inject = ['$mdDialog', '$filter', 'membership', 'treatments'];
 
-    function CustomerAddController($state, $filter, $q, $log, $mdDialog, utils, amCustomers) {
+    function CustomerAddController($rootScope, $state, $filter, $q, $log, $mdDialog, utils, amCustomers) {
         //  initialize view model
         var vm = this;
 
@@ -62,12 +62,21 @@
         vm.changeVehicle = changeVehicle;
         
         //  default execution steps
-        setTimeout(focusCustomerName, 300);
-        getMemberships();
-        getRegularTreatments();
-        getVehicleTypes();
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
 
         //  function definitions
+
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                setTimeout(focusCustomerName, 300);
+                getMemberships();
+                getRegularTreatments();
+                getVehicleTypes();
+            }
+        }
 
         function IsVehicleSelected(id) {
             return (vm.currentVehicleId == id);
@@ -204,7 +213,7 @@
             $mdDialog.show(confirm).then(performDelete, ignoreDelete);
 
             function performDelete() {
-                console.info('membership deleted');
+                //  do nothing
             }
 
             function ignoreDelete() {

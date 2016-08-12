@@ -201,28 +201,38 @@
         vm.IsCustomerSelected = IsCustomerSelected;
         vm.openCustomerProfile = openCustomerProfile;
 
-        //  default execution steps
-        setCoverPic();
-        changeUserInfoState(true);   //  ammToDo: Enable this while commiting
-        setTimeout(focusUserName, 700);
-        // changeServiceInfoState(true);   //  ammToDo: Testing Purpose, Disable while commiting
-        buildDelayedToggler('service-details-left');
-        getCurrencySymbol();
-        getDefaultServiceType();
-        getTreatmentDisplayFormat();
-        getInventoriesSettings();
-        getVehicleTypes();
-        getRegularTreatments();
-        getInventories();
-        getMemberships();
-        getLastInvoiceNo();
-        getLastEstimateNo();
-        getLastJobCardNo();
-
         //  watchers
         $(window).on('resize', OnWindowResize);
 
+        //  default execution steps
+
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+
         //  function definitions
+
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                setCoverPic();
+                changeUserInfoState(true);   //  ammToDo: Enable this while commiting
+                setTimeout(focusUserName, 700);
+                // changeServiceInfoState(true);   //  ammToDo: Testing Purpose, Disable while commiting
+                buildDelayedToggler('service-details-left');
+                getCurrencySymbol();
+                getDefaultServiceType();
+                getTreatmentDisplayFormat();
+                getInventoriesSettings();
+                getVehicleTypes();
+                getRegularTreatments();
+                getInventories();
+                getMemberships();
+                getLastInvoiceNo();
+                getLastEstimateNo();
+                getLastJobCardNo();
+            }
+        }
 
         function openCustomerProfile() {
             $state.go('restricted.customers.edit', {
@@ -796,7 +806,7 @@
             $mdDialog.show(confirm).then(performDelete, ignoreDelete);
 
             function performDelete() {
-                console.info('deleted');
+                //  do nothing
             }
 
             function ignoreDelete() {
@@ -972,7 +982,7 @@
             }
 
             function failure(err) {
-                console.warn(err);
+                //  do nothing
             }
         }
 
@@ -1473,7 +1483,6 @@
             }
 
             function failure(err) {
-                console.log(err);
                 setDefaultVehicle();
             }
         }

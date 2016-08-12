@@ -18,10 +18,10 @@
         .controller('amCtrlIvRI', InvoicesViewController)
         .controller('amCtrlCmI', ConfirmMailController);
 
-    InvoicesViewController.$inject = ['$q', '$log', '$state', '$window', '$mdDialog', 'utils', 'amInvoices'];
+    InvoicesViewController.$inject = ['$rootScope', '$q', '$log', '$state', '$window', '$mdDialog', 'utils', 'amInvoices'];
     ConfirmMailController.$inject = ['$mdDialog', 'utils', 'user'];
 
-    function InvoicesViewController($q, $log, $state, $window, $mdDialog, utils, amInvoices) {
+    function InvoicesViewController($rootScope, $q, $log, $state, $window, $mdDialog, utils, amInvoices) {
         //  initialize view model
         var vm = this;
 
@@ -63,24 +63,34 @@
         vm.currentPage = currentPage;
         vm.IsNotSinglePage = IsNotSinglePage;
         vm.IsCustomerNotAnonymus = IsCustomerNotAnonymus;
-
-        //  default execution steps
-        if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
-            utils.showSimpleToast('Something went wrong. Please try again!')
-            $state.go('restricted.services.all');
-            return;
-        }
-        getCurrencySymbol();
-        fillInvoiceDetails();
-        loadInvoiceWLogo();
-        loadInvoiceFLogo();
-        getIvAlignMargins();
-        getInvoicePageSize();
     
         //  electron watchers
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
+        //  default execution steps
+
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+
         //  function definitions
+
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
+                    utils.showSimpleToast('Something went wrong. Please try again!')
+                    $state.go('restricted.services.all');
+                    return;
+                }
+                getCurrencySymbol();
+                fillInvoiceDetails();
+                loadInvoiceWLogo();
+                loadInvoiceFLogo();
+                getIvAlignMargins();
+                getInvoicePageSize();
+            }
+        }
 
         function IsCustomerNotAnonymus() {
             return (vm.user.name != 'Anonymous');
@@ -420,7 +430,7 @@
             }
 
             function failure(err) {
-                console.info('Cound not find margin settings');
+                //  do nothing
             }
         }
         
@@ -504,7 +514,6 @@
                     rowCount += vm.service.inventories.length;
                     inventoryCount += vm.service.inventories.length;
                 }
-                console.log(rowCount);
                 calculateSubtotal();
 
                 function iteratePackages(package) {
@@ -603,7 +612,6 @@
             }
 
             function failure(err) {
-                console.warn(err);
                 vm.ivSettings = {
                     display: {
                         workshopLogo: false,
@@ -683,12 +691,12 @@
                     amInvoices.saveCustomerEmail($state.params.userId, vm.user.email).then(respond).catch(respond);
                 
                 function respond(res) {
-                    console.info(res);
+                    //  do nothing
                 }
             }
 
             function cancelMailInvoice() {
-                console.info('cancelled');
+                //  do nothing
             }
         }
 

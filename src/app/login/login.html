@@ -37,18 +37,18 @@
         <div style="padding: 16px;" ng-hide="vm.isLogingIn">
             <div layout="row" layout-align="start center" class="am-input-box">
                 <label class="am-form-label">Username: </label>
-                <input type="text" id="ami-username" class="am-box-input" ng-change="vm.changeUserDetails()" placeholder="Enter Username" ng-model="vm.username" flex>
+                <input type="text" id="ami-username" ng-keydown="vm.OnKeyDown($event)" class="am-box-input" ng-change="vm.changeUserDetails()" placeholder="Enter Username" ng-model="vm.username" flex>
             </div>
             <div layout="row" layout-align="start center" class="am-input-box">
                 <label class="am-form-label">Password: </label>
-                <input type="password" id="ami-password" class="am-box-input" ng-change="vm.changeUserDetails()" placeholder="Enter Password" ng-model="vm.password" flex>
+                <input type="password" id="ami-password" ng-keydown="vm.OnKeyDown($event)" class="am-box-input" ng-change="vm.changeUserDetails()" placeholder="Enter Password" ng-model="vm.password" flex>
             </div>
             <div layout="row" layout-align="center center">
                 <span class="md-caption">or</span>
             </div>
             <div layout="row" layout-align="start center" class="am-input-box">
                 <label class="am-form-label">Activation Code: </label>
-                <input type="text" id="ami-code" class="am-box-input" ng-change="vm.changeCode()" placeholder="Enter Code" ng-model="vm.code" flex>
+                <input type="text" id="ami-code" ng-keydown="vm.OnKeyDown($event)" class="am-box-input" ng-change="vm.changeCode()" placeholder="Enter Code" ng-model="vm.code" flex>
             </div>
             <div layout="row" layout-align="end center" class="am-input-box last">
                 <md-button class="md-accent md-raised" ng-click="vm.submit()">

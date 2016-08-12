@@ -23,7 +23,8 @@
         var factory = {
             loadCredentials: loadCredentials,
             login: login,
-            saveLoginCredentials: saveLoginCredentials
+            saveLoginCredentials: saveLoginCredentials,
+            changeExistingDocs: changeExistingDocs
         }
 
         return factory;
@@ -38,7 +39,9 @@
 
         function login(success, failure) {
             $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.amGlobals.authHeaderData;
-            $http.get(amFactory.generateAuthUrl(constants.sgw_w_main)).then(success, failure);
+            $http.get(amFactory.generateAuthUrl(constants.sgw_w_main), {
+                timeout: 2000
+            }).then(success, failure);
         }
 
         function saveLoginCredentials(isLoggedIn, username, password, channel) {
@@ -79,8 +82,8 @@
         }
 
         function changeExistingDocs() {
-            var tracker = $q.defer()
-            if (!$rootScope.amGlobals || ($rootScope.amGlobals && !$rootScope.amGlobals.creator) || ($rootScope.amGlobals && $rootScope.amGlobals.channel))
+            var tracker = $q.defer();
+            if (!$rootScope.amGlobals || ($rootScope.amGlobals && !$rootScope.amGlobals.creator) || ($rootScope.amGlobals && !$rootScope.amGlobals.channel))
                 return 404;
             pdbMain.getAll().then(getAllDocs).catch(failure);
             return tracker.promise;
@@ -88,11 +91,21 @@
             function getAllDocs(res) {
                 var docsToSave = [];
                 res.rows.forEach(iterateRows);
+                pdbMain.saveAll(docsToSave).then(success).catch(failure);
 
                 function iterateRows(row) {
                     switch (row.id) {
                         case 'settings':
                             convertSettingsDoc(row);
+                            break;
+                        case 'treatments':
+                            convertTreatmentDoc(row);
+                            break;
+                        case 'workshop':
+                            convertWorkshopDoc(row);
+                            break;
+                        case 'inventory':
+                            convertInventoryDoc(row);
                             break;
                         default:
                             convertUserDoc(row);
@@ -100,13 +113,64 @@
                     }
 
                     function convertUserDoc(row) {
-                        console.log(row);
+                        row.doc.channel = $rootScope.amGlobals.channel;
+                        row.doc.creator = $rootScope.amGlobals.creator;
+                        docsToSave.push(row.doc);
+                    }
+
+                    function convertSettingsDoc(row) {
+                        var sdoc = $.extend({}, row.doc);
+                        row.doc._deleted = true;
+                        delete sdoc._rev
+                        sdoc._id = $rootScope.amGlobals.configDocIds.settings;
+                        sdoc.creator = $rootScope.amGlobals.creator;
+                        sdoc.channel = $rootScope.amGlobals.channel;
+                        docsToSave.push(row.doc);
+                        docsToSave.push(sdoc);
+                    }
+
+                    function convertTreatmentDoc(row) {
+                        var tdoc = $.extend({}, row.doc);
+                        row.doc._deleted = true;
+                        delete tdoc._rev;
+                        tdoc._id = $rootScope.amGlobals.configDocIds.treatment;
+                        tdoc.creator = $rootScope.amGlobals.creator;
+                        tdoc.channel = $rootScope.amGlobals.channel;
+                        docsToSave.push(row.doc);
+                        docsToSave.push(tdoc);
+                    }
+
+                    function convertWorkshopDoc(row) {
+                        var wdoc = $.extend({}, row.doc);
+                        row.doc._deleted = true;
+                        delete wdoc._rev;
+                        wdoc._id = $rootScope.amGlobals.configDocIds.workshop;
+                        wdoc.creator = $rootScope.amGlobals.creator;
+                        wdoc.channel = $rootScope.amGlobals.channel;
+                        docsToSave.push(row.doc);
+                        docsToSave.push(wdoc);
+                    }
+
+                    function convertInventoryDoc(row) {
+                        var idoc = $.extend({}, row.doc);
+                        row.doc._deleted = true;
+                        delete idoc._rev;
+                        idoc._id = $rootScope.amGlobals.configDocIds.inventory;
+                        idoc.creator = $rootScope.amGlobals.creator;
+                        idoc.channel = $rootScope.amGlobals.channel;
+                        docsToSave.push(row.doc);
+                        docsToSave.push(idoc);
                     }
                 }
             }
 
+            function success(res) {
+                tracker.resolve(res);
+            }
+
             function failure(err) {
                 console.error(err);
+                tracker.reject(err);
             }
         }
     }

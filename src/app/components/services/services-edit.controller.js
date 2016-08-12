@@ -10,14 +10,14 @@
 (function() {
     angular.module('automintApp').controller('amCtrlSeUI', ServiceEditController);
 
-    ServiceEditController.$inject = ['$scope', '$state', '$q', '$log', '$filter', '$timeout', '$mdEditDialog', '$mdDialog', '$mdSidenav', 'utils', 'amServices'];
+    ServiceEditController.$inject = ['$rootScope', '$scope', '$state', '$q', '$log', '$filter', '$timeout', '$mdEditDialog', '$mdDialog', '$mdSidenav', 'utils', 'amServices'];
 
     /*
     ====== NOTE =======
     > Do not create new method named moment() since it is used by moment.js
     */
 
-    function ServiceEditController($scope, $state, $q, $log, $filter, $timeout, $mdEditDialog, $mdDialog, $mdSidenav, utils, amServices) {
+    function ServiceEditController($rootScope, $scope, $state, $q, $log, $filter, $timeout, $mdEditDialog, $mdDialog, $mdSidenav, utils, amServices) {
         //  initialize view model
         var vm = this;
 
@@ -196,19 +196,28 @@
         vm.IsCustomerSelected = IsCustomerSelected;
         vm.openCustomerProfile = openCustomerProfile;
 
-        //  default execution steps
-        setCoverPic();
-        buildDelayedToggler('service-details-left');
-        changeServiceInfoState(true);
-        getCurrencySymbol();
-        getVehicleTypes();
-        getPackages();
-        getMemberships();
-
         //  watchers
         $(window).on('resize', OnWindowResize);
 
+        //  default execution steps
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+
         //  function definitions
+
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                setCoverPic();
+                buildDelayedToggler('service-details-left');
+                changeServiceInfoState(true);
+                getCurrencySymbol();
+                getVehicleTypes();
+                getPackages();
+                getMemberships();
+            }
+        }
 
         function openCustomerProfile() {
             $state.go('restricted.customers.edit', {
@@ -814,7 +823,7 @@
             $mdDialog.show(confirm).then(performDelete, ignoreDelete);
 
             function performDelete() {
-                console.info('deleted');
+                //  do nothing
             }
 
             function ignoreDelete() {
@@ -1145,7 +1154,7 @@
             }
 
             function failure(err) {
-                console.warn(err);
+                //  do nothing
             }
         }
 
@@ -2282,7 +2291,6 @@
 
             //  !(save successfull)
             function failure(err) {
-                console.info(err);
                 utils.showSimpleToast('Failed to update. Please Try Again!');
             }
         }

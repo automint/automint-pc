@@ -33,8 +33,6 @@
         vm.save = save;
         vm.cancel = cancel;
 
-        //  default execution steps
-
         //  function definitions
 
         //  query search for manufacturers [autocomplete]

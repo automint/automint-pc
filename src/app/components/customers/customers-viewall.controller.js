@@ -2,7 +2,7 @@
  * Controller for View all Customers component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -75,7 +75,6 @@
             }
             
             function failure(error) {
-                console.log(error);
                 vm.customers = [];
                 vm.query.total = 0;
             }
@@ -110,7 +109,7 @@
             }
             
             function ignoreDelete() {
-                console.info('nope');
+                //  do nothing
             }
             
             function success(res) {

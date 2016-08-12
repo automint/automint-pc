@@ -12,9 +12,9 @@
 
     angular.module('automintApp').controller('amCtrlSeRA', ServiceViewAllController);
 
-    ServiceViewAllController.$inject = ['$scope', '$state', '$filter', '$timeout', '$mdDialog', 'utils', 'amServices'];
+    ServiceViewAllController.$inject = ['$rootScope', '$scope', '$state', '$filter', '$timeout', '$mdDialog', 'utils', 'amServices'];
 
-    function ServiceViewAllController($scope, $state, $filter, $timeout, $mdDialog, utils, amServices) {
+    function ServiceViewAllController($rootScope, $scope, $state, $filter, $timeout, $mdDialog, utils, amServices) {
         //  initialize view model
         var vm = this, queryChangedPromise, cacheLoadTimeout = false, isDataLoaded = false, isPreferencesLoaded = false, filterRange, isFirstTimeWsq = true;
 
@@ -52,11 +52,22 @@
 
         //  default execution steps
         $scope.$watch('vm.serviceQuery', watchServiceQuery);
-        getCurrencySymbol();
-        getFilterMonths(processPreferences);
-        initCurrentTimeSet();
+
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
         
         //  function definitions
+
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                getCurrencySymbol();
+                getFilterMonths(processPreferences);
+                initCurrentTimeSet();
+                getServices();
+            }
+        }
 
         function IsCustomerAnonymous(name) {
             return (name == 'Anonymous');
@@ -111,7 +122,6 @@
 
             function failure(err) {
                 callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
-                console.info('failed to get filter months');
             }
         }
 
@@ -283,7 +293,6 @@
             function failure(err) {
                 isPreferencesLoaded = true;
                 getServices();
-                console.warn(err.message);
             }
         }
         
@@ -320,7 +329,8 @@
         //  fill datatable with list of services
         function getServices() {
             vm.showPaginationBar = (vm.serviceQuery == '');
-            vm.promise = (isPreferencesLoaded) ? amServices.getServices(vm.currentTimeSet, vm.serviceQuery).then(success).catch(failure) : undefined;
+            if ($rootScope.isAmDbLoaded)
+                vm.promise = (isPreferencesLoaded) ? amServices.getServices(vm.currentTimeSet, vm.serviceQuery).then(success).catch(failure) : undefined;
 
             function success(res) {
                 isDataLoaded = true;
@@ -369,7 +379,7 @@
             }
 
             function ignoreDelete() {
-                console.info('nope');
+                //  do nothing
             }
             
 
@@ -382,7 +392,6 @@
             }
 
             function failure(err) {
-                console.info(err);
                 utils.showSimpleToast('Service can not be deleted at moment. Please Try Again!');
             }
         }

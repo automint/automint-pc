@@ -35,6 +35,7 @@
         vm.changeCode = changeCode;
         vm.changeUserDetails = changeUserDetails;
         vm.submit = submit;
+        vm.OnKeyDown = OnKeyDown;
 
         //  default execution steps
         setTimeout(focusUsername, 300);
@@ -63,6 +64,11 @@
             vm.message = undefined;
         }
 
+        function OnKeyDown(event) {
+            if (event.keyCode == 13)
+                submit();
+        }
+
         function submit() {
             vm.message = undefined;
             if ((vm.username == '') && (vm.password == '') && (vm.code == '')) {
@@ -78,8 +84,13 @@
                 return;
             }
             vm.isLogingIn = true;
-            amLogin.loadCredentials(vm.username, vm.password);
-            amLogin.login(success, failure);
+            if ((vm.username != undefined) && (vm.username != '') && (vm.password != undefined) && (vm.password != '')) {
+                amLogin.loadCredentials(vm.username, vm.password);
+                amLogin.login(success, failure);
+            } else if ((vm.code != undefined) && (vm.code != '')) {
+                $amRoot.dbAfterLogin();
+                $location.path('/dashboard');
+            }
 
             function success(res) {
                 if (res.data && (res.statusText == "OK")) {
@@ -100,8 +111,14 @@
                         inventory: 'inventory' + (channel ? '-' + channel : ''),
                         workshop: 'workshop' + (channel ? '-' + channel : '')
                     }
-                    $amRoot.dbAfterLogin();
-                    $location.path('/dashboard');
+                    amLogin.changeExistingDocs().then(p1).catch(p1);
+
+                    function p1(res) {
+                        if ((vm.username != undefined) && (vm.username != '') && (vm.password != undefined) && (vm.password != ''))
+                            $amRoot.syncDb(vm.username, vm.password);
+                        $amRoot.dbAfterLogin();
+                        $location.path('/dashboard');
+                    }
                 }
 
                 function docNotSaved(err) {

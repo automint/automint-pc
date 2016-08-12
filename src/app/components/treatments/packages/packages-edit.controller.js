@@ -2,7 +2,7 @@
  * Controller for Edit Package component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.1
+ * @version 0.7.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlPkUI', PackageAddController);
 
-    PackageAddController.$inject = ['$q', '$filter', '$state', 'utils', 'amTreatments'];
+    PackageAddController.$inject = ['$rootScope', '$q', '$filter', '$state', 'utils', 'amTreatments'];
 
-    function PackageAddController($q, $filter, $state, utils, amTreatments) {
+    function PackageAddController($rootScope, $q, $filter, $state, utils, amTreatments) {
         //  initialize view model
         var vm = this, oPackageName;
 
@@ -30,12 +30,11 @@
         vm.selectedTreatments = [];
 
         //  default execution steps
-        if ($state.params.name == undefined || $state.params.name == '') {
-            errorAndExit();
-            return;
-        }
-        getVehicleTypes(getTreatments, getPackageInfo);
-
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        
         //  function maps
         vm.goBack = goBack;
         vm.changeNameLabel = changeNameLabel;
@@ -49,6 +48,16 @@
         vm.calculateSubTotal = calculateSubTotal;
 
         //  function definitions
+
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                if ($state.params.name == undefined || $state.params.name == '') {
+                    errorAndExit();
+                    return;
+                }
+                getVehicleTypes(getTreatments, getPackageInfo);
+            }
+        }
 
         function calculateSubTotal(type) {
             var total = 0;

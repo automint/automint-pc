@@ -2,7 +2,7 @@
  * Controller for Add Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.7.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .controller('amCtrlTrCI', TreatmentAddController);
 
-    TreatmentAddController.$inject = ['$state', 'utils', 'amTreatments'];
+    TreatmentAddController.$inject = ['$rootScope', '$state', 'utils', 'amTreatments'];
 
-    function TreatmentAddController($state, utils, amTreatments) {
+    function TreatmentAddController($rootScope, $state, utils, amTreatments) {
         //  initialize view model object
         var vm = this;
 
@@ -35,9 +35,18 @@
         vm.convertVtToTitleCase = convertVtToTitleCase;
         
         //  default execution steps
-        getVehicleTypes();
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
 
         //  function definitions
+
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                getVehicleTypes();
+            }
+        }
         
         function goBack() {
             $state.go('restricted.treatments.master', {

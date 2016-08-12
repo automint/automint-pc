@@ -10,13 +10,14 @@
 (function() {
     angular.module('automintApp').service('$amRoot', AutomintService);
 
-    AutomintService.$inject = ['$rootScope', '$state', '$location', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal'];
+    AutomintService.$inject = ['$rootScope', '$state', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal', 'amFactory'];
 
-    function AutomintService($rootScope, $state, $location, constants, pdbMain, pdbCache, pdbLocal) {
+    function AutomintService($rootScope, $state, constants, pdbMain, pdbCache, pdbLocal, amFactory) {
         //  set up service view model
         var vm = this;
 
         //  named assignments to rootScope
+        $rootScope.isAmDbLoaded = false;
         if (!$rootScope.amGlobals)
             $rootScope.amGlobals = {};
         if ($rootScope.amGlobals.configDocIds == undefined) {
@@ -37,6 +38,7 @@
         //  map functions
         $rootScope.amGlobals.IsConfigDoc = IsConfigDoc;
         vm.initDb = initDb;
+        vm.syncDb = syncDb;
         vm.IsAutomintLoggedIn = IsAutomintLoggedIn;
         vm.dbAfterLogin = dbAfterLogin;
 
@@ -60,6 +62,71 @@
             pdbMain.setDatabase(constants.pdb_main);
             pdbCache.setDatabase(constants.pdb_cache);
             pdbLocal.setDatabase(constants.pdb_local);
+
+            //  pre-execution steps
+            IsAutomintLoggedIn().then(getLoginDoc).catch(failure);
+
+            function getLoginDoc(res) {
+                $rootScope.amGlobals.configDocIds = {
+                    settings: 'settings' + (res.channel ? '-' + res.channel : ''),
+                    treatment: 'treatments' + (res.channel ? '-' + res.channel : ''),
+                    inventory: 'inventory' + (res.channel ? '-' + res.channel : ''),
+                    workshop: 'workshop' + (res.channel ? '-' + res.channel : '')
+                }
+                $rootScope.isAmDbLoaded = true; 
+            }
+
+            function failure(err) {
+                $rootScope.amGlobals.configDocIds = {
+                    settings: 'settings',
+                    treatment: 'treatments',
+                    inventory: 'inventory',
+                    workshop: 'workshop'
+                }
+                $rootScope.isAmDbLoaded = true;
+            }
+        }
+
+        function syncDb(username, password) {
+            if ((username == '') || (username == undefined) || (password == '') || (password == undefined)) {
+                console.error('No Username or Password provided for database sync');
+                return;
+            }
+            var url = amFactory.generateDbUrl(username, password, constants.sgw_w_main);
+            if ((url == undefined) || (url == '')) {
+                console.error('Username/Password/Database name missing from url');
+                return;
+            }
+            pdbMain.sync(url).on('change', onChangedDb).on('paused', onPausedDb).on('active', onActiveDb).on('denied', onDeniedDb).on('complete', onCompleteDb).on('error', onErrorDb);
+
+            function onChangedDb(info) {
+                //  listen to on change event
+                console.info(info);
+            }
+
+            function onPausedDb(err) {
+                //  listen to on pause event\
+                console.warn(err);
+            }
+
+            function onActiveDb() {
+                //  listen to on active event
+            }
+
+            function onDeniedDb(err) {
+                //  listen to on denied event
+                console.error(err);
+            }
+
+            function onCompleteDb(info) {
+                //  listen to on complete event
+                console.info(info);
+            }
+
+            function onErrorDb(err) {
+                //  listen to on error event
+                console.error(err);
+            }
         }
 
         //  check for login
@@ -78,7 +145,7 @@
                 live: true
             }).on('change', OnChangeMainDb);
 
-            $location.path('/dashboard');
+            $state.go('restricted.dashboard');
         }
 
         function OnChangeMainDb(change) {

@@ -2,7 +2,7 @@
  * Controller for Add Membership component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.1
+ * @version 0.7.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlMsCI', MembershipAddController);
 
-    MembershipAddController.$inject = ['$q', '$filter', '$state', 'utils', 'amTreatments'];
+    MembershipAddController.$inject = ['$rootScope', '$q', '$filter', '$state', 'utils', 'amTreatments'];
 
-    function MembershipAddController($q, $filter, $state, utils, amTreatments) {
+    function MembershipAddController($rootScope, $q, $filter, $state, utils, amTreatments) {
         //  initialize view model
         var vm = this;
 
@@ -42,9 +42,10 @@
         vm.selectedTreatments = [];
 
         //  default execution steps
-        changeOccurencesLabel();
-        changeDurationLabel();
-        getVehicleTypes(getTreatments);
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
 
         //  function maps
         vm.goBack = goBack;
@@ -63,6 +64,14 @@
         vm.convertTnToTitleCase = convertTnToTitleCase;
 
         //  function definitions
+        
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                changeOccurencesLabel();
+                changeDurationLabel();
+                getVehicleTypes(getTreatments);
+            }
+        }
         
         function convertTnToTitleCase() {
             vm.treatment.details = utils.autoCapitalizeWord(vm.treatment.details);

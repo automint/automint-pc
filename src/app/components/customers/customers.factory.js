@@ -324,7 +324,6 @@
             }
             //  when database rejects
             function failure(error) {
-                console.log(error);
                 tracker.reject({
                     total: 0,
                     customers: customers

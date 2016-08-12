@@ -24,10 +24,19 @@
         vm.addService = addService;
 
         //  default execution steps
-        $rootScope.hidePreloader = true;
-        amAppbar.getPasscode().then(gps).catch(failure);
+        if ($rootScope.isAmDbLoaded)
+            headerbarDefaults(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', headerbarDefaults);
 
         //  function definitions
+
+        function headerbarDefaults(newValue, oldValue) {
+            if (newValue) {
+                $rootScope.hidePreloader = true;
+                amAppbar.getPasscode().then(gps).catch(failure);
+            }
+        }
 
         function addService() {
             $state.go('restricted.services.add');

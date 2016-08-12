@@ -2,7 +2,7 @@
  * Module to send emails
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.7.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -45,7 +45,7 @@
             html: emailTemplate
         }, function(err, email) {
             if (err) {
-                console.warn(err);
+                console.error(err);
                 return;
             }
             

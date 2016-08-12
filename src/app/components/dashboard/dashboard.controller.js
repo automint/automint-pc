@@ -12,9 +12,9 @@
 
     angular.module('automintApp').controller('dashboardCtrl', DashboardController);
 
-    DashboardController.$inject = ['$state', '$filter', '$log', '$mdDialog', 'utils', 'amDashboard'];
+    DashboardController.$inject = ['$rootScope', '$state', '$filter', '$log', '$mdDialog', 'utils', 'amDashboard'];
 
-    function DashboardController($state, $filter, $log, $mdDialog, utils, amDashboard) {
+    function DashboardController($rootScope, $state, $filter, $log, $mdDialog, utils, amDashboard) {
         //  initialize view model
         var vm = this;
         var ubServices = [], nwCustomers = [], filterRange = [], isNextDueServicesOpened = false;
@@ -100,12 +100,21 @@
         vm.IsReminderInPast = IsReminderInPast;
 
         //  default execution steps
-        initCurrentTimeSet();
-        getFilterMonths();
-        processPreferences();
-        getCurrencySymbol();
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
 
         //  function definitions
+
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                initCurrentTimeSet();
+                getFilterMonths();
+                processPreferences();
+                getCurrencySymbol();
+            }
+        }
 
         function openCurrencyDialog() {
             $mdDialog.show({
@@ -257,7 +266,6 @@
                 amDashboard.getNewCustomers(vm.currentTimeSet).then(generateNcpData).catch(failure);
                 amDashboard.getProblemsAndVehicleTypes(vm.currentTimeSet).then(sortProblemsAndVehicleTypes).catch(failure);
                 changeNsdcTimeRange(vm.nsdcTimeRange[0]);
-                console.warn(err.message);
             }
         }
 
@@ -305,7 +313,7 @@
             }
 
             function failure(err) {
-                console.info('failed to get filter months');
+                //  do nothing
             }
         }
 
@@ -532,7 +540,7 @@
         }
 
         function failure(err) {
-            console.warn(err);
+            //  do nothing
         }
     }
 })();;

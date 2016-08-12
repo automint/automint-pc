@@ -250,7 +250,7 @@
             }
 
             function failure(err) {
-                console.warn(err);
+                //  do nothing
             }
         }
 
@@ -271,7 +271,7 @@
             }
 
             function failure(err) {
-                console.warn(err);
+                //  do nothing
             }
         }
 
@@ -295,7 +295,7 @@
             amDashboard.getNextDueCustomers(vm.nsdcTime).then(generateNdcData).catch(failure);
 
             function failure(err) {
-                console.warn(err);
+                //  do nothing
             }
         }
 

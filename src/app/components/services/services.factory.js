@@ -391,7 +391,6 @@
                 }
             }
             function failure(err) {
-                console.log(err);
                 tracker.reject(err);
             }
         }
@@ -682,7 +681,7 @@
                 name = utils.convertToTitleCase(name);
                 if (name != newUser.name) { 
                     res._deleted = true;
-                    pdbMain.save(res).then(logResponse).catch(logResponse);
+                    pdbMain.save(res).then(doNothing).catch(doNothing);
                     res._id = utils.generateUUID(prefixUser);
                     delete res._deleted; 
                     delete res._rev;
@@ -715,8 +714,8 @@
                 }
             }
 
-            function logResponse(res) {
-                console.info(res);
+            function doNothing(res) {
+                //  do nothing
             }
 
             function noUserFound(err) {

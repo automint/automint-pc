@@ -134,23 +134,32 @@
             default:
                 break;
         }
-        getPasscode();
-        getDefaultServiceType();
-        getAmAppDataPath();
-        getWorkshopDetails();
-        getInvoiceSettings();
-        loadInvoiceWLogo();
-        loadInvoiceFLogo();
-        getIvAlignMargins();
-        getAllTaxSettings();
-        getCurrencySymbol();
-        getInvoicePageSize();
-        // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
-        // changeTaxTab(true);     //  testing purposes amTODO: remove it
-        
+
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
         //  default execution steps [END]
 
         //  function definitions
+
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                getPasscode();
+                getDefaultServiceType();
+                getAmAppDataPath();
+                getWorkshopDetails();
+                getInvoiceSettings();
+                loadInvoiceWLogo();
+                loadInvoiceFLogo();
+                getIvAlignMargins();
+                getAllTaxSettings();
+                getCurrencySymbol();
+                getInvoicePageSize();
+                // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
+                // changeTaxTab(true);     //  testing purposes amTODO: remove it
+            }
+        }
 
         function uploadInvoiceFLogo() {
             angular.element(document.querySelector('#am-upload-invoice-f-logo')).click();
@@ -263,7 +272,7 @@
             }
 
             function failure(err) {
-                console.warn(err);
+                //  do nothing
             }
         }
 
@@ -480,7 +489,6 @@
             }
 
             function failure(err) {
-                console.warn(err);
                 utils.showSimpleToast('Could not save margin! Please Try Again!');
             }
         }

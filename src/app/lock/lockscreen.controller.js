@@ -25,9 +25,18 @@
         vm.changePasscode = changePasscode;
 
         //  default execution steps
-        amAppbar.getPasscode().then(gps).catch(unlock);
+        if ($rootScope.isAmDbLoaded)
+            lockDefaults(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', lockDefaults);
 
         //  function definitions
+
+        function lockDefaults(newValue, oldValue) {
+            if (newValue) {
+                amAppbar.getPasscode().then(gps).catch(unlock);
+            }
+        }
 
         function changePasscode() {
             vm.isMessage = false;

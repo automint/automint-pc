@@ -12,10 +12,10 @@
         .controller('amCtrlCuUI', CustomerEditController)
         .controller('amCtrlMeD', MembershipEditDialogController);
 
-    CustomerEditController.$inject = ['$scope', '$state', '$q', '$log', '$filter', '$mdDialog', 'utils', 'amCustomers'];
+    CustomerEditController.$inject = ['$rootScope', '$scope', '$state', '$q', '$log', '$filter', '$mdDialog', 'utils', 'amCustomers'];
     MembershipEditDialogController.$inject = ['$mdDialog', '$filter', 'membership', 'treatments'];
 
-    function CustomerEditController($scope, $state, $q, $log, $filter, $mdDialog, utils, amCustomers) {
+    function CustomerEditController($rootScope, $scope, $state, $q, $log, $filter, $mdDialog, utils, amCustomers) {
         //  initialize view model
         var vm = this;
 
@@ -79,17 +79,25 @@
         vm.checkExistingCustomerMobile = checkExistingCustomerMobile;
 
         //  default execution steps
-        // $state.params.id = ($state.params.id == undefined) ? "usr-anand-kacha-772d071e-852c-4a45-aaaf-089d80f73449" : $state.params.id;
-        if ($state.params.id != undefined) {
-            getCurrencySymbol();
-            getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
-            setTimeout(focusCustomerMobile, 300);
-        } else {
-            utils.showSimpleToast('Something went wrong!');
-            $state.go('restricted.customers.all');
-        }
+        if ($rootScope.isAmDbLoaded)
+            defaultExecutionSteps(true, false);
+        else
+            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
 
         //  function definitions
+        function defaultExecutionSteps(newValue, oldValue) {
+            if (newValue) {
+                if ($state.params.id != undefined) {
+                    getCurrencySymbol();
+                    getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
+                    setTimeout(focusCustomerMobile, 300);
+                } else {
+                    utils.showSimpleToast('Something went wrong!');
+                    $state.go('restricted.customers.all');
+                }
+            }
+        }
+
 
         function checkExistingCustomerMobile(ev) {
             if (vm.user.mobile == '')
@@ -257,7 +265,7 @@
             $mdDialog.show(confirm).then(performDelete, ignoreDelete);
 
             function performDelete() {
-                console.info('membership deleted');
+                //  do nothing
             }
 
             function ignoreDelete() {
@@ -593,7 +601,6 @@
             }
 
             function failure(err) {
-                console.log(err);
                 utils.showSimpleToast('Something went wrong!');
                 $state.go('restricted.customers.all');
             }
@@ -690,7 +697,7 @@
 
             if (userDbInstance.user.name != vm.user.name) {
                 userDbInstance._deleted = true;
-                amCustomers.saveCustomer(userDbInstance).then(logResponse).catch(logResponse);
+                amCustomers.saveCustomer(userDbInstance).then(doNothing).catch(doNothing);
                 var prefixUser = 'usr-' + angular.lowercase(vm.user.name).replace(' ', '-');
                 userDbInstance._id = utils.generateUUID(prefixUser);
                 delete userDbInstance._deleted;
@@ -739,8 +746,8 @@
                 }
             }
 
-            function logResponse(res) {
-                console.info(res);
+            function doNothing(res) {
+                //  do nothing
             }
         }
 
