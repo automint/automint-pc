@@ -272,6 +272,7 @@
             }
 
             function failure(err) {
+                console.log(err);
                 //  do nothing
             }
         }
@@ -662,23 +663,18 @@
 
         //  callback function to import csv files
         function handleUploadedFile(e) {
-            vm.currentCsvProgress = 0;
+            vm.isCsvProcessed = true;
             var files = e.target.files || e.originalEvent.dataTransfer.files;
-            amImportdata.compileCSVFile(files).then(displayToastMessage).catch(displayToastMessage).finally(cleanUp, updates);
+            amImportdata.checkTypeofFile(files).then(displayToastMessage).catch(displayToastMessage).finally(cleanUp);
 
             function displayToastMessage(res) {
                 utils.showSimpleToast(res.message);
-                vm.currentCsvProgress = 100;
-                vm.isCsvProcessed = (vm.currentCsvProgress < 100);
+                vm.isCsvProcessed = false;
             }
 
             function cleanUp(res) {
                 amImportdata.cleanUp();
-            }
-
-            function updates(res) {
-                vm.currentCsvProgress = (res.total == 0) ? 0 : ((res.current * 100) / res.total);
-                vm.isCsvProcessed = (vm.currentCsvProgress < 100);
+                defaultExecutionSteps(true, false);
             }
         }
 
@@ -715,7 +711,7 @@
             }
             
             function failure(err) {
-                $log.info('No workshop details found!');
+                //  do nothing
             }
         }
 
@@ -790,7 +786,7 @@
             }
             
             function failure(err) {
-                $log.info('Cannot find invoice settings!');
+                //  do nothing
             }
         }
         

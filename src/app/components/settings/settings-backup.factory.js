@@ -8,6 +8,9 @@
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
+    const electron = require('electron').remote;
+    const amApp = electron.app;
+
     angular.module('automintApp').factory('amBackup', BackupFactory);
 
     BackupFactory.$inject = ['$q', 'pdbMain', 'pdbLocal'];
@@ -38,7 +41,8 @@
         }
 
         function foundDocsToBackup(data) {
-            backupDocument.backupTime = Date.now();
+            backupDocument.backupTime = moment().format();
+            backupDocument.automintVersion = amApp.getVersion();
             backupDocument.main = {}
             backupDocument.main.doc = [];
             backupDocument.local = {};
