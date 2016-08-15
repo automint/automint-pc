@@ -17,7 +17,7 @@
     function DashboardController($rootScope, $state, $filter, $log, $mdDialog, utils, amDashboard) {
         //  initialize view model
         var vm = this;
-        var ubServices = [], nwCustomers = [], filterRange = [], isNextDueServicesOpened = false;
+        var ubServices = [], nwCustomers = [], filterRange = [], isNextDueServicesOpened = false, isCurrencyLoadedLate = false;
 
         //  named assignments to keep track of UI
         vm.totalCustomersServed = 0;
@@ -99,7 +99,14 @@
         vm.IsNoNextDueReminders = IsNoNextDueReminders;
         vm.IsReminderInPast = IsReminderInPast;
 
+
         //  default execution steps
+        if ($rootScope.isFirstLoad == true) {
+            $rootScope.isFirstLoad = false;
+            isCurrencyLoadedLate = true;
+            $rootScope.hidePreloader = false;
+            setTimeout(getCurrencySymbol, 2000);
+        }
         if ($rootScope.isAmDbLoaded)
             defaultExecutionSteps(true, false);
         else
@@ -112,7 +119,8 @@
                 initCurrentTimeSet();
                 getFilterMonths();
                 processPreferences();
-                getCurrencySymbol();
+                if (!isCurrencyLoadedLate)
+                    getCurrencySymbol();
             }
         }
 
@@ -153,13 +161,16 @@
         }
 
         function getCurrencySymbol() {
+            isCurrencyLoadedLate = false;
             amDashboard.getCurrencySymbol().then(success).catch(failure);
 
             function success(res) {
+                $rootScope.hidePreloader = true;
                 vm.currencySymbol = res;
             }
 
             function failure(err) {
+                $rootScope.hidePreloader = true;
                 openCurrencyDialog();
             }
         }

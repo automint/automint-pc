@@ -24,7 +24,10 @@
             loadCredentials: loadCredentials,
             login: login,
             saveLoginCredentials: saveLoginCredentials,
-            changeExistingDocs: changeExistingDocs
+            changeExistingDocs: changeExistingDocs,
+            saveLicenseDetails: saveLicenseDetails,
+            activate: activate,
+            saveActivationDetails: saveActivationDetails
         }
 
         return factory;
@@ -34,17 +37,106 @@
         function loadCredentials(username, password) {
             if (!$rootScope.amGlobals)
                 $rootScope.amGlobals = {};
-            $rootScope.amGlobals.authHeaderData = amLoginBase64.encode(username + ':' + password);
+            $rootScope.amGlobals.credentials = {
+                username: username,
+                password: password
+            }
         }
 
         function login(success, failure) {
-            $http.defaults.headers.common['Authorization'] = 'Basic ' + $rootScope.amGlobals.authHeaderData;
-            $http.get(amFactory.generateAuthUrl(constants.sgw_w_main), {
+            $http({
+                method: 'POST',
+                url: amFactory.generateAuthUrl(),
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                data: $.param({
+                    name: $rootScope.amGlobals.credentials.username,
+                    password: $rootScope.amGlobals.credentials.password
+                }),
                 timeout: 2000
             }).then(success, failure);
         }
 
-        function saveLoginCredentials(isLoggedIn, username, password, channel) {
+        function activate(code, success, failure) {
+            $http.get(amFactory.generateActivationUrl(code)).then(success, failure);
+        }
+
+        function saveActivationDetails(isLoggedIn, code, startdate, enddate) {
+            var tracker = $q.defer();
+            pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(writeLoginDoc);
+            return tracker.promise;
+
+            function getLoginDoc(res) {
+                res.isLoggedIn = isLoggedIn;
+                res.activation = {
+                    code: code,
+                    startdate: startdate,
+                    enddate: enddate
+                }
+                pdbLocal.save(res).then(success).catch(failure);
+            }
+
+            function writeLoginDoc(err) {
+                var doc = {
+                    _id: constants.pdb_local_docs.login,
+                    isLoggedIn: isLoggedIn,
+                    activation: {
+                        code: code,
+                        startdate: startdate,
+                        enddate: enddate
+                    }
+                }
+                pdbLocal.save(doc).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function saveLicenseDetails(isLoggedIn, license, cloud) {
+            var tracker = $q.defer();
+            if ($rootScope.amGlobals == undefined)
+                $rootScope.amGlobals = {};
+            if ($rootScope.amGlobals.validity == undefined)
+                $rootScope.amGlobals.validity = {};
+            $rootScope.amGlobals.validity.license = license;
+            $rootScope.amGlobals.validity.cloud = cloud;
+            pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(writeLoginDoc);
+            return tracker.promise;
+
+            function getLoginDoc(res) {
+                res.isLoggedIn = isLoggedIn
+                res.license = license;
+                res.cloud = cloud;
+                pdbLocal.save(res).then(success).catch(failure);
+            }
+
+            function writeLoginDoc(err) {
+                var doc = {
+                    _id: constants.pdb_local_docs.login,
+                    isLoggedIn: isLoggedIn,
+                    license: license,
+                    cloud: cloud
+                }
+                pdbLocal.save(doc).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function saveLoginCredentials(username, password, channel) {
             var tracker = $q.defer();
             if ($rootScope.amGlobals == undefined)
                 $rootScope.amGlobals = {};
@@ -54,7 +146,6 @@
             return tracker.promise;
 
             function getLoginDoc(res) {
-                res.isLoggedIn = isLoggedIn;
                 res.username = username;
                 res.password = password;
                 res.channel = channel;
@@ -64,7 +155,6 @@
             function writeLoginDoc(err) {
                 var doc = {
                     _id: constants.pdb_local_docs.login,
-                    isLoggedIn: isLoggedIn,
                     username : username,
                     password: password,
                     channel: channel

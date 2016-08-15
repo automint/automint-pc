@@ -272,7 +272,6 @@
             }
 
             function failure(err) {
-                console.log(err);
                 //  do nothing
             }
         }
