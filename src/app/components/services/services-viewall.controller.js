@@ -325,8 +325,7 @@
         //  fill datatable with list of services
         function getServices() {
             vm.showPaginationBar = (vm.serviceQuery == '');
-            if ($rootScope.isAmDbLoaded)
-                vm.promise = (isPreferencesLoaded) ? amServices.getServices(vm.currentTimeSet, vm.serviceQuery).then(success).catch(failure) : undefined;
+            vm.promise = (isPreferencesLoaded) ? amServices.getServices(vm.currentTimeSet, vm.serviceQuery).then(success).catch(failure) : undefined;
 
             function success(res) {
                 isDataLoaded = true;

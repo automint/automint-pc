@@ -19,7 +19,6 @@
         var vm = this;
 
         //  named assignments to rootScope
-        $rootScope.isAmDbLoaded = false;
         if (!$rootScope.amGlobals)
             $rootScope.amGlobals = {};
         if ($rootScope.amGlobals.configDocIds == undefined) {
@@ -335,7 +334,7 @@
                     pdbCache.save(docsToSave);
 
                     function iterateRows(row) {
-                        if (row.id == $rootScope.amGlobals.configDocIds.settings)
+                        if (IsConfigDoc(row.id))
                             return;
                         if (row.doc.user.vehicles)
                             Object.keys(row.doc.user.vehicles).forEach(iterateVehicles);

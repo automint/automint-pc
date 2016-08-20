@@ -168,7 +168,7 @@
                                 <tr class="caption">
                                     <td>
                                         <p style="font-size: large" ng-if="vm.IsCustomerNotAnonymus()">{{vm.user.name}}</p>
-                                        <span ng-if="vm.IsCustomerNotAnonymus()"><span>{{vm.vehicle.manuf + ' ' + vm.vehicle.model}}</span><br><span style="line-height: 1.4; font-size: smaller; letter-spacing: 0.2px" ng-if="vm.vehicle.reg">{{vm.vehicle.reg}}</span></span>
+                                        <span ng-if="vm.IsVehicleNotAnonymus()"><span>{{vm.vehicle.manuf + ' ' + vm.vehicle.model}}</span><br><span style="line-height: 1.4; font-size: smaller; letter-spacing: 0.2px" ng-if="vm.vehicle.reg">{{vm.vehicle.reg}}</span></span>
                                     </td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>

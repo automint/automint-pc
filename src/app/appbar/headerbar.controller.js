@@ -26,22 +26,13 @@
         vm.relaunch = relaunch;
 
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            headerbarDefaults(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', headerbarDefaults);
+        $rootScope.hidePreloader = true;
+        amAppbar.getPasscode().then(gps).catch(failure);
 
         //  function definitions
 
         function relaunch() {
             ipcRenderer.send('am-do-restart', true);
-        }
-
-        function headerbarDefaults(newValue, oldValue) {
-            if (newValue) {
-                $rootScope.hidePreloader = true;
-                amAppbar.getPasscode().then(gps).catch(failure);
-            }
         }
 
         function addService() {

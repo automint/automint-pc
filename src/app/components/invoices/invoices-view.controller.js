@@ -63,6 +63,7 @@
         vm.currentPage = currentPage;
         vm.IsNotSinglePage = IsNotSinglePage;
         vm.IsCustomerNotAnonymus = IsCustomerNotAnonymus;
+        vm.IsVehicleNotAnonymus = IsVehicleNotAnonymus;
     
         //  electron watchers
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
@@ -82,6 +83,10 @@
         getInvoicePageSize();
 
         //  function definitions
+
+        function IsVehicleNotAnonymus() {
+            return (vm.vehicle.reg != 'Vehicle');
+        }
 
         function IsCustomerNotAnonymus() {
             return (vm.user.name != 'Anonymous');
