@@ -54,24 +54,15 @@
         //  default execution steps
         $scope.$watch('vm.serviceQuery', watchServiceQuery);
 
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        getCurrencySymbol();
+        getFilterMonths(processPreferences);
+        initCurrentTimeSet();
+        getServices();
         
         //  function definitions
 
         function IsVehicleAnonymous(reg) {
             return (reg == 'Vehicle');
-        }
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                getCurrencySymbol();
-                getFilterMonths(processPreferences);
-                initCurrentTimeSet();
-                getServices();
-            }
         }
 
         function IsCustomerAnonymous(name) {

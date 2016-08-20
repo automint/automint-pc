@@ -38,23 +38,14 @@
         vm.getRate = getRate;
         
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        amTreatments.getTreatmentSettings().then(treatmentSettingFound).catch(noSettingFound);
+        getVehicleTypes();
+        getTreatments();
         
         //  watchers
         $scope.$watch('trVm.stgDisplayAsList', listenToDisplayAsList);
         
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                amTreatments.getTreatmentSettings().then(treatmentSettingFound).catch(noSettingFound);
-                getVehicleTypes();
-                getTreatments();
-            }
-        }
         
         //  listeners
         function listenToDisplayAsList(newValue, oldValue) {

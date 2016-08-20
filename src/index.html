@@ -50,14 +50,15 @@ Automint CRM Software
     <script src="app/app.factory.js"></script>
     <script src="app/app.oc_lazy_load.js"></script>
     <script src="app/login/login.factory.js"></script>
+    <script src="app/login/login.service.js"></script>
     
     <link rel="stylesheet" href="assets/css/automint.css">
 </head>
 
 <body layout="column" ng-cloak>
-    <div layout="row" layout-align="center center" class="am-restart-app" ng-show="isAppBeingRestarted">
+    <div layout="row" layout-align="center center" class="am-restart-app" ng-show="busyApp.show">
         <div layout="column" layout-sm="column" layout-align="center center" class="am-loading-icon">
-            <span style="padding: 24px 100px">Restarting App. Please Wait..</span>
+            <span style="padding: 24px 100px">{{busyApp.message}}</span>
             <md-progress-linear md-mode="indeterminate"></md-progress-linear>
         </div>
     </div>

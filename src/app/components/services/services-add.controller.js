@@ -206,33 +206,24 @@
 
         //  default execution steps
 
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        setCoverPic();
+        changeUserInfoState(true);   //  ammToDo: Enable this while commiting
+        setTimeout(focusUserName, 700);
+        // changeServiceInfoState(true);   //  ammToDo: Testing Purpose, Disable while commiting
+        buildDelayedToggler('service-details-left');
+        getCurrencySymbol();
+        getDefaultServiceType();
+        getTreatmentDisplayFormat();
+        getInventoriesSettings();
+        getVehicleTypes();
+        getRegularTreatments();
+        getInventories();
+        getMemberships();
+        getLastInvoiceNo();
+        getLastEstimateNo();
+        getLastJobCardNo();
 
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                setCoverPic();
-                changeUserInfoState(true);   //  ammToDo: Enable this while commiting
-                setTimeout(focusUserName, 700);
-                // changeServiceInfoState(true);   //  ammToDo: Testing Purpose, Disable while commiting
-                buildDelayedToggler('service-details-left');
-                getCurrencySymbol();
-                getDefaultServiceType();
-                getTreatmentDisplayFormat();
-                getInventoriesSettings();
-                getVehicleTypes();
-                getRegularTreatments();
-                getInventories();
-                getMemberships();
-                getLastInvoiceNo();
-                getLastEstimateNo();
-                getLastJobCardNo();
-            }
-        }
 
         function openCustomerProfile() {
             $state.go('restricted.customers.edit', {

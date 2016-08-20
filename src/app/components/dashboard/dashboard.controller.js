@@ -17,7 +17,7 @@
     function DashboardController($rootScope, $state, $filter, $log, $mdDialog, utils, amDashboard) {
         //  initialize view model
         var vm = this;
-        var ubServices = [], nwCustomers = [], filterRange = [], isNextDueServicesOpened = false, isCurrencyLoadedLate = false;
+        var ubServices = [], nwCustomers = [], filterRange = [], isNextDueServicesOpened = false;
 
         //  named assignments to keep track of UI
         vm.totalCustomersServed = 0;
@@ -101,28 +101,13 @@
 
 
         //  default execution steps
-        if ($rootScope.isFirstLoad == true) {
-            $rootScope.isFirstLoad = false;
-            isCurrencyLoadedLate = true;
-            $rootScope.hidePreloader = false;
-            setTimeout(getCurrencySymbol, 2000);
-        }
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        $rootScope.hidePreloader = true;
+        initCurrentTimeSet();
+        getFilterMonths();
+        processPreferences();
+        getCurrencySymbol();
 
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                initCurrentTimeSet();
-                getFilterMonths();
-                processPreferences();
-                if (!isCurrencyLoadedLate)
-                    getCurrencySymbol();
-            }
-        }
 
         function openCurrencyDialog() {
             $mdDialog.show({
@@ -161,16 +146,13 @@
         }
 
         function getCurrencySymbol() {
-            isCurrencyLoadedLate = false;
             amDashboard.getCurrencySymbol().then(success).catch(failure);
 
             function success(res) {
-                $rootScope.hidePreloader = true;
                 vm.currencySymbol = res;
             }
 
             function failure(err) {
-                $rootScope.hidePreloader = true;
                 openCurrencyDialog();
             }
         }

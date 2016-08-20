@@ -35,18 +35,9 @@
         vm.convertVtToTitleCase = convertVtToTitleCase;
         
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        getVehicleTypes();
 
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                getVehicleTypes();
-            }
-        }
         
         function goBack() {
             $state.go('restricted.treatments.master', {

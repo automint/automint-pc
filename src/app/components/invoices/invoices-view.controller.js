@@ -69,28 +69,19 @@
 
         //  default execution steps
 
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
+            utils.showSimpleToast('Something went wrong. Please try again!')
+            $state.go('restricted.services.all');
+            return;
+        }
+        getCurrencySymbol();
+        fillInvoiceDetails();
+        loadInvoiceWLogo();
+        loadInvoiceFLogo();
+        getIvAlignMargins();
+        getInvoicePageSize();
 
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
-                    utils.showSimpleToast('Something went wrong. Please try again!')
-                    $state.go('restricted.services.all');
-                    return;
-                }
-                getCurrencySymbol();
-                fillInvoiceDetails();
-                loadInvoiceWLogo();
-                loadInvoiceFLogo();
-                getIvAlignMargins();
-                getInvoicePageSize();
-            }
-        }
 
         function IsCustomerNotAnonymus() {
             return (vm.user.name != 'Anonymous');

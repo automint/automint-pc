@@ -21,54 +21,62 @@
     function LoginFactory($rootScope, $http, $q, amLoginBase64, amFactory, constants, pdbLocal, pdbMain) {
         //  initialize factory and functino mappings
         var factory = {
-            loadCredentials: loadCredentials,
-            login: login,
-            saveLoginCredentials: saveLoginCredentials,
+            saveLicense: saveLicense,
             changeExistingDocs: changeExistingDocs,
-            saveLicenseDetails: saveLicenseDetails,
-            activate: activate,
-            saveActivationDetails: saveActivationDetails
+            saveActivationDetails: saveActivationDetails,
+            setLoginState: setLoginState,
+            savePassword: savePassword,
+            cloudForceEnabled: cloudForceEnabled
         }
 
         return factory;
 
         //  function definitions
 
-        function loadCredentials(username, password) {
-            if (!$rootScope.amGlobals)
-                $rootScope.amGlobals = {};
-            $rootScope.amGlobals.credentials = {
-                username: username,
-                password: password
+        function cloudForceEnabled(force) {
+            var tracker = $q.defer();
+            pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(failure);
+            return tracker.promise;
+
+            function getLoginDoc(res) {
+                res.isCloudForceEnabled = force;
+                pdbLocal.save(res).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
             }
         }
 
-        function login(success, failure) {
-            $http({
-                method: 'POST',
-                url: amFactory.generateAuthUrl(),
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                data: $.param({
-                    name: $rootScope.amGlobals.credentials.username,
-                    password: $rootScope.amGlobals.credentials.password
-                }),
-                timeout: 2000
-            }).then(success, failure);
+        function savePassword(password) {
+            var tracker = $q.defer();
+            pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(failure);
+            return tracker.promise;
+
+            function getLoginDoc(res) {
+                res.password = password;
+                pdbLocal.save(res).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
         }
 
-        function activate(code, success, failure) {
-            $http.get(amFactory.generateActivationUrl(code)).then(success, failure);
-        }
-
-        function saveActivationDetails(isLoggedIn, code, startdate, enddate) {
+        function saveActivationDetails(code, startdate, enddate) {
             var tracker = $q.defer();
             pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(writeLoginDoc);
             return tracker.promise;
 
             function getLoginDoc(res) {
-                res.isLoggedIn = isLoggedIn;
                 res.activation = {
                     code: code,
                     startdate: startdate,
@@ -80,7 +88,6 @@
             function writeLoginDoc(err) {
                 var doc = {
                     _id: constants.pdb_local_docs.login,
-                    isLoggedIn: isLoggedIn,
                     activation: {
                         code: code,
                         startdate: startdate,
@@ -99,30 +106,20 @@
             }
         }
 
-        function saveLicenseDetails(isLoggedIn, license, cloud) {
+        function setLoginState(isLoggedIn) {
             var tracker = $q.defer();
-            if ($rootScope.amGlobals == undefined)
-                $rootScope.amGlobals = {};
-            if ($rootScope.amGlobals.validity == undefined)
-                $rootScope.amGlobals.validity = {};
-            $rootScope.amGlobals.validity.license = license;
-            $rootScope.amGlobals.validity.cloud = cloud;
             pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(writeLoginDoc);
             return tracker.promise;
 
             function getLoginDoc(res) {
-                res.isLoggedIn = isLoggedIn
-                res.license = license;
-                res.cloud = cloud;
+                res.isLoggedIn = isLoggedIn;
                 pdbLocal.save(res).then(success).catch(failure);
             }
 
             function writeLoginDoc(err) {
                 var doc = {
                     _id: constants.pdb_local_docs.login,
-                    isLoggedIn: isLoggedIn,
-                    license: license,
-                    cloud: cloud
+                    isLoggedIn: isLoggedIn
                 }
                 pdbLocal.save(doc).then(success).catch(failure);
             }
@@ -136,12 +133,16 @@
             }
         }
 
-        function saveLoginCredentials(username, password, channel) {
+        function saveLicense(username, password, channel, license, cloud) {
             var tracker = $q.defer();
             if ($rootScope.amGlobals == undefined)
                 $rootScope.amGlobals = {};
             $rootScope.amGlobals.creator = username;
             $rootScope.amGlobals.channel = channel;
+            if ($rootScope.amGlobals.validity == undefined)
+                $rootScope.amGlobals.validity = {};
+            $rootScope.amGlobals.validity.license = license;
+            $rootScope.amGlobals.validity.cloud = cloud;
             pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(writeLoginDoc);
             return tracker.promise;
 
@@ -149,6 +150,8 @@
                 res.username = username;
                 res.password = password;
                 res.channel = channel;
+                res.license = license;
+                res.cloud = cloud;
                 pdbLocal.save(res).then(success).catch(failure);
             }
 
@@ -157,7 +160,9 @@
                     _id: constants.pdb_local_docs.login,
                     username : username,
                     password: password,
-                    channel: channel
+                    channel: channel,
+                    license: license,
+                    cloud: cloud
                 }
                 pdbLocal.save(doc).then(success).catch(failure);
             }

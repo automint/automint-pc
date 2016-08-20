@@ -200,24 +200,15 @@
         $(window).on('resize', OnWindowResize);
 
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        setCoverPic();
+        buildDelayedToggler('service-details-left');
+        changeServiceInfoState(true);
+        getCurrencySymbol();
+        getVehicleTypes();
+        getPackages();
+        getMemberships();
 
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                setCoverPic();
-                buildDelayedToggler('service-details-left');
-                changeServiceInfoState(true);
-                getCurrencySymbol();
-                getVehicleTypes();
-                getPackages();
-                getMemberships();
-            }
-        }
 
         function openCustomerProfile() {
             $state.go('restricted.customers.edit', {

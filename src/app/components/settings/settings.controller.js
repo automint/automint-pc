@@ -17,18 +17,24 @@
 
     angular.module('automintApp').controller('amCtrlSettings', SettingsController);
 
-    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', 'utils', 'amBackup', 'amLoginSettings', 'amImportdata', 'amIvSettings', 'amTaxSettings', 'amSettings'];
+    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', '$mdDialog', '$amLicense', '$amRoot', 'utils', 'amBackup', 'amLoginSettings', 'amImportdata', 'amIvSettings', 'amTaxSettings', 'amSettings', 'amLogin'];
 
-    function SettingsController($rootScope, $scope, $state, $log, utils, amBackup, amLoginSettings, amImportdata, amIvSettings, amTaxSettings, amSettings) {
+    function SettingsController($rootScope, $scope, $state, $log, $mdDialog, $amLicense, $amRoot, utils, amBackup, amLoginSettings, amImportdata, amIvSettings, amTaxSettings, amSettings, amLogin) {
         //  initialize view model
         var vm = this;
-        
+
         //  temporary named assignments
-        var olino = 0, oljbno = 0, oleno = 0; 
-        var oPasscode = '1234', oPasscodeEnabled;
-        var oIvAlignTop = '', oIvAlignBottom = '';
+        var olino = 0,
+            oljbno = 0,
+            oleno = 0;
+        var oPasscode = '1234',
+            oPasscodeEnabled;
+        var oIvAlignTop = '',
+            oIvAlignBottom = '';
         var ivEmailSubject, oIvFacebookLink, oIvInstagramLink, oIvTwitterLink, oIvWorkshopName, oIvWorkshopPhone, oIvWorkshopAddress1, oIvWorkshopAddress2, oIvWorkshopCity, oDefaultServiceType;
         var currentTaxFocusIndex = -1;
+        var csMessage,
+            isAutomintLoggedIn;
 
         //  named assignments to keep track of UI [BEGIN]
         vm.user = {
@@ -68,8 +74,18 @@
         vm.currencySymbol = "Rs.";
         vm.invoicePageSizeList = ['Single Page', 'A4'];
         vm.invoicePageSize = vm.invoicePageSizeList[1];
+        vm.cloudSettings = {
+            username: '',
+            password: '',
+            message: undefined,
+            enable: false,
+            isLicensed: false,
+            cloudenddate: undefined,
+            isCloudEnabled: false
+        };
+        vm.isLoginBoxOpen = false;
         //  named assignments to keep track of UI [END]
-        
+
         //  function maps [BEGIN]
         vm.changeInvoiceTab = changeInvoiceTab;
         vm.changeUsernameLabel = changeUsernameLabel;
@@ -124,6 +140,12 @@
         vm.saveInvoicePageSize = saveInvoicePageSize;
         vm.changeInvoiceFLogo = changeInvoiceFLogo;
         vm.uploadInvoiceFLogo = uploadInvoiceFLogo;
+        vm.changeCloudTab = changeCloudTab;
+        vm.cloudSettings.OnKeyDown = csOnKeyDown;
+        vm.cloudSettings.changeUserDetails = csChangeuserDetails;
+        vm.cloudSettings.submit = csSubmit;
+        vm.cloudSettings.changeAvailability = csChangeAvailability;
+        vm.cloudSettings.changePassword = csChangePassword;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -134,31 +156,172 @@
             default:
                 break;
         }
-
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        loadBlock();
         //  default execution steps [END]
 
         //  function definitions
 
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                getPasscode();
-                getDefaultServiceType();
-                getAmAppDataPath();
-                getWorkshopDetails();
-                getInvoiceSettings();
-                loadInvoiceWLogo();
-                loadInvoiceFLogo();
-                getIvAlignMargins();
-                getAllTaxSettings();
-                getCurrencySymbol();
-                getInvoicePageSize();
-                // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
-                // changeTaxTab(true);     //  testing purposes amTODO: remove it
+        function loadBlock() {
+            if ($rootScope.busyApp.show == true)
+                $rootScope.busyApp.message = 'Loading Data';
+            getPasscode();
+            getDefaultServiceType();
+            getAmAppDataPath();
+            getWorkshopDetails();
+            getInvoiceSettings();
+            loadInvoiceWLogo();
+            loadInvoiceFLogo();
+            getIvAlignMargins();
+            getAllTaxSettings();
+            getCurrencySymbol();
+            getInvoicePageSize();
+            // changeCloudTab(true) //  testing purposes amTODO: remove it
+            getLoginState();
+            // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
+            // changeTaxTab(true);     //  testing purposes amTODO: remove it
+        }
+
+        function csChangePassword(event) {
+            $mdDialog.show({
+                controller: 'amCtrlSeChPwd',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/settings/tmpl/changepassword.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                clickOutsideToClose: true
+            }).then(success).catch(success);
+
+            function success(res) {
+                if (res == true) {
+                    if ($rootScope.amDbSync)
+                        $rootScope.amDbSync.cancel();
+                    $amRoot.syncDb();
+                    getLoginState();
+                }
             }
+        }
+
+        function csChangeAvailability() {
+            vm.isLoginBoxOpen = vm.cloudSettings.enable;
+            if (vm.cloudSettings.isLicensed && vm.cloudSettings.isCloudEnabled)
+                amLogin.cloudForceEnabled(vm.cloudSettings.enable).then(success).catch(failure);
+
+            function success(res) {
+                if (vm.cloudSettings.enable == true) {
+                    if ($rootScope.amDbSync)
+                        $rootScope.amDbSync.cancel();
+                    $amRoot.syncDb();
+                } else if ($rootScope.amDbSync)
+                    $rootScope.amDbSync.cancel();
+                vm.cloudSettings.isCloudForceEnabled = vm.cloudSettings.enable;
+
+                utils.showSimpleToast('Automint Cloud Services has been ' + (vm.cloudSettings.enable ? 'enabled' : 'disabled') + ' successfully');
+            }
+
+            function failure(failure) {
+                utils.showSimpleToast('Could not ' + (vm.cloudSettings.enable ? 'enable' : 'disable') +' Audomint Cloud Service at moment! Please Try Again!');
+                vm.cloudSettings.enable = vm.cloudSettings.isCloudForceEnabled;
+            }
+        }
+
+        function getLoginState() {
+            $amLicense.checkLogin().then(success).catch(failure);
+
+            function success(res) {
+                vm.cloudSettings.enable = ((res.isCloudEnabled != undefined) ? res.isCloudEnabled : false);
+                if (vm.cloudSettings.enable == true)
+                    vm.cloudSettings.isCloudForceEnabled = ((res.isCloudForceEnabled != undefined) ? res.isCloudForceEnabled : vm.cloudSettings.enable);
+                vm.cloudSettings.enable = vm.cloudSettings.isCloudForceEnabled; 
+                vm.cloudSettings.isCloudEnabled = res.isCloudEnabled;
+                vm.cloudSettings.isLicensed = ((res.isLoggedIn == true) && (res.type == 'license'));
+                vm.cloudSettings.cloudenddate = ((res.cloudenddate != undefined) ? res.cloudenddate : undefined);
+                if (res.type != 'license')
+                    csMessage = 'You need to login to enable Automint Cloud Services';
+                else {
+                    vm.cloudSettings.username = $rootScope.amGlobals.credentials.username;
+                    if (res.cloudenddate) {
+                        var ced = moment(res.cloudenddate, 'YYYY-MM-DD').format('D MMMM YYYY');
+                        csMessage = (res.isCloudEnabled == true) ? ('Your license expires on ' + ced) : ('Your license has expired on ' + ced + '. Please contact Automint Care to extend it');
+                    } 
+                }
+                vm.cloudSettings.message = csMessage;
+                vm.isLoginBoxOpen = vm.cloudSettings.enable;
+            }
+
+            function failure(err) {
+                $mdDialog.show(
+                    $mdDialog.alert()
+                        .parent(document.body)
+                        .clickOutsideToClose(false)
+                        .title('License Error!')
+                        .textContent('Automint cannot identify your license. Please Login Again or Contact Automint Care!')
+                        .ariaLabel('License Error')
+                        .ok('Got it!')
+                ).then(restartApp).catch(restartApp);
+
+                function restartApp(res) {
+                    $rootScope.busyApp.show = true;
+                    $rootScope.busyApp.message = 'Restarting App due to License Error. Please Wait..';
+                    ipcRenderer.send('am-do-restart', true);
+                }
+                console.error(err);
+            }
+        }
+
+        function csSubmit() {
+            if ((vm.cloudSettings.username == '') && (vm.cloudSettings.password == '')) {
+                vm.cloudSettings.message = 'Please Enter Username and Password!';
+                return;
+            }
+            if ((vm.cloudSettings.username != '') && (vm.cloudSettings.password == '')) {
+                vm.cloudSettings.message = 'Please Enter Password!';
+                return;
+            }
+            if ((vm.cloudSettings.password != '') && (vm.cloudSettings.username == '')) {
+                vm.cloudSettings.message = 'Please Enter Username!';
+                return;
+            }
+
+            $rootScope.busyApp.show = true;
+            $rootScope.busyApp.message = 'Loging In';
+            $amLicense.loadCredentials(vm.cloudSettings.username, vm.cloudSettings.password);
+            $amLicense.login(false).then(success).catch(failure);
+
+            function success(res) {
+                if (res.isLoggedIn) {
+                    vm.cloudSettings.isLicensed = (res.isLoggedIn == true);
+                    if (res.isSyncableDb) {
+                        $amRoot.syncDb();
+                        $rootScope.busyApp.message = 'Syncing';
+                        setTimeout(syncDone, 2000);
+                    } else
+                        $rootScope.busyApp.show = false;
+                } else
+                    getLoginState();
+
+                function syncDone() {
+                    loadBlock();
+                    $rootScope.busyApp.show = false;
+                }
+            }
+
+            function failure(err) {
+                $rootScope.busyApp.show = false;
+                vm.cloudSettings.message = err;
+            }
+        }
+
+        function csChangeuserDetails() {
+            vm.cloudSettings.message = csMessage;
+        }
+
+        function csOnKeyDown(event) {
+            if (event.keyCode == 13)
+                csSubmit();
+        }
+
+        function changeCloudTab(bool) {
+            vm.cloudTab = true;
         }
 
         function uploadInvoiceFLogo() {
@@ -190,7 +353,7 @@
                 loadInvoiceFLogo();
             }
         }
-        
+
         //  load workshop logo in invoice settings
         function loadInvoiceFLogo() {
             var source = localStorage.getItem('invoice-f-pic');
@@ -333,9 +496,12 @@
         }
 
         function setAmAppDataPath(move) {
-            var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
+            var newPath = dialog.showOpenDialog({
+                properties: ['openDirectory']
+            });
             if (newPath) {
-                $rootScope.isAppBeingRestarted = true;
+                $rootScope.busyApp.show = true;
+                $rootScope.busyApp.message = 'Restarting App. Please Wait..';
                 ammPreferences.storePreference('automint.userDataPath', newPath[0]);
                 if (move) {
                     fse.copy(amApp.getPath('userData'), newPath[0], {
@@ -344,7 +510,7 @@
                 } else
                     removeSuccess();
             }
-            
+
             function success(res) {
                 if (res)
                     console.error(res);
@@ -444,7 +610,7 @@
 
         function resetLastEstimateNo(estimateno, reset) {
             amIvSettings.changeLastEstimateNo((estimateno == undefined) ? 0 : estimateno).then(respond).catch(respond);
-            
+
             function respond(res) {
                 getInvoiceSettings();
                 if (reset != true)
@@ -571,12 +737,12 @@
                 return;
             saveWorkshopDetails();
         }
-        
+
         //  default tab settings
         function changeInvoiceTab(bool) {
             vm.invoiceTab = bool;
         }
-        
+
         function OnBlurLastInvoiceNumber(ar, arg) {
             if (vm.ivSettings.lastInvoiceNumber == '' || vm.ivSettings.lastInvoiceNumber == null || vm.ivSettings.lastInvoiceNumber == undefined)
                 vm.ivSettings.lastInvoiceNumber = 0;
@@ -584,13 +750,14 @@
                 return;
             resetLastInvoiceNo(vm.ivSettings.lastInvoiceNumber);
         }
-       
+
         //  listen to changes in input fields [BEGIN]
         //  general settings
         function changeUsernameLabel(force) {
             vm.isUsername = (force != undefined || vm.user.username != '');
             vm.label_username = vm.isUsername ? 'Username:' : 'Enter Username:';
         }
+
         function changePasswordLabel(force) {
             vm.isPassword = (force != undefined || vm.user.password != '');
             vm.label_password = vm.isPassword ? 'Password:' : 'Enter Password:';
@@ -600,18 +767,22 @@
             vm.isWorkshopName = (force != undefined || vm.workshop.name != '');
             vm.label_workshopName = vm.isWorkshopName ? 'Workshop Name:' : 'Enter Workshop Name:';
         }
+
         function changeWorkshopPhoneLabel(force) {
             vm.isWorkshopPhone = (force != undefined || vm.workshop.phone != '');
             vm.label_workshopPhone = vm.isWorkshopPhone ? 'Phone Number:' : 'Enter Phone Number:';
         }
+
         function changeWorkshopAddress1Label(force) {
             vm.isWorkshopAddress1 = (force != undefined || vm.workshop.address1 != '');
             vm.label_workshopAddress1 = vm.isWorkshopAddress1 ? 'Address Line 1:' : 'Enter Address Line 1:';
         }
+
         function changeWorkshopAddress2Label(force) {
             vm.isWorkshopAddress2 = (force != undefined || vm.workshop.address2 != '');
             vm.label_workshopAddress2 = vm.isWorkshopAddress2 ? 'Address Line 2:' : 'Enter Address Line 2:';
         }
+
         function changeWorkshopCityLabel(force) {
             vm.isWorkshopCity = (force != undefined || vm.workshop.city != '');
             vm.label_workshopCity = vm.isWorkshopCity ? 'City:' : 'Enter City:';
@@ -623,6 +794,7 @@
         function uploadCSV() {
             angular.element(document.querySelector('#csv-file-select')).click();
         }
+
         function uploadCover() {
             angular.element(document.querySelector('#am-upload-cover-pic')).click();
         }
@@ -673,7 +845,7 @@
 
             function cleanUp(res) {
                 amImportdata.cleanUp();
-                defaultExecutionSteps(true, false);
+                loadBlock();
             }
         }
 
@@ -686,12 +858,12 @@
                 $log.info(res);
             }
         }
-        
+
         //  functions defined for invoice settings
         //  get workshop details from database
         function getWorkshopDetails() {
             amIvSettings.getWorkshopDetails().then(getWorkshopObject).catch(failure);
-            
+
             function getWorkshopObject(res) {
                 vm.workshop = res;
                 oIvWorkshopName = res.name;
@@ -708,7 +880,7 @@
                 changeWorkshopAddress2Label();
                 changeWorkshopCityLabel();
             }
-            
+
             function failure(err) {
                 //  do nothing
             }
@@ -743,11 +915,11 @@
                 return;
             saveWorkshopDetails();
         }
-        
+
         //  save workshop details to database
         function saveWorkshopDetails() {
             amIvSettings.saveWorkshopDetails(vm.workshop).then(success).catch(failure);
-            
+
             function success(res) {
                 oIvWorkshopName = vm.workshop.name;
                 oIvWorkshopPhone = vm.workshop.phone;
@@ -759,16 +931,16 @@
                 oIvInstagramLink = vm.workshop.social.instagram;
                 utils.showSimpleToast('Workshop details updated successfully!');
             }
-            
+
             function failure(err) {
                 utils.showSimpleToast('Failied to update workshop details! Please Try Again!');
             }
         }
-        
+
         //  get invoice settings
         function getInvoiceSettings() {
             amIvSettings.getInvoiceSettings().then(success).catch(failure);
-            
+
             function success(res) {
                 vm.ivSettings = res;
                 if (!vm.ivSettings.lastJobCardNo)
@@ -777,18 +949,18 @@
                     vm.ivSettings.lastEstimateNo = 0;
                 if (!vm.ivSettings.lastInvoiceNumber)
                     vm.ivSettings.lastInvoiceNumber = 0;
-                
+
                 olino = res.lastInvoiceNumber;
                 oljbno = res.lastJobCardNo;
                 oleno = res.lastEstimateNo;
                 ivEmailSubject = res.emailsubject;
             }
-            
+
             function failure(err) {
                 //  do nothing
             }
         }
-        
+
         //  change workshop logo in invoice settings
         function changeInvoiceWLogo(e) {
             var files = e.target.files;
@@ -815,41 +987,42 @@
                 loadInvoiceWLogo();
             }
         }
-        
+
         //  load workshop logo in invoice settings
         function loadInvoiceWLogo() {
             var source = localStorage.getItem('invoice-w-pic');
             vm.invoiceWLogo = source;
         }
-        
+
         //  reset invoice number sequence
         function resetLastInvoiceNo(invoiceno, reset) {
             amIvSettings.changeLastInvoiceNo((invoiceno == undefined) ? 0 : invoiceno).then(respond).catch(respond);
-            
+
             function respond(res) {
                 getInvoiceSettings();
                 if (reset != true)
                     utils.showActionToast('Invoice number has been ' + ((invoiceno == undefined) ? 'reset' : 'changed'), 'Undo', resetLastInvoiceNo, olino, true);
             }
         }
-        
+
         //  change display settings
         function saveIvDisplaySettings() {
             amIvSettings.saveIvDisplaySettings(vm.ivSettings.display).then(success).catch(failure);
-            
+
             function success(res) {
                 utils.showSimpleToast('Settings saved successfully!');
             }
+
             function failure(err) {
                 utils.showSimpleToast('Could not save settings at moment. Please try again!');
             }
         }
-        
+
         function saveIvEmailSubject(es, reset) {
             if (vm.ivSettings.emailsubject == undefined || ((ivEmailSubject == vm.ivSettings.emailsubject) && !es))
                 return;
             amIvSettings.saveIvEmailSubject((es == undefined) ? vm.ivSettings.emailsubject : es).then(respond).catch(respond);
-            
+
             function respond(res) {
                 getInvoiceSettings();
                 if (ivEmailSubject != undefined) {

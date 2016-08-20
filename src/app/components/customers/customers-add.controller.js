@@ -62,21 +62,12 @@
         vm.changeVehicle = changeVehicle;
         
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
-
+        setTimeout(focusCustomerName, 300);
+        getMemberships();
+        getRegularTreatments();
+        getVehicleTypes();
+        
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                setTimeout(focusCustomerName, 300);
-                getMemberships();
-                getRegularTreatments();
-                getVehicleTypes();
-            }
-        }
 
         function IsVehicleSelected(id) {
             return (vm.currentVehicleId == id);

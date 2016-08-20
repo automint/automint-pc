@@ -34,18 +34,9 @@
         vm.calculateTotal = calculateTotal;
         
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        getPackages(changeExpandValues);
         
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                getPackages(changeExpandValues);
-            }
-        }
         
         function calculateTotal(vehicletype, index) {
             var total = 0;

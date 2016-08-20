@@ -9,6 +9,7 @@
 
 (function() {
     const ammHelp = require('./automint_modules/am-help.js');
+    const ipcRenderer = require('electron').ipcRenderer;
 
     angular.module('automintApp').controller('amCtrlHeaderbar', HeaderBarController);
 
@@ -22,6 +23,7 @@
         vm.openLockScreen = openLockScreen;
         vm.openHelpWindow = openHelpWindow;
         vm.addService = addService;
+        vm.relaunch = relaunch;
 
         //  default execution steps
         if ($rootScope.isAmDbLoaded)
@@ -30,6 +32,10 @@
             $rootScope.$watch('isAmDbLoaded', headerbarDefaults);
 
         //  function definitions
+
+        function relaunch() {
+            ipcRenderer.send('am-do-restart', true);
+        }
 
         function headerbarDefaults(newValue, oldValue) {
             if (newValue) {

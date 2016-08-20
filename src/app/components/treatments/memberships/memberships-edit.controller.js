@@ -45,10 +45,9 @@
             errorAndExit();
             return;
         }
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        changeOccurencesLabel();
+        changeDurationLabel();
+        getVehicleTypes(getTreatments, getMembershipInfo);
 
         //  function maps
         vm.goBack = goBack;
@@ -67,14 +66,6 @@
         vm.convertTnToTitleCase = convertTnToTitleCase;
 
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                changeOccurencesLabel();
-                changeDurationLabel();
-                getVehicleTypes(getTreatments, getMembershipInfo);
-            }
-        }
         
         function convertTnToTitleCase() {
             vm.treatment.details = utils.autoCapitalizeWord(vm.treatment.details);

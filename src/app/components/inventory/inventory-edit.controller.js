@@ -33,22 +33,13 @@
         vm.convertNameToTitleCase = convertNameToTitleCase;
         vm.save = save;
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        if ($state.params.name == undefined) {
+            OnFailedHit();
+            return;
+        }
+        getInventory();
 
         //  function definitions
-        
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                if ($state.params.name == undefined) {
-                    OnFailedHit();
-                    return;
-                }
-                getInventory();
-            }
-        }
 
         function OnFailedHit() {
             utils.showSimpleToast('Something went wrong! Please Try Again!');

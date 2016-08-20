@@ -80,27 +80,18 @@
         vm.IsVehicleAnonymous = IsVehicleAnonymous;
 
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        if ($state.params.id != undefined) {
+            getCurrencySymbol();
+            getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
+            setTimeout(focusCustomerMobile, 300);
+        } else {
+            utils.showSimpleToast('Something went wrong!');
+            $state.go('restricted.customers.all');
+        }
 
         //  function definitions
         function IsVehicleAnonymous(service) {
             return (service.vhcl_reg == 'Vehicle');
-        }
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                if ($state.params.id != undefined) {
-                    getCurrencySymbol();
-                    getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
-                    setTimeout(focusCustomerMobile, 300);
-                } else {
-                    utils.showSimpleToast('Something went wrong!');
-                    $state.go('restricted.customers.all');
-                }
-            }
         }
 
 

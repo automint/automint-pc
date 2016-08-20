@@ -31,10 +31,7 @@
         vm.selectedTreatments = [];
 
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        getVehicleTypes(getTreatments);
 
         //  function maps
         vm.goBack = goBack;
@@ -49,12 +46,6 @@
         vm.calculateSubTotal = calculateSubTotal;
 
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                getVehicleTypes(getTreatments);
-            }
-        }
 
         function calculateSubTotal(type) {
             var total = 0;

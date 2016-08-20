@@ -31,19 +31,10 @@
         vm.changeDisplayAsList = changeDisplayAsList;
 
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        getInventories();
+        getDisplayAsList();
 
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                getInventories();
-                getDisplayAsList();
-            }
-        }
 
         function getDisplayAsList() {
             amInventory.getDisplayAsList().then(success).catch(failure);

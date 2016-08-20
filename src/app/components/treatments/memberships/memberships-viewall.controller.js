@@ -35,19 +35,10 @@
         vm.IsMembershipVisible = IsMembershipVisible;
         
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        getCurrencySymbol();
+        getMemberships(changeExpandValues);
         
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                getCurrencySymbol();
-                getMemberships(changeExpandValues);
-            }
-        }
 
         function getCurrencySymbol() {
             amTreatments.getCurrencySymbol().then(success).catch(failure);

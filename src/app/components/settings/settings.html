@@ -96,7 +96,7 @@
 
 <md-content>
     <md-tabs md-dynamic-height md-border-bottom class="am-tab-margin">
-        <md-tab label="General Settings">
+        <md-tab label="General">
             <md-content class="md-padding" layout-xs="column" layout="row">
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card class="md-hue-1 am-box-shadow">
@@ -197,7 +197,7 @@
                 </div>
             </md-content>
         </md-tab>
-        <md-tab label="Invoice Settings" md-active="vm.invoiceTab" md-on-deselect="vm.changeInvoiceTab(false)">
+        <md-tab label="Invoice" md-active="vm.invoiceTab" md-on-deselect="vm.changeInvoiceTab(false)">
             <md-content class="md-padding" layout-xs="column" layout="row">
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card class="md-hue-1 am-box-shadow">
@@ -398,7 +398,7 @@
                 background: #FAFAFA;
             }
         </style>
-        <md-tab label="Tax Settings" md-active="vm.taxTab" md-on-deselect="vm.changeTaxTab(false)">
+        <md-tab label="Tax" md-active="vm.taxTab" md-on-deselect="vm.changeTaxTab(false)">
             <md-content class="md-padding" layout="column" layout-align="start center">
                 <md-card class="md-hue-1" style="min-width: 600px;">
                     <md-card-content style="padding: 0">
@@ -437,6 +437,84 @@
                             </md-button>
                         </div>
                         <md-divider ng-repeat-end></md-divider>
+                    </md-card-content>
+                </md-card>
+            </md-content>
+        </md-tab>
+        <style>
+            .am-box-input {
+                border: 0;
+                border-bottom: 1px solid #BDBDBD;
+                padding: 0 10px;
+                line-height: 30px;
+                font-size: small;
+                outline: none;
+                color: #000;
+                transition: all 600ms ease;
+            }
+
+            .am-box-input:hover {
+                border-bottom: 1px solid #9E9E9E;
+            }
+
+            .am-box-input:focus {
+                border-bottom: 1px solid #424242;
+            }
+
+            .am-login-box .am-input-box {
+                margin: 16px;
+            }
+
+            .am-change-password {
+                font-size: small;
+                text-decoration: underline;
+                color: #2196F3;
+                outline: none;
+                cursor: pointer;
+                transition: color 200ms ease, text-decoration 200ms ease;
+            }
+
+            .am-change-password:hover {
+                color: #1565C0;
+                text-decoration: none;
+            }
+
+            .am-change-password:focus {
+                color: #1565C0;
+                text-decoration: none;
+            }
+        </style>
+        <md-tab label="Cloud" md-active="vm.cloudTab" md-on-deselect="vm.changeCloudTab(false)">
+            <md-content class="md-padding" layout="column" layout-align="start center">
+                <md-card class="md-hue-1" style="min-width: 600px;">
+                    <md-card-content style="padding: 0">
+                        <div layout="row" layout-align="start center" style="padding: 16px 24px">
+                            <span class="md-title">Automint Cloud</span>
+                            <span flex></span>
+                            <md-checkbox aria-label="Cloud" ng-model="vm.cloudSettings.enable" ng-change="vm.cloudSettings.changeAvailability()" style="margin-bottom: 0"><span class="md-body-1">Enable Cloud Services</span></md-checkbox>
+                        </div>
+                        <div class="am-login-box" ng-show="vm.isLoginBoxOpen">
+                            <div layout="row" layout-align="center center">
+                                <div flex="50">
+                                    <div layout="row" layout-align="start center" class="am-input-box">
+                                        <label class="am-form-label">Username: </label>
+                                        <input type="text" ng-disabled="vm.cloudSettings.isLicensed" id="ami-username" ng-keydown="vm.cloudSettings.OnKeyDown($event)" class="am-box-input" ng-change="vm.cloudSettings.changeUserDetails()" placeholder="Enter Username" ng-model="vm.cloudSettings.username" flex>
+                                    </div>
+                                    <div layout="row" layout-align="start center" class="am-input-box" ng-hide="vm.cloudSettings.isLicensed">
+                                        <label class="am-form-label">Password: </label>
+                                        <input type="password" id="ami-password" ng-keydown="vm.cloudSettings.OnKeyDown($event)" class="am-box-input" ng-change="vm.cloudSettings.changeUserDetails()" placeholder="Enter Password" ng-model="vm.cloudSettings.password" flex>
+                                    </div>
+                                </div>
+                            </div>
+                            <div layout="row" layout-align="start center" class="am-input-box">
+                                <span class="md-caption am-red-text" style="text-align: center" flex>{{vm.cloudSettings.message}}</span>
+                                <md-button class="md-accent md-raised" ng-click="vm.cloudSettings.submit()" ng-hide="vm.cloudSettings.isLicensed">
+                                    <span layout-margin>Submit</span>
+                                    <md-icon>send</md-icon>
+                                </md-button>
+                                <span class="am-change-password" ng-show="vm.cloudSettings.isLicensed" ng-click="vm.cloudSettings.changePassword($event)">Change Password</span>
+                            </div>
+                        </div>
                     </md-card-content>
                 </md-card>
             </md-content>

@@ -541,6 +541,7 @@
         }
         function loadSettingsDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
+                'app/components/settings/tmpl/changepassword.controller.js',
                 'app/components/settings/settings.controller.js',
                 'app/components/settings/settings-backup.factory.js',
                 'app/components/settings/settings-login.factory.js',

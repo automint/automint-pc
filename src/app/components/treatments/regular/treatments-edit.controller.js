@@ -38,25 +38,16 @@
         vm.convertVtToTitleCase = convertVtToTitleCase;
         
         //  default execution steps
-        if ($rootScope.isAmDbLoaded)
-            defaultExecutionSteps(true, false);
-        else
-            $rootScope.$watch('isAmDbLoaded', defaultExecutionSteps);
+        if (treatmentName == '' || treatmentName == undefined) {
+            utils.showSimpleToast('Something went wrong! Please Try Again!');
+            $state.go('restricted.treatments.master', {
+                openTab: 'treatments'
+            });
+            return;
+        }
+        getVehicleTypes();
         
         //  function definitions
-
-        function defaultExecutionSteps(newValue, oldValue) {
-            if (newValue) {
-                if (treatmentName == '' || treatmentName == undefined) {
-                    utils.showSimpleToast('Something went wrong! Please Try Again!');
-                    $state.go('restricted.treatments.master', {
-                        openTab: 'treatments'
-                    });
-                    return;
-                }
-                getVehicleTypes();
-            }
-        }
         
         function convertVtToTitleCase(rate) {
             rate.type = utils.convertToTitleCase(rate.type);
