@@ -47,6 +47,7 @@
         vm.initDb = initDb;
         vm.syncDb = syncDb;
         vm.dbAfterLogin = dbAfterLogin;
+        vm.generateCacheDocs = generateCacheDocs;
 
         //  function definitions
 
@@ -160,6 +161,8 @@
         }
 
         function OnChangeMainDb(change) {
+            if ($rootScope.isImportingDb == true)
+                return;
             if (IsConfigDoc(change.id))
                 return;
             if (change.deleted == true) {
@@ -299,6 +302,8 @@
                     var vdocToSave = {};
                     res.rows.forEach(iterateRows);
                     vdocToSave._id = constants.pdb_cache_views.view_next_due_vehicles;
+                    if (vvcdoc._rev != undefined)
+                        vdocToSave._rev = vvcdoc._rev;
                     pdbCache.save(vdocToSave);
 
                     function iterateRows(row) {
@@ -331,6 +336,8 @@
                     var docsToSave = {}, isChanged = false;
                     res.rows.forEach(iterateRows);
                     docsToSave._id = constants.pdb_cache_views.view_services;
+                    if (cachedoc._rev != undefined)
+                        docsToSave._rev = cachedoc._rev;
                     pdbCache.save(docsToSave);
 
                     function iterateRows(row) {
@@ -345,6 +352,7 @@
                                 Object.keys(vehicle.services).forEach(iterateServices);
 
                             function iterateServices(sId) {
+                                console.log(sId);
                                 var service = vehicle.services[sId];
                                 var cd = moment(service.date).format('MMM YYYY');
                                 var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.status == "paid") ? service.cost : 0);

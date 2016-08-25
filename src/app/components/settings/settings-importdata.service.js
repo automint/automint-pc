@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .service('amImportdata', ImportDataService);
 
-    ImportDataService.$inject = ['pdbMain', '$filter', '$q', 'utils', '$rootScope', '$log'];
+    ImportDataService.$inject = ['pdbMain', '$filter', '$q', 'utils', '$rootScope', '$log', '$amRoot'];
 
-    function ImportDataService(pdbMain, $filter, $q, utils, $rootScope, $log) {
+    function ImportDataService(pdbMain, $filter, $q, utils, $rootScope, $log, $amRoot) {
         var sVm = this;
         
         //  temporary named mappings
@@ -62,6 +62,7 @@
         }
 
         function jsonCallback(restore) {
+            $rootScope.isImportingDb = true;
             $q.all([
                 pdbMain.getAll(),
                 pdbMain.get($rootScope.amGlobals.configDocIds.settings)
@@ -81,10 +82,16 @@
                 pdbMain.saveAll(docsToSave).then(success).catch(failure);
 
                 function success(res) {
-                    tracker.resolve({
-                        success: true,
-                        message: 'Backup has been restored! You may now delete the file.'
-                    })
+                    setTimeout(setIsImportingDb, 1000);
+
+                    function setIsImportingDb() {
+                        tracker.resolve({
+                            success: true,
+                            message: 'Backup has been restored! You may now delete the file.'
+                        });
+                        $rootScope.isImportingDb = false;
+                        $amRoot.generateCacheDocs(true);
+                    }
                 }
 
                 function failure(err) {

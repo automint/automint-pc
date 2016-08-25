@@ -140,6 +140,8 @@
                 var enddate = moment(res.data.ends, 'YYYY-MM-DD').format();
                 if ((startdate.localeCompare(today) < 0) && (enddate.localeCompare(today) > 0))
                     isLoggedIn = true;
+                if ((res.data.code != undefined) && (res.data.code == 13))
+                    processMintCode(-404);
                 amLogin.saveActivationDetails(vm.code, res.data.starts, res.data.ends).then(proceed).catch(failure);
             }
 
@@ -239,6 +241,9 @@
                         break;
                     case 330:
                         message = 'No Licensing Details Found for ' + $rootScope.amGlobals.credentials.username + '! Please Try Again or Contact Automint Care!';
+                        break;
+                    case -404:
+                        message = 'Invalid Activation Code!';
                         break;
                 }
                 tracker.reject(message);
