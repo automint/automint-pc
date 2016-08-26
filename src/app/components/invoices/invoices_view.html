@@ -220,7 +220,7 @@
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td align="right">{{vm.currencySymbol}} {{problem.rate}}</td>
                                 </tr>
-                                <tr class="row" ng-repeat="inventory in vm.service.inventories | limitTo: page.inventoryCount: (vm.getIndexCount(page.inventorypages, true, page.inventoryCount) * page.inventoryCount)">
+                                <tr class="row" ng-repeat="inventory in vm.service.inventories | limitTo: page.inventoryCount: (vm.getIndexCount(page.inventorypages) * page.inventoryCount)">
                                     <td>{{inventory.name}}</td>
                                     <td ng-if="vm.service.inventories.length > 0">{{vm.currencySymbol}} {{inventory.rate}}</td>
                                     <td ng-if="vm.service.inventories.length > 0">{{inventory.qty}}</td>

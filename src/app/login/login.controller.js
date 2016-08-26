@@ -98,8 +98,11 @@
 
             function success(res) {
                 if (res.isLoggedIn) {
-                    if (res.isSyncableDb) 
+                    if (res.isSyncableDb) {
+                        $rootScope.isOnChangeMainDbBlocked = true;
                         $amRoot.syncDb();
+                    }
+                    vm.message = "Preparing Dashboard..";
                     $amRoot.dbAfterLogin(true);
                 } else
                     failure('Your license has expired!');

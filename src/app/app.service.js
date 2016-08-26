@@ -12,9 +12,9 @@
 
     angular.module('automintApp').service('$amRoot', AutomintService);
 
-    AutomintService.$inject = ['$rootScope', '$state', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal', 'amFactory'];
+    AutomintService.$inject = ['$rootScope', '$state', '$q', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal', 'amFactory'];
 
-    function AutomintService($rootScope, $state, constants, pdbMain, pdbCache, pdbLocal, amFactory) {
+    function AutomintService($rootScope, $state, $q, constants, pdbMain, pdbCache, pdbLocal, amFactory) {
         //  set up service view model
         var vm = this;
 
@@ -115,9 +115,6 @@
         }
 
         function dbAfterLogin(wait) {
-            //  handle database migration if any and generate cache docs after the process
-            //  no such migrations right now
-            generateCacheDocs();
 
             //  setup database change listeners
             pdbMain.OnDbChanged({
@@ -129,9 +126,21 @@
                 $rootScope.checkAutomintValidity = setInterval(checkAutomintValidity, 1000*60*60*24);
 
             if (wait)
-                setTimeout(transit, 2000);
-            else
-                $state.go('restricted.dashboard');
+                setTimeout(prepraeTransit, 2000);
+            else {
+                //  handle database migration if any and generate cache docs after the process
+                //  no such migrations right now
+                generateCacheDocs().then(transit).catch(transit);
+            }
+
+            function prepraeTransit() {
+                $rootScope.isOnChangeMainDbBlocked = false;
+                //  handle database migration if any and generate cache docs after the process
+                //  no such migrations right now
+                generateCacheDocs(true).then(transit).catch(transit);
+
+                
+            }
 
             function transit() {
                 $state.go('restricted.dashboard');
@@ -161,7 +170,7 @@
         }
 
         function OnChangeMainDb(change) {
-            if ($rootScope.isImportingDb == true)
+            if ($rootScope.isOnChangeMainDbBlocked == true)
                 return;
             if (IsConfigDoc(change.id))
                 return;
@@ -290,13 +299,19 @@
         }
 
         function generateCacheDocs(force) {
+            var tracker = $q.defer();
             pdbMain.getAll().then(success).catch(failure);
+            return tracker.promise;
 
             function success(res) {
-                var serviceCacheCallback = (force == true) ? generateServicesCache : ignore;
-                var nextDueCacheCallback = (force == true) ? generateNextDueCache : ignore;
+                var serviceCacheCallback = (force == true) ? generateServicesCache : quitRoutine;
+                var nextDueCacheCallback = (force == true) ? generateNextDueCache : quitRoutine;
                 pdbCache.get(constants.pdb_cache_views.view_services).then(serviceCacheCallback).catch(generateServicesCache);
                 pdbCache.get(constants.pdb_cache_views.view_next_due_vehicles).then(nextDueCacheCallback).catch(generateNextDueCache);
+
+                function quitRoutine() {
+                    tracker.resolve(true);
+                }
 
                 function generateNextDueCache(vvcdoc) {
                     var vdocToSave = {};
@@ -304,7 +319,7 @@
                     vdocToSave._id = constants.pdb_cache_views.view_next_due_vehicles;
                     if (vvcdoc._rev != undefined)
                         vdocToSave._rev = vvcdoc._rev;
-                    pdbCache.save(vdocToSave);
+                    pdbCache.save(vdocToSave).then(quitRoutine).catch(quitRoutine);
 
                     function iterateRows(row) {
                         if (IsConfigDoc(row.id))
@@ -338,7 +353,7 @@
                     docsToSave._id = constants.pdb_cache_views.view_services;
                     if (cachedoc._rev != undefined)
                         docsToSave._rev = cachedoc._rev;
-                    pdbCache.save(docsToSave);
+                    pdbCache.save(docsToSave).then(quitRoutine).catch(quitRoutine);
 
                     function iterateRows(row) {
                         if (IsConfigDoc(row.id))
@@ -352,7 +367,6 @@
                                 Object.keys(vehicle.services).forEach(iterateServices);
 
                             function iterateServices(sId) {
-                                console.log(sId);
                                 var service = vehicle.services[sId];
                                 var cd = moment(service.date).format('MMM YYYY');
                                 var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.status == "paid") ? service.cost : 0);
@@ -382,10 +396,6 @@
                             }
                         }
                     }
-                }
-
-                function ignore(res) {
-                    //  do nothing
                 }
             }
 

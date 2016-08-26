@@ -62,7 +62,7 @@
         }
 
         function jsonCallback(restore) {
-            $rootScope.isImportingDb = true;
+            $rootScope.isOnChangeMainDbBlocked = true;
             $q.all([
                 pdbMain.getAll(),
                 pdbMain.get($rootScope.amGlobals.configDocIds.settings)
@@ -85,12 +85,15 @@
                     setTimeout(setIsImportingDb, 1000);
 
                     function setIsImportingDb() {
-                        tracker.resolve({
-                            success: true,
-                            message: 'Backup has been restored! You may now delete the file.'
-                        });
-                        $rootScope.isImportingDb = false;
-                        $amRoot.generateCacheDocs(true);
+                        $rootScope.isOnChangeMainDbBlocked = false;
+                        $amRoot.generateCacheDocs(true).then(respond).catch(respond);
+
+                        function respond() {
+                            tracker.resolve({
+                                success: true,
+                                message: 'Backup has been restored! You may now delete the file.'
+                            });
+                        }
                     }
                 }
 

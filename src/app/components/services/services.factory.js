@@ -355,7 +355,6 @@
             return tracker.promise;
             
             function success(res) {
-                console.log(res);
                 var result = [], currentRange = '';
                 Object.keys(res).forEach(iterateDateRange);
                 tracker.resolve(result);

@@ -32,7 +32,6 @@
 
         function changePassword(username, newPassword) {
             var tracker = $q.defer();
-            console.log($rootScope.amGlobals);
             if (($rootScope.amGlobals == undefined) || ($rootScope.amGlobals.channel == undefined) || ($rootScope.amGlobals.channel == '')) {
                 failure({
                     mint_error: 401
@@ -138,7 +137,9 @@
                 }
                 var startdate = moment(res.data.starts, 'YYYY-MM-DD').format();
                 var enddate = moment(res.data.ends, 'YYYY-MM-DD').format();
-                if ((startdate.localeCompare(today) < 0) && (enddate.localeCompare(today) > 0))
+                if ((res.data.ends == 0) || (res.data.ends == '0'))
+                    isLoggedIn = true;
+                else if ((startdate.localeCompare(today) < 0) && (enddate.localeCompare(today) > 0))
                     isLoggedIn = true;
                 if ((res.data.code != undefined) && (res.data.code == 13))
                     processMintCode(-404);
@@ -173,12 +174,13 @@
                     function checkLicense() {
                         if (licenseData) {
                             var licensestartdate = moment(licenseData.license.starts, 'YYYY-MM-DD').format(), licenseenddate;
-                            if ((licenseData.license.ends != '0') || (licenseData.license.ends != 0)) {
+                            if ((licenseData.license.ends == '0') || (licenseData.license.ends == 0))
+                                isLoggedIn = true;
+                            else {
                                 licenseenddate = moment(licenseData.license.ends, 'YYYY-MM-DD').format();
                                 if ((licensestartdate.localeCompare(today) < 0) && (licenseenddate.localeCompare(today) > 0))
                                     isLoggedIn = true;
-                            } else
-                                isLoggedIn = true;
+                            }
                             amLogin.saveLicense($rootScope.amGlobals.credentials.username, $rootScope.amGlobals.credentials.password, channel, licenseData.license, licenseData.cloud).then(proceed).catch(failure);
                         } else
                             processMintCode(330);
@@ -213,6 +215,8 @@
                         var cloudstartdate = moment($rootScope.amGlobals.validity.cloud.starts, 'YYYY-MM-DD').format();
                         var cloudenddate = moment($rootScope.amGlobals.validity.cloud.ends, 'YYYY-MM-DD').format();
                         isSyncableDb = ((cloudstartdate.localeCompare(today) < 0) && (cloudenddate.localeCompare(today) > 0));
+                        if (($rootScope.amGlobals.validity.cloud.ends == 0) || ($rootScope.amGlobals.validity.cloud.ends == '0'))
+                            isSyncableDb = true;
                         if (!isSyncableDb)
                             utils.showSimpleToast('Your cloud services have expired! Please contact Automint Care!');
                     }
@@ -275,13 +279,17 @@
                     if (res.license) {
                         var licensestartdate = moment(res.license.starts, 'YYYY-MM-DD').format();
                         var licenseenddate = moment(res.license.ends, 'YYYY-MM-DD').format();
-                        if ((licensestartdate.localeCompare(today) < 0) && (licenseenddate.localeCompare(today) > 0))
+                        if ((res.license.ends == 0) || (res.license.ends == '0'))
+                            isLoggedIn = true;
+                        else if ((licensestartdate.localeCompare(today) < 0) && (licenseenddate.localeCompare(today) > 0))
                             isLoggedIn = true;
                     }
                     if (isLoggedIn && res.cloud) {
                         var cloudstartdate = moment(res.cloud.starts, 'YYYY-MM-DD').format();
                         var cloudenddate = moment(res.cloud.ends, 'YYYY-MM-DD').format();
-                        if ((cloudstartdate.localeCompare(today) < 0) && (cloudenddate.localeCompare(today) > 0))
+                        if ((res.cloud.ends == 0) || (res.cloud.ends == '0'))
+                            isCloudEnabled = true;
+                        else if ((cloudstartdate.localeCompare(today) < 0) && (cloudenddate.localeCompare(today) > 0))
                             isCloudEnabled = true;
                     }
                     if (isLoggedIn) {
@@ -298,7 +306,9 @@
                     if ((res.activation.startdate != undefined) && (res.activation.enddate != undefined)) {
                         var activationstartdate = moment(res.activation.startdate, 'YYYY-MM-DD').format();
                         var activationenddate = moment(res.activation.enddate, 'YYYY-MM-DD').format();
-                        if ((activationstartdate.localeCompare(today) < 0) && (activationenddate.localeCompare(today) > 0))
+                        if ((res.activation.enddate == 0) || (res.activation.enddate == '0'))
+                            isLoggedIn = true;
+                        else if ((activationstartdate.localeCompare(today) < 0) && (activationenddate.localeCompare(today) > 0))
                             isLoggedIn = true;
                         if (isLoggedIn) {
                             type = "activation";

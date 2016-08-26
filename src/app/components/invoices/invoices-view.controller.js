@@ -85,11 +85,7 @@
 
         //  function definitions
 
-        function getIndexCount(root, isInventory, count) {
-            if (isInventory && (root == 1)) {
-                console.log('root: ', root);
-                console.log('count:' , count);
-            }
+        function getIndexCount(root) {
             return (root - 1);
         }
 
@@ -299,7 +295,6 @@
                 if (ic != 0)
                     inventorypages++;
                 
-                console.log(inventoryCount);
                 pushPages(ms, ps, treatmentCount, inventoryCount);
 
                 function iterateMemberships(membership) {
@@ -318,8 +313,6 @@
                     }
                 }
             }
-
-            console.log(vm.pages);
 
             function pushPages(pmtc, pptc, pagetc, pic) {
                 var index = vm.pages.length;
