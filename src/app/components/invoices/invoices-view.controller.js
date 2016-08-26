@@ -64,6 +64,7 @@
         vm.IsNotSinglePage = IsNotSinglePage;
         vm.IsCustomerNotAnonymus = IsCustomerNotAnonymus;
         vm.IsVehicleNotAnonymus = IsVehicleNotAnonymus;
+        vm.getIndexCount = getIndexCount;
     
         //  electron watchers
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
@@ -83,6 +84,14 @@
         getInvoicePageSize();
 
         //  function definitions
+
+        function getIndexCount(root, isInventory, count) {
+            if (isInventory && (root == 1)) {
+                console.log('root: ', root);
+                console.log('count:' , count);
+            }
+            return (root - 1);
+        }
 
         function IsVehicleNotAnonymus() {
             return (vm.vehicle.reg != 'Vehicle');
@@ -135,6 +144,7 @@
 
         function doPagination() {
             vm.pages = [];
+            var membershippages = 0, packagepages = 0, treatmentpages = 0, inventorypages = 0;
             if (rowCount > 15) {
                 var pageCount = Math.ceil(rowCount / 15);
                 var mtc = membershipTreatmentCount, ptc = packageTreatmentCount, tc = treatmentCount, ic = inventoryCount;
@@ -142,6 +152,7 @@
                     if (mtc > 15) {
                         var ms = 0, mst = 0;
                         Object.keys(membershipCount).forEach(iterateMemberships);
+                        membershippages++;
                         pushPages(ms, 0, 0, 0);
                         mtc -= mst;
                         continue;
@@ -161,6 +172,9 @@
                         Object.keys(membershipCount).forEach(iterateMemberships);
                         Object.keys(packageCount).forEach(iteratePackages);
                         ptc = 15 - mtc;
+                        packagepages++;
+                        if (ms != 0)
+                            membershippages++;
                         pushPages(ms, ps, 0, 0);
                         mtc = 0;
                         continue;
@@ -187,6 +201,11 @@
                         Object.keys(membershipCount).forEach(iterateMemberships);
                         Object.keys(packageCount).forEach(iteratePackages);
                         tc = 15 - mtc - ptc;
+                        if (ms != 0)
+                            membershippages++;
+                        if (ps != 0)
+                            packagepages++;
+                        treatmentpages++;
                         pushPages(ms, ps, tc, 0);
                         mtc = 0;
                         ptc = 0;
@@ -214,6 +233,15 @@
                         Object.keys(membershipCount).forEach(iterateMemberships);
                         Object.keys(packageCount).forEach(iteratePackages);
                         ic = 15 - mtc - ptc - tc;
+                        if (ic == 0)
+                            ic = 1;
+                        if (ms != 0)
+                            membershippages++;
+                        if (ps != 0)
+                            packagepages++;
+                        if (tc != 0)
+                            treatmentpages++;
+                        inventorypages++;
                         pushPages(ms, ps, tc, ic);
                         mtc = 0;
                         ptc = 0;
@@ -262,6 +290,16 @@
                 var ps = 0, ms = 0, pst = 0, mst = 0;
                 Object.keys(membershipCount).forEach(iterateMemberships);
                 Object.keys(packageCount).forEach(iteratePackages);
+                if (ms != 0)
+                    membershippages++;
+                if (ps != 0)
+                    packagepages++;
+                if (tc != 0)
+                    treatmentpages++;
+                if (ic != 0)
+                    inventorypages++;
+                
+                console.log(inventoryCount);
                 pushPages(ms, ps, treatmentCount, inventoryCount);
 
                 function iterateMemberships(membership) {
@@ -281,10 +319,16 @@
                 }
             }
 
+            console.log(vm.pages);
+
             function pushPages(pmtc, pptc, pagetc, pic) {
                 var index = vm.pages.length;
                 vm.pages.push({
                     index: index,
+                    membershippages: membershippages,
+                    packagepages: packagepages,
+                    treatmentpages: treatmentpages,
+                    inventorypages: inventorypages,
                     membershipTreatmentCount: pmtc,
                     packageTreatmentCount: pptc,
                     treatmentCount: pagetc,
