@@ -139,7 +139,7 @@
                 var enddate = moment(res.data.ends, 'YYYY-MM-DD').format();
                 if ((res.data.ends == 0) || (res.data.ends == '0'))
                     isLoggedIn = true;
-                else if ((startdate.localeCompare(today) < 0) && (enddate.localeCompare(today) > 0))
+                if ((startdate.localeCompare(today) < 0) && (enddate.localeCompare(today) > 0))
                     isLoggedIn = true;
                 if ((res.data.code != undefined) && (res.data.code == 13))
                     processMintCode(-404);
@@ -281,7 +281,7 @@
                         var licenseenddate = moment(res.license.ends, 'YYYY-MM-DD').format();
                         if ((res.license.ends == 0) || (res.license.ends == '0'))
                             isLoggedIn = true;
-                        else if ((licensestartdate.localeCompare(today) < 0) && (licenseenddate.localeCompare(today) > 0))
+                        if ((licensestartdate.localeCompare(today) < 0) && (licenseenddate.localeCompare(today) > 0))
                             isLoggedIn = true;
                     }
                     if (isLoggedIn && res.cloud) {
@@ -289,7 +289,7 @@
                         var cloudenddate = moment(res.cloud.ends, 'YYYY-MM-DD').format();
                         if ((res.cloud.ends == 0) || (res.cloud.ends == '0'))
                             isCloudEnabled = true;
-                        else if ((cloudstartdate.localeCompare(today) < 0) && (cloudenddate.localeCompare(today) > 0))
+                        if ((cloudstartdate.localeCompare(today) < 0) && (cloudenddate.localeCompare(today) > 0))
                             isCloudEnabled = true;
                     }
                     if (isLoggedIn) {
@@ -308,7 +308,7 @@
                         var activationenddate = moment(res.activation.enddate, 'YYYY-MM-DD').format();
                         if ((res.activation.enddate == 0) || (res.activation.enddate == '0'))
                             isLoggedIn = true;
-                        else if ((activationstartdate.localeCompare(today) < 0) && (activationenddate.localeCompare(today) > 0))
+                        if ((activationstartdate.localeCompare(today) < 0) && (activationenddate.localeCompare(today) > 0))
                             isLoggedIn = true;
                         if (isLoggedIn) {
                             type = "activation";
