@@ -409,12 +409,13 @@
                                                 <th md-column>
                                                     <span class="am-table-header">Treatments</span>
                                                     <span style="margin-left: 0.6rem;">
-                                            <span class="am-table-header am-display-as-brackets">(</span>
-                                                    <span ng-click="vm.changeDisplayAsList(true)" id="ami-display-as" class="am-display-as">Show All<md-tooltip>Show All Treatments</md-tooltip></span>
-                                                    <span class="am-table-header am-display-as-brackets">)</span>
+                                                        <span class="am-table-header am-display-as-brackets">(</span>
+                                                        <span ng-click="vm.changeDisplayAsList(true)" id="ami-display-as" class="am-display-as">Show All<md-tooltip>Show All Treatments</md-tooltip></span>
+                                                        <span class="am-table-header am-display-as-brackets">)</span>
                                                     </span>
                                                 </th>
                                                 <th md-column md-numeric style="width: 13%"><span class="am-table-header">Amount</span></th>
+                                                <th md-column style="width: 20px; padding: 0">&nbsp;</th>
                                             </tr>
                                         </thead>
                                         <tbody md-body>
@@ -422,6 +423,11 @@
                                                 <td md-cell><input type="text" ng-model="problem.details" class="am-table-inline-input" am-custom-autofocus="vm.IsProblemFocusIndex($index)"></td>
                                                 <td md-cell>
                                                     <span><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
+                                                </td>
+                                                <td md-cell style="padding: 0">
+                                                     <md-button class="md-icon-button md-accent" style="padding: 0; margin: 0" ng-click="vm.openTd($event, problem)">
+                                                         <md-icon style="font-size: 14pt">more</md-icon>
+                                                     </md-button>
                                                 </td>
                                             </tr>
                                             <tr md-row>
@@ -435,6 +441,7 @@
                                                 <td md-cell>
                                                     <span><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
                                                 </td>
+                                                <td md-cell>&nbsp;</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -453,6 +460,7 @@
                                                     </span>
                                                 </th>
                                                 <th md-column md-numeric style="width: 13%"><span class="am-table-header">Amount</span></th>
+                                                <th md-column style="width: 20px; padding: 0">&nbsp;</th>
                                             </tr>
                                         </thead>
                                         <tbody md-body>
@@ -460,6 +468,11 @@
                                                 <td md-cell><input type="text" ng-model="problem.details" class="am-table-inline-input" am-custom-autofocus="vm.IsProblemFocusIndex($index)"></td>
                                                 <td md-cell>
                                                     <span><input type="number" ng-model="problem.amount" class="am-table-inline-input" ng-change="vm.changeProblemRate(problem)" style="text-align: right"></span>
+                                                </td>
+                                                <td md-cell style="padding: 0">
+                                                     <md-button class="md-icon-button md-accent" style="padding: 0; margin: 0" ng-click="vm.openTd($event, problem)">
+                                                         <md-icon style="font-size: 14pt">more</md-icon>
+                                                     </md-button>
                                                 </td>
                                             </tr>
                                             <tr md-row>
@@ -473,6 +486,7 @@
                                                 <td md-cell>
                                                     <span><input ng-blur="vm.finalizeNewProblem()" ng-change="vm.changeProblemRate(vm.problem)" type="number" ng-model="vm.problem.amount" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
                                                 </td>
+                                                <td md-cell>&nbsp;</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -492,6 +506,7 @@
                                                 <th md-column style="width: 13%"><span class="am-table-header">Rate</span></th>
                                                 <th md-column style="width: 6%"><span class="am-table-header">Qty</span></th>
                                                 <th md-column md-numeric style="width: 13%"><span class="am-table-header">Amount</span></th>
+                                                <th md-column style="width: 20px; padding: 0">&nbsp;</th>
                                             </tr>
                                         </thead>
                                         <tbody md-body>
@@ -505,6 +520,11 @@
                                                 </td>
                                                 <td md-cell>
                                                     <span><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
+                                                </td>
+                                                <td md-cell style="padding: 0">
+                                                     <md-button class="md-icon-button md-accent" style="padding: 0; margin: 0" ng-click="vm.openId($event, inventory)">
+                                                         <md-icon style="font-size: 14pt">more</md-icon>
+                                                     </md-button>
                                                 </td>
                                             </tr>
                                             <tr md-row>
@@ -524,6 +544,7 @@
                                                 <td md-cell>
                                                     <span><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
                                                 </td>
+                                                <td md-cell>&nbsp;</td>
                                             </tr>
                                         </tbody>
                                     </table>
@@ -543,6 +564,7 @@
                                                 <th md-column style="width: 13%"><span class="am-table-header">Rate</span></th>
                                                 <th md-column style="width: 6%"><span class="am-table-header">Qty</span></th>
                                                 <th md-column md-numeric style="width: 13%"><span class="am-table-header">Amount</span></th>
+                                                <th md-column style="width: 20px; padding: 0">&nbsp;</th>
                                             </tr>
                                         </thead>
                                         <tbody md-body>
@@ -556,6 +578,11 @@
                                                 </td>
                                                 <td md-cell>
                                                     <span><input type="number" ng-model="inventory.total" class="am-table-inline-input" ng-change="vm.changeInventoryTotal(inventory)" style="text-align: right"></span>
+                                                </td>
+                                                <td md-cell style="padding: 0">
+                                                     <md-button class="md-icon-button md-accent" style="padding: 0; margin: 0" ng-click="vm.openId($event, inventory)">
+                                                         <md-icon style="font-size: 14pt">more</md-icon>
+                                                     </md-button>
                                                 </td>
                                             </tr>
                                             <tr md-row>
@@ -575,6 +602,7 @@
                                                 <td md-cell>
                                                     <span><input ng-blur="vm.finalizeNewInventory()" ng-change="vm.changeInventoryTotal(vm.inventory)" type="number" ng-model="vm.inventory.total" placeholder="Amount" class="am-box-input md-whiteframe-z1" style="width: 90%; text-align: right"></span>
                                                 </td>
+                                                <td md-cell>&nbsp;</td>
                                             </tr>
                                         </tbody>
                                     </table>

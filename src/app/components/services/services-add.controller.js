@@ -200,6 +200,8 @@
         vm.goToDashboard = goToDashboard;
         vm.IsCustomerSelected = IsCustomerSelected;
         vm.openCustomerProfile = openCustomerProfile;
+        vm.openTd = openTd;
+        vm.openId = openId;
 
         //  watchers
         $(window).on('resize', OnWindowResize);
@@ -224,6 +226,44 @@
         getLastJobCardNo();
 
         //  function definitions
+
+        function openId(event, inventory) {
+            $mdDialog.show({
+                controller: 'amCtrlSeId',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/services/tmpl2/dialog-id.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    inventory: inventory
+                },
+                clickOutsideToClose: true
+            }).then(success).catch(success);
+
+            function success(res) {
+                //  do nothing
+            }
+        }
+
+        function openTd(event, problem) {
+            $mdDialog.show({
+                controller: 'amCtrlSeTd',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/services/tmpl2/dialog-td.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    problem: problem
+                },
+                clickOutsideToClose: true
+            }).then(success).catch(success);
+
+            function success(res) {
+                if (!res)
+                    return;
+                problem.orgcost = res.orgcost;
+            }
+        }
 
         function openCustomerProfile() {
             $state.go('restricted.customers.edit', {
@@ -666,7 +706,8 @@
         }
 
         function IsPackageEnabled() {
-            return (vm.packages && (vm.packages.length > 0));
+            return false;
+            // return (vm.packages && (vm.packages.length > 0));
         }
 
         function convertVehicleTypeToAF() {

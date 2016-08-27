@@ -520,6 +520,8 @@
                 'app/components/services/tmpl/dialog_membership.edit.controller.js',
                 'app/components/services/tmpl/dialog_discount.controller.js',
                 'app/components/services/tmpl/dialog_partialpayment.controller.js',
+                'app/components/services/tmpl2/dialog-td.controller.js',
+                'app/components/services/tmpl2/dialog-id.controller.js',
                 'app/components/services/services-add.controller.js'
             ])
         }
@@ -536,6 +538,8 @@
                 'app/components/services/tmpl/dialog_membership.edit.controller.js',
                 'app/components/services/tmpl/dialog_discount.controller.js',
                 'app/components/services/tmpl/dialog_partialpayment.controller.js',
+                'app/components/services/tmpl2/dialog-td.controller.js',
+                'app/components/services/tmpl2/dialog-id.controller.js',
                 'app/components/services/services-edit.controller.js'
             ])
         }

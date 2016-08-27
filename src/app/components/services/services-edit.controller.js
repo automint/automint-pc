@@ -34,6 +34,7 @@
         var dTreatmentTax, dInventoryTax, dTreatment, dInventory;
         var taxSettingsSnap = [], lastServiceState;
         var orgVehicle = {}, userMobile = undefined;
+        var isPackageAvailInService = false;
 
         //  vm assignments to keep track of UI related elements
         vm.vehicleTypeList = [];
@@ -195,6 +196,8 @@
         vm.goToDashboard = goToDashboard;
         vm.IsCustomerSelected = IsCustomerSelected;
         vm.openCustomerProfile = openCustomerProfile;
+        vm.openTd = openTd;
+        vm.openId = openId;
 
         //  watchers
         $(window).on('resize', OnWindowResize);
@@ -209,6 +212,44 @@
         getMemberships();
 
         //  function definitions
+
+        function openId(event, inventory) {
+            $mdDialog.show({
+                controller: 'amCtrlSeId',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/services/tmpl2/dialog-id.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    inventory: inventory
+                },
+                clickOutsideToClose: true
+            }).then(success).catch(success);
+
+            function success(res) {
+                //  do nothing
+            }
+        }
+
+        function openTd(event, problem) {
+            $mdDialog.show({
+                controller: 'amCtrlSeTd',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/services/tmpl2/dialog-td.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    problem: problem
+                },
+                clickOutsideToClose: true
+            }).then(success).catch(success);
+
+            function success(res) {
+                if (!res)
+                    return;
+                problem.orgcost = res.orgcost;
+            }
+        }
 
         function openCustomerProfile() {
             $state.go('restricted.customers.edit', {
@@ -683,7 +724,8 @@
         }
 
         function IsPackageEnabled() {
-            return (vm.packages && (vm.packages.length > 0));
+            return isPackageAvailInService;
+            // return (vm.packages && (vm.packages.length > 0));
         }
 
         function convertVehicleTypeToAF() {
@@ -981,6 +1023,9 @@
                         found[0].rate = inventory.rate;
                         found[0].amount = (inventory.amount) ? inventory.amount : inventory.rate;
                         found[0].qty = inventory.qty;
+                        found[0].orgcost = inventory.orgcost;
+                        found[0].vendor = inventory.vendor;
+                        found[0].purchasedate = inventory.purchasedate;
                         vm.selectedInventories.push(found[0]);
                     } else {
                         vm.inventories.push({
@@ -988,7 +1033,10 @@
                             rate: inventory.rate,
                             amount: (inventory.amount) ? inventory.amount : inventory.rate,
                             qty: inventory.qty,
-                            checked: true
+                            checked: true,
+                            orgcost: inventory.orgcost,
+                            vendor: inventory.vendor,
+                            purchasedate: inventory.purchasedate
                         });
                         vm.selectedInventories.push(vm.inventories[vm.inventories.length - 1]);
                     }
@@ -1513,6 +1561,8 @@
                 vm.vehicle.type = res.vehicle.type;
                 if (res.vehicle.service.packages) {
                     vm.serviceType = vm.serviceTypeList[1];
+                    if (Object.keys(res.vehicle.service.packages).length > 0)
+                        isPackageAvailInService = true;
                     Object.keys(res.vehicle.service.packages).forEach(iteratePackages);
                 }
                 if (res.vehicle.service.memberships) {
@@ -1818,6 +1868,7 @@
                     found[0].rate = problem.rate;
                     found[0].amount = (problem.amount) ? problem.amount : Math.round(problem.rate);
                     found[0].tax = problem.tax;
+                    found[0].orgcost = problem.orgcost;
                     vm.selectedProblems.push(found[0]);
                 } else {
                     vm.service.problems.push({
@@ -1825,7 +1876,8 @@
                         rate: problem.rate,
                         amount: (problem.amount) ? problem.amount : Math.round(problem.rate),
                         tax: problem.tax,
-                        checked: true
+                        checked: true,
+                        orgcost: problem.orgcost
                     });
                     vm.selectedProblems.push(vm.service.problems[vm.service.problems.length - 1]);
                 }

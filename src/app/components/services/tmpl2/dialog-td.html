@@ -1,0 +1,37 @@
+<style>
+    .am-dtd-box-input {
+        border: 0;
+        border-bottom: 1px solid #BDBDBD;
+        padding: 0 10px;
+        line-height: 30px;
+        font-size: small;
+        outline: none;
+        color: #000;
+        transition: all 600ms ease;
+    }
+
+    .am-dtd-box-input:hover {
+        border-bottom: 1px solid #9E9E9E;
+    }
+
+    .am-dtd-box-input:focus {
+        border-bottom: 1px solid #424242;
+    }
+</style>
+<md-dialog aria-label="Service of Details Dialog" class="md-hue-1" >
+    <md-dialog-content style="padding: 16px 16px 0 16px">
+        <div layout="row" layout-align="center center" style="margin: 0 0 14px 0">
+            <span class="md-caption">{{vm.problem.details}}</span>
+        </div>
+        <div layout="row" layout-align="start center" class="am-input-box">
+            <label class="am-form-label">Cost: </label>
+            <input id="ami-dtd-orgcost" type="number" style="margin-left: 9px" class="am-dtd-box-input" ng-keydown="vm.OnKeyDown($event)" ng-model="vm.problem.orgcost" flex>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" layout-align="end center" style="margin: 0 8px 6px 0">
+        <md-button class="md-warn md-raised" ng-click="vm.submit()">
+            <md-icon>done</md-icon>
+            <span layout-margin>Done</span>
+        </md-button>
+    </md-dialog-actions>
+</md-dialog>
