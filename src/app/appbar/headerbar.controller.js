@@ -13,9 +13,9 @@
 
     angular.module('automintApp').controller('amCtrlHeaderbar', HeaderBarController);
 
-    HeaderBarController.$inject = ['$rootScope', '$scope', '$state', '$timeout', '$mdSidenav', 'amAppbar'];
+    HeaderBarController.$inject = ['$rootScope', '$scope', '$state', '$timeout', '$mdSidenav', '$amRoot', 'amAppbar'];
 
-    function HeaderBarController($rootScope, $scope, $state, $timeout, $mdSidenav, amAppbar) {
+    function HeaderBarController($rootScope, $scope, $state, $timeout, $mdSidenav, $amRoot, amAppbar) {
         var vm = this;
 
         //  map functions to view model
@@ -31,8 +31,23 @@
 
         //  function definitions
 
-        function relaunch() {
+        /*function relaunch() {
             ipcRenderer.send('am-do-restart', true);
+        }*/
+
+        function relaunch() {
+            $rootScope.busyApp.show = true;
+            $rootScope.busyApp.message = "Refreshing Dashboard..";
+            $amRoot.generateCacheDocs(true).then(fakeWait).catch(fakeWait);
+
+            function fakeWait(res) {
+                setTimeout(proceed, 1000);
+            }
+
+            function proceed() {
+                $rootScope.busyApp.show = false;
+                $state.go('home');
+            }
         }
 
         function addService() {
