@@ -12,9 +12,9 @@
 
     angular.module('automintApp').controller('dashboardCtrl', DashboardController);
 
-    DashboardController.$inject = ['$rootScope', '$state', '$filter', '$log', '$mdDialog', 'utils', 'amDashboard'];
+    DashboardController.$inject = ['$rootScope', '$state', '$filter', '$log', '$mdDialog', '$amRoot', 'utils', 'amDashboard'];
 
-    function DashboardController($rootScope, $state, $filter, $log, $mdDialog, utils, amDashboard) {
+    function DashboardController($rootScope, $state, $filter, $log, $mdDialog, $amRoot, utils, amDashboard) {
         //  initialize view model
         var vm = this;
         var ubServices = [], nwCustomers = [], filterRange = [], isNextDueServicesOpened = false;
@@ -98,7 +98,7 @@
         vm.openNextDueServices = openNextDueServices;
         vm.IsNoNextDueReminders = IsNoNextDueReminders;
         vm.IsReminderInPast = IsReminderInPast;
-
+        vm.refreshDashboard = refreshDashboard;
 
         //  default execution steps
         $rootScope.hidePreloader = true;
@@ -108,6 +108,26 @@
         getCurrencySymbol();
 
         //  function definitions
+
+        function refreshDashboard() {
+            $rootScope.busyApp.show = true;
+            $rootScope.busyApp.message = 'Refreshing Dashboard....';
+            $rootScope.isOnChangeMainDbBlocked = true;
+            $amRoot.generateCacheDocs(true).then(fakeWait).catch(fakeWait);
+
+            function fakeWait() {
+                $rootScope.isOnChangeMainDbBlocked = false;
+                setTimeout(reloadData, 1000);
+            }
+
+            function reloadData() {
+                $rootScope.busyApp.show = false;
+                initCurrentTimeSet();
+                getFilterMonths();
+                processPreferences();
+                getCurrencySymbol();
+            }
+        }
 
         function openCurrencyDialog() {
             $mdDialog.show({

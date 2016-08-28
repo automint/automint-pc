@@ -75,9 +75,31 @@
     .am-dashboard-table-nxtdue tr:hover td {
         color: #212121;
     }
+
+    .amb-refresh {
+        outline: none;
+        cursor: pointer;
+        transition: background 300ms ease;
+        padding-right: 14px;
+    }
+
+    .amb-refresh:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .amb-refresh:focus {
+        background: rgba(0, 0, 0, 0.1);
+    }
 </style>
 <md-content layout="column">
-    <md-content layout="row" layout-align="end center" style="padding: 0.1rem 1rem" class="am-blue-bar c800">
+    <md-content layout="row" layout-align="start center" style="padding: 0.1rem 1rem" class="am-blue-bar c800">
+        <div layout="row" layout-align="start center" class="amb-refresh" ng-click="vm.refreshDashboard()">
+            <md-button class="md-icon-button" style="margin: 0" ng-click="vm.refreshDashboard()">
+                <md-icon style="font-size: 16pt; color: #fff">refresh</md-icon>
+            </md-button>
+            <span class="md-body-1">Refresh Dashboard</span>
+        </div>
+        <div flex></div>
         <span class="md-body-1">Showing data for : {{vm.ddTimeSet}} </span>
         <md-button class="md-icon-button" ng-click="vm.openTimeFilter($event)">
             <md-icon style="font-size: 16pt; color: #fff">date_range</md-icon>

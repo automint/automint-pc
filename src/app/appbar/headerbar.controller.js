@@ -31,23 +31,8 @@
 
         //  function definitions
 
-        /*function relaunch() {
-            ipcRenderer.send('am-do-restart', true);
-        }*/
-
         function relaunch() {
-            $rootScope.busyApp.show = true;
-            $rootScope.busyApp.message = "Refreshing Dashboard..";
-            $amRoot.generateCacheDocs(true).then(fakeWait).catch(fakeWait);
-
-            function fakeWait(res) {
-                setTimeout(proceed, 1000);
-            }
-
-            function proceed() {
-                $rootScope.busyApp.show = false;
-                $state.go('home');
-            }
+            ipcRenderer.send('am-do-restart', true);
         }
 
         function addService() {

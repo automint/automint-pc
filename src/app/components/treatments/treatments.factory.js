@@ -142,6 +142,7 @@
                 treatments: [],
                 total: 0
             };
+            console.log($rootScope.amGlobals.configDocIds.treatment);
             pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(treatmentDocFound).catch(failure);
             return tracker.promise;
             
@@ -161,6 +162,7 @@
             }
             
             function failure(err) {
+                console.log(err);
                 tracker.reject(response);
             }
         }

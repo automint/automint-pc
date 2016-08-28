@@ -193,12 +193,14 @@
                     processMintCode(-1);
                     return;
                 }
+                console.log('channel: ' + channel);
                 $rootScope.amGlobals.configDocIds = {
                     settings: 'settings' + (channel ? '-' + channel : ''),
-                    treatment: 'treatment' + (channel ? '-' + channel : ''),
+                    treatment: 'treatments' + (channel ? '-' + channel : ''),
                     inventory: 'inventory' + (channel ? '-' + channel : ''),
                     workshop: 'workshop' + (channel ? '-' + channel : '')
                 };
+                console.log($rootScope.amGlobals.configDocIds);
 
                 var isDbToBeChanged = (($rootScope.amGlobals != undefined) && ($rootScope.amGlobals.creator != '') && ($rootScope.amGlobals.channel != ''));
 

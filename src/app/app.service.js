@@ -204,6 +204,8 @@
                             _id: constants.pdb_cache_views.view_services
                         }
                     }
+                    if (curdoc.user == undefined)
+                        return;
                     if (curdoc.user.vehicles)
                         Object.keys(curdoc.user.vehicles).forEach(iterateVehicles);
                     pdbCache.save(cachedoc);
@@ -250,6 +252,8 @@
                         }
                     }
 
+                    if (curdoc.user == undefined)
+                        return;
                     if (curdoc.user.vehicles)
                         Object.keys(curdoc.user.vehicles).forEach(iterateVehicles);
                     pdbCache.save(cachedoc);
@@ -324,6 +328,8 @@
                     function iterateRows(row) {
                         if (IsConfigDoc(row.id))
                             return;
+                        if (row.doc.user == undefined)
+                            return;
                         if (row.doc.user.vehicles)
                             Object.keys(row.doc.user.vehicles).forEach(iterateVehicles);
                         
@@ -357,6 +363,8 @@
 
                     function iterateRows(row) {
                         if (IsConfigDoc(row.id))
+                            return;
+                        if (row.doc.user == undefined)
                             return;
                         if (row.doc.user.vehicles)
                             Object.keys(row.doc.user.vehicles).forEach(iterateVehicles);
