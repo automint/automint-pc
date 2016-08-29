@@ -71,6 +71,18 @@
                 vm.treatment.name = res.name;
                 changeNameLabel();
                 Object.keys(res.rate).forEach(iterateRate);
+                if (res.orgcost) {
+                    vm.isOrgCostEnabled = true;
+                    Object.keys(res.orgcost).forEach(iterateOrgCost);
+                }
+
+                function iterateOrgCost(rk) {
+                    var found = $filter('filter')(vm.rates, {
+                        type: utils.convertToTitleCase(rk.replace(/-/g, ' '))
+                    }, true);
+                    if (found.length == 1)
+                        found[0].orgcost = res.orgcost[rk];
+                }
                 
                 function iterateRate(rk) {
                     var found = $filter('filter')(vm.rates, {
@@ -97,6 +109,7 @@
                     vm.rates.push({
                         type: utils.convertToTitleCase(type.replace(/-/g, ' ')),
                         value: '',
+                        orgcost: '',
                         fromDb: true,
                         focusIndex: vm.rates.length
                     });
@@ -116,6 +129,7 @@
                 type: '',
                 value: '',
                 fromDb: false,
+                orgcost: '',
                 focusIndex: fIndex
             });
             if (focus) {
@@ -144,9 +158,23 @@
             }
             return result;
         }
+
+        function generateOrgCost() {
+            var result = {};
+            vm.rates.forEach(iterateRate);
+
+            function iterateRate(rate) {
+                rate.type = rate.type.trim();
+                if (rate.type && rate.orgcost != '')
+                    result[angular.lowercase(rate.type.replace(/\s/g, '-'))] = rate.orgcost;
+            }
+            return result;
+        }
         
         function save() {
             vm.treatment.rate = generateRate();
+            if (vm.isOrgCostEnabled)
+                vm.treatment.orgcost = generateOrgCost();
             amTreatments.saveVehicleTypes(Object.keys(vm.treatment.rate));
             amTreatments.saveTreatment(vm.treatment, vm.operationMode).then(success).catch(failure);
             

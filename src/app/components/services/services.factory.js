@@ -479,10 +479,13 @@
 
                 function iterateTreatments(name) {
                     if (!res.regular[name]._deleted) {
-                        treatments.push({
+                        var t = {
                             name: name,
                             rate: res.regular[name].rate
-                        })
+                        };
+                        if (res.regular[name].orgcost)
+                            t.orgcost = res.regular[name].orgcost;
+                        treatments.push(t);
                     }
                 }
             }

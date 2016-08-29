@@ -127,6 +127,8 @@
                     name: treatmentName,
                     rate: res.regular[treatmentName].rate
                 }
+                if (res.regular[treatmentName].orgcost)
+                    treatment.orgcost = res.regular[treatmentName].orgcost;
                 tracker.resolve(treatment);
             }
 
@@ -142,7 +144,6 @@
                 treatments: [],
                 total: 0
             };
-            console.log($rootScope.amGlobals.configDocIds.treatment);
             pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(treatmentDocFound).catch(failure);
             return tracker.promise;
             
@@ -162,7 +163,6 @@
             }
             
             function failure(err) {
-                console.log(err);
                 tracker.reject(response);
             }
         }
@@ -193,6 +193,8 @@
             var i = {
                 rate: treatment.rate
             };
+            if (treatment.orgcost)
+                i.orgcost = treatment.orgcost;
             pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(treatmentDocFound).catch(noTreatmentDoc);
             return tracker.promise;
 

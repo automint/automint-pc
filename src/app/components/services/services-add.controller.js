@@ -1797,6 +1797,8 @@
                     problem.tax = {};
                     vm.taxSettings.forEach(iterateTaxes);
                     problem.rate = parseFloat(taxable);
+                    if (found[0].orgcost && found[0].orgcost[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')])
+                        problem.orgcost = found[0].orgcost[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
 
                     function iterateTaxes(tax) {
                         if (!tax.isForTreatments)
@@ -1846,12 +1848,15 @@
             getTreatmentsTax();
 
             function iterateTreatment(treatment) {
-                vm.service.problems.push({
+                var p = {
                     details: treatment.name,
                     rate: treatment.rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')],
                     amount: treatment.rate[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')],
                     checked: false
-                });
+                };
+                if (treatment.orgcost && treatment.orgcost[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')])
+                    p.orgcost = treatment.orgcost[angular.lowercase(vm.vehicle.type).replace(/\s/g, '-')];
+                vm.service.problems.push(p);
             }
         }
 

@@ -150,17 +150,22 @@ input[type=number]::-webkit-outer-spin-button {
     -webkit-transition: color 1s ease 0s;
     -moz-transition: color 1s ease 0s;
     transition: color 1s ease 0s;
-    box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.3);
+    box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.2);
 }
 
 .am-table-input:focus {
     color: rgba(30, 30, 30, 0.9);
-    box-shadow: 1px 1px 3px 1px rgba(30, 30, 30, 0.3);
+    box-shadow: 1px 1px 3px 1px rgba(30, 30, 30, 0.2);
 }
 
 .am-table-input.search-box {
     font-size: small;
-    box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.3);
+    box-shadow: 0px 1px 3px 1px rgba(30, 30, 30, 0.2);
+}
+
+.am-table-input:disabled {
+    background: white;
+    box-shadow: none;
 }
 
 .am-checkbox .md-icon {
