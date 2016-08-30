@@ -26,6 +26,7 @@
         vm.OnKeyDown = OnKeyDown;
         vm.submit = submit;
         vm.getDate = getDate;
+        vm.clearall = clearall;
 
         //  default execution steps
         setTimeout(focusOriginalCost, 800);
@@ -33,6 +34,11 @@
             vm.inventory.purchasedate = new Date(vm.inventory.purchasedate);
 
         //  function definitions
+
+        function clearall() {
+            delete vm.inventory.orgcost;
+            delete vm.inventory.vendor;
+        }
 
         function getDate(date) {
             return moment(date).format('DD MMM YYYY');
