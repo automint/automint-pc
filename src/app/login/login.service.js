@@ -105,7 +105,7 @@
             }
         }
 
-        function login(isCodeUsed, code) {
+        function login(isCodeUsed, code, ignoreCodeUsedError) {
             var today = moment().format(), isLoggedIn = false, channel, isSyncableDb = false;
             var tracker = $q.defer();
             if (isCodeUsed)
@@ -131,7 +131,7 @@
                     failure();
                     return;
                 }
-                if (res.data.used) {
+                if ((ignoreCodeUsedError != true) &&  res.data.used) {
                     tracker.reject('The code is already in use! You cannot use it again!');
                     return;
                 }
@@ -193,14 +193,12 @@
                     processMintCode(-1);
                     return;
                 }
-                console.log('channel: ' + channel);
                 $rootScope.amGlobals.configDocIds = {
                     settings: 'settings' + (channel ? '-' + channel : ''),
                     treatment: 'treatments' + (channel ? '-' + channel : ''),
                     inventory: 'inventory' + (channel ? '-' + channel : ''),
                     workshop: 'workshop' + (channel ? '-' + channel : '')
                 };
-                console.log($rootScope.amGlobals.configDocIds);
 
                 var isDbToBeChanged = (($rootScope.amGlobals != undefined) && ($rootScope.amGlobals.creator != '') && ($rootScope.amGlobals.channel != ''));
 
@@ -252,21 +250,76 @@
                         message = 'Invalid Activation Code!';
                         break;
                 }
-                tracker.reject(message);
+                tracker.reject({
+                    code: code,
+                    message: message
+                });
             }
 
             function failure(err) {
                 if (err)
                     console.error(err);
-                tracker.reject('Please check your internet connectivity!');
+                tracker.reject({
+                    message: 'Please check your internet connectivity!'
+                });
             }
-        } 
+        }
 
-        function checkLogin() {
+        function checkLogin(isLdtbSynced) {
             var tracker = $q.defer();
+            var errm = undefined;
             var today = moment().format(), isLoggedIn = false, isCloudEnabled = false, type, isCloudForceEnabled;
-            pdbLocal.get(constants.pdb_local_docs.login).then(checkFlags).catch(failure);
+            if (isLdtbSynced)
+                pdbLocal.get(constants.pdb_local_docs.login).then(performLogin).catch(failure);
+            else
+                pdbLocal.get(constants.pdb_local_docs.login).then(checkFlags).catch(failure);
             return tracker.promise;
+
+            function performLogin(extLd) {
+                if (extLd.isLoggedIn) {
+                    if (extLd.username && extLd.password) {
+                        loadCredentials(extLd.username, extLd.password);
+                        login(false).then(furtherCheck).catch(handleError);
+                    } else if (extLd.activation && extLd.activation.code)
+                        login(true, extLd.activation.code, true).then(furtherCheck).catch(handleError);
+                    else {
+                        failure();
+                    }
+                } else {
+                    failure({
+                        mintSkipSave: true
+                    });
+                }
+
+                function handleError(err) {
+                    if (err.code == undefined) {
+                        furtherCheck();
+                        return
+                    }
+                    switch (err.code) {
+                        case -404:
+                            errm = 'License Error: Invalid Activation Code!';
+                            break;
+                        case -1:
+                            errm = 'Your license has expired!';
+                            break;
+                        case 200:
+                            errm = 'Your password has been changed. Please Login Again';
+                            break;
+                        case 300:
+                            errm = 'There seems to be problem at Server! Please try again or contact Automint Care!';
+                            break;
+                        case 330:
+                            errm = 'No Licensing Details Found for ' + $rootScope.amGlobals.credentials.username + '! Please Try Again or Contact Automint Care!';
+                            break;
+                    }
+                    failure(err);
+                }
+
+                function furtherCheck(res) {
+                    pdbLocal.get(constants.pdb_local_docs.login).then(checkFlags).catch(failure);
+                }
+            }
 
             function checkFlags(res) {
                 if (!res.isLoggedIn) {
@@ -322,7 +375,7 @@
                         }
                     }
                 }
-                failure();
+                failure(res);
 
                 function respond(saveresponse) {
                     $rootScope.amGlobals.creator = (res.username ? res.username : '');
@@ -363,7 +416,7 @@
                     amLogin.setLoginState(false).then(ro).catch(ro);
                 
                 function ro(rores) {
-                    tracker.reject(err);
+                    tracker.reject(errm);
                 }
             }
         }

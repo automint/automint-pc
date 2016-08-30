@@ -58,7 +58,10 @@ Automint CRM Software
 <body layout="column" ng-cloak>
     <div layout="row" layout-align="center center" class="am-restart-app" ng-show="busyApp.show">
         <div layout="column" layout-sm="column" layout-align="center center" class="am-loading-icon">
-            <span style="padding: 24px 100px">{{busyApp.message}}</span>
+            <div layout="column" layout-align="center center" style="padding: 24px 100px">
+                <span ng-class="{'busyApp.isRaEnabled': message}">{{busyApp.message}}</span>
+                <span ng-show="busyApp.isRaEnabled"  class="md-caption">Restrating App..</span>
+            </div>
             <md-progress-linear md-mode="indeterminate"></md-progress-linear>
         </div>
     </div>

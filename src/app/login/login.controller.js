@@ -79,14 +79,17 @@
             vm.message = undefined;
             if ((vm.username == '') && (vm.password == '') && (vm.code == '')) {
                 vm.message = 'Please Enter Username and Password, or Code!';
+                setTimeout(focusUsername, 300);
                 return;
             }
             if (((vm.username != '') && (vm.password == '')) && (vm.code == '')) {
                 vm.message = 'Please Enter Password!';
+                setTimeout(focusPassword, 300);
                 return;
             }
             if (((vm.password != '') && (vm.username == '')) && (vm.code == '')) {
                 vm.message = 'Please Enter Username!';
+                setTimeout(focusUsername, 300);
                 return;
             }
             vm.isLogingIn = true;
@@ -104,13 +107,16 @@
                     }
                     vm.message = "Preparing Dashboard..";
                     $amRoot.dbAfterLogin(true);
-                } else
-                    failure('Your license has expired!');
+                } else {
+                    failure({
+                        message: 'Your license has expired!'
+                    });
+                }
             }
 
             function failure(err) {
                 vm.isLogingIn = false;
-                vm.message = err;
+                vm.message = err.message;
             }
         }
     }

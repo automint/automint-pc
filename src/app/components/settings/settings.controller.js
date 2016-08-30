@@ -225,7 +225,7 @@
         }
 
         function getLoginState() {
-            $amLicense.checkLogin().then(success).catch(failure);
+            $amLicense.checkLogin(false).then(success).catch(failure);
 
             function success(res) {
                 vm.cloudSettings.enable = ((res.isCloudEnabled != undefined) ? res.isCloudEnabled : false);
@@ -249,19 +249,12 @@
             }
 
             function failure(err) {
-                $mdDialog.show(
-                    $mdDialog.alert()
-                        .parent(document.body)
-                        .clickOutsideToClose(false)
-                        .title('License Error!')
-                        .textContent('Automint cannot identify your license. Please Login Again or Contact Automint Care!')
-                        .ariaLabel('License Error')
-                        .ok('Got it!')
-                ).then(restartApp).catch(restartApp);
+                $rootScope.busyApp.show = true;
+                $rootScope.busyApp.message = err;
+                $rootScope.busyApp.isRaEnabled = true;
+                setTimeout(restartApp, 1000);
 
                 function restartApp(res) {
-                    $rootScope.busyApp.show = true;
-                    $rootScope.busyApp.message = 'Restarting App due to License Error. Please Wait..';
                     ipcRenderer.send('am-do-restart', true);
                 }
                 console.error(err);
@@ -307,7 +300,7 @@
 
             function failure(err) {
                 $rootScope.busyApp.show = false;
-                vm.cloudSettings.message = err;
+                vm.cloudSettings.message = err.message;
             }
         }
 

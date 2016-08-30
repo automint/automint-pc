@@ -174,7 +174,7 @@
             if (!syncOptions) {
                 syncOptions = {
                     live: true,
-                    retry: true
+                    retry: false
                 };
             }
             return database.sync(remoteDb, syncOptions);

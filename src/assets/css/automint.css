@@ -5,6 +5,10 @@
  * @version 0.7.0
  */
 
+ .am-restart-app .message {
+     margin-bottom: 4px;
+ }
+
  .am-restart-app {
     position: fixed;
     z-index: 998;

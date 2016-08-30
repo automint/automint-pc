@@ -12,9 +12,9 @@
 
     angular.module('automintApp').service('$amRoot', AutomintService);
 
-    AutomintService.$inject = ['$rootScope', '$state', '$q', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal', 'amFactory'];
+    AutomintService.$inject = ['$rootScope', '$state', '$q', '$mdDialog', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal', 'amFactory'];
 
-    function AutomintService($rootScope, $state, $q, constants, pdbMain, pdbCache, pdbLocal, amFactory) {
+    function AutomintService($rootScope, $state, $q, $mdDialog, constants, pdbMain, pdbCache, pdbLocal, amFactory) {
         //  set up service view model
         var vm = this;
 
@@ -82,16 +82,23 @@
                 console.error('Username/Password/Database name missing from url');
                 return;
             }
-            $rootScope.amDbSync = pdbMain.sync(url).on('change', onChangedDb).on('paused', onPausedDb).on('active', onActiveDb).on('denied', onDeniedDb).on('complete', onCompleteDb).on('error', onErrorDb);
+            
+            $rootScope.amDbSync = pdbMain.sync(url);
+            $rootScope.amDbSync.on('complete', onCompleteDb);
+            $rootScope.amDbSync.on('paused', onPausedDb);
+            $rootScope.amDbSync.on('error', onErrorDb);
+            $rootScope.amDbSync.on('denied', onDeniedDb);
+            $rootScope.amDbSync.on('change', onChangedDb);
+            $rootScope.amDbSync.on('active', onActiveDb);
 
             function onChangedDb(info) {
                 //  listen to on change event
-                console.info('pdbSync', info);
+                console.info('pdbSync change', info);
             }
 
             function onPausedDb(err) {
                 //  listen to on pause event\
-                console.warn('pdbSync', err);
+                console.warn('pdbSync pause', err);
             }
 
             function onActiveDb() {
@@ -100,17 +107,45 @@
 
             function onDeniedDb(err) {
                 //  listen to on denied event
-                console.error('pdbSync', err);
+                if (err.status && (err.status == 401)) {
+                    $mdDialog.show({
+                        controller: 'amUpdatePwdCtrl',
+                        controllerAs: 'vm',
+                        templateUrl: 'app/views/updatepassword.tmpl.html',
+                        parent: angular.element(document.body),
+                        targetEvent: event,
+                        clickOutsideToClose: true
+                    }).then(success).catch(success);
+
+                    function success(res) {
+                        //  do nothing
+                    }
+                }
+                console.error('pdbSync deny', err);
             }
 
             function onCompleteDb(info) {
                 //  listen to on complete event
-                console.info('pdbSync', info);
+                console.info('pdbSync complete', info);
             }
 
             function onErrorDb(err) {
                 //  listen to on error event
-                console.error('pdbSync', err);
+                if (err.status && (err.status == 401)) {
+                    $mdDialog.show({
+                        controller: 'amUpdatePwdCtrl',
+                        controllerAs: 'vm',
+                        templateUrl: 'app/views/updatepassword.tmpl.html',
+                        parent: angular.element(document.body),
+                        targetEvent: event,
+                        clickOutsideToClose: true
+                    }).then(success).catch(success);
+
+                    function success(res) {
+                        //  do nothing
+                    }
+                }
+                console.error('pdbSync error', err);
             }
         }
 
@@ -147,7 +182,7 @@
             }
 
             function checkAutomintValidity() {
-                $amLicense.checkLogin().then(success).catch(failure);
+                $amLicense.checkLogin(true).then(success).catch(failure);
 
                 function success(res) {
                     if (res.isLoggedIn) {
@@ -155,15 +190,18 @@
                             if ($rootScope.amDbSync)
                                 $rootScope.amDbSync.cancel();
                         }
-                    } else {
-                        $rootScope.busyApp.show = true;
-                        $rootScope.busyApp.message = "Your license has expired! Try Loging Again or Contact Automint Care!";
-                        setTimeout(failure, 1000);
-                    }
+                    } else
+                        failure("Something went wrong. Login Again");
                 }
 
                 function failure(err) {
-                    $rootScope.busyApp.message = "Your license has expired! Restarting App. Please Wait...";
+                    $rootScope.busyApp.show = true;
+                    $rootScope.busyApp.message = err;
+                    $rootScope.busyApp.isRaEnabled = true;
+                    setTimeout(restartApp, 1000);
+                }
+
+                function restartApp(err) {
                     ipcRenderer.send('am-do-restart', true);
                 }
             }
