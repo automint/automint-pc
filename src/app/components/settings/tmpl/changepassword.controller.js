@@ -70,15 +70,19 @@
             }
             $rootScope.busyApp.show = true;
             $rootScope.busyApp.message = 'Changing Password. Please Wait..';
+            if ($rootScope.amDbSync)
+                $rootScope.amDbSync.cancel();
             $amLicense.changePassword($rootScope.amGlobals.credentials.username, vm.newPassword).then(success).catch(failure);
 
             function success(res) {
+                $amRoot.syncDb();
                 $rootScope.busyApp.show = false;
                 $mdDialog.hide(true);
             }
 
             function failure(err) {
                 $rootScope.busyApp.show = false;
+                $amRoot.syncDb();
                 if (err.error_code == 1) {
                     doLogin(err.error_message);
                     return;

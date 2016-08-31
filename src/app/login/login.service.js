@@ -41,22 +41,31 @@
             var adminChannels = [];
             adminChannels.push($rootScope.amGlobals.channel);
             $http({
-                method: 'PUT',
-                url: amFactory.generateChangePwdUrl($rootScope.amGlobals.credentials.username),
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                data: {
-                    admin_channels: adminChannels,
-                    password: newPassword
-                },
-                timeout: 2000
-            }).then(success).catch(failure);
+                    method: 'PUT',
+                    url: amFactory.generateChangePwdUrl(),
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    data: $.param({
+                        name: $rootScope.amGlobals.credentials.username,
+                        oldpass: $rootScope.amGlobals.credentials.password,
+                        newpass: newPassword
+                    }),
+                    timeout: 2000
+                }).then(success, failure);
             return tracker.promise;
 
             function success(res) {
-                $rootScope.amGlobals.credentials.password = newPassword;
-                amLogin.savePassword(newPassword).then(proceed).catch(doLogin);
+                if (res.data && res.data.mint_code) {
+                    if (res.data.mint_code == 'PA100') {
+                        $rootScope.amGlobals.credentials.password = newPassword;
+                        amLogin.savePassword(newPassword).then(proceed).catch(doLogin);
+                        return;
+                    }
+                }
+                failure({
+                    mint_error: 300
+                });
             }
 
             function proceed(pres) {
@@ -85,6 +94,10 @@
                         case 401:
                             vm.errorCode = 1;
                             vm.errorMessage = 'Automint could not collect license details. Please login again!';
+                            break;
+                        case 300:
+                            vm.errorCode = -1;
+                            vm.errorMessage = 'Could not change password. Please try again!';
                             break;
                     }
                 }
