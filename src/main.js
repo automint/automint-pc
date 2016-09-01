@@ -17,10 +17,10 @@
     // Module for IPC
     const ipcMain = electron.ipcMain;
     // Importing Eelctron Squirrel Startup 
-    if(require('electron-squirrel-startup')) return;
+    if (require('electron-squirrel-startup')) return;
     // Module to Auto Update app
-    var autoUpdater = electron.autoUpdater;  
-    var os = require('os');  
+    var autoUpdater = electron.autoUpdater;
+    var os = require('os');
     // var feedURL = 'http://updates.automint.in/releases/' + (os.platform()) + '/' + (os.arch());
     var feedURL = 'http://updates.automint.in/releases/win32/ia32';
     // Module to check preferences
@@ -35,7 +35,7 @@
 
     autoUpdater.setFeedURL(feedURL);
     if (process.argv[1] == '--squirrel-firstrun') {
-        setTimeout(()=> {
+        setTimeout(() => {
             autoUpdater.checkForUpdates();
         }, 180000)
     } else {
@@ -60,7 +60,7 @@
             fs.accessSync(amUserDataPath);
             app.setPath('userData', amUserDataPath);
             isUserDataPathExists = true;
-        } catch(e) {
+        } catch (e) {
             isUserDataPathExists = false;
         }
     }
@@ -87,12 +87,20 @@
         }
     });
 
+    app.on('certificate-error', (event, webContents, url, error, certificate, callback) => {
+        // Verification logic.
+        event.preventDefault()
+        callback(true);
+    })
+
     ipcMain.on('am-quit-update', updateAndRestartApp);
 
     ipcMain.on('am-do-restart', restartApp);
 
     function restartApp(event, args) {
-        app.relaunch({args: process.argv.slice(1).concat('--relaunch')});
+        app.relaunch({
+            args: process.argv.slice(1).concat('--relaunch')
+        });
         app.quit();
     }
 
@@ -120,7 +128,9 @@
 
         function openCorrectFileUrl(buttonIndex) {
             if (buttonIndex == 0) {
-                var newPath = dialog.showOpenDialog({properties: ['openDirectory']});
+                var newPath = dialog.showOpenDialog({
+                    properties: ['openDirectory']
+                });
                 if (newPath) {
                     ammPreferences.storePreference('automint.userDataPath', newPath[0]);
                     restartApp();
