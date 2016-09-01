@@ -50,8 +50,7 @@
                         name: $rootScope.amGlobals.credentials.username,
                         oldpass: $rootScope.amGlobals.credentials.password,
                         newpass: newPassword
-                    }),
-                    timeout: 2000
+                    })
                 }).then(success, failure);
             return tracker.promise;
 
@@ -133,8 +132,7 @@
                     data: $.param({
                         name: $rootScope.amGlobals.credentials.username,
                         password: $rootScope.amGlobals.credentials.password
-                    }),
-                    timeout: 2000
+                    })
                 }).then(success, failure);
             }
             return tracker.promise;
