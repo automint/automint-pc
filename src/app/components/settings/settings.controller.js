@@ -286,7 +286,7 @@
                     if (res.isSyncableDb) {
                         $amRoot.syncDb();
                         $rootScope.busyApp.message = 'Syncing';
-                        setTimeout(syncDone, 2000);
+                        setTimeout(syncDone, 60000);
                     } else
                         $rootScope.busyApp.show = false;
                 } else

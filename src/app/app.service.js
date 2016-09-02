@@ -161,7 +161,7 @@
                 $rootScope.checkAutomintValidity = setInterval(checkAutomintValidity, 1000*60*60*24);
 
             if (wait)
-                setTimeout(prepraeTransit, 2000);
+                setTimeout(prepraeTransit, 60000);
             else {
                 //  handle database migration if any and generate cache docs after the process
                 //  no such migrations right now
