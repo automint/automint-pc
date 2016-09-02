@@ -146,6 +146,8 @@
         vm.cloudSettings.submit = csSubmit;
         vm.cloudSettings.changeAvailability = csChangeAvailability;
         vm.cloudSettings.changePassword = csChangePassword;
+
+        $rootScope.loadSettingsBlock = loadBlock;
         //  function maps [END]
 
         //  default execution steps [BEGIN]
@@ -284,18 +286,13 @@
                 if (res.isLoggedIn) {
                     vm.cloudSettings.isLicensed = (res.isLoggedIn == true);
                     if (res.isSyncableDb) {
+                        $rootScope.isSyncCalledFromSettings = true;
                         $amRoot.syncDb();
                         $rootScope.busyApp.message = 'Syncing';
-                        setTimeout(syncDone, 60000);
                     } else
                         $rootScope.busyApp.show = false;
                 } else
                     getLoginState();
-
-                function syncDone() {
-                    loadBlock();
-                    $rootScope.busyApp.show = false;
-                }
             }
 
             function failure(err) {

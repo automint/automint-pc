@@ -104,9 +104,12 @@
                     if (res.isSyncableDb) {
                         $rootScope.isOnChangeMainDbBlocked = true;
                         $amRoot.syncDb();
+                        vm.message = "Preparing Automint";
+                        $amRoot.dbAfterLogin(true);
+                    } else {
+                        vm.message = "Preparing Dashboard..";
+                        $amRoot.dbAfterLogin(false);
                     }
-                    vm.message = "Preparing Dashboard..";
-                    $amRoot.dbAfterLogin(true);
                 } else {
                     failure({
                         message: 'Your license has expired!'

@@ -99,6 +99,32 @@
             function onPausedDb(err) {
                 //  listen to on pause event\
                 console.warn('pdbSync pause', err);
+
+                if ($rootScope.isSyncCalledFromSettings == true) {
+                    setTimeout(loadSb, 1000);
+                    $rootScope.isSyncCalledFromSettings = false;
+
+                    function loadSb() {
+                        generateCacheDocs(true).then(tr).catch(tr);
+
+                        function tr() {
+                            $rootScope.loadSettingsBlock();
+                            $rootScope.busyApp.show = false;
+                        }
+                    }
+                }
+                
+                if ($rootScope.isSyncCalledManually == true) {
+                    setTimeout(prepraeTransit, 1000);
+                    $rootScope.isSyncCalledManually = false;
+
+                    function prepraeTransit() {
+                        $rootScope.isOnChangeMainDbBlocked = false;
+                        //  handle database migration if any and generate cache docs after the process
+                        //  no such migrations right now
+                        generateCacheDocs(true).then(transitToDashboard).catch(transitToDashboard); 
+                    }
+                }
             }
 
             function onActiveDb() {
@@ -149,6 +175,10 @@
             }
         }
 
+        function transitToDashboard() {
+            $state.go('restricted.dashboard');
+        }
+
         function dbAfterLogin(wait) {
 
             //  setup database change listeners
@@ -161,24 +191,11 @@
                 $rootScope.checkAutomintValidity = setInterval(checkAutomintValidity, 1000*60*60*24);
 
             if (wait)
-                setTimeout(prepraeTransit, 60000);
+                $rootScope.isSyncCalledManually = true;
             else {
                 //  handle database migration if any and generate cache docs after the process
                 //  no such migrations right now
-                generateCacheDocs().then(transit).catch(transit);
-            }
-
-            function prepraeTransit() {
-                $rootScope.isOnChangeMainDbBlocked = false;
-                //  handle database migration if any and generate cache docs after the process
-                //  no such migrations right now
-                generateCacheDocs(true).then(transit).catch(transit);
-
-                
-            }
-
-            function transit() {
-                $state.go('restricted.dashboard');
+                generateCacheDocs().then(transitToDashboard).catch(transitToDashboard);
             }
 
             function checkAutomintValidity() {
