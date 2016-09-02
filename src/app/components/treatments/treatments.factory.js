@@ -2,7 +2,7 @@
  * Factory that handles database interactions between treatments database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .factory('amTreatments', TreatmentsFactory);
 
-    TreatmentsFactory.$inject = ['$q', '$filter', '$amRoot', 'utils', 'pdbConfig'];
+    TreatmentsFactory.$inject = ['$q', '$filter', '$rootScope', 'pdbMain'];
 
-    function TreatmentsFactory($q, $filter, $amRoot, utils, pdbConfig) {
+    function TreatmentsFactory($q, $filter, $rootScope, pdbMain) {
         //  initialized factory and function maps
         var factory = {
             saveTreatment: saveTreatment,
@@ -31,20 +31,34 @@
             getMemberships: getMemberships,
             getMembershipInfo: getMembershipInfo,
             deleteMembership: deleteMembership,
-            saveMembership: saveMembership
+            saveMembership: saveMembership,
+            getCurrencySymbol: getCurrencySymbol
         }
         
         return factory;
+
+        function getCurrencySymbol() {
+            var tracker = $q.defer();
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
+            return tracker.promise;
+
+            function getSettingsObject(res) {
+                if (res.currency)
+                    tracker.resolve(res.currency);
+                else
+                    failure('No Currency Symbol Found!');
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
         
         //  retrieve vehicle types from config database
         function getVehicleTypes() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(configFound).catch(noConfigFound);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(settingsDocFound).catch(noConfigFound);
             return tracker.promise;
-            
-            function configFound(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(settingsDocFound).catch(noConfigFound);
-            }
             
             function settingsDocFound(res) {
                 if (res.vehicletypes)
@@ -61,12 +75,8 @@
         //  store vehicle types to config database
         function saveVehicleTypes(vehicleTypes) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(configFound).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(settingsDocFound).catch(writeNewConfig);
             return tracker.promise;
-            
-            function configFound(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(settingsDocFound).catch(writeNewConfig);
-            }
             
             function settingsDocFound(res) {
                 var totalMatch = 0;
@@ -84,15 +94,17 @@
                 if (totalMatch == vehicleTypes.length)
                     tracker.resolve('Duplicate Entries');
                 else
-                    pdbConfig.save(res).then(success).catch(failure);
+                    pdbMain.save(res).then(success).catch(failure);
             }
             
             function writeNewConfig(err) {
-                var doc = {};
-                doc['_id'] = utils.generateUUID('sttngs');
-                doc['creator'] = $amRoot.username;
+                var doc = {
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel
+                };
                 doc.vehicletypes = vehicleTypes;
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
             
             function success(res) {
@@ -107,19 +119,19 @@
         //  return particular treatment
         function treatmentDetails(treatmentName) {
             var tracker = $q.defer();
-            $amRoot.isTreatmentId().then(treatmentConfigFound).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(treatmentDocFound).catch(failure);
             return tracker.promise;
-            
-            function treatmentConfigFound(response) {
-                pdbConfig.get($amRoot.docIds.treatment).then(treatmentDocFound).catch(failure);
-            }
+
             function treatmentDocFound(res) {
                 var treatment = {
                     name: treatmentName,
                     rate: res.regular[treatmentName].rate
                 }
+                if (res.regular[treatmentName].orgcost)
+                    treatment.orgcost = res.regular[treatmentName].orgcost;
                 tracker.resolve(treatment);
             }
+
             function failure(error) {
                 tracker.reject(error);
             }
@@ -132,12 +144,8 @@
                 treatments: [],
                 total: 0
             };
-            $amRoot.isTreatmentId().then(treatmentConfigFound).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(treatmentDocFound).catch(failure);
             return tracker.promise;
-            
-            function treatmentConfigFound(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(treatmentDocFound).catch(failure);
-            }
             
             function treatmentDocFound(res) {
                 if (res.regular)
@@ -162,16 +170,12 @@
         //  delete treatment from database
         function deleteTreatment(name) {
             var tracker = $q.defer();
-            $amRoot.isTreatmentId().then(treatmentConfigFound).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(treatmentDocFound).catch(failure);
             return tracker.promise;
-            
-            function treatmentConfigFound(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(treatmentDocFound).catch(failure);
-            }
             
             function treatmentDocFound(res) {
                 res.regular[name]._deleted = true;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
             
             function success(res) {
@@ -189,12 +193,10 @@
             var i = {
                 rate: treatment.rate
             };
-            $amRoot.isTreatmentId().then(treatmentConfigFound).catch(failure);
+            if (treatment.orgcost)
+                i.orgcost = treatment.orgcost;
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(treatmentDocFound).catch(noTreatmentDoc);
             return tracker.promise;
-
-            function treatmentConfigFound(response) {
-                pdbConfig.get($amRoot.docIds.treatment).then(treatmentDocFound).catch(noTreatmentDoc);
-            }
 
             function treatmentDocFound(res) {
                 if (!res.regular)
@@ -202,16 +204,18 @@
                 if (res.regular[treatment.name])
                     delete res.regular[treatment.name]['._deleted'];
                 res.regular[treatment.name] = i;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function noTreatmentDoc(err) {
-                var doc = {};
-                doc['_id'] = utils.generateUUID('trtmnt');
-                doc['creator'] = $amRoot.username;
+                var doc = {
+                    _id: $rootScope.amGlobals.configDocIds.treatment,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel
+                };
                 doc.regular = {};
                 doc.regular[treatment.name] = i;
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
 
             function success(res) {
@@ -226,12 +230,9 @@
         //  current treatment settings
         function getTreatmentSettings() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(treatmentConfigFound).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(treatmentDocFound).catch(failure);
             return tracker.promise;
             
-            function treatmentConfigFound(response) {
-                pdbConfig.get($amRoot.docIds.settings).then(treatmentDocFound).catch(failure);
-            }
             function treatmentDocFound(res) {
                 if (res.settings.treatments)
                     tracker.resolve(res.settings.treatments);
@@ -241,6 +242,7 @@
                     });
                 }
             }
+
             function failure(error) {
                 tracker.reject(error);
             }
@@ -249,33 +251,34 @@
         //  change display format setting of treatments
         function changeDisplayAsList(displayAsList) {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(configFound).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(configDocFound).catch(writeNewConfig);
             return tracker.promise;
             
-            function configFound(response) {
-                pdbConfig.get($amRoot.docIds.settings).then(configDocFound).catch(writeNewConfig);
-            }
             function configDocFound(res) {
-                
                 if (!res.settings)
                     res.settings = {};
                 if (!res.settings.treatments)
                     res.settings.treatments = {};
                 res.settings.treatments['displayAsList'] = displayAsList;
-                pdbConfig.save(res).then(saveSuccess).catch(failure);
+                pdbMain.save(res).then(saveSuccess).catch(failure);
             }
+
             function writeNewConfig(err) {
-                var doc = {};
-                doc['_id'] = utils.generateUUID('sttngs');
-                doc['creator'] = $amRoot.username;
+                var doc = {
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel
+                };
                 doc.settings = {};
                 doc.settings['treatments'] = {}
                 doc.settings.treatments['displayAsList'] = displayAsList;
-                pdbConfig.save(doc).then(saveSuccess).catch(failure);
+                pdbMain.save(doc).then(saveSuccess).catch(failure);
             }
+
             function saveSuccess(response) {
                 tracker.resolve(response);
             }
+
             function failure(error) {
                 tracker.reject(error);
             }
@@ -283,12 +286,8 @@
         
         function getPackageInfo(name) {
             var tracker = $q.defer();
-            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(getTreatmentObject).catch(failure);
             return tracker.promise;
-            
-            function getTreatmentsDoc(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
-            }
             
             function getTreatmentObject(res) {
                 if (res.packages && res.packages[name]) {
@@ -317,12 +316,8 @@
                 packages: [],
                 total: 0
             }
-            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(getTreatmentObject).catch(failure);
             return tracker.promise;
-            
-            function getTreatmentsDoc(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
-            }
             
             function getTreatmentObject(res) {
                 if (res.packages)
@@ -347,17 +342,13 @@
         
         function deletePackage(name) {
             var tracker = $q.defer();
-            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(getTreatmentObject).catch(failure);
             return tracker.promise;
-            
-            function getTreatmentsDoc(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
-            }
             
             function getTreatmentObject(res) {
                 if (res.packages && res.packages[name]) {
                     res.packages[name]._deleted = true;
-                    pdbConfig.save(res).then(success).catch(failure);
+                    pdbMain.save(res).then(success).catch(failure);
                 } else
                     failure();
             }
@@ -378,12 +369,8 @@
         
         function savePackage(package, oldName) {
             var tracker = $q.defer();
-            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(getTreatmentObject).catch(writeTreatmentDoc);
             return tracker.promise;
-            
-            function getTreatmentsDoc(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(writeTreatmentDoc);
-            }
             
             function getTreatmentObject(res) {
                 if (!res.packages)
@@ -392,18 +379,19 @@
                     delete res.packages[oldName];
                 res.packages[package.name] = package;
                 delete res.packages[package.name].name;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
             
             function writeTreatmentDoc(err) {
                 var doc = {
-                    _id: utils.generateUUID('trtmnt'),
-                    creator: $amRoot.username
+                    _id: $rootScope.amGlobals.configDocIds.treatment,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel
                 }
                 doc.packages = {};
                 doc.packages[package.name] = package;
                 delete doc.packages[package.name].name;
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
             
             function success(res) {
@@ -417,12 +405,8 @@
         
         function getMembershipInfo(name) {
             var tracker = $q.defer();
-            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(getTreatmentObject).catch(failure);
             return tracker.promise;
-            
-            function getTreatmentsDoc(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
-            }
             
             function getTreatmentObject(res) {
                 if (res.memberships && res.memberships[name]) {
@@ -461,12 +445,8 @@
                 memberships: [],
                 total: 0
             }
-            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(getTreatmentObject).catch(failure);
             return tracker.promise;
-            
-            function getTreatmentsDoc(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
-            }
             
             function getTreatmentObject(res) {
                 if (res.memberships)
@@ -497,17 +477,13 @@
         
         function deleteMembership(name) {
             var tracker = $q.defer();
-            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(getTreatmentObject).catch(failure);
             return tracker.promise;
-            
-            function getTreatmentsDoc(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(failure);
-            }
             
             function getTreatmentObject(res) {
                 if (res.memberships && res.memberships[name]) {
                     res.memberships[name]._deleted = true;
-                    pdbConfig.save(res).then(success).catch(failure);
+                    pdbMain.save(res).then(success).catch(failure);
                 } else
                     failure();
             }
@@ -529,12 +505,8 @@
         
         function saveMembership(membership, oldName) {
             var tracker = $q.defer();
-            $amRoot.isTreatmentId().then(getTreatmentsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.treatment).then(getTreatmentObject).catch(writeTreatmentDoc);
             return tracker.promise;
-            
-            function getTreatmentsDoc(res) {
-                pdbConfig.get($amRoot.docIds.treatment).then(getTreatmentObject).catch(writeTreatmentDoc);
-            }
             
             function getTreatmentObject(res) {
                 if (!res.memberships)
@@ -543,18 +515,19 @@
                     delete res.memberships[oldName];
                 res.memberships[membership.name] = membership;
                 delete res.memberships[membership.name].name;
-                pdbConfig.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
             
             function writeTreatmentDoc(err) {
                 var doc = {
-                    _id: utils.generateUUID('trtmnt'),
-                    creator: $amRoot.username
+                    _id: $rootScope.amGlobals.configDocIds.treatment,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel
                 }
                 doc.memberships = {};
                 doc.memberships[membership.name] = membership;
                 delete doc.memberships[membership.name].name;
-                pdbConfig.save(doc).then(success).catch(failure);
+                pdbMain.save(doc).then(success).catch(failure);
             }
             
             function success(res) {

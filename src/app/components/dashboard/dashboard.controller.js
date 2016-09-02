@@ -2,7 +2,7 @@
  * Controller for dashboard view
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -12,9 +12,9 @@
 
     angular.module('automintApp').controller('dashboardCtrl', DashboardController);
 
-    DashboardController.$inject = ['$state', '$filter', '$log', '$mdDialog', '$amRoot', 'utils', 'amDashboard'];
+    DashboardController.$inject = ['$rootScope', '$state', '$filter', '$log', '$mdDialog', '$amRoot', 'utils', 'amDashboard'];
 
-    function DashboardController($state, $filter, $log, $mdDialog, $amRoot, utils, amDashboard) {
+    function DashboardController($rootScope, $state, $filter, $log, $mdDialog, $amRoot, utils, amDashboard) {
         //  initialize view model
         var vm = this;
         var ubServices = [], nwCustomers = [], filterRange = [], isNextDueServicesOpened = false;
@@ -82,6 +82,7 @@
         vm.nextServiceDueCustomers = [];
         vm.nsdcTimeRange = ['Today', 'This Week', 'This Month', 'All'];
         vm.nsdcTime = vm.nsdcTimeRange[0];
+        vm.currencySymbol = "Rs.";
 
         //  function maps
         vm.addNewService = addNewService;
@@ -96,14 +97,82 @@
         vm.IsNextDueFieldLong = IsNextDueFieldLong;
         vm.openNextDueServices = openNextDueServices;
         vm.IsNoNextDueReminders = IsNoNextDueReminders;
+        vm.IsReminderInPast = IsReminderInPast;
+        vm.refreshDashboard = refreshDashboard;
 
         //  default execution steps
+        $rootScope.hidePreloader = true;
         initCurrentTimeSet();
         getFilterMonths();
-        $amRoot.ccViews();
         processPreferences();
+        getCurrencySymbol();
 
         //  function definitions
+
+        function refreshDashboard() {
+            $rootScope.busyApp.show = true;
+            $rootScope.busyApp.message = 'Refreshing Dashboard....';
+            $rootScope.isOnChangeMainDbBlocked = true;
+            $amRoot.generateCacheDocs(true).then(fakeWait).catch(fakeWait);
+
+            function fakeWait() {
+                $rootScope.isOnChangeMainDbBlocked = false;
+                setTimeout(reloadData, 1000);
+            }
+
+            function reloadData() {
+                $rootScope.busyApp.show = false;
+                $state.go($state.current, {}, {reload: true});
+            }
+        }
+
+        function openCurrencyDialog() {
+            $mdDialog.show({
+                controller: 'amCtrlDashCurrency',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/dashboard/tmpl/dialog-setcurrency.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                clickOutsideToClose: false
+            }).then(success).catch(success);
+
+            function success(res) {
+                if (!res) {
+                    openCurrencyDialog();
+                    return;
+                }
+                vm.currencySymbol = res;
+                amDashboard.saveCurrencySymbol(vm.currencySymbol).then(success).catch(failure);
+
+                function success(res) {
+                    if (res.ok)
+                        utils.showSimpleToast('Currency saved successfully!');
+                    else
+                        failure();
+                }
+
+                function failure(err) {
+                    utils.showSimpleToast('Could not save Currency at moment! Try Again!');
+                    openCurrencyDialog();
+                }
+            }
+        }
+
+        function IsReminderInPast(date) {
+            return (moment().format().localeCompare(date) > 0);
+        }
+
+        function getCurrencySymbol() {
+            amDashboard.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                openCurrencyDialog();
+            }
+        }
 
         function IsNoNextDueReminders() {
             return (vm.nextServiceDueCustomers.length == 0);
@@ -207,7 +276,6 @@
                 amDashboard.getNewCustomers(vm.currentTimeSet).then(generateNcpData).catch(failure);
                 amDashboard.getProblemsAndVehicleTypes(vm.currentTimeSet).then(sortProblemsAndVehicleTypes).catch(failure);
                 changeNsdcTimeRange(vm.nsdcTimeRange[0]);
-                console.warn(err.message);
             }
         }
 
@@ -255,7 +323,7 @@
             }
 
             function failure(err) {
-                console.info('failed to get filter months');
+                //  do nothing
             }
         }
 
@@ -423,7 +491,7 @@
                 openDuePayments();
 
             function iterateUnbilledServices(ubs) {
-                vm.totalPendingPayments += parseFloat(ubs.srvc_cost);
+                vm.totalPendingPayments += (ubs.srvc_payreceived) ? (parseFloat(ubs.srvc_cost) - parseFloat(ubs.srvc_payreceived)) : parseFloat(ubs.srvc_cost);
             }
         }
 
@@ -465,6 +533,8 @@
                 ++vm.totalServicesDone;
                 if (service.srvc_status == 'Paid')
                     vm.totalRevenueEarned += parseFloat(service.srvc_cost);
+                else
+                    vm.totalRevenueEarned += (service.srvc_payreceived ? parseFloat(service.srvc_payreceived) : 0);
                 var d = moment(service.srvc_date).format('DD MMM YYYY');
                 if (!spd[d]) {
                     spd[d] = 0;
@@ -480,7 +550,7 @@
         }
 
         function failure(err) {
-            console.warn(err);
+            //  do nothing
         }
     }
 })();;

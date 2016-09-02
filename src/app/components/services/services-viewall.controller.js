@@ -2,7 +2,7 @@
  * Controller for View Services module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -12,9 +12,9 @@
 
     angular.module('automintApp').controller('amCtrlSeRA', ServiceViewAllController);
 
-    ServiceViewAllController.$inject = ['$scope', '$state', '$filter', '$timeout', '$mdDialog', 'utils', 'amServices'];
+    ServiceViewAllController.$inject = ['$rootScope', '$scope', '$state', '$filter', '$timeout', '$mdDialog', 'utils', 'amServices'];
 
-    function ServiceViewAllController($scope, $state, $filter, $timeout, $mdDialog, utils, amServices) {
+    function ServiceViewAllController($rootScope, $scope, $state, $filter, $timeout, $mdDialog, utils, amServices) {
         //  initialize view model
         var vm = this, queryChangedPromise, cacheLoadTimeout = false, isDataLoaded = false, isPreferencesLoaded = false, filterRange, isFirstTimeWsq = true;
 
@@ -32,6 +32,7 @@
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
         vm.currentTimeSet = [];
         vm.ddTimeSet = '';
+        vm.currencySymbol = "Rs.";
 
         //  function maps
         vm.addService = addService;
@@ -47,13 +48,38 @@
         vm.IsServiceStateEs = IsServiceStateEs;
         vm.IsServiceStateIv = IsServiceStateIv;
         vm.openTimeFilter = openTimeFilter;
+        vm.IsCustomerAnonymous = IsCustomerAnonymous;
+        vm.IsVehicleAnonymous = IsVehicleAnonymous;
 
         //  default execution steps
         $scope.$watch('vm.serviceQuery', watchServiceQuery);
+
+        getCurrencySymbol();
         getFilterMonths(processPreferences);
         initCurrentTimeSet();
+        getServices();
         
         //  function definitions
+
+        function IsVehicleAnonymous(reg) {
+            return (reg == 'Vehicle');
+        }
+
+        function IsCustomerAnonymous(name) {
+            return (name == 'Anonymous');
+        }
+
+        function getCurrencySymbol() {
+            amServices.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                vm.currencySymbol = "Rs.";
+            }
+        }
 
         function openTimeFilter(event) {
             $mdDialog.show({
@@ -92,7 +118,6 @@
 
             function failure(err) {
                 callback.apply(callingFunction, Array.prototype.slice.call(callbackArgs, 1));
-                console.info('failed to get filter months');
             }
         }
 
@@ -264,7 +289,6 @@
             function failure(err) {
                 isPreferencesLoaded = true;
                 getServices();
-                console.warn(err.message);
             }
         }
         
@@ -350,7 +374,7 @@
             }
 
             function ignoreDelete() {
-                console.info('nope');
+                //  do nothing
             }
             
 
@@ -363,7 +387,6 @@
             }
 
             function failure(err) {
-                console.info(err);
                 utils.showSimpleToast('Service can not be deleted at moment. Please Try Again!');
             }
         }

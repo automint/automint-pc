@@ -2,7 +2,7 @@
  * Closure for state definitions and mappings to template files
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -14,39 +14,49 @@
     StateConfigs.$inject = ['$stateProvider', '$urlRouterProvider'];
 
     function StateConfigs($stateProvider, $urlRouterProvider) {
-        $urlRouterProvider.when('/', '/locked').otherwise('/locked');
+        $urlRouterProvider.when('/', '/home').otherwise('/');
 
         $stateProvider
-            .state('locked', {
-                url: '/locked',
-                views: {
-                    'lockscreen': {
-                        templateUrl: 'app/views/lockscreen.html',
-                        controller: 'lockScreenCtrl',
-                        controllerAs: 'vm'
-                    }
-                },
-                params: {
-                    fromState: undefined
+            .state('home', {
+                url: '/home',
+                templateUrl: 'app/views/initializing.html',
+                controller: 'amCtrl',
+                controllerAs: 'vm'
+            })
+            .state('login', {
+                url: '/login',
+                templateUrl: 'app/login/login.html',
+                controller: 'amLoginCtrl',
+                controllerAs: 'vm',
+                resolve: {
+                    deps: ['$ocLazyLoad', loadLoginDeps]
                 }
             })
             .state('restricted', {
                 abstract: true,
                 url: '',
                 views: {
+                    'lockscreen': {
+                        templateUrl: 'app/lock/lockscreen.html',
+                        controller: 'amCtrlLock',
+                        controllerAs: 'lockVm'
+                    },
                     'header_bar': {
-                        templateUrl: 'app/appbar/headerView.html',
-                        controller: 'appBarHeaderCtrl',
+                        templateUrl: 'app/appbar/headerbar.html',
+                        controller: 'amCtrlHeaderbar',
                         controllerAs: 'headerVm'
                     },
                     'side_bar': {
-                        templateUrl: 'app/appbar/sidebarView.html',
-                        controller: 'appSideBarCtrl',
+                        templateUrl: 'app/appbar/sidebar.html',
+                        controller: 'amCtrlSidebar',
                         controllerAs: 'sidebarVm'
                     },
                     '': {
                         templateUrl: 'app/views/restricted.html'
                     }
+                },
+                resolve: {
+                    deps: ['$ocLazyLoad', loadAppbarDeps]
                 }
             })
             //  dashboard
@@ -62,7 +72,8 @@
                     deps: ['$ocLazyLoad', loadDashboardDeps]
                 },
                 data: {
-                    pageTitle: 'Dashboard'
+                    pageTitle: 'Dashboard',
+                    sidebarItemIndex: 0
                 }
             })
             //  customers
@@ -83,7 +94,8 @@
                     deps: ['$ocLazyLoad', loadCuRADeps]
                 },
                 data: {
-                    pageTitle: 'All Customers'
+                    pageTitle: 'All Customers',
+                    sidebarItemIndex: 1
                 }
             })
             .state('restricted.customers.add', {
@@ -95,24 +107,25 @@
                     deps: ['$ocLazyLoad', loadCuCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add a Customer'
+                    pageTitle: 'Add a Customer',
+                    sidebarItemIndex: 1
                 }
             })
             .state('restricted.customers.edit', {
                 url: '/edit',
-                templateUrl:'app/components/customers/customers_add.html',
+                templateUrl:'app/components/customers/customers_edit.html',
                 controller: 'amCtrlCuUI',
                 controllerAs: 'vm',
                 params: {
                     id: undefined,
-                    openTab: undefined,
                     fromState: undefined
                 },
                 resolve: {
                     deps: ['$ocLazyLoad', loadCuUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Customer'
+                    pageTitle: 'Edit Customer',
+                    sidebarItemIndex: 1
                 }
             })
             //  treatments
@@ -136,7 +149,8 @@
                     deps: ['$ocLazyLoad', loadTrMasterDeps]
                 },
                 data: {
-                    pageTitle: 'All Treatments'
+                    pageTitle: 'All Treatments',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.treatments.add', {
@@ -148,7 +162,8 @@
                     deps: ['$ocLazyLoad', loadTrCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add a Treatment'
+                    pageTitle: 'Add a Treatment',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.treatments.edit', {
@@ -163,7 +178,8 @@
                     deps: ['$ocLazyLoad', loadTrUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Treatment'
+                    pageTitle: 'Edit Treatment',
+                    sidebarItemIndex: 2
                 }
             })
             //  services
@@ -184,7 +200,8 @@
                     deps: ['$ocLazyLoad', loadSeRADeps]
                 },
                 data: {
-                    pageTitle: 'All Services'
+                    pageTitle: 'All Services',
+                    sidebarItemIndex: -1
                 }
             })
             .state('restricted.services.add', {
@@ -199,7 +216,8 @@
                     deps: ['$ocLazyLoad', loadSeCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add a Service'
+                    pageTitle: 'Add a Service',
+                    sidebarItemIndex: -1
                 }
             })
             .state('restricted.services.edit', {
@@ -217,7 +235,8 @@
                     deps: ['$ocLazyLoad', loadSeUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Service'
+                    pageTitle: 'Edit Service',
+                    sidebarItemIndex: -1
                 }
             })
             //  settings
@@ -233,7 +252,8 @@
                     deps: ['$ocLazyLoad', loadSettingsDeps]
                 },
                 data: {
-                    pageTitle: 'Settings'
+                    pageTitle: 'Settings',
+                    sidebarItemIndex: 4
                 }
             })
             //  invoices
@@ -260,7 +280,8 @@
                     deps: ['$ocLazyLoad', loadIvRIDeps]
                 },
                 data: {
-                    pageTitle: 'View Invoice'
+                    pageTitle: 'View Invoice',
+                    sidebarItemIndex: -1
                 }
             })
             //  packages
@@ -281,7 +302,8 @@
                     deps: ['$ocLazyLoad', loadPkCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add Package'
+                    pageTitle: 'Add Package',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.packages.edit', {
@@ -296,7 +318,8 @@
                     deps: ['$ocLazyLoad', loadPkUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Package'
+                    pageTitle: 'Edit Package',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.memberships', {
@@ -316,7 +339,8 @@
                     deps: ['$ocLazyLoad', loadMsCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add Membership'
+                    pageTitle: 'Add Membership',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.memberships.edit', {
@@ -331,7 +355,8 @@
                     deps: ['$ocLazyLoad', loadMsUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Membership'
+                    pageTitle: 'Edit Membership',
+                    sidebarItemIndex: 2
                 }
             })
             .state('restricted.inventory', {
@@ -351,7 +376,8 @@
                     deps: ['$ocLazyLoad', loadInRADeps]
                 },
                 data: {
-                    pageTitle: 'All Inventories'
+                    pageTitle: 'All Inventories',
+                    sidebarItemIndex: 3
                 }
             })
             .state('restricted.inventory.add', {
@@ -363,7 +389,8 @@
                     deps: ['$ocLazyLoad', loadInCIDeps]
                 },
                 data: {
-                    pageTitle: 'Add Inventory'
+                    pageTitle: 'Add Inventory',
+                    sidebarItemIndex: 3
                 }
             })
             .state('restricted.inventory.edit', {
@@ -378,17 +405,26 @@
                     deps: ['$ocLazyLoad', loadInUIDeps]
                 },
                 data: {
-                    pageTitle: 'Edit Inventory'
+                    pageTitle: 'Edit Inventory',
+                    sidebarItemIndex: 3
                 }
             });
 
-        function loadAddServiceDeps($ocLazyLoad) {
+        function loadAppbarDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'material-datatable',
-                'app/components/services/services.factory.js',
-                'app/components/services/services-add.controller.js'
+                'app/appbar/headerbar.controller.js',
+                'app/appbar/sidebar.controller.js',
+                'app/appbar/appbar.factory.js',
+                'app/lock/lockscreen.controller.js'
             ])
         }
+
+        function loadLoginDeps($ocLazyLoad) {
+            return $ocLazyLoad.load([
+                'app/login/login.controller.js'
+            ])
+        }
+
         function loadInUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'app/components/inventory/inventory-edit.controller.js'
@@ -414,6 +450,7 @@
             return $ocLazyLoad.load([
                 'material-datatable',
                 'google-chart',
+                'app/components/dashboard/tmpl/dialog-setcurrency.controller.js',
                 'app/components/dashboard/dashboard.controller-deps.js',
                 'app/components/dashboard/dashboard.controller.js',
                 'app/components/dashboard/dashboard.factory.js'
@@ -433,13 +470,17 @@
         function loadCuCIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/customers/customers-add.controller.js'
+                'assets/js/angular-elastic-input.min.js',
+                'app/components/customers/customers-add.controller.js',
+                'app/components/customers/tmpl/vehicle-crud.controller.js'
             ])
         }
         function loadCuUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/customers/customers-edit.controller.js'
+                'assets/js/angular-elastic-input.min.js',
+                'app/components/customers/customers-edit.controller.js',
+                'app/components/customers/tmpl/vehicle-crud.controller.js'
             ])
         }
         function loadTreatmentDeps($ocLazyLoad) {
@@ -476,6 +517,11 @@
         function loadSeCIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
+                'app/components/services/tmpl/dialog_membership.edit.controller.js',
+                'app/components/services/tmpl/dialog_discount.controller.js',
+                'app/components/services/tmpl/dialog_partialpayment.controller.js',
+                'app/components/services/tmpl2/dialog-td.controller.js',
+                'app/components/services/tmpl2/dialog-id.controller.js',
                 'app/components/services/services-add.controller.js'
             ])
         }
@@ -489,18 +535,25 @@
         function loadSeUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
+                'app/components/services/tmpl/dialog_membership.edit.controller.js',
+                'app/components/services/tmpl/dialog_discount.controller.js',
+                'app/components/services/tmpl/dialog_partialpayment.controller.js',
+                'app/components/services/tmpl2/dialog-td.controller.js',
+                'app/components/services/tmpl2/dialog-id.controller.js',
                 'app/components/services/services-edit.controller.js'
             ])
         }
         function loadSettingsDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
+                'app/components/settings/tmpl/changepassword.controller.js',
                 'app/components/settings/settings.controller.js',
                 'app/components/settings/settings-backup.factory.js',
                 'app/components/settings/settings-login.factory.js',
                 'app/components/settings/settings-importdata.service.js',
                 'app/components/settings/settings-invoices.factory.js',
-                'app/components/settings/settings-servicetax.factory.js',
+                'app/components/settings/settings-tax.factory.js',
                 'app/components/settings/settings.factory.js',
+                'assets/js/angular-elastic-input.min.js',
                 'assets/js/jquery.csv.min.js'
             ])
         }

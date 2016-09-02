@@ -1,4 +1,48 @@
 <style>
+    #ami-customer-name {
+        min-width: 120px;
+        border: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.5);
+        padding: 6px;
+        font-size: medium;
+        outline: none;
+        color: #fff;
+        background: transparent;
+        transition: border-bottom 200ms ease;
+    }
+
+    #ami-customer-name:hover {
+        border-bottom: 1px solid rgba(255,255,255,0.7);
+    }
+
+    #ami-customer-name:focus {
+        border-bottom: 1px solid rgba(255,255,255,1);
+    }
+
+    #ami-customer-name::-webkit-input-placeholder {
+        color: #fff;
+        opacity: 0.6;
+    }
+
+    .am-box-input {
+        border: 0;
+        border-bottom: 1px solid #BDBDBD;
+        padding: 0 10px;
+        line-height: 30px;
+        font-size: small;
+        outline: none;
+        color: #000;
+        transition: all 600ms ease;
+    }
+
+    .am-box-input:hover {
+        border-bottom: 1px solid #9E9E9E;
+    }
+
+    .am-box-input:focus {
+        border-bottom: 1px solid #424242;
+    }
+
     .md-datepicker-button {
         margin: 0 !important;
     }
@@ -10,187 +54,154 @@
     .md-datepicker-input-container .md-datepicker-input, .md-datepicker-triangle-button {
         display: none;
     }
+
+    .am-vehicle-selector {
+        border: 1px solid #EEEEEE;
+        margin: 2px 16px;
+        outline: none;
+        cursor: pointer;
+        border-radius: 4px;
+        padding: 2px 16px;
+        color: #1565C0;
+        transition: background 500ms ease, color 100ms ease;
+    }
+
+    .am-vehicle-selector .am-button {
+        padding: 8px 14px;
+        outline: none;
+    }
+
+    .am-vehicle-selector .am-button span {
+        text-transform: uppercase;
+        font-weight: 500;
+        letter-spacing: 1px;
+    }
+
+    .am-vehicle-selector .am-button md-icon {
+        color: #fff;
+        margin-right: 6px;
+    }
+
+    .am-vehicle-selector.selected {
+        color: #fff;
+        background: #1565C0;
+    }
+
+    .am-vehicle-selector:hover {
+        color: #fff;
+        background: #1565C0;
+    }
+
+    .am-vehicle-selector:focus {
+        color: #fff;
+        background: #1565C0;
+    }
+
+    .am-blue-bar .am-table-header {
+        color: #fff;
+    }
+
+    md-select-menu md-content {
+        padding-top: 0 !important;
+        padding-bottom: 0 !important;
+    }
+
+    .am-eci-block {
+        margin-top: 26px;
+        margin-bottom: 26px;
+    }
+
+    .am-eci-block.first {
+        margin-top: 2px;
+        margin-bottom: 26px;
+    }
+
+    .am-eci-block.last {
+        margin-top: 26px;
+        margin-bottom: 10px;
+    }
 </style>
 <md-button aria-label="Back" class="md-fab md-raised md-mini am-back-button" ng-click="vm.goBack()">
     <md-icon aria-label="Back">arrow_back</md-icon>
-    <md-tooltip md-direction="bottom">Back</md-tooltip>
 </md-button>
-<md-content class="md-hue-1 am-box-shadow">
-    <md-tabs md-dynamic-height md-border-bottom class="am-tab-margin">
-        <md-tab label="Customer Information" md-active="vm.userTab" md-on-deselect="vm.changeUserTab(false)">
-            <md-content layout-padding class="md-hue-1">
-                <div layout="column">
-                    <div layout-gt-xs="row" layout-wrap layout-margin>
-                        <md-input-container class="am-clear-error-spacer"flex-gt-xs>
-                            <md-icon class="md-accent">person_pin</md-icon>
-                            <label class="am-form-label" ng-class="{'large': vm.isUserName}">{{vm.label_userName}}</label>
-                            <input id="ami-customer-name" ng-disabled="!vm.isAddOperation()" autofocus id="ami-user-name" type="text" ng-model="vm.user.name" ng-change="vm.convertNameToTitleCase()" ng-blur="vm.changeUserNameLabel()" ng-focus="vm.changeUserNameLabel(true)">
-                        </md-input-container>
+<md-content layout="column">
+    <md-card class="md-hue-1">
+        <md-button class="md-warn md-raised" style="position: absolute; top: 12px; right: 10px" ng-click="vm.save()" id="amb-save">
+            <md-icon>done</md-icon>
+            <span layout-margin>Save</span>
+            <md-tooltip>Save Customer</md-tooltip>
+        </md-button>
+        <md-card-title layout="row" layout-align="center center" class="am-blue-bar c600" style="padding: 14px">
+            <label class="am-form-label" style="color: #fff; margin-bottom: 0; margin-right: 0.4rem">Name:</label>
+            <input type="text" id="ami-customer-name" pu-elastic-input ng-change="vm.convertNameToTitleCase()" placeholder="Enter Name" ng-model="vm.user.name">
+        </md-card-title>
+        <md-card-content layout="row" style="padding: 16px 0">
+            <div flex="50" laout="column" style="padding: 0 6px">
+                <div layout="row" class="am-eci-block first">
+                    <div layout="row" layout-align="start center" flex="50" class="am-input-box">
+                        <label class="am-form-label">Mobile: </label>
+                        <input type="text" style="margin-left: 9px" class="am-box-input" ng-blur="vm.checkExistingCustomerMobile($event)" placeholder="Enter Mobile Number" ng-model="vm.user.mobile" flex>
                     </div>
-                    <div layout-gt-xs="row" layout-wrap layout-margin>
-                        <md-input-container class="am-clear-error-spacer"flex-gt-xs>
-                            <md-icon class="md-accent">phone</md-icon>
-                            <label class="am-form-label" ng-class="{'large': vm.isUserMobile}">{{vm.label_userMobile}}</label>
-                            <input id="ami-customer-mobile" layout-padding type="text" ng-model="vm.user.mobile" ng-blur="vm.changeUserMobileLabel(); vm.checkExistingCustomerMobile($event)" ng-focus="vm.changeUserMobileLabel(true)">
-                        </md-input-container>
-                        <md-input-container class="am-clear-error-spacer"flex-gt-xs>
-                            <md-icon class="md-accent">email</md-icon>
-                            <label class="am-form-label" ng-class="{'large': vm.isUserEmail}">{{vm.label_userEmail}}</label>
-                            <input type="email" ng-model="vm.user.email" ng-blur="vm.changeUserEmailLabel()" ng-focus="vm.changeUserEmailLabel(true)">
-                        </md-input-container>
-                    </div>
-                    <div layout-gt-xs="row" layout-wrap layout-margin>
-                        <md-input-container flex-gt-xs>
-                            <md-icon class="md-accent">home</md-icon>
-                            <label class="am-form-label" ng-class="{'large': vm.isUserAddress}">{{vm.label_userAddress}}</label>
-                            <textarea ng-model="vm.user.address" md-maxlength="150" rows="5" md-select-on-focus ng-change="vm.autoCapitalizeCustomerAddress()" ng-blur="vm.changeUserAddressLabel()" ng-focus="vm.changeUserAddressLabel(true)"></textarea>
-                        </md-input-container>
+                    <div layout="row" layout-align="start center" flex="50" class="am-input-box">
+                        <label class="am-form-label">Email: </label>
+                        <input type="email" class="am-box-input" placeholder="Enter Email Address" ng-model="vm.user.email" flex>
                     </div>
                 </div>
-                <div layout="row" layout-align="end center">
-                    <div layout="row" layout-align="center center" ng-show="vm.loadingBasedOnMobile" flex>
-                        <md-progress-circular md-mode="indeterminate"></md-progress-circular>
-                        <span>Please wait</span>
-                    </div>
-                    <md-button class="md-raised md-warn" ng-click="vm.save()">
-                        <md-icon>done</md-icon>
-                        <span layout-padding>Save</span>
-                    </md-button>
-                    <md-button class="md-raised" ng-click="vm.changeVehicleTab(true)">
-                        <span layout-padding>Add Vehicle</span>
-                        <md-icon>navigate_next</md-icon>
-                    </md-button>
+                <div layout="row" layout-align="start" flex="auto" class="am-input-box am-eci-block">
+                    <label class="am-form-label" style="padding: 6px 0">Address: </label>
+                    <input type="text" class="am-box-input" placeholder="Enter Address" ng-model="vm.user.address" ng-change="vm.autoCapitalizeCustomerAddress()" flex>
                 </div>
-            </md-content>
-        </md-tab>
-        <md-tab label="Vehicle Information" md-active="vm.vehicleTab" md-on-deselect="vm.changeVehicleTab(false)">
-            <md-content layout-padding class="md-hue-1">
-                <div layout="column">
-                    <div layout-gt-xs="row" layout-wrap layout-margin ng-if="!vm.isAddOperation()">
-                        <div layout="column" flex>
-                            <span class="am-form-label">Choose Vehicle:</span>
-                            <md-menu>
-                                <md-button aria-label="Choose from existing vehicles" class="md-raised md-accent" ng-click="vm.chooseVehicle($mdOpenMenu, $event)">
-                                    <span layout-margin>{{vm.currentVehicle}}</span>
-                                </md-button>
-                                <md-menu-content width="6">
-                                    <md-menu-item ng-repeat="vehicle in vm.possibleVehicleList" ng-hide="vm.possibleVehicleList.length == 0">
-                                        <md-button ng-click="vm.changeVehicle(vehicle.id)">
-                                            <span>{{vehicle.name}}</span>
-                                        </md-button>
-                                    </md-menu-item>
-                                    <md-menu-divider ng-hide="vm.possibleVehicleList.length == 0"></md-menu-divider>
-                                    <md-menu-item>
-                                        <md-button ng-click="vm.changeVehicle()">
-                                            <span>New Vehicle</span>
-                                        </md-button>
-                                    </md-menu-item>
-                                </md-menu-content>
-                            </md-menu>
-                            <span class="am-form-label md-warn">(To add new vehicle, click on the button above and select new vehicle)</span>
-                        </div>
-                    </div>
-                    <div layout-gt-xs="row" layout-wrap layout-margin>
-                        <div layout="column" flex>
-                            <span class="am-form-label">Choose Manufacturer:</span>
-                            <md-autocomplete md-selected-item="vm.selectedManuf" md-search-text="vm.vehicle.manuf" md-items="manuf in vm.manufacturersQuerySearch()" md-item-text="manuf" placeholder="Type Manufacturer Name" md-search-text-change="vm.searchVehicleChange(true)">
-                                <md-item-template>
-                                    <span md-highlight-text="vm.vehicle.manuf">{{manuf}}</span>
-                                </md-item-template>
+                <div layout="row" layout-align="start center" class="am-input-box am-eci-block" flex="45">
+                    <label class="am-form-label">Type: </label>
+                    <md-select aria-label="Customer Type" class="am-select" style="margin: 0 0 0 20px;" ng-model="vm.user.type" flex>
+                        <md-option class="am-hover-option" ng-value="type" ng-repeat="type in vm.customerTypeList" ng-selected="$first">{{type}}</md-option>
+                    </md-select>
+                </div>
+                <div layout="column" layout-align="start" class="am-input-box am-eci-block last">
+                    <div layout="row" layout-align="start center">
+                        <label class="am-form-label" style="color: #000">Memberships <br><i>(AMC Contracts)</i>:&nbsp;</label>
+                        <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-on-remove="vm.unsubscribeMembership($event, $chip)" md-require-match="true" flex>
+                            <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
+                                <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
                             </md-autocomplete>
-                        </div>
-                        <div layout="column" flex>
-                            <span class="am-form-label">Choose Model:</span>
-                            <md-autocomplete md-selected-item="vm.selectedModel" md-search-text="vm.vehicle.model" md-items="model in vm.modelQuerySearch()" md-item-text="model" placeholder="Type Model Name" md-no-cache="true" md-min-length="0" md-search-text-change="vm.autoCapitalizeVehicleModel()">
-                                <md-item-template>
-                                    <span md-highlight-text="vm.vehicle.model">{{model}}</span>
-                                </md-item-template>
-                            </md-autocomplete>
-                        </div>
+                            <md-chip-template>
+                                <span>
+                                <span style="font-size: small">{{$chip.name}}</span>
+                                </span>
+                            </md-chip-template>
+                        </md-chips>
                     </div>
-                    <div layout-gt-xs="row" layout-wrap layout-margin>
-                        <md-input-container class="md-block" flex-gt-xs="50">
-                            <label class="am-form-label" ng-class="{'large': vm.isVehicleReg}">{{vm.label_vehicleReg}}</label>
-                            <input type="text" class="am-vehicle-reg" ng-model="vm.vehicle.reg" ng-change="vm.convertRegToCaps()" ng-blur="vm.changeVehicleRegLabel()" ng-focus="vm.changeVehicleRegLabel(true)">
-                            <div class="am-hint">e.g. <span class="spacing-1p bold-500">GJ01AB9999</span></div>
-                        </md-input-container>
-                        <div layout="row" layout-align="start center">
-                            <md-checkbox aria-label="Next Due" ng-model="vm.isNextDueService" style="margin-bottom: 0"><span class="md-body-2">Next Service Reminder<span ng-show="vm.isNextDueService" class="md-caption">:</span></span></md-checkbox>
-                            <div layout="row" layout-align="start center" ng-show="vm.isNextDueService">
-                                <md-datepicker class="md-hue-1" ng-model="vm.nextDueDate" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem; padding-right: 0" md-open-on-focus></md-datepicker>
-                                <span style="font-size: 10pt; padding-top: 2px">{{vm.getDate(vm.nextDueDate)}}</span>
-                            </div>
-                        </div>
+                    <span class="md-caption" style="line-height: 2rem; text-align: right"><address>*&nbsp;Click on Membership for details</address></span>
+                </div>
+            </div>
+            <md-divider></md-divider>
+            <div flex="50" style="padding: 0 10px" layout="column">
+                <div layout="row" layout-align="start center">
+                    <span class="md-subhead" style="margin: 8px" flex>Vehicles: </span>
+                </div>
+                <div layout="row" layout-align="start center" ng-repeat="vehicle in vm.possibleVehicleList" class="am-vehicle-selector" ng-click="vm.changeVehicle(vehicle.id)" ng-class="{'selected': vm.IsVehicleSelected(vehicle.id)}">
+                    <span class="md-body-1" flex>{{vehicle.shortname}}<md-tooltip ng-if="vehicle.isLongName">{{vehicle.name}}</md-tooltip></span>
+                    <div layout="row" layout-align="start center" class="am-button" ng-click="vm.editVehicle(vehicle.id)">
+                        <md-icon>edit</md-icon>
+                        <span class="md-caption">Edit</span>
                     </div>
                 </div>
-                <div layout="row" layout-align="end center">
-                    <md-button class="md-raised md-warn" ng-click="vm.save()">
-                        <md-icon>done</md-icon>
-                        <span layout-padding>Save</span>
-                    </md-button>
-                    <md-button class="md-raised" ng-click="vm.changeMembershipTab(true)">
-                        <span layout-padding>Add Memberships</span>
-                        <md-icon>navigate_next</md-icon>
-                    </md-button>
-                </div>
-            </md-content>
-        </md-tab>
-        <md-tab label="Services" md-active="vm.servicesTab" md-on-deselect="vm.changeServicesTab(false)" ng-if="!vm.isAddOperation()">
-            <md-table-container>
-                <table md-table md-progress="vm.promise">
-                    <thead md-head>
-                        <tr md-row>
-                            <th md-column><span class="am-table-header">Vehicle</span></th>
-                            <th md-column><span class="am-table-header">Date</span></th>
-                            <th md-column><span class="am-table-header">Amount</span><br>(Rs.)</th>
-                            <th md-column><span class="am-table-header">Payment</span></th>
-                        </tr>
-                    </thead>
-                    <tbody md-body>
-                        <tr md-row ng-repeat="service in vm.services | limitTo: vm.serviceQuery.limit: (vm.serviceQuery.page - 1)*(vm.serviceQuery.limit)" class="am-select-table-row">
-                            <td md-cell ng-click="vm.editService(service)">{{service.vhcl_manuf + ' ' + service.vhcl_model}}<span ng-if="service.vhcl_reg">&nbsp;({{service.vhcl_reg}})</span></td>
-                            <td md-cell ng-click="vm.editService(service)">{{vm.getServiceDate(service.srvc_date)}}</td>
-                            <td md-cell ng-click="vm.editService(service)">{{service.srvc_cost}}</td>
-                            <td md-cell ng-click="vm.editService(service)"><span ng-class="{'am-red-text': vm.IsServiceDue(service.srvc_status)}">{{service.srvc_status}}</span></td>
-                            <td md-cell ng-click="vm.editService(service)"><span ng-class="{'am-jobcard-text': vm.IsServiceStateJc(service.srvc_state), 'am-estimate-text': vm.IsServiceStateEs(service.srvc_state), 'am-invoice-text': vm.IsServiceStateIv(service.srvc_state)}">{{service.srvc_state}}</span></td>
-                            <td md-cell class="am-datatable-actions view-all-services">
-                                <md-button class="md-icon-button" ng-click="vm.deleteService(service, $event)">
-                                    <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
-                                </md-button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </md-table-container>
-            <md-table-pagination md-limit="vm.serviceQuery.limit" md-limit-options="[10, 20, 50, 100]" md-page="vm.serviceQuery.page" md-total="{{vm.serviceQuery.total}}" md-page-select></md-table-pagination>
-        </md-tab>
-        <md-tab label="Membership Information" md-active="vm.membershipTab" md-on-deselect="vm.changeMembershipTab(false)">
-            <md-content class="md-hue-1">
-                <div layout="column">
-                    <div layout="row" layout-align="start center"  layout-margin>
-                        <md-icon class="md-accent">card_membership</md-icon>
-                        <div layout="column" layout-align="start" flex>
-                            <md-chips ng-model="vm.membershipChips" md-autocomplete-snap ng-click="vm.OnClickMembershipChip($event)" md-on-add="vm.OnAddMembershipChip($chip)" md-on-remove="vm.unsubscribeMembership($event, $chip)" md-require-match="true">
-                                <md-autocomplete id="am-add-membership-chips" md-selected-item="vm.selectedMembershipChip" md-search-text="vm.membershipChipText" md-items="membership in vm.queryMembershipChip()" md-item-text="membership.name" placeholder="Assign Memberships">
-                                    <span md-highlight-text="vm.membershipChipText">{{membership.name}}</span>
-                                </md-autocomplete>
-                                <md-chip-template>
-                                    <span>
-                                    <span style="font-size: small">{{$chip.name}}</span>
-                                    </span>
-                                </md-chip-template>
-                            </md-chips>
+                <div flex></div>
+                <div layout="row" layout-align="start center">
+                    <div layout="row" layout-align="start center" ng-show="vm.vehicle.id">
+                        <md-checkbox aria-label="Next Due" ng-model="vm.vNextDue[vm.vehicle.id].isNextDue" style="margin-bottom: 0"><span class="md-body-2">Next Service Reminder<span ng-show="vm.vNextDue[vm.vehicle.id].isNextDue" class="md-caption">:</span></span></md-checkbox>
+                        <div layout="row" layout-align="start center" ng-show="vm.vNextDue[vm.vehicle.id].isNextDue">
+                            <md-datepicker class="md-hue-1" ng-model="vm.vNextDue[vm.vehicle.id].nextdue" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem; padding-right: 0" md-open-on-focus></md-datepicker>
+                            <span style="font-size: 10pt; padding-top: 2px">{{vm.getDate(vm.vNextDue[vm.vehicle.id].nextdue)}}</span>
                         </div>
                     </div>
-                    <span class="md-caption" style="margin-left: 3rem; line-height: 2rem"><address>*&nbsp;Click on Membership for details</address></span>
-                </div>
-                <div layout="row" layout-align="end center">
-                    <md-button class="md-raised md-warn" ng-click="vm.save()">
-                        <md-icon>done</md-icon>
-                        <span layout-padding>Save</span>
+                    <div flex></div>
+                    <md-button class="md-accent" ng-click="vm.editVehicle(undefined)" ng-keydown="vm.blurAddVehicle($event)">
+                        <md-icon>add</md-icon>
+                        <span layout-margin>Add Vehicle</span>
                     </md-button>
                 </div>
-            </md-content>
-        </md-tab>
-    </md-tabs>
+            </div>
+        </md-card-content>
+    </md-card>
 </md-content>

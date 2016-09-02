@@ -2,7 +2,7 @@
  * Automint Application
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.7.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -50,16 +50,8 @@
         $rootScope.$state = $state;
         $rootScope.$stateParams = $stateParams;
 
-        $rootScope.setCoverPic = setCoverPic;
-
         //  initialize database and default syncing mechanism with automint server
         $amRoot.initDb();
-
-        //  set cover photo
-        function setCoverPic() {
-            var source = localStorage.getItem('cover-pic');
-            $('#am-cover-pic').attr('src', (source) ? source : 'assets/img/logo-250x125px.png').width(250).height(125);
-        }
     }
 
     //  configure debug mode

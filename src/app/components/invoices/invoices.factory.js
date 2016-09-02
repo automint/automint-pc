@@ -2,7 +2,7 @@
  * Factory that handles database interactions between invoices database and controller
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,30 +11,66 @@
     angular.module('automintApp')
         .factory('amInvoices', InvoicesFactory);
 
-    InvoicesFactory.$inject = ['$q', '$amRoot', 'pdbCustomers', 'pdbConfig'];
+    InvoicesFactory.$inject = ['$q', '$rootScope', 'pdbMain'];
 
-    function InvoicesFactory($q, $amRoot, pdbCustomers, pdbConfig) {
+    function InvoicesFactory($q, $rootScope, pdbMain) {
         //  initialize factory variable and function mappings
         var factory = {
             getServiceDetails: getServiceDetails,
             getWorkshopDetails: getWorkshopDetails,
             getIvSettings: getIvSettings,
             getIvAlignMargins: getIvAlignMargins,
-            saveCustomerEmail: saveCustomerEmail
+            saveCustomerEmail: saveCustomerEmail,
+            getCurrencySymbol: getCurrencySymbol,
+            getInvoicePageSize: getInvoicePageSize
         }
 
         return factory;
 
         //  function definitions
 
+        function getInvoicePageSize() {
+            var tracker = $q.defer();
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
+            return tracker.promise;
+
+            function getSettingsObject(res) {
+                if (res.settings && res.settings.invoices && res.settings.invoices.pageSize)
+                    tracker.resolve(res.settings.invoices.pageSize);
+                else
+                    failure('No PageSize Found!');
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function getCurrencySymbol() {
+            var tracker = $q.defer();
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
+            return tracker.promise;
+
+            function getSettingsObject(res) {
+                if (res.currency)
+                    tracker.resolve(res.currency);
+                else
+                    failure('No Currency Symbol Found!');
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
         function saveCustomerEmail(userId, email) {
             var tracker = $q.defer();
-            pdbCustomers.get(userId).then(getUserObject).catch(failure);
+            pdbMain.get(userId).then(getUserObject).catch(failure);
             return tracker.promise;
 
             function getUserObject(res) {
                 res.user.email = email;
-                pdbCustomers.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function success(res) {
@@ -48,12 +84,8 @@
 
         function getIvAlignMargins() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
 
             function getSettingsObject(res) {
                 if (res.settings && res.settings.invoices && res.settings.invoices.margin)
@@ -76,7 +108,7 @@
         //  get service details from database
         function getServiceDetails(userId, vehicleId, serviceId) {
             var tracker = $q.defer();
-            pdbCustomers.get(userId).then(getUserObject).catch(failure);
+            pdbMain.get(userId).then(getUserObject).catch(failure);
             return tracker.promise;
 
             function getUserObject(res) {
@@ -170,12 +202,8 @@
         //  get workshop details from database
         function getWorkshopDetails() {
             var tracker = $q.defer();
-            $amRoot.isWorkshopId().then(getWorkshopDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.workshop).then(getWorkshopObject).catch(failure);
             return tracker.promise;
-            
-            function getWorkshopDoc(res) {
-                pdbConfig.get($amRoot.docIds.workshop).then(getWorkshopObject).catch(failure);
-            }
             
             function getWorkshopObject(res) {
                 if (res.workshop)
@@ -197,12 +225,8 @@
         //  get display configurations
         function getIvSettings() {
             var tracker = $q.defer();
-            $amRoot.isSettingsId().then(getSettingsDoc).catch(failure);
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
             return tracker.promise;
-            
-            function getSettingsDoc(res) {
-                pdbConfig.get($amRoot.docIds.settings).then(getSettingsObject).catch(failure);
-            }
             
             function getSettingsObject(res) {
                 if (res.settings && res.settings.invoices)

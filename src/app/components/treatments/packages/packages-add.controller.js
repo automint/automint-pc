@@ -2,7 +2,7 @@
  * Controller for Add Package component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.1
+ * @version 0.7.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlPkCI', PackageAddController);
 
-    PackageAddController.$inject = ['$q', '$filter', '$state', 'utils', 'amTreatments'];
+    PackageAddController.$inject = ['$rootScope', '$q', '$filter', '$state', 'utils', 'amTreatments'];
 
-    function PackageAddController($q, $filter, $state, utils, amTreatments) {
+    function PackageAddController($rootScope, $q, $filter, $state, utils, amTreatments) {
         //  initialize view model
         var vm = this;
 

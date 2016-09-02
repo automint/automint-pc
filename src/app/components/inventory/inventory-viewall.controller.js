@@ -2,7 +2,7 @@
  * Controller for View All Inventories component
  * @author ndkcha
  * @since 0.6.1
- * @version 0.6.1
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlInRA', ViewAllInventoryController);
 
-    ViewAllInventoryController.$inject = ['$state', 'utils', 'amInventory'];
+    ViewAllInventoryController.$inject = ['$rootScope', '$state', 'utils', 'amInventory'];
 
-    function ViewAllInventoryController($state, utils, amInventory) {
+    function ViewAllInventoryController($rootScope, $state, utils, amInventory) {
         //  Initialize view model
         var vm = this;
 

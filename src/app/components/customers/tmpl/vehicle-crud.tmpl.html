@@ -1,0 +1,66 @@
+<style>
+    .am-vdbox {
+        margin: 12px 0;
+    }
+
+    .am-vdbox.last {
+        margin: 12px 0 0 0;
+    }
+
+    .am-vdbox md-autocomplete .md-whiteframe-z1 {
+        box-shadow: none;
+    }
+
+    .am-vdbox label {
+        color: #1E88E5;
+    }
+
+    .am-vdbox input {
+        border: 0 !important;
+        border-bottom: 1px solid #BDBDBD !important;
+        padding: 0 10px !important;
+        line-height: 40px;
+        font-size: small !important;
+        outline: none !important;
+        color: #000 !important;
+        transition: all 600ms ease !important;
+        background: #fff !important;
+    }
+</style>
+<md-dialog aria-label="Customize Vehicle" style="min-width: 500px" class="md-hue-1">
+    <md-dialog-content style="padding: 24px" layout="column">
+        <span class="md-title">Edit Vehicle Info</span>
+        <div layout="column" style="padding: 16px">
+            <div layout="column" class="am-vdbox">
+                <label class="am-form-label">Manufacturer:</label>
+                <md-autocomplete md-autofocus class="am-full-width" md-selected-item="vm.selectedManuf" md-search-text="vm.vehicle.manuf" md-items="manuf in vm.manufacturersQuerySearch()" md-item-text="manuf" placeholder="Type Manufacturer Name" md-search-text-change="vm.searchVehicleChange()" flex>
+                    <md-item-template>
+                        <span md-highlight-text="vm.vehicle.manuf">{{manuf}}</span>
+                    </md-item-template>
+                </md-autocomplete>
+            </div>
+            <div layout="column" class="am-vdbox">
+                <label class="am-form-label">Model:</label>
+                <md-autocomplete class="am-full-width" md-selected-item="vm.selectedModel" md-search-text="vm.vehicle.model" md-items="model in vm.modelQuerySearch()" md-item-text="model" placeholder="Type Model Name" md-no-cache="true" md-min-length="0" md-search-text-change="vm.autoCapitalizeVehicleModel()" flex>
+                    <md-item-template>
+                        <span md-highlight-text="vm.vehicle.model">{{model}}</span>
+                    </md-item-template>
+                </md-autocomplete>
+            </div>
+            <div layout="column" class="am-vdbox last">
+                <label class="am-form-label">Registration:</label>
+                <input type="text" class="am-vdbox-input am-vehicle-reg" ng-model="vm.vehicle.reg" ng-change="vm.convertRegToCaps()" placeholder="e.g GJ01AB9999" flex>
+            </div>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" layout-align="end center" style="margin-bottom: 6px; margin-right: 6px;">
+        <md-button class="md-warn" ng-click="vm.save()">
+            <md-icon>done</md-icon>
+            <span layout-margin>Save</span>
+        </md-button>
+        <md-button class="md-accent" ng-click="vm.cancel()">
+            <md-icon>close</md-icon>
+            <span layout-margin>Cancel</span>
+        </md-button>
+    </md-dialog-actions>
+</md-dialog>

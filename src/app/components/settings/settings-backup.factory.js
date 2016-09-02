@@ -2,18 +2,20 @@
  * Factory to backup pouchDb dump to local storage
  * @author ndkcha
  * @since 0.4.1
- * @version 0.4.1
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
-    angular.module('automintApp')
-        .factory('amBackup', BackupFactory);
+    const electron = require('electron').remote;
+    const amApp = electron.app;
 
-    BackupFactory.$inject = ['$q', 'pdbCustomers', 'pdbConfig', 'constants'];
+    angular.module('automintApp').factory('amBackup', BackupFactory);
 
-    function BackupFactory($q, pdbCustomers, pdbConfig, constants) {
+    BackupFactory.$inject = ['$q', 'pdbMain', 'pdbLocal'];
+
+    function BackupFactory($q, pdbMain, pdbLocal) {
         //  temporary named assignments
         var backupDocument = {};
         var tracker;
@@ -32,20 +34,21 @@
             tracker = $q.defer();
 
             $q.all([
-                pdbCustomers.getAll(),
-                pdbConfig.getAll()
+                pdbMain.getAll(),
+                pdbLocal.getAll()
             ]).then(foundDocsToBackup).catch(noDocsToBackup);
             return tracker.promise;
         }
 
         function foundDocsToBackup(data) {
-            backupDocument.backupTime = Date.now();
-            backupDocument.customers = {}
-            backupDocument.customers.doc = [];
-            backupDocument.config = {};
-            backupDocument.config.doc = [];
-            data[0].rows.forEach(iterateCustomers);
-            data[1].rows.forEach(iterateConfigs);
+            backupDocument.backupTime = moment().format();
+            backupDocument.automintVersion = amApp.getVersion();
+            backupDocument.main = {}
+            backupDocument.main.doc = [];
+            backupDocument.local = {};
+            backupDocument.local.doc = [];
+            data[0].rows.forEach(iterateMain);
+            data[1].rows.forEach(iterateLocal);
             //  content dispostion
             var docText = JSON.stringify(backupDocument);
             var date = new Date();
@@ -63,14 +66,14 @@
             });
         }
         
-        //  iterate through customers to add into backup document
-        function iterateCustomers(intr_customer) {
-            backupDocument.customers.doc.push(intr_customer.doc);
+        //  iterate through main docs to add into backup document
+        function iterateMain(intr_customer) {
+            backupDocument.main.doc.push(intr_customer.doc);
         }
         
-        //  iterate through configs to add into backup document
-        function iterateConfigs(intr_config) {
-            backupDocument.config.doc.push(intr_config.doc);
+        //  iterate through local docs to add into backup document
+        function iterateLocal(intr_config) {
+            backupDocument.local.doc.push(intr_config.doc);
         }
 
         //  error fetching from database

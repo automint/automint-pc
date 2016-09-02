@@ -49,21 +49,31 @@ Automint CRM Software
     <script src="app/app.states.js"></script>
     <script src="app/app.factory.js"></script>
     <script src="app/app.oc_lazy_load.js"></script>
+    <script src="app/login/login.factory.js"></script>
+    <script src="app/login/login.service.js"></script>
     
     <link rel="stylesheet" href="assets/css/automint.css">
 </head>
 
 <body layout="column" ng-cloak>
-    <div class="am-lockscreen {{ cRootLock }}" ui-view="lockscreen"></div>
+    <div layout="row" layout-align="center center" class="am-restart-app" ng-show="busyApp.show">
+        <div layout="column" layout-sm="column" layout-align="center center" class="am-loading-icon">
+            <div layout="column" layout-align="center center" style="padding: 24px 100px">
+                <span ng-class="{'busyApp.isRaEnabled': message}">{{busyApp.message}}</span>
+                <span ng-show="busyApp.isRaEnabled"  class="md-caption">Restrating App..</span>
+            </div>
+            <md-progress-linear md-mode="indeterminate"></md-progress-linear>
+        </div>
+    </div>
+    <div ui-view="lockscreen" class="am-lockscreen" ng-if="isAutomintLocked"></div>
+    <div id="page_preloader" layout="column" layout-align="center center" ng-hide="hidePreloader"><img src="assets/img/loader.gif" alt=""/></div>
     <section layout="row" flex>
-        <md-sidenav class="md-sidenav-left am-side-nav" md-component-id="main-nav-left" md-is-locked-open="$mdMedia('gt-md')" md-disable-backdrop md-whiteframe="4">
-            <md-content>
-                <div ui-view="side_bar"></div>
-            </md-content>
+        <md-sidenav class="md-sidenav-left am-side-nav" md-component-id="main-nav-left" md-is-locked-open="$mdMedia('gt-md')" md-disable-backdrop md-whiteframe="4" ng-if="$state.includes('restricted')">
+            <div ui-view="side_bar" layout="column" flex></div>
         </md-sidenav>
-        <md-content flex>
+        <md-content layout="column" flex>
             <div ui-view="header_bar"></div>
-            <div ui-view></div>
+            <div ui-view flex></div>
         </md-content>
     </section>
 </body>

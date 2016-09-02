@@ -1,0 +1,62 @@
+<style>
+    .am-did-box-input {
+        border: 0;
+        border-bottom: 1px solid #BDBDBD;
+        padding: 0 10px;
+        line-height: 30px;
+        font-size: small;
+        outline: none;
+        color: #000;
+        transition: all 600ms ease;
+    }
+
+    .am-did-box-input:hover {
+        border-bottom: 1px solid #9E9E9E;
+    }
+
+    .am-did-box-input:focus {
+        border-bottom: 1px solid #424242;
+    }
+
+    .am-purdate-datepicker .md-datepicker-button {
+        margin: 0;
+    }
+
+    .am-dd-cancel {
+        color: #F44336;
+    }
+
+    .am-dd-cancel md-icon {
+        color: #F44336;
+    }
+</style>
+<md-dialog aria-label="Service of Details Dialog" class="md-hue-1" >
+    <md-dialog-content style="padding: 16px 16px 0 16px">
+        <div layout="row" layout-align="center center" style="margin: 0 0 14px 0">
+            <span class="md-caption">{{vm.inventory.name}}</span>
+        </div>
+        <div layout="row" layout-align="start center" class="am-input-box">
+            <label class="am-form-label" style="width: 40px">Cost: </label>
+            <input id="ami-did-orgcost" type="number" style="margin-left: 9px" class="am-did-box-input" ng-model="vm.inventory.orgcost" flex>
+        </div>
+        <div layout="row" layout-align="start center" class="am-input-box">
+            <label class="am-form-label" style="width: 40px">Vendor: </label>
+            <input type="text" style="margin-left: 9px" class="am-did-box-input" ng-keydown="vm.OnKeyDown($event)" ng-model="vm.inventory.vendor" flex>
+        </div>
+        <div layout="row" layout-align="start center" class="am-input-box">
+            <label class="am-form-label">Purchase Date: </label>
+            <md-datepicker class="am-purdate-datepicker" ng-model="vm.inventory.purchasedate" md-placeholder="Enter Date" style="margin: 0 0 0 -0.2rem; padding: 0; background: white" md-open-on-focus></md-datepicker>
+            <span style="cursor: default" class="md-caption">{{vm.getDate(vm.inventory.purchasedate)}}</span>
+        </div>
+    </md-dialog-content>
+    <md-dialog-actions layout="row" layout-align="end center" style="margin: 0 8px 6px 0">
+        <md-button class="am-dd-cancel" ng-click="vm.clearall()">
+            <md-icon>close</md-icon>
+            <span layout-margin>Clear All</span>
+        </md-button>
+        <md-button class="md-warn md-raised" ng-click="vm.submit()">
+            <md-icon>done</md-icon>
+            <span layout-margin>Done</span>
+        </md-button>
+    </md-dialog-actions>
+</md-dialog>

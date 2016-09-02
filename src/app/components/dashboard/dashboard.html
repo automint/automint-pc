@@ -75,9 +75,31 @@
     .am-dashboard-table-nxtdue tr:hover td {
         color: #212121;
     }
+
+    .amb-refresh {
+        outline: none;
+        cursor: pointer;
+        transition: background 300ms ease;
+        padding-right: 14px;
+    }
+
+    .amb-refresh:hover {
+        background: rgba(0, 0, 0, 0.1);
+    }
+
+    .amb-refresh:focus {
+        background: rgba(0, 0, 0, 0.1);
+    }
 </style>
 <md-content layout="column">
-    <md-content layout="row" layout-align="end center" style="padding: 0.1rem 1rem" class="am-blue-bar c800">
+    <md-content layout="row" layout-align="start center" style="padding: 0.1rem 1rem" class="am-blue-bar c800">
+        <div layout="row" layout-align="start center" class="amb-refresh" ng-click="vm.refreshDashboard()">
+            <md-button class="md-icon-button" style="margin: 0" ng-click="vm.refreshDashboard()">
+                <md-icon style="font-size: 16pt; color: #fff">refresh</md-icon>
+            </md-button>
+            <span class="md-body-1">Refresh Dashboard</span>
+        </div>
+        <div flex></div>
         <span class="md-body-1">Showing data for : {{vm.ddTimeSet}} </span>
         <md-button class="md-icon-button" ng-click="vm.openTimeFilter($event)">
             <md-icon style="font-size: 16pt; color: #fff">date_range</md-icon>
@@ -100,7 +122,7 @@
                     <div layout="column" flex>
                         <span class="am-card-label">Income</span>
                     </div>
-                    <span ng-click="vm.displayIncome = !vm.displayIncome" class="am-clickable-amount"><span class="am-color green bold" ng-if="!vm.displayIncome"><span class="am-card-label small">Rs.</span>$$$</span><span class="am-color green bold" ng-if="vm.displayIncome"><span class="am-card-label small">Rs.</span>{{vm.totalRevenueEarned}}</span></span>
+                    <span ng-click="vm.displayIncome = !vm.displayIncome" class="am-clickable-amount"><span class="am-color green bold" ng-if="!vm.displayIncome"><span class="am-card-label small">{{vm.currencySymbol}}&nbsp;</span>$$$</span><span class="am-color green bold" ng-if="vm.displayIncome"><span class="am-card-label small">{{vm.currencySymbol}}&nbsp;</span>{{vm.totalRevenueEarned}}</span></span>
                 </div>
             </md-card-content>
         </md-card>
@@ -110,7 +132,7 @@
                     <div layout="column" flex>
                         <span class="am-card-label">Due Payments</span>
                     </div>
-                    <span class="am-color red bold"><span class="am-card-label small">Rs.</span>{{vm.totalPendingPayments}}</span>
+                    <span class="am-color red bold"><span class="am-card-label small">{{vm.currencySymbol}}&nbsp;</span>{{vm.totalPendingPayments}}</span>
                 </div>
             </md-card-content>
         </md-card>
@@ -177,9 +199,9 @@
                 <table class="am-dashboard-table-nxtdue">
                     <tbody>
                         <tr ng-repeat="customer in vm.nextServiceDueCustomers | limitTo: 5">
-                            <td><span class="md-caption">{{vm.getNxtDueField(customer.cstmr_name)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_name)">{{customer.cstmr_name}}</md-tooltip></span></td>
-                            <td><span class="md-caption">{{vm.getNxtDueField(customer.cstmr_mobile)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_mobile)">{{customer.cstmr_mobile}}</md-tooltip></span></td>
-                            <td><span class="md-caption">{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg)}}<md-tooltip>{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg, true)}}</md-tooltip></span></td>
+                            <td><span class="md-caption" ng-class="{'am-red-text': vm.IsReminderInPast(customer.vhcl_nextdue)}">{{vm.getNxtDueField(customer.cstmr_name)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_name)">{{customer.cstmr_name}}</md-tooltip></span></td>
+                            <td><span class="md-caption" ng-class="{'am-red-text': vm.IsReminderInPast(customer.vhcl_nextdue)}">{{vm.getNxtDueField(customer.cstmr_mobile)}}<md-tooltip ng-if="vm.IsNextDueFieldLong(customer.cstmr_mobile)">{{customer.cstmr_mobile}}</md-tooltip></span></td>
+                            <td><span class="md-caption" ng-class="{'am-red-text': vm.IsReminderInPast(customer.vhcl_nextdue)}">{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg)}}<md-tooltip>{{vm.getNextDueVehicle(customer.vhcl_manuf,customer.vhcl_model,customer.vhcl_reg, true)}}</md-tooltip></span></td>
                         </tr>
                     </tbody>
                 </table>

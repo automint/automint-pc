@@ -2,7 +2,7 @@
  * Controller for Add Customer component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -12,21 +12,18 @@
         .controller('amCtrlCuCI', CustomerAddController)
         .controller('amCtrlMeD', MembershipEditDialogController);
 
-    CustomerAddController.$inject = ['$state', '$filter', '$q', '$log', '$mdDialog', 'utils', 'amCustomers'];
+    CustomerAddController.$inject = ['$rootScope', '$state', '$filter', '$q', '$log', '$mdDialog', 'utils', 'amCustomers'];
     MembershipEditDialogController.$inject = ['$mdDialog', '$filter', 'membership', 'treatments'];
 
-    function CustomerAddController($state, $filter, $q, $log, $mdDialog, utils, amCustomers) {
+    function CustomerAddController($rootScope, $state, $filter, $q, $log, $mdDialog, utils, amCustomers) {
         //  initialize view model
         var vm = this;
 
+        //  temporary named assignments
+        var nextDueDate = new Date(); 
+        var vehicles;
+
         //  vm assignments to keep track of UI related elements
-        vm.label_userName = 'Enter Full Name:'; 
-        vm.label_userMobile = 'Enter Mobile Number:'; 
-        vm.label_userEmail = 'Enter Email:';
-        vm.label_userAddress = 'Enter Address:';
-        vm.label_vehicleReg = 'Enter Vehicle Registration Number:'; 
-        vm.label_vehicleManuf = 'Manufacturer:'; 
-        vm.label_vehicleModel = 'Model:';
         vm.user = {
             mobile: '',
             name: '',
@@ -44,43 +41,153 @@
         vm.membershipChips = [];
         vm.vehicleTypeList = [];
         vm.loadingBasedOnMobile = false;
-        vm.isNextDueService = false;
-        vm.nextDueDate = new Date(); 
-        vm.nextDueDate.setMonth(vm.nextDueDate.getMonth() + 3);
+        vm.customerTypeList = ['Lead', 'Customer', 'Agency'];
+        vm.possibleVehicleList = [];
+        vm.vNextDue = {};
 
         //  function maps
         vm.convertNameToTitleCase = convertNameToTitleCase;
-        vm.convertRegToCaps = convertRegToCaps;
-        vm.searchVehicleChange = searchVehicleChange;
-        vm.manufacturersQuerySearch = manufacturersQuerySearch;
-        vm.modelQuerySearch = modelQuerySearch;
-        vm.changeUserNameLabel = changeUserNameLabel;
-        vm.changeUserMobileLabel = changeUserMobileLabel;
-        vm.changeUserEmailLabel = changeUserEmailLabel;
-        vm.changeUserAddressLabel = changeUserAddressLabel;
-        vm.changeVehicleRegLabel = changeVehicleRegLabel;
-        vm.changeVehicleTab = changeVehicleTab;
-        vm.changeUserTab = changeUserTab;
-        vm.isAddOperation = isAddOperation;
         vm.save = save;
         vm.queryMembershipChip = queryMembershipChip;
         vm.OnClickMembershipChip = OnClickMembershipChip;
         vm.OnAddMembershipChip = OnAddMembershipChip;
-        vm.changeMembershipTab = changeMembershipTab;
         vm.goBack = goBack;
         vm.autoCapitalizeCustomerAddress = autoCapitalizeCustomerAddress;
-        vm.autoCapitalizeVehicleModel = autoCapitalizeVehicleModel;
         vm.checkExistingCustomerMobile = checkExistingCustomerMobile;
         vm.unsubscribeMembership = unsubscribeMembership;
         vm.getDate = getDate;
+        vm.editVehicle = editVehicle;
+        vm.blurAddVehicle = blurAddVehicle;
+        vm.IsVehicleSelected = IsVehicleSelected;
+        vm.changeVehicle = changeVehicle;
         
         //  default execution steps
         setTimeout(focusCustomerName, 300);
         getMemberships();
         getRegularTreatments();
         getVehicleTypes();
-
+        
         //  function definitions
+
+        function IsVehicleSelected(id) {
+            return (vm.currentVehicleId == id);
+        }
+
+        function blurAddVehicle(event) {
+            if (event.keyCode == 9)
+                setTimeout(focusToSave, 100);    
+            }
+
+        function focusToSave() {
+            $('#amb-save').focus();
+        }
+
+        function changeVehicle(id) {
+            if (!id) {
+                setDefaultVehicle();
+                return;
+            }
+            var found = $filter('filter')(vm.possibleVehicleList, {
+                id: id
+            }, true);
+            if (found.length > 0) {
+                vm.currentVehicleId = found[0].id;
+                vm.vehicle.id = found[0].id;
+                vm.vehicle.reg = found[0].reg;
+                vm.vehicle.manuf = found[0].manuf;
+                vm.vehicle.model = found[0].model;
+                autofillVehicle = true;
+            } else
+                setDefaultVehicle();
+        }
+
+        function setDefaultVehicle() {
+            vm.currentVehicleId = undefined;
+            vm.vehicle.id = undefined;
+            vm.vehicle.reg = '';
+            vm.vehicle.manuf = '';
+            vm.vehicle.model = '';
+            autofillVehicle = false;
+        }
+
+        function editVehicle(id) {
+            changeVehicle(id);
+            $mdDialog.show({
+                controller: 'amCtrlCuVeCRUD',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/customers/tmpl/vehicle-crud.tmpl.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    vehicle: vm.vehicle
+                },
+                clickOutsideToClose: true
+            }).then(closeVehicleDialog).catch(closeVehicleDialog);
+
+            function closeVehicleDialog(res) {
+                if (!res)
+                    return;
+                var vId = res.id;
+                if (res.id == undefined)
+                    res.id = '';
+                if (!vehicles)
+                    vehicles = {};
+
+                var prefixVehicle = 'vhcl';
+
+                if (vId == undefined)
+                    vId = utils.generateUUID(prefixVehicle);
+                
+                if (vehicles[vId]) {
+                    var tv = vehicles[vId];
+                    if ((tv.manuf != res.manuf) || (tv.model != res.model)) {
+                        vId = utils.generateUUID(prefixVehicle);
+                        vehicles[vId] = tv;
+                        vm.vNextDue[vId] = vm.vNextDue[res.id];
+                        delete vehicles[res.id];
+                        delete vm.vNextDue[res.id];
+                    }
+                } else
+                    vehicles[vId] = {};
+                var intermvehicle = vehicles[vId];
+                intermvehicle.reg = res.reg;
+                intermvehicle.manuf = res.manuf;
+                intermvehicle.model = res.model;
+
+                var longname = (intermvehicle.manuf ? intermvehicle.manuf + ' ' : '') + (intermvehicle.model ? intermvehicle.model + ' ' : '') + (intermvehicle.reg ? ((intermvehicle.manuf || intermvehicle.model) ? ' - ' : '') + intermvehicle.reg : '');
+                var shortname = (longname.length <= 45) ? longname : longname.substr(0, 45) + '...';
+                var isLongName = (longname.length > 45);
+
+                var vfound = $filter('filter')(vm.possibleVehicleList, {
+                    id: res.id
+                }, true);
+
+                if (vfound.length == 1) {
+                    vfound[0].id = vId
+                    vfound[0].reg = res.reg;
+                    vfound[0].manuf = res.manuf;
+                    vfound[0].model = res.model;
+                    vfound[0].name = longname;
+                    vfound[0].shortname = shortname;
+                    vfound[0].isLongName = isLongName;
+                } else {
+                    vm.possibleVehicleList.push({
+                        id: vId,
+                        reg: res.reg,
+                        manuf: res.manuf,
+                        model: res.model,
+                        name: longname,
+                        shortname: shortname,
+                        isLongName: isLongName
+                    });
+                    vm.vNextDue[vId] = {
+                        isNextDue: false,
+                        nextdue: nextDueDate
+                    }
+                }
+                changeVehicle(vId);
+            }
+        }
 
         function getDate(date) {
             return moment(date).format('DD MMM YYYY');
@@ -97,7 +204,7 @@
             $mdDialog.show(confirm).then(performDelete, ignoreDelete);
 
             function performDelete() {
-                console.info('deleted');
+                //  do nothing
             }
 
             function ignoreDelete() {
@@ -110,6 +217,8 @@
         }
 
         function checkExistingCustomerMobile(ev) {
+            if (vm.user.mobile == '')
+                return;
             vm.loadingBasedOnMobile = true;
             amCustomers.getCustomerByMobile(vm.user.mobile).then(success).catch(failure);
 
@@ -138,16 +247,7 @@
 
             function failure(err) {
                 vm.loadingBasedOnMobile = false;
-                console.info('New Customer');
             }
-        }
-
-        function autoCapitalizeVehicleModel() {
-            vm.vehicle.model = utils.autoCapitalizeWord(vm.vehicle.model);
-        }
-
-        function autoCapitalizeVehicleManuf() {
-            vm.vehicle.manuf = utils.autoCapitalizeWord(vm.vehicle.manuf);
         }
 
         function autoCapitalizeCustomerAddress() {
@@ -156,10 +256,6 @@
         
         function goBack() {
             $state.go('restricted.customers.all');
-        }
-        
-        function changeMembershipTab(bool) {
-            vm.membershipTab = bool;
         }
         
         function OnClickMembershipChip(event) {
@@ -309,146 +405,30 @@
         function convertNameToTitleCase() {
             vm.user.name = utils.convertToTitleCase(vm.user.name);
         }
-
-        function convertRegToCaps() {
-            vm.vehicle.reg = vm.vehicle.reg.toUpperCase();
-        }
-
-        //  query search for manufacturers [autocomplete]
-        function manufacturersQuerySearch() {
-            var tracker = $q.defer();
-            var results = (vm.vehicle.manuf ? vm.manufacturers.filter(createFilterForManufacturers(vm.vehicle.manuf)) : vm.manufacturers);
-            
-            if (results.length > 0) {
-                return results;
-            }
-            
-            amCustomers.getManufacturers().then(allotManufacturers).catch(noManufacturers);
-            return tracker.promise;
-            
-            function allotManufacturers(res) {
-                vm.manufacturers = res;
-                results = (vm.vehicle.manuf ? vm.manufacturers.filter(createFilterForManufacturers(vm.vehicle.manuf)) : vm.manufacturers);
-                tracker.resolve(results);
-            }
-            
-            function noManufacturers(error) {
-                results = [];
-                tracker.resolve(results);
-            }
-        }
-
-        //  create filter for manufacturers' query list
-        function createFilterForManufacturers(query) {
-            var lcQuery = angular.lowercase(query);
-            return function filterFn(item) {
-                item = angular.lowercase(item);
-                return (item.indexOf(lcQuery) === 0);
-            }
-        }
-
-        //  query search for model [autocomplete]
-        function modelQuerySearch() {
-            var tracker = $q.defer();
-            var results = (vm.vehicle.model ? vm.models.filter(createFilterForModel(vm.vehicle.model)) : vm.models);
-            
-            if (results.length > 0)
-                return results;
-            
-            amCustomers.getModels(vm.vehicle.manuf).then(allotModels).catch(noModels);
-            return tracker.promise;
-            
-            function allotModels(res) {
-                vm.models = res;
-                results = (vm.vehicle.model ? vm.models.filter(createFilterForModel(vm.vehicle.model)) : vm.models);
-                tracker.resolve(results);
-            }
-            
-            function noModels(err) {
-                results = [];
-                tracker.resolve(results);
-            }
-        }
-
-        //  create filter for models' query list
-        function createFilterForModel(query) {
-            var lcQuery = angular.lowercase(query);
-            return function filterFn(item) {
-                item = angular.lowercase(item);
-                return (item.indexOf(lcQuery) === 0);
-            }
-        }
-        
-        function searchVehicleChange() {
-            autoCapitalizeVehicleManuf();
-            vm.models = [];
-            vm.vehicle.model = '';
-        }
-        
-        //  return boolean response to different configurations [BEGIN]
-        function isAddOperation() {
-            return true;
-        }
-        //  return boolean response to different configurations [END]
-        
-        //  change user tab selector variable
-        function changeUserTab(bool) {
-            vm.userTab = bool;
-        }
-        
-        //  change vehicle tab selector variable
-        function changeVehicleTab(bool) {
-            vm.vehicleTab = bool;
-        }
-        
-        //  listen to changes in input fields [BEGIN]
-        function changeUserNameLabel(force) {
-            vm.isUserName = (force != undefined || vm.user.name != '');
-            vm.label_userName = vm.isUserName ? 'Name:' : 'Enter Full Name:';
-        }
-        function changeUserMobileLabel(force) {
-            vm.isUserMobile = (force != undefined || vm.user.mobile != ''); 
-            vm.label_userMobile = vm.isUserMobile ? 'Mobile:' : 'Enter Mobile Number:';
-        }
-        function changeUserEmailLabel(force) {
-            vm.isUserEmail = (force != undefined || vm.user.email != '');
-            vm.label_userEmail = vm.isUserEmail ? 'Email:' : 'Enter Email:';
-        }
-        function changeUserAddressLabel(force) {
-            vm.isUserAddress = (force != undefined || vm.user.address != '');
-            vm.label_userAddress = vm.isUserAddress ? 'Address:' : 'Enter Address:';
-        }
-        function changeVehicleRegLabel(force) {
-            vm.isVehicleReg = (force != undefined || vm.vehicle.reg != ''); 
-            vm.label_vehicleReg = vm.isVehicleReg ? 'Vehcile Registration Number:' : 'Enter Vehicle Registration Number:';
-        }
-        //  listen to changes in input fields [END]
         
         function validate() {
             if (vm.user.name == '') {
-                changeUserTab(true);
-                setTimeout(doFocus, 300);
-                utils.showSimpleToast('Please Enter Name');
-                
-                function doFocus() {
-                    $('#ami-user-name').focus();
-                }
-                return false;
+                vm.user.name = "Anonymous";
             }
-            return true;
         }
 
         //  save to database
         function save() {
-            if (!validate()) return;
-            vm.user.memberships = vm.membershipChips;
-            if (!(vm.vehicle.reg == '' && vm.vehicle.manuf == '' && vm.vehicle.model == '')) {
-                vm.vehicle.reg = vm.vehicle.reg.replace(/\s/g, '');
-                if (vm.isNextDueService)
-                    vm.vehicle.nextdue = vm.nextDueDate;
-                amCustomers.addNewCustomer(vm.user, vm.vehicle).then(successfullSave).catch(failedSave);
-            } else
+            validate();
+            var ndKeys = Object.keys(vm.vNextDue);
+            if (ndKeys.length > 0)
+                ndKeys.forEach(iterateNextDue);
+            if (vm.membershipChips.length > 0)
+                vm.user.memberships = vm.membershipChips;
+            if (vehicles && Object.keys(vehicles.length > 0))
+                amCustomers.addNewCustomer(vm.user, vehicles).then(successfullSave).catch(failedSave);
+            else
                 amCustomers.addNewCustomer(vm.user).then(successfullSave).catch(failedSave);
+
+            function iterateNextDue(nd) {
+                if (vm.vNextDue[nd].isNextDue)
+                    vehicles[nd].nextdue = moment(vm.vNextDue[nd].nextdue).format();
+            }
         }
         
         function successfullSave(res) {

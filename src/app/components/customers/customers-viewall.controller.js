@@ -2,7 +2,7 @@
  * Controller for View all Customers component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.0
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -36,14 +36,17 @@
         vm.deleteCustomer = deleteCustomer;
         vm.editCustomer = editCustomer;
         vm.changeQueryMode = changeQueryMode;
+        vm.IsVehicleAnonymous = IsVehicleAnonymous;
         
         //  default watchers
         $scope.$watch('vm.customerQuery', watchCustomerQuery);
-        
-        //  default execution steps
         getCustomers();
         
         //  function definitions
+
+        function IsVehicleAnonymous(vehicle) {
+            return (vehicle.reg == 'Vehicle');
+        }
         
         function watchCustomerQuery(newValue, oldValue) {
             if(queryChangedPromise){
@@ -112,7 +115,7 @@
             }
             
             function ignoreDelete() {
-                console.info('nope');
+                //  do nothing
             }
             
             function success(res) {

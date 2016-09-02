@@ -10,14 +10,34 @@
     "dist:win32-ia32": "./node_modules/.bin/build --platform win32 --arch ia32",
     "dist:win32-x64": "./node_modules/.bin/build --platform win32 --arch x64",
     "dist:win32": "./node_modules/.bin/build --platform win32 --arch all",
-    "release": "gulp && npm run dist:win32-ia32"
+    "dist:osx": "./node_modules/.bin/build --platform darwin",
+    "release": "gulp && npm run dist:win32-ia32",
+    "releaseosx": "gulp && npm run dist:osx"
   },
   "build": {
+    "appId": "in.automint.mac",
+    "catagory": "public.app-category.productivity",
     "iconUrl": "http://cruzer.io/automint.ico",
     "win": {
       "authors": "Automint Pvt. Ltd.",
       "loadingGif": "build/installer.gif",
       "remoteReleases": "http://updates.automint.in/releases/win32/ia32/"
+    },
+    "dmg": {
+      "icon": "build/icon.icns",
+      "contents": [
+        {
+          "x": 410,
+          "y": 150,
+          "type": "link",
+          "path": "/Applications"
+        },
+        {
+          "x": 130,
+          "y": 150,
+          "type": "file"
+        }
+      ]
     }
   },
   "devDependencies": {

@@ -2,7 +2,7 @@
  * Controller for Edit Inventory component
  * @author ndkcha
  * @since 0.6.1
- * @version 0.6.1
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlInUI', EditInventoryController);
 
-    EditInventoryController.$inject = ['$state', 'utils', 'amInventory'];
+    EditInventoryController.$inject = ['$rootScope', '$state', 'utils', 'amInventory'];
 
-    function EditInventoryController($state, utils, amInventory) {
+    function EditInventoryController($rootScope, $state, utils, amInventory) {
         //  Initialize view model
         var vm = this;
 

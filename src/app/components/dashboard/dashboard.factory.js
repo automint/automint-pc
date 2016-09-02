@@ -2,7 +2,7 @@
  * Factory that handles database interactions between dashboard dataset and controller
  * @author ndkcha
  * @since 0.6.0
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').factory('amDashboard', DashboardFactory);
     
-    DashboardFactory.$inject = ['$q', '$filter', 'utils', 'constants', 'pdbCache', 'pdbCustomers'];
+    DashboardFactory.$inject = ['$q', '$filter', '$rootScope', 'utils', 'constants', 'pdbMain', 'pdbCache'];
     
-    function DashboardFactory($q, $filter, utils, constants, pdbCache, pdbCustomers) {
+    function DashboardFactory($q, $filter, $rootScope, utils, constants, pdbMain, pdbCache) {
         //  initialize dashboard factory and funtion mappings
         var factory = {
             getTotalCustomerServed: getTotalCustomerServed,
@@ -21,21 +21,69 @@
             getFilterMonths: getFilterMonths,
             getNextDueCustomers: getNextDueCustomers,
             deleteServiceReminder: deleteServiceReminder,
-            changeServiceReminderDate: changeServiceReminderDate
+            changeServiceReminderDate: changeServiceReminderDate,
+            getCurrencySymbol: getCurrencySymbol,
+            saveCurrencySymbol: saveCurrencySymbol
         }
         
         return factory;
         
         //  function definitions
 
+        function saveCurrencySymbol(currency) {
+            var tracker = $q.defer();
+            pdbMain.get($rootScope.amGlobals.configDocIds).then(getSettingsObject).catch(writeSettingsObject);
+            return tracker.promise;
+
+            function getSettingsObject(res) {
+                res.currency = currency;
+                pdbMain.save(res).then(success).catch(failure);
+            }
+
+            function writeSettingsObject(err) {
+                var doc = {
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
+                    currency: currency
+                }
+                pdbMain.save(doc).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function getCurrencySymbol() {
+            var tracker = $q.defer();
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
+            return tracker.promise;
+
+            function getSettingsObject(res) {
+                if (res.currency)
+                    tracker.resolve(res.currency);
+                else
+                    failure('No Currency Symbol Found!');
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
         function changeServiceReminderDate(cId, vId, nextdue) {
             var tracker = $q.defer();
-            pdbCustomers.get(cId).then(getCustomerDoc).catch(failure);
+            pdbMain.get(cId).then(getCustomerDoc).catch(failure);
             return tracker.promise;
 
             function getCustomerDoc(res) {
                 res.user.vehicles[vId].nextdue = nextdue;
-                pdbCustomers.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function success(res) {
@@ -49,12 +97,12 @@
 
         function deleteServiceReminder(cId, vId) {
             var tracker = $q.defer();
-            pdbCustomers.get(cId).then(getCustomerDoc).catch(failure);
+            pdbMain.get(cId).then(getCustomerDoc).catch(failure);
             return tracker.promise;
 
             function getCustomerDoc(res) {
                 delete res.user.vehicles[vId].nextdue;
-                pdbCustomers.save(res).then(success).catch(failure);
+                pdbMain.save(res).then(success).catch(failure);
             }
 
             function success(res) {
@@ -68,7 +116,7 @@
 
         function getNextDueCustomers(dateRange) {
             var tracker = $q.defer();
-            pdbCache.get(constants.pdb_cache_views.view_services).then(generateNextDueCustomers).catch(failure);
+            pdbCache.get(constants.pdb_cache_views.view_next_due_vehicles).then(generateNextDueCustomers).catch(failure);
             return tracker.promise;
 
             function generateNextDueCustomers(res) {
@@ -101,16 +149,17 @@
                 function iterateDateRange(dr) {
                     if (dr.match(/_id|_rev/g))
                         return;
-                    Object.keys(res[dr]).forEach(iterateService);
+                    Object.keys(res[dr]).forEach(iterateVehicles);
 
-                    function iterateService(sId) {
-	                    if (res[dr][sId].vhcl_nextdue && ((dateRange == 'All') || ((moment(res[dr][sId].vhcl_nextdue).format(dateFormat).localeCompare(startdate) >= 0) && (moment(res[dr][sId].vhcl_nextdue).format(dateFormat).localeCompare(enddate) <= 0)))) {
+                    function iterateVehicles(vId) {
+                        res[dr][vId].vhcl_id = vId;
+	                    if (res[dr][vId].vhcl_nextdue && ((dateRange == 'All') || ((moment(res[dr][vId].vhcl_nextdue).format(dateFormat).localeCompare(startdate) >= 0) && (moment(res[dr][vId].vhcl_nextdue).format(dateFormat).localeCompare(enddate) <= 0)))) {
                             var cfound = $filter('filter')(result, {
-                                cstmr_id: res[dr][sId].cstmr_id
+                                cstmr_id: res[dr][vId].cstmr_id
                             }, true);
 
                             if (cfound.length == 0)
-                                result.push(res[dr][sId]);
+                                result.push(res[dr][vId]);
                         } 
                     }
                 }
@@ -180,7 +229,7 @@
         function getProblemsAndVehicleTypes(dateRange) {
             var problems = {}, vehicleTypes = {};
             var tracker = $q.defer();
-            pdbCustomers.getAll().then(success).catch(failure);
+            pdbMain.getAll().then(success).catch(failure);
             return tracker.promise;
             
             function success(res) {
@@ -191,6 +240,8 @@
                 });
                 
                 function iterateRows(row) {
+                    if ($rootScope.amGlobals.IsConfigDoc(row.id))
+                        return;
                     if (row.doc.user.vehicles)
                         Object.keys(row.doc.user.vehicles).forEach(iterateVehicles);
                         

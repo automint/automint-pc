@@ -18,7 +18,7 @@
                             <th md-column><span class="am-table-header">Mobile</span></th>
                             <th md-column><span class="am-table-header">Vehicle</span></th>
                             <th md-column><span class="am-table-header">Date</span></th>
-                            <th md-column><span class="am-table-header">Cost</span></th>
+                            <th md-column><span class="am-table-header">Payment Due</span></th>
                         </tr>
                     </thead>
                     <tbody md-body>
@@ -27,7 +27,7 @@
                             <td md-cell ng-click="vm.editService(service)">{{service.cstmr_mobile}}</td>
                             <td md-cell ng-click="vm.editService(service)">{{service.vhcl_manuf + ' ' + service.vhcl_model}}<span ng-if="service.vhcl_reg">&nbsp;({{service.vhcl_reg}})</span></td>
                             <td md-cell ng-click="vm.editService(service)">{{vm.getServiceDate(service.srvc_date)}}</td>
-                            <td md-cell ng-click="vm.editService(service)">{{service.srvc_cost}}</td>
+                            <td md-cell ng-click="vm.editService(service)">{{vm.getCost(service)}}</td>
                         </tr>
                     </tbody>
                 </table>

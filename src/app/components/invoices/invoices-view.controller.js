@@ -2,7 +2,7 @@
  * Controller for View Invoice component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -18,19 +18,25 @@
         .controller('amCtrlIvRI', InvoicesViewController)
         .controller('amCtrlCmI', ConfirmMailController);
 
-    InvoicesViewController.$inject = ['$q', '$log', '$state', '$window', '$mdDialog', 'utils', 'amInvoices'];
+    InvoicesViewController.$inject = ['$rootScope', '$q', '$log', '$state', '$window', '$mdDialog', 'utils', 'amInvoices'];
     ConfirmMailController.$inject = ['$mdDialog', 'utils', 'user'];
 
-    function InvoicesViewController($q, $log, $state, $window, $mdDialog, utils, amInvoices) {
+    function InvoicesViewController($rootScope, $q, $log, $state, $window, $mdDialog, utils, amInvoices) {
         //  initialize view model
         var vm = this;
 
         var oCustomerEmail;
+        var rowCount = 0, membershipTreatmentCount = 0, packageTreatmentCount = 0, treatmentCount = 0, inventoryCount = 0, packageCount = {}, membershipCount = {};
 
         //  named assignments to keep track of UI elements
         vm.isFabOpen = true;
         vm.fabClass = '';
         vm.subtotal = 0;
+        vm.currencySymbol = "Rs.";
+        vm.taxSettings = [];
+        vm.invoicePageSizeList = ['Single Page', 'A4'];
+        vm.invoicePageSize = vm.invoicePageSizeList[0];
+        vm.pages = [];
 
         //  function maps
         vm.printInvoice = printInvoice;
@@ -51,24 +57,353 @@
         vm.IsInvoiceAvailable = IsInvoiceAvailable;
         vm.IsSubtotalEnabled = IsSubtotalEnabled;
         vm.calculateSubtotal = calculateSubtotal;
+        vm.IsTaxEnabled = IsTaxEnabled;
+        vm.IsHeaderAvailable = IsHeaderAvailable;
+        vm.IsLastPage = IsLastPage;
+        vm.currentPage = currentPage;
+        vm.IsNotSinglePage = IsNotSinglePage;
+        vm.IsCustomerNotAnonymus = IsCustomerNotAnonymus;
+        vm.IsVehicleNotAnonymus = IsVehicleNotAnonymus;
+        vm.getIndexCount = getIndexCount;
+    
+        //  electron watchers
+        eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  default execution steps
+
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
             utils.showSimpleToast('Something went wrong. Please try again!')
             $state.go('restricted.services.all');
             return;
         }
+        getCurrencySymbol();
         fillInvoiceDetails();
         loadInvoiceWLogo();
+        loadInvoiceFLogo();
         getIvAlignMargins();
-    
-        //  electron watchers
-        eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
+        getInvoicePageSize();
 
         //  function definitions
 
+        function getIndexCount(root) {
+            return (root - 1);
+        }
+
+        function IsVehicleNotAnonymus() {
+            return (vm.vehicle.reg != 'Vehicle');
+        }
+
+        function IsCustomerNotAnonymus() {
+            return (vm.user.name != 'Anonymous');
+        }
+
+        function loadInvoiceFLogo() {
+            var source = localStorage.getItem('invoice-f-pic');
+            vm.invoiceFLogo = source;
+        }
+
+        function addInvoiceFLogo() {
+            var elems = document.getElementsByName('am-invoice-f-logo-holder');
+            elems.forEach(iterateElements);
+
+            function iterateElements(elem) {
+                if (elem.hasChildNodes())
+                    return;
+                var x = document.createElement("IMG");
+                x.setAttribute("src", vm.invoiceFLogo);
+                elem.appendChild(x);
+            }
+        }
+
+        function removeInvoiceFogo() {
+            var elems = document.getElementsByName('am-invoice-f-logo-holder');
+            elems.forEach(iterateElements);
+
+            function iterateElements(elem) {
+                while (elem.firstChild) {
+                    elem.removeChild(elem.firstChild);
+                }
+            }
+        }
+
+        function IsNotSinglePage() {
+            return (vm.pages.length > 1);
+        }
+
+        function currentPage(index) {
+            return (index + 1);
+        }
+
+        function IsLastPage(index) {
+            return (index == (vm.pages.length - 1));
+        }
+
+        function doPagination() {
+            vm.pages = [];
+            var membershippages = 0, packagepages = 0, treatmentpages = 0, inventorypages = 0;
+            if (rowCount > 15) {
+                var pageCount = Math.ceil(rowCount / 15);
+                var mtc = membershipTreatmentCount, ptc = packageTreatmentCount, tc = treatmentCount, ic = inventoryCount;
+                for (var i = 0; i < pageCount; i++) {
+                    if (mtc > 15) {
+                        var ms = 0, mst = 0;
+                        Object.keys(membershipCount).forEach(iterateMemberships);
+                        membershippages++;
+                        pushPages(ms, 0, 0, 0);
+                        mtc -= mst;
+                        continue;
+
+                        function iterateMemberships(membership) {
+                            mst += membershipCount[membership];
+                            if (mst < 15) {
+                                ms++;
+                                delete membershipCount[membership];
+                            }
+                        }
+                    }
+                    var total = 0;
+                    total = mtc + ptc;
+                    if (total > 15) {
+                        var ps = 0, ms = 0, pst = 0, mst = 0;
+                        Object.keys(membershipCount).forEach(iterateMemberships);
+                        Object.keys(packageCount).forEach(iteratePackages);
+                        ptc = 15 - mtc;
+                        packagepages++;
+                        if (ms != 0)
+                            membershippages++;
+                        pushPages(ms, ps, 0, 0);
+                        mtc = 0;
+                        continue;
+
+                        function iterateMemberships(membership) {
+                            mst += membershipCount[membership];
+                            if (mst < 15) {
+                                ms++;
+                                delete membershipCount[membership];
+                            }
+                        }
+
+                        function iteratePackages(package) {
+                            pst += packageCount[package];
+                            if (pst < 15) {
+                                ps++;
+                                delete packageCount[package];
+                            }
+                        }
+                    }
+                    total = mtc + ptc + tc;
+                    if (total > 15) {
+                        var ps = 0, ms = 0, pst = 0, mst = 0;
+                        Object.keys(membershipCount).forEach(iterateMemberships);
+                        Object.keys(packageCount).forEach(iteratePackages);
+                        tc = 15 - mtc - ptc;
+                        if (ms != 0)
+                            membershippages++;
+                        if (ps != 0)
+                            packagepages++;
+                        treatmentpages++;
+                        pushPages(ms, ps, tc, 0);
+                        mtc = 0;
+                        ptc = 0;
+                        continue;
+
+                        function iterateMemberships(membership) {
+                            mst += membershipCount[membership];
+                            if (mst < 15) {
+                                ms++;
+                                delete membershipCount[membership];
+                            }
+                        }
+
+                        function iteratePackages(package) {
+                            pst += packageCount[package];
+                            if (pst < 15) {
+                                ps++;
+                                delete packageCount[package];
+                            }
+                        }
+                    }
+                    total = mtc + ptc + tc + ic;
+                    if (total > 15) {
+                        var ps = 0, ms = 0, pst = 0, mst = 0;
+                        Object.keys(membershipCount).forEach(iterateMemberships);
+                        Object.keys(packageCount).forEach(iteratePackages);
+                        ic = 15 - mtc - ptc - tc;
+                        if (ic == 0)
+                            ic = 1;
+                        if (ms != 0)
+                            membershippages++;
+                        if (ps != 0)
+                            packagepages++;
+                        if (tc != 0)
+                            treatmentpages++;
+                        inventorypages++;
+                        pushPages(ms, ps, tc, ic);
+                        mtc = 0;
+                        ptc = 0;
+                        tc = 0;
+                        ic = inventoryCount - ic;
+                        continue;
+
+                        function iterateMemberships(membership) {
+                            mst += membershipCount[membership];
+                            if (mst < 15) {
+                                ms++;
+                                delete membershipCount[membership];
+                            }
+                        }
+
+                        function iteratePackages(package) {
+                            pst += packageCount[package];
+                            if (pst < 15) {
+                                ps++;
+                                delete packageCount[package];
+                            }
+                        }
+                    }
+                    var ps = 0, ms = 0, pst = 0, mst = 0;
+                    Object.keys(membershipCount).forEach(iterateMemberships);
+                    Object.keys(packageCount).forEach(iteratePackages);
+                    pushPages(ms, ps, tc, ic);
+
+                    function iterateMemberships(membership) {
+                        mst += membershipCount[membership];
+                        if (mst < 15) {
+                            ms++;
+                            delete membershipCount[membership];
+                        }
+                    }
+
+                    function iteratePackages(package) {
+                        pst += packageCount[package];
+                        if (pst < 15) {
+                            ps++;
+                            delete packageCount[package];
+                        }
+                    }
+                }
+            } else {
+                var ps = 0, ms = 0, pst = 0, mst = 0;
+                Object.keys(membershipCount).forEach(iterateMemberships);
+                Object.keys(packageCount).forEach(iteratePackages);
+                if (ms != 0)
+                    membershippages++;
+                if (ps != 0)
+                    packagepages++;
+                if (tc != 0)
+                    treatmentpages++;
+                if (ic != 0)
+                    inventorypages++;
+                
+                pushPages(ms, ps, treatmentCount, inventoryCount);
+
+                function iterateMemberships(membership) {
+                    mst += membershipCount[membership];
+                    if (mst < 15) {
+                        ms++;
+                        delete membershipCount[membership];
+                    }
+                }
+
+                function iteratePackages(package) {
+                    pst += packageCount[package];
+                    if (pst < 15) {
+                        ps++;
+                        delete packageCount[package];
+                    }
+                }
+            }
+
+            function pushPages(pmtc, pptc, pagetc, pic) {
+                var index = vm.pages.length;
+                vm.pages.push({
+                    index: index,
+                    membershippages: membershippages,
+                    packagepages: packagepages,
+                    treatmentpages: treatmentpages,
+                    inventorypages: inventorypages,
+                    membershipTreatmentCount: pmtc,
+                    packageTreatmentCount: pptc,
+                    treatmentCount: pagetc,
+                    inventoryCount: pic
+                });
+            }
+        }
+
+        function IsHeaderAvailable() {
+            return ((vm.ivSettings && vm.ivSettings.display && vm.ivSettings.display.workshopDetails) || (vm.ivSettings && vm.ivSettings.display && vm.ivSettings.display.workshopLogo));
+        }
+
+        function getInvoicePageSize() {
+            amInvoices.getInvoicePageSize().then(success).catch(failure);
+
+            function success(res) {
+                vm.invoicePageSize = res;
+                switch (res) {
+                    case "A4":
+                        A4Size();
+                        doPagination();
+                        break;
+                    default:
+                        normalPageSize();
+                        vm.pages.push({
+                            index: 0,
+                            membershipTreatmentCount: membershipTreatmentCount,
+                            packageTreatmentCount: packageTreatmentCount,
+                            treatmentCount: treatmentCount,
+                            inventoryCount: inventoryCount
+                        });
+                        break;
+                }
+            }
+
+            function failure(err) {
+                success(vm.invoicePageSizeList[1]);
+            }
+        }
+
+        function normalPageSize() {
+            vm.pageWidth = "100%";
+            vm.pageHeight = "auto";
+        }
+
+        function A4Size() {
+            vm.pageWidth = "210mm";
+            vm.pageHeight = "297mm";
+        }
+
+        function IsTaxEnabled() {
+            var iTe = false;
+            vm.taxSettings.forEach(iterateTaxes);
+            return iTe;
+
+            function iterateTaxes(tax) {
+                if (tax.isTaxApplied && (tax.tax > 0))
+                    iTe = true;
+            }
+        }
+
+        function getCurrencySymbol() {
+            amInvoices.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                vm.currencySymbol = "Rs.";
+            }
+        }
+
         function IsSubtotalEnabled() {
-            return (vm.isDiscountApplied || vm.isRoundOff || (vm.sTaxSettings && vm.sTaxSettings.applyTax) || (vm.vatSettings && vm.vatSettings.applyTax));
+            var isTaxEnabled = false;
+            vm.taxSettings.forEach(iterateTaxes);
+            return (vm.isDiscountApplied || vm.isRoundOffVal || isTaxEnabled);
+
+            function iterateTaxes(tax) {
+                if (tax.isTaxApplied)
+                    isTaxEnabled = true;
+            }
         }
 
         function calculateSubtotal() {
@@ -128,7 +463,7 @@
             }
 
             function failure(err) {
-                console.info('Cound not find margin settings');
+                //  do nothing
             }
         }
         
@@ -171,17 +506,7 @@
             function iterateInventories(inventory) {
                 if (inventory.qty == undefined)
                     inventory.qty = 1;
-                if (vm.vatSettings.applyTax) {
-                    inventory.amount = inventory.rate;
-                    if (vm.vatSettings.inclusive) {
-                        inventory.rate = (inventory.amount * 100) / (vm.vatSettings.tax + 100);
-                        inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
-                    } else {
-                        inventory.tax = (inventory.rate * vm.vatSettings.tax / 100);
-                        inventory.amount = Math.round(inventory.rate + inventory.tax);
-                    }
-                }
-                inventory.total = (inventory.rate * inventory.qty) + ((inventory.tax ? inventory.tax : 0) * inventory.qty);
+                inventory.total = inventory.rate * inventory.qty;
                 inventory.total = (inventory.total % 1 != 0) ? inventory.total.toFixed(2) : parseInt(inventory.total);
             }
         }
@@ -198,24 +523,59 @@
             }
 
             function fillServiceDetails(res) {
+                rowCount = 0, membershipTreatmentCount = 0, packageTreatmentCount = 0, treatmentCount = 0, inventoryCount = 0;
                 vm.user = res.user;
                 oCustomerEmail = res.user.email;
                 vm.vehicle = res.vehicle;
                 vm.service = res.service;
                 vm.isRoundOff = (vm.service.roundoff != undefined);
                 vm.isDiscountApplied = (vm.service.discount != undefined);
-                vm.sTaxSettings = {
-                    applyTax: res.service.serviceTax.applyTax,
-                    inclusive: (res.service.serviceTax.taxIncType == 'inclusive'),
-                    tax: res.service.serviceTax.tax
-                };
-                vm.vatSettings = {
-                    applyTax: res.service.vat.applyTax,
-                    inclusive: (res.service.vat.taxIncType == 'inclusive'),
-                    tax: res.service.vat.tax
-                }
+                if (vm.isDiscountApplied)
+                    vm.discountValue = (vm.service.discount.amount || vm.service.discount.total);
+                if (res.service.taxes)
+                    Object.keys(res.service.taxes).forEach(iterateTaxes);
                 calculateInventoryValues();
+                if (vm.service.memberships)
+                    Object.keys(vm.service.memberships).forEach(iterateMemberships);
+                if (vm.service.packages)
+                    Object.keys(vm.service.packages).forEach(iteratePackages);
+                if (vm.service.problems) {
+                    rowCount += vm.service.problems.length;
+                    treatmentCount += vm.service.problems.length;
+                }
+                if (vm.service.inventories) {
+                    rowCount += vm.service.inventories.length;
+                    inventoryCount += vm.service.inventories.length;
+                }
                 calculateSubtotal();
+
+                function iteratePackages(package) {
+                    var tempp = vm.service.packages[package];
+                    packageCount[package] = Object.keys(tempp.treatments).length; 
+                    rowCount += Object.keys(tempp.treatments).length;
+                    packageTreatmentCount += Object.keys(tempp.treatments).length;
+                }
+
+                function iterateMemberships(membership) {
+                    var tempm = vm.service.memberships[membership];
+                    membershipCount[membership] = Object.keys(tempm.treatments).length;
+                    rowCount += Object.keys(tempm.treatments).length;
+                    membershipTreatmentCount += Object.keys(tempm.treatments).length;
+                }
+
+                function iterateTaxes(tax) {
+                    var t = res.service.taxes[tax];
+
+                    vm.taxSettings.push({
+                        tax: t.tax,
+                        inclusive: (t.type == "inclusive"),
+                        isTaxApplied: t.isTaxApplied,
+                        isForTreatments: t.isForTreatments,
+                        isForInventory: t.isForInventory,
+                        percent: t.percent,
+                        name: tax
+                    });
+                }
             }
 
             function failure(err) {
@@ -276,12 +636,22 @@
 
             function success(res) {
                 vm.ivSettings = res;
+                if (!res.display)
+                    return;
                 if (res.display.workshopLogo)
-                    addInvoiceWLogo();
+                    setTimeout(addInvoiceWLogo, 1000);
+                if (res.display.footerLogo)
+                    setTimeout(addInvoiceFLogo, 1000);
             }
 
             function failure(err) {
-                console.warn(err);
+                vm.ivSettings = {
+                    display: {
+                        workshopLogo: false,
+                        footerLogo: false,
+                        workshopDetails: false
+                    }
+                }
                 $log.info('Could not load display settings!');
             }
         }
@@ -318,7 +688,7 @@
                     amInScTw.src = ic.toDataURL();
                 }
             }
-            var printObj = document.getElementById('am-invoice-body');
+            var printObj = document.getElementById('am-invoice-mail-body');
             ammPrint.doPrint(printObj.innerHTML);
             if (vm.workshop && vm.workshop.social && vm.workshop.social.enabled) {
                 if (IsSocialFacebook()) {
@@ -354,12 +724,12 @@
                     amInvoices.saveCustomerEmail($state.params.userId, vm.user.email).then(respond).catch(respond);
                 
                 function respond(res) {
-                    console.info(res);
+                    //  do nothing
                 }
             }
 
             function cancelMailInvoice() {
-                console.info('cancelled');
+                //  do nothing
             }
         }
 
@@ -368,11 +738,6 @@
             if (vm.user.email == undefined || vm.user.email == '') {
                 utils.showSimpleToast(vm.user.name + '\'s email has not been set. Email can not be sent!');
                 return;
-            }
-            var t = document.getElementById('am-invoice-body');
-            if (vm.alignmentMargins && vm.alignmentMargins.enabled) {
-                t.style.paddingTop = 0;
-                t.style.paddingBottom = 0;
             }
             var amInScFb = document.getElementById('am-invoice-social-facebook');
             var amInScIn = document.getElementById('am-invoice-social-instagram');
@@ -395,6 +760,7 @@
                 }
             }
             removeInvoiceWLogo();
+            removeInvoiceFogo();
             var printObj = document.getElementById('am-invoice-mail-body');
             utils.showSimpleToast('Sending Mail...');
             ammMailApi.send(printObj.innerHTML, vm.user, (vm.workshop) ? vm.workshop.name : undefined, (vm.ivSettings) ? vm.ivSettings.emailsubject : undefined);
@@ -414,10 +780,8 @@
             }
             if (vm.ivSettings.display.workshopLogo)
                 addInvoiceWLogo();
-            if (vm.alignmentMargins && vm.alignmentMargins.enabled) {
-                t.style.paddingTop = vm.alignmentMargins.top + 'cm';
-                t.style.paddingBottom = vm.alignmentMargins.bottom + 'cm';
-            }
+            if (vm.ivSettings.display.footerLogo)
+                addInvoiceFLogo();
         }
 
         function goBack() {
@@ -431,8 +795,7 @@
                     case 'customers.edit.services':
                         transitState = 'restricted.customers.edit';
                         transitParams = {
-                            id: $state.params.userId,
-                            openTab: 'services'
+                            id: $state.params.userId
                         }
                         break;
                 }
@@ -441,20 +804,28 @@
         }
 
         function addInvoiceWLogo() {
-            var elem = document.getElementById('am-invoice-w-logo-holder');
-            if (elem.hasChildNodes())
-                return;
-            var x = document.createElement("IMG");
-            x.setAttribute("src", vm.invoiceWLogo);
-            x.setAttribute("width", "250");
-            x.setAttribute("height", "125");
-            elem.appendChild(x);
+            var elems = document.getElementsByName('am-invoice-w-logo-holder');
+            elems.forEach(iterateElements);
+
+            function iterateElements(elem) {
+                if (elem.hasChildNodes())
+                    return;
+                var x = document.createElement("IMG");
+                x.setAttribute("src", vm.invoiceWLogo);
+                x.setAttribute("width", "250");
+                x.setAttribute("height", "125");
+                elem.appendChild(x);
+            }
         }
 
         function removeInvoiceWLogo() {
-            var elem = document.getElementById('am-invoice-w-logo-holder');
-            while (elem.firstChild) {
-                elem.removeChild(elem.firstChild);
+            var elems = document.getElementsByName('am-invoice-w-logo-holder');
+            elems.forEach(iterateElements);
+
+            function iterateElements(elem) {
+                while (elem.firstChild) {
+                    elem.removeChild(elem.firstChild);
+                }
             }
         }
     }

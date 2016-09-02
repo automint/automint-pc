@@ -2,7 +2,7 @@
  * Controller for Edit Membership component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.1
+ * @version 0.7.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlMsUI', MembershipEditController);
 
-    MembershipEditController.$inject = ['$q', '$filter', '$state', 'utils', 'amTreatments'];
+    MembershipEditController.$inject = ['$rootScope', '$q', '$filter', '$state', 'utils', 'amTreatments'];
 
-    function MembershipEditController($q, $filter, $state, utils, amTreatments) {
+    function MembershipEditController($rootScope, $q, $filter, $state, utils, amTreatments) {
         //  initialize view model
         var vm = this, oMembershipName;
 
@@ -176,7 +176,6 @@
                 }
             }
             function failure(err) {
-                console.info(err);
                 errorAndExit();
             }
         }

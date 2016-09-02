@@ -2,7 +2,7 @@
  * Controller for View All Packages compoenent
  * @author ndkcha
  * @since 0.5.0
- * @version 0.6.0
+ * @version 0.7.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlPkRA', PackagesViewAllController);
 
-    PackagesViewAllController.$inject = ['$state', '$filter', 'utils', 'amTreatments'];
+    PackagesViewAllController.$inject = ['$rootScope', '$state', '$filter', 'utils', 'amTreatments'];
 
-    function PackagesViewAllController($state, $filter, utils, amTreatments) {
+    function PackagesViewAllController($rootScope, $state, $filter, utils, amTreatments) {
         //  initialize view model
         var vm = this;
         

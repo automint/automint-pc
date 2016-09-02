@@ -2,7 +2,7 @@
  * Controller for dashboard sub-views
  * @author ndkcha
  * @since 0.6.4
- * @version 0.6.4
+ * @version 0.7.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -36,11 +36,16 @@
         vm.services = unbilledServices;
         vm.editService = editService;
         vm.closeDialog = closeDialog;
+        vm.getCost = getCost;
         
         //  default execution steps
         vm.services.sort(sortFunction);
         
         //  function definitions
+
+        function getCost(service) {
+            return (service.srvc_payreceived ? (parseFloat(service.srvc_cost) - parseFloat(service.srvc_payreceived)) : parseFloat(service.srvc_cost));
+        }
         
         function sortFunction(lhs, rhs) {
             return (rhs.srvc_date.localeCompare(lhs.srvc_date));
@@ -98,6 +103,7 @@
         
         //  default execution steps
         populateYearRange();
+        detectUnavailable();
 
         //  function mappings
         vm.IsNextYear = IsNextYear;
@@ -110,6 +116,27 @@
         vm.confirm = confirm;
 
         //  function definitions
+
+        function detectUnavailable() {
+            var newlist = [];
+            vm.selectedDateSet.forEach(iterateDateSet);
+            vm.selectedDateSet = newlist;
+
+            function iterateDateSet(ds) {
+                var found = $filter('filter')(filterRange, {
+                    year: ds.year,
+                    month: ds.month
+                }, true);
+
+                if (found.length == 1) {
+                    newlist.push(found[0]);
+                }
+            }
+
+            function deleteSelected(ds) {
+                vm.selectedDateSet.splice(ds, 1);
+            }
+        }
 
         function confirm() {
             if (vm.selectedDateSet.length < 1)
@@ -204,11 +231,16 @@
         vm.editCustomer = editCustomer;
         vm.deleteServiceReminder = deleteServiceReminder;
         vm.changeDate = changeDate;
+        vm.IsReminderInPast = IsReminderInPast;
 
         //  default execution steps
         manageCustomers(dueCustomers);
         
         //  function definitions
+
+        function IsReminderInPast(date) {
+            return (moment().format().localeCompare(moment(date).format()) > 0);
+        }
 
         function changeDate(customer) {
             amDashboard.changeServiceReminderDate(customer.cstmr_id, customer.vhcl_id, moment(customer.vhcl_nextdue).format()).then(success).catch(failure);
@@ -218,7 +250,7 @@
             }
 
             function failure(err) {
-                console.warn(err);
+                //  do nothing
             }
         }
 
@@ -239,14 +271,13 @@
             }
 
             function failure(err) {
-                console.warn(err);
+                //  do nothing
             }
         }
 
         function editCustomer(cId) {
             $state.go('restricted.customers.edit', {
                 id: cId,
-                openTab: 'vehicle',
                 fromState: 'dashboard.nextdueservices'
             });
             $mdDialog.hide();
@@ -264,7 +295,7 @@
             amDashboard.getNextDueCustomers(vm.nsdcTime).then(generateNdcData).catch(failure);
 
             function failure(err) {
-                console.warn(err);
+                //  do nothing
             }
         }
 

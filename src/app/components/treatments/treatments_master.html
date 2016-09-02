@@ -53,7 +53,7 @@
                 </md-content>
             </md-content>
         </md-tab>
-        <md-tab label="Packages" md-active="vm.packagesTab" md-on-deselect="vm.changePackagesTab(false)">
+        <!--<md-tab label="Packages" md-active="vm.packagesTab" md-on-deselect="vm.changePackagesTab(false)">
             <md-content ng-controller="amCtrlPkRA as pkVm">
                 <md-content toolbar class="md-table-toolbar md-default am-toolbar-strip">
                     <div layout-gt-xs="row" layout-xs="column" layout-align="center center" style="margin-top: 1rem;">
@@ -120,7 +120,7 @@
                 <md-table-pagination ng-if="pkVm.packages.length >= pkVm.query.limit" md-limit="pkVm.query.limit" md-limit-options="[10, 20, 50, 100]" md-page="pkVm.query.page" md-total="{{pkVm.query.total}}" md-page-select style="border: 0"></md-table-pagination>
 
             </md-content>
-        </md-tab>
+        </md-tab>-->
         <md-tab label="Memberships" md-active="vm.membershipsTab" md-on-deselect="vm.changeMembershipsTab(false)">
             <md-content ng-controller="amCtrlMsRA as msVm">
                 <md-content toolbar class="md-table-toolbar md-default am-toolbar-strip">
@@ -147,7 +147,7 @@
                             <div layout-xs="column" layout="row" layout-align="center center" layout-fill ng-click="msVm.expandMembership($index)" class="folded" layout-padding>
                                 <span class="membership-name" ng-class="{'md-title': membership.expanded == true, 'md-subhead': membership.expanded != true}">
                                     {{membership.name}}
-                                    <span ng-show="membership.expanded == true && (membership.amount != undefined && membership.amount != '')"><br>Rs. {{membership.amount}}</span>
+                                    <span ng-show="membership.expanded == true && (membership.amount != undefined && membership.amount != '')"><br><small>{{msVm.currencySymbol}} </small>{{membership.amount}}</span>
                                 </span>
                                 <div flex></div>
                                 <div layout="row" layout-align="center center" class="actions" ng-show="membership.expanded == true">

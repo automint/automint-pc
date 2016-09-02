@@ -2,7 +2,7 @@
  * Controller for View All Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.5.0
+ * @version 0.7.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .controller('amCtrlTrRA', TreatmentsViewAll);
 
-    TreatmentsViewAll.$inject = ['$scope', '$state', 'utils', 'amTreatments'];
+    TreatmentsViewAll.$inject = ['$rootScope', '$scope', '$state', 'utils', 'amTreatments'];
 
-    function TreatmentsViewAll($scope, $state, utils, amTreatments) {
+    function TreatmentsViewAll($rootScope, $scope, $state, utils, amTreatments) {
         //  initialize view model
         var vm = this;
         

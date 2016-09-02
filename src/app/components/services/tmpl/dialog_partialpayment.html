@@ -1,0 +1,89 @@
+<style>
+    .am-dpp-box-input {
+        border: 0;
+        border-bottom: 1px solid #BDBDBD;
+        padding: 0 10px;
+        line-height: 30px;
+        font-size: medium;
+        outline: none;
+        color: #000;
+        font-weight: 500;
+        text-align: right;
+        transition: all 600ms ease;
+    }
+
+    .am-dpp-box-input:hover {
+        border-bottom: 1px solid #9E9E9E;
+    }
+
+    .am-dpp-box-input:focus {
+        border-bottom: 1px solid #424242;
+    }
+
+    .am-dpp-cancel {
+        color: #F44336;
+    }
+
+    .am-dpp-cancel md-icon {
+        color: #F44336;
+    }
+
+    .am-dpp-addmore {
+        font-size: small;
+        text-transform: none;
+        padding: 0 16px;
+        border: 1px solid #EEEEEE;
+    }
+
+    .am-dpp-addmore md-icon {
+        font-size: medium;
+        color: #000;
+        height: auto;
+        width: auto;
+        margin-right: 6px;
+    }
+</style>
+<md-dialog aria-label="Customize Vehicle" style="position: fixed; top: 14rem; right: 1rem; overflow: scroll" id="am-dpp" class="md-hue-1">
+    <md-dialog-content style="padding: 24px 24px 6px;">
+        <div style="margin: 0 16px" ng-repeat="payment in vm.partialPayments">
+            <div layout="row" layout-align="start center">
+                <span class="md-body-2">{{$index+1}}.&nbsp;Received:&nbsp;&nbsp;</span>
+                <input type="number" class="am-dpp-box-input" placeholder="Enter Amount" ng-model="payment.amount" am-custom-autofocus="vm.IsPaymentFocusIndex($index)" ng-change="vm.calculateRemaining(payment)" flex>
+                <span class="md-caption">&nbsp;{{vm.currencySymbol}}</span>
+                <md-button class="md-icon-button" ng-click="vm.deleteEntry($index)">
+                    <md-icon style="font-size: medium">delete</md-icon>
+                    <md-tooltip>Delete this entry!</md-tooltip>
+                </md-button>
+            </div>
+            <div layout="row" layout-align="end center" style="margin: 4px 0;">
+                <md-datepicker class="md-hue-1" ng-model="payment.date" md-placeholder="Enter Date" style="margin: 0 0 0 0.2rem; padding-right: 0"></md-datepicker>
+                <span style="font-size: 10pt; padding-top: 4px">{{vm.getDate(payment.date)}}</span>
+            </div>
+        </div>
+        <div layout="row" layout-align="start center">
+            <md-button class="am-dpp-addmore" layout="row" layout-align="start center" ng-click="vm.addPayment()">
+                <md-icon>add</md-icon>
+                <span>Add More</span>
+            </md-button>
+        </div>
+        <div layout="row" layout-align="start center" style="margin: 0 16px 6px;">
+            <span class="md-body-2">Remaining:&nbsp;&nbsp;</span>
+            <input type="number" class="am-dpp-box-input" placeholder="Enter Amount" ng-change="vm.calculateReceived()" ng-model="vm.tc" flex>
+            <span class="md-caption">&nbsp;{{vm.currencySymbol}}</span>
+            <md-button class="md-icon-button" ng-click="vm.deleteAllEntries()">
+                <md-icon style="font-size: medium">delete_sweep</md-icon>
+                <md-tooltip>Delete all entries!</md-tooltip>
+            </md-button>
+        </div>
+        <div layout="row" layout-align="center center">
+            <md-button class="md-warn md-raised" ng-click="vm.save()">
+                <md-icon>done</md-icon>
+                <span layout-margin>Done</span>
+            </md-button>
+            <md-button class="am-dpp-cancel" ng-click="vm.cancel()">
+                <md-icon>close</md-icon>
+                <span layout-margin>Cancel</span>
+            </md-button>
+        </div>
+    </md-dialog-content>
+</md-dialog>

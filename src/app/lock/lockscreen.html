@@ -1,0 +1,67 @@
+<style>
+    .am-passcode {
+        border: 1px solid #CFD8DC;
+        outline: none;
+        width: 300px;
+        font-size: small;
+        letter-spacing: 1px;
+        margin: 10px 0;
+        padding: 10px;
+        transition: all 500ms ease;
+    }
+    
+    .am-passcode:hover {
+        box-shadow: 0px 0px 1px 1px rgba(30, 30, 30, 0.1) inset;
+    }
+    
+    .am-passcode:focus {
+        box-shadow: 0px 0px 1px 1px rgba(30, 30, 30, 0.1) inset;
+    }
+    
+    .am-passcode-block {
+        padding: 16px;
+        border-radius: 6px;
+        box-shadow: 0px 0px 5px 1px rgba(40, 40, 40, 0.2);
+    }
+    
+    .am-fab {
+        z-index: 99;
+        position: fixed;
+        bottom: 2rem;
+        right: 2rem;
+    }
+    
+    .am-fab .tooltip {
+        font-size: 8pt;
+        margin-top: 10px;
+        background: #EEEEEE;
+        padding: 6px 16px;
+        border-radius: 4px;
+        box-shadow: 0px 0px 3px 0px #E0E0E0;
+    }
+</style>
+<div class="am-fab" layout="column" layout-align="center center">
+    <md-button class="md-fab" ng-click="lockVm.addService()" title="Add a Service" aria-label="Add a Service">
+        <md-tooltip md-direction="top" style="font-size: small">Add a Service</md-tooltip>
+        <md-icon>add</md-icon>
+    </md-button>
+    <span class="tooltip">Add a Service</span>
+</div>
+<md-content layout="column" layout-align="center center" style="height: 100%; background: #212121" ng-cloak>
+    <img src="assets/img/logo-250x125px.png">
+    <md-content class="md-hue-1 am-passcode-block">
+        <div layout="row" layout-align="center center">
+            <label class="am-form-label" style="margin-bottom: 0; margin-right: 12px">Passcode: </label>
+            <input autofocus type="password" class="am-passcode" ng-change="lockVm.changePasscode()" ng-model="lockVm.passcode" placeholder="Enter Passcode" am-on-enter="lockVm.unlock()">
+        </div>
+        <div layout="row" layout-align="end center">
+            <md-button class="md-raised md-accent" ng-click="lockVm.unlock()">
+                <span layout-margin>Unlock</span>
+                <md-icon>lock_open</md-icon>
+            </md-button>
+        </div>
+        <div layout="row" layout-align="center center" style="margin-top: 10px">
+            <span class="md-caption am-red-text" ng-if="lockVm.isMessage">{{lockVm.message}}</span>
+        </div>
+    </md-content>
+</md-content>

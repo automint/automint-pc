@@ -2,7 +2,7 @@
  * Controller for Add Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.6.1
+ * @version 0.7.0
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .controller('amCtrlTrCI', TreatmentAddController);
 
-    TreatmentAddController.$inject = ['$state', 'utils', 'amTreatments'];
+    TreatmentAddController.$inject = ['$rootScope', '$state', 'utils', 'amTreatments'];
 
-    function TreatmentAddController($state, utils, amTreatments) {
+    function TreatmentAddController($rootScope, $state, utils, amTreatments) {
         //  initialize view model object
         var vm = this;
 
@@ -63,6 +63,7 @@
                     vm.rates.push({
                         type: utils.convertToTitleCase(type.replace(/-/g, ' ')),
                         value: '',
+                        orgcost: '',
                         fromDb: true,
                         focusIndex: vm.rates.length
                     });
@@ -80,6 +81,7 @@
             vm.rates.push({
                 type: '',
                 value: '',
+                orgcost: '',
                 fromDb: false,
                 focusIndex: fIndex
             });
@@ -113,9 +115,23 @@
             }
             return result;
         }
+
+        function generateOrgCost() {
+            var result = {};
+            vm.rates.forEach(iterateRate);
+
+            function iterateRate(rate) {
+                rate.type = rate.type.trim();
+                if (rate.type && rate.orgcost != '')
+                    result[angular.lowercase(rate.type.replace(/\s/g, '-'))] = rate.orgcost;
+            }
+            return result;
+        }
         
         function save() {
             vm.treatment.rate = generateRate();
+            if (vm.isOrgCostEnabled)
+                vm.treatment.orgcost = generateOrgCost();
             amTreatments.saveVehicleTypes(Object.keys(vm.treatment.rate));
             amTreatments.saveTreatment(vm.treatment, vm.operationMode).then(success).catch(failure);
             
