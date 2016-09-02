@@ -230,7 +230,7 @@
             if (IsConfigDoc(change.id))
                 return;
             if (change.deleted == true) {
-                generateCacheDocs(force);
+                generateCacheDocs(true);
                 return;
             }
             var curdoc;

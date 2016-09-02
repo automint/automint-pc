@@ -688,7 +688,6 @@
             if (vm.user.name == '')
                 vm.user.name = "Anonymous";
             userDbInstance.user.mobile = vm.user.mobile;
-            userDbInstance.user.name = vm.user.name;
             userDbInstance.user.email = vm.user.email;
             userDbInstance.user.address = vm.user.address;
             userDbInstance.user.type = vm.user.type;
@@ -701,6 +700,8 @@
                 delete userDbInstance._deleted;
                 delete userDbInstance._rev;
             }
+
+            userDbInstance.user.name = vm.user.name;
             
             if (vm.membershipChips != undefined) {
                 var smArray = $.extend([], vm.membershipChips);
