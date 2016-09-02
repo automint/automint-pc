@@ -143,7 +143,9 @@
                     return;
                 }
                 if ((ignoreCodeUsedError != true) &&  res.data.used) {
-                    tracker.reject('The code is already in use! You cannot use it again!');
+                    tracker.reject({
+                        message: 'The code is already in use! You cannot use it again!'
+                    });
                     return;
                 }
                 var startdate = moment(res.data.starts, 'YYYY-MM-DD').format();
