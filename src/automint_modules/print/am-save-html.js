@@ -12,7 +12,8 @@
     var fs = require('fs');
     
     //  constants used for the module (but not exported)
-    var PREVIEW_DIR = __dirname + "/../../../app.asar.unpacked/";
+    var PREVIEW_DIR = process.resourcesPath + "/app.asar.unpacked/";
+    // var PREVIEW_DIR = __dirname + "/../../../app.asar.unpacked/";
     var PREVIEW_PATH = PREVIEW_DIR + "print-preview.html";
     
     //  export relevant function as indevidual module

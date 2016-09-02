@@ -20,7 +20,8 @@
     
     //  initialize essential params for Google && Gmail API
     var SCOPE = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.send'];
-    var TOKEN_DIR = __dirname + "/../../../app.asar.unpacked/";
+    var TOKEN_DIR = process.resourcesPath + "/app.asar.unpacked/";
+    // var TOKEN_DIR = __dirname + "/../../../app.asar.unpacked/";
     var TOKEN_PATH = TOKEN_DIR + 'google-cred.json';
     
     //  declare callback function and boolean for requesting new token
