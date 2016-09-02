@@ -340,7 +340,7 @@
                         mintSkipSave: true
                     });
                 }
-                if (res.isCloudForceEnabled)
+                if (res.isCloudForceEnabled != undefined)
                     isCloudForceEnabled = res.isCloudForceEnabled;
                 if (res.username && res.password) {
                     loadCredentials(res.username, res.password);
