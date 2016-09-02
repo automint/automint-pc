@@ -567,6 +567,8 @@
                 vm.serviceQuery.total = vm.services.length;
                 vm.possibleVehicleList = pvl;
                 changeVehicle(undefined);
+                if (vm.user.type == vm.customerTypeList[0] && (vm.services.length > 0))
+                    vm.user.type = vm.customerTypeList[1];
                 $scope.$apply();
 
                 function iterateVehicle(vId) {
