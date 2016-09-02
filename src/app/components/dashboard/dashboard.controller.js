@@ -122,10 +122,7 @@
 
             function reloadData() {
                 $rootScope.busyApp.show = false;
-                initCurrentTimeSet();
-                getFilterMonths();
-                processPreferences();
-                getCurrencySymbol();
+                $state.go($state.current, {}, {reload: true});
             }
         }
 
