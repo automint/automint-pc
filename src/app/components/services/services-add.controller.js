@@ -1599,6 +1599,8 @@
 
         //  change user based on mobile number
         function selectUserBasedOnMobile() {
+            if (vm.user.mobile == undefined)
+                return;
             if (vm.user.mobile != '' && (vm.user.id == '' || flagGetUserBasedOnMobile)) {
                 vm.changeUserMobile(false);
                 vm.loadingBasedOnMobile = true;

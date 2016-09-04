@@ -217,7 +217,7 @@
         }
 
         function checkExistingCustomerMobile(ev) {
-            if (vm.user.mobile == '')
+            if (vm.user.mobile == undefined || vm.user.mobile == '')
                 return;
             vm.loadingBasedOnMobile = true;
             amCustomers.getCustomerByMobile(vm.user.mobile).then(success).catch(failure);

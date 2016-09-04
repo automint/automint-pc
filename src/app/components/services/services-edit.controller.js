@@ -273,7 +273,7 @@
         }
 
         function selectUserBasedOnMobile() {
-            if (vm.user.mobile != '') {
+            if (vm.user.mobile != undefined || vm.user.mobile != '') {
                 vm.loadingBasedOnMobile = true;
                 amServices.getCustomerByMobile(vm.user.mobile).then(success).catch(failure);
             }
