@@ -62,5 +62,5 @@ src/typings/
 app.asar.unpacked/
 
 # Dev Dependencies from @ndkcha
-src/app/automint.js
+src/app/automint*.js
 nd_tests/
