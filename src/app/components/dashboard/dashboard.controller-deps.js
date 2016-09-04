@@ -200,6 +200,11 @@
 
         function populateYearRange() {
             filterRange.forEach(iterateYearRange);
+            vm.yearRange.sort(sortYears);
+
+            function sortYears(lhs, rhs) {
+                return (rhs - lhs);
+            }
 
             function iterateYearRange(item) {
                 var found = $filter('filter')(vm.yearRange, item.year, true);
