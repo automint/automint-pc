@@ -33,7 +33,14 @@
         vm.convertNameToTitleCase = convertNameToTitleCase;
         vm.save = save;
 
+        //  default execution steps
+        setTimeout(focusInventoryName, 300);
+
         //  function definitions
+
+        function focusInventoryName() {
+            $('#ami-inventory-name').focus();
+        }
         
         function goBack() {
             $state.go('restricted.inventory.all');

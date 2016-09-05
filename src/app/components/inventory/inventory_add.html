@@ -7,7 +7,7 @@
             <md-input-container class="md-block" flex>
                 <md-icon class="md-accent">gavel</md-icon>
                 <label class="am-form-label" ng-class="{'large': vm.isName}">{{vm.label_name}}</label>
-                <input ng-disabled="!vm.isAddOperation()" type="text" ng-model="vm.inventory.name" ng-change="vm.convertNameToTitleCase()" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
+                <input ng-disabled="!vm.isAddOperation()" id="ami-inventory-name" type="text" ng-model="vm.inventory.name" ng-change="vm.convertNameToTitleCase()" ng-blur="vm.changeNameLabel()" ng-focus="vm.changeNameLabel(true)">
             </md-input-container>
             <md-input-container class="md-block" flex>
                 <md-icon md-svg-src="assets/img/rupee.svg"></md-icon>

@@ -35,9 +35,14 @@
         vm.convertVtToTitleCase = convertVtToTitleCase;
         
         //  default execution steps
+        setTimeout(focusTreatmentName, 300);
         getVehicleTypes();
 
         //  function definitions
+
+        function focusTreatmentName() {
+            $('#ami-treatment-name').focus();
+        }
         
         function goBack() {
             $state.go('restricted.treatments.master', {
