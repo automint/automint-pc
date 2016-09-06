@@ -156,7 +156,7 @@
                     isLoggedIn = true;
                 if ((res.data.code != undefined) && (res.data.code == 13))
                     processMintCode(-404);
-                amLogin.saveActivationDetails(vm.code, res.data.starts, res.data.ends).then(proceed).catch(failure);
+                amLogin.saveActivationDetails(code, res.data.starts, res.data.ends).then(proceed).catch(failure);
             }
 
             function success(res) {

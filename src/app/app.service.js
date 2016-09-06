@@ -435,7 +435,7 @@
                                 var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.status == "paid") ? service.cost : 0);
                                 cd = angular.lowercase(cd).replace(' ', '-');
                                 if (service._deleted == true) {
-                                    if (cachedoc[cd][sId] != undefined)
+                                    if (cachedoc[cd] && cachedoc[cd][sId] != undefined)
                                         isChanged = true;
                                     return;
                                 }
