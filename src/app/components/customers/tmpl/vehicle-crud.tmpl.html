@@ -54,13 +54,14 @@
         </div>
     </md-dialog-content>
     <md-dialog-actions layout="row" layout-align="end center" style="margin-bottom: 6px; margin-right: 6px;">
-        <md-button class="md-warn" ng-click="vm.save()">
+        <md-button class="md-warn" ng-click="vm.save()" ng-hide="$root.isAllFranchiseOSelected()">
             <md-icon>done</md-icon>
             <span layout-margin>Save</span>
         </md-button>
         <md-button class="md-accent" ng-click="vm.cancel()">
             <md-icon>close</md-icon>
-            <span layout-margin>Cancel</span>
+            <span layout-margin ng-if="!$root.isAllFranchiseOSelected()">Cancel</span>
+            <span layout-margin ng-if="$root.isAllFranchiseOSelected()">Close</span>
         </md-button>
     </md-dialog-actions>
 </md-dialog>

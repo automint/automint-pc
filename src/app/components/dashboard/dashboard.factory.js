@@ -2,7 +2,7 @@
  * Factory that handles database interactions between dashboard dataset and controller
  * @author ndkcha
  * @since 0.6.0
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -152,6 +152,8 @@
                     Object.keys(res[dr]).forEach(iterateVehicles);
 
                     function iterateVehicles(vId) {
+                        if ($rootScope.amGlobals.channel && res[dr][vId].channel && ($rootScope.amGlobals.channel != '') && ($rootScope.amGlobals.channel != 'all') && (res[dr][vId].channel != '') && ($rootScope.amGlobals.channel != res[dr][vId].channel))
+                            return;
                         res[dr][vId].vhcl_id = vId;
 	                    if (res[dr][vId].vhcl_nextdue && ((dateRange == 'All') || ((moment(res[dr][vId].vhcl_nextdue).format(dateFormat).localeCompare(startdate) >= 0) && (moment(res[dr][vId].vhcl_nextdue).format(dateFormat).localeCompare(enddate) <= 0)))) {
                             var cfound = $filter('filter')(result, {
@@ -216,6 +218,8 @@
                 
                 function iterateService(sId) {
                     var target = res[cd][sId];
+                    if ($rootScope.amGlobals.channel && target.channel && ($rootScope.amGlobals.channel != '') && ($rootScope.amGlobals.channel != 'all') && (target.channel != '') && (target.channel != $rootScope.amGlobals.channel))
+                        return;
                     target.srvc_status = utils.convertToTitleCase(target.srvc_status);
                     target.srvc_id = sId;
                     result.push(target);
@@ -241,6 +245,8 @@
                 
                 function iterateRows(row) {
                     if ($rootScope.amGlobals.IsConfigDoc(row.id))
+                        return;
+                    if ($rootScope.amGlobals.channel && row.doc.channel && ($rootScope.amGlobals.channel != '') && ($rootScope.amGlobals.channel != 'all') && (row.doc.channel != '') && (row.doc.channel != $rootScope.amGlobals.channel))
                         return;
                     if (row.doc.user.vehicles)
                         Object.keys(row.doc.user.vehicles).forEach(iterateVehicles);
@@ -308,6 +314,8 @@
                 }
                 
                 function iterateUnbilled(s) {
+                    if ($rootScope.amGlobals.channel && s.channel && ($rootScope.amGlobals.channel != '') && ($rootScope.amGlobals.channel != 'all') && (s.channel != '') && ($rootScope.amGlobals.channel != s.channel))
+                        return;
                     if (s.srvc_status != 'Paid') {
                         var found = $filter('filter')(ub, {
                             srvc_id: s.srvc_id
@@ -319,6 +327,8 @@
                 
                 function iservice(s) {
                     var target = res[cd][s];
+                    if ($rootScope.amGlobals.channel && target.channel && ($rootScope.amGlobals.channel != '') && ($rootScope.amGlobals.channel != 'all') && (target.channel != '') && ($rootScope.amGlobals.channel != target.channel))
+                        return;
                     target.srvc_id = s;
                     target.srvc_status = utils.convertToTitleCase(target.srvc_status);
                     unbilled.push(target);
@@ -348,6 +358,8 @@
                         
                     function iterateService(sId) {
                         var target = res[dr][sId];
+                        if ($rootScope.amGlobals.channel && target.channel && ($rootScope.amGlobals.channel != '') && ($rootScope.amGlobals.channel != 'all') && (target.channel != '') && ($rootScope.amGlobals.channel != target.channel))
+                            return;
                         if (dr != cd) {
                             var found = $filter('filter')(result, {
                                 cstmr_id: target.cstmr_id

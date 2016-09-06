@@ -2,7 +2,7 @@
  * Controller for View Services module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -71,10 +71,15 @@
         }
 
         function getCurrencySymbol() {
+            if ($rootScope.isAllFranchiseOSelected() == true) {
+                vm.currencySymbol = $rootScope.currencySymbol;
+                return;
+            }
             amServices.getCurrencySymbol().then(success).catch(failure);
 
             function success(res) {
                 vm.currencySymbol = res;
+                $rootScope.currencySymbol = res;
             }
 
             function failure(err) {

@@ -157,7 +157,7 @@
                         <md-icon>list</md-icon>
                         <span layout-margin>View All Services</span>
                     </md-button>
-                    <md-button class="md-raised md-warn" ng-click="vm.addNewService()">
+                    <md-button class="md-raised md-warn" ng-click="vm.addNewService()" ng-hide="$root.isAllFranchiseOSelected()">
                         <md-icon>add</md-icon>
                         <span layout-margin>Add Service</span>
                     </md-button>

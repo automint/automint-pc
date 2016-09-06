@@ -2,7 +2,7 @@
  * Factories for Login Mechanism
  * @author ndkcha
  * @since 0.7.0
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../typings/main.d.ts" />
@@ -138,7 +138,8 @@
             if ($rootScope.amGlobals == undefined)
                 $rootScope.amGlobals = {};
             $rootScope.amGlobals.creator = username;
-            $rootScope.amGlobals.channel = channel;
+            var currentchannel = angular.isArray(channel) ? channel[0] : channel;
+            $rootScope.amGlobals.channel = currentchannel;
             if ($rootScope.amGlobals.validity == undefined)
                 $rootScope.amGlobals.validity = {};
             $rootScope.amGlobals.validity.license = license;

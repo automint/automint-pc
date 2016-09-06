@@ -1,6 +1,6 @@
 <md-content>
     <md-content class="md-table-toolbar md-default am-toolbar-strip" ng-hide="vm.isQueryMode" style="height: 60px" layout-gt-xs="row" layout-xs="column" layout-align="start center">
-        <md-button aria-label="Add Service" class="md-raised md-accent" ng-click="vm.addService()">
+        <md-button aria-label="Add Service" class="md-raised md-accent" ng-click="vm.addService()" ng-hide="$root.isAllFranchiseOSelected()">
             <md-icon style="color: white">person_add</md-icon>
             <span style="color: white" layout-padding>Add Service</span>
         </md-button>

@@ -2,7 +2,7 @@
  * Controller for View Invoice component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -90,10 +90,14 @@
         }
 
         function IsVehicleNotAnonymus() {
+            if (vm.vehicle == undefined)
+                return false;
             return (vm.vehicle.reg != 'Vehicle');
         }
 
         function IsCustomerNotAnonymus() {
+            if (vm.user == undefined)
+                return false;
             return (vm.user.name != 'Anonymous');
         }
 
@@ -334,8 +338,8 @@
             return ((vm.ivSettings && vm.ivSettings.display && vm.ivSettings.display.workshopDetails) || (vm.ivSettings && vm.ivSettings.display && vm.ivSettings.display.workshopLogo));
         }
 
-        function getInvoicePageSize() {
-            amInvoices.getInvoicePageSize().then(success).catch(failure);
+        function getInvoicePageSize(channel) {
+            amInvoices.getInvoicePageSize(channel).then(success).catch(failure);
 
             function success(res) {
                 vm.invoicePageSize = res;
@@ -383,11 +387,16 @@
             }
         }
 
-        function getCurrencySymbol() {
-            amInvoices.getCurrencySymbol().then(success).catch(failure);
+        function getCurrencySymbol(channel) {
+            if ($rootScope.isAllFranchiseOSelected() == true) {
+                vm.currencySymbol = $rootScope.currencySymbol;
+                return;
+            }
+            amInvoices.getCurrencySymbol(channel).then(success).catch(failure);
 
             function success(res) {
                 vm.currencySymbol = res;
+                $rootScope.currencySymbol = res;
             }
 
             function failure(err) {
@@ -455,8 +464,8 @@
             return (vm.workshop.social.twitter != '');
         }
 
-        function getIvAlignMargins() {
-            amInvoices.getIvAlignMargins().then(success).catch(failure);
+        function getIvAlignMargins(channel) {
+            amInvoices.getIvAlignMargins(channel).then(success).catch(failure);
 
             function success(res) {
                 vm.alignmentMargins = res;
@@ -519,7 +528,8 @@
             function fillWorkshopDetails(res) {
                 vm.workshop = res;
                 vm.workshop.label_phone = (vm.workshop.phone || vm.workshop.phone != '') ? '(M)' : '&nbsp;';
-                getDisplaySettings();
+                var ch = ($rootScope.isAllFranchiseOSelected() == true) ? res.channel : undefined;
+                getDisplaySettings(ch);
             }
 
             function fillServiceDetails(res) {
@@ -548,6 +558,13 @@
                     inventoryCount += vm.service.inventories.length;
                 }
                 calculateSubtotal();
+
+                if ($rootScope.isAllFranchiseOSelected() == true) {
+                    getCurrencySymbol(res.channel);
+                    amInvoices.getWorkshopDetails(res.channel).then(fillWorkshopDetails).catch(failure);
+                    getIvAlignMargins(res.channel);
+                    getInvoicePageSize(res.channel);
+                }
 
                 function iteratePackages(package) {
                     var tempp = vm.service.packages[package];

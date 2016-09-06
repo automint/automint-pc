@@ -51,6 +51,10 @@
                 <input type="text" id="ami-code" ng-keydown="vm.OnKeyDown($event)" class="am-box-input" ng-change="vm.convertToCodeToUppercase()" placeholder="Enter Code" ng-model="vm.code" flex>
             </div>
             <div layout="row" layout-align="end center" class="am-input-box last">
+                <md-button class="md-icon-button" ng-click="vm.restartApp()">
+                    <md-icon>refresh</md-icon>
+                </md-button>
+                <span flex></span>
                 <md-button class="md-accent md-raised" ng-click="vm.submit()">
                     <span layout-margin>Continue</span>
                     <md-icon>send</md-icon>

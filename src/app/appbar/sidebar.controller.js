@@ -2,7 +2,7 @@
  * Controller for Sidebar
  * @author ndkcha
  * @since 0.7.0
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../typings/main.d.ts" />
@@ -48,6 +48,7 @@
         vm.doUpdate = doUpdate;
         vm.isSelected = isSelected;
         vm.goToDashboard = goToDashboard;
+        vm.IsNotInclFranchise = IsNotInclFranchise;
 
         //  default execution steps
         ipcRenderer.on('automint-updated', listenToAutomintUpdates);
@@ -55,6 +56,21 @@
         setCoverPic();
 
         //  function definitions
+
+        function IsNotInclFranchise(item) {
+            if ($rootScope.isAllFranchiseOSelected() != true)
+                return false;
+            var isDisabled = false;
+            switch (item.name) {
+                case "Treatments":
+                    isDisabled = true;
+                    break;
+                case "Inventory":
+                    isDisabled = true;
+                    break;
+            }
+            return isDisabled;
+        }
 
         function setCoverPic() {
             var source = localStorage.getItem('cover-pic');

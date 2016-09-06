@@ -2,7 +2,7 @@
  * Controller for Settings component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -227,7 +227,7 @@
         }
 
         function getLoginState() {
-            $amLicense.checkLogin(false).then(success).catch(failure);
+            $amLicense.checkLogin(false, true).then(success).catch(failure);
 
             function success(res) {
                 vm.cloudSettings.enable = ((res.isCloudEnabled != undefined) ? res.isCloudEnabled : false);

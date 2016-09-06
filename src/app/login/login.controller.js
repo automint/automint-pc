@@ -2,12 +2,13 @@
  * Controller for Login Compoenent
  * @author ndkcha
  * @since 0.7.0
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../typings/main.d.ts" />
 
 (function() {
+    const ipcRenderer = require('electron').ipcRenderer;
     var base64url = require('base64url');
 
     angular.module('automintApp').controller('amLoginCtrl', LoginController);
@@ -37,11 +38,16 @@
         vm.submit = submit;
         vm.OnKeyDown = OnKeyDown;
         vm.convertToCodeToUppercase = convertToCodeToUppercase;
+        vm.restartApp = restartApp;
 
         //  default execution steps
         setTimeout(focusUsername, 300);
 
         //  function definitions
+
+        function restartApp() {
+            ipcRenderer.send('am-do-restart', true);
+        }
 
         function convertToCodeToUppercase() {
             vm.code = vm.code.toUpperCase();
@@ -100,6 +106,10 @@
                 $amLicense.login(true, vm.code).then(success).catch(failure);
 
             function success(res) {
+                /*vm.isLogingIn = false;
+                vm.message = "Thayi gayu login";
+                console.log(res);
+                return;*/
                 if (res.isLoggedIn) {
                     if (res.isSyncableDb) {
                         $rootScope.isOnChangeMainDbBlocked = true;

@@ -220,7 +220,7 @@
                 <label class="am-form-label" flex="60">Odometer<span style="font-size: x-small;">&nbsp;(km)</span>:</label>
                 <input type="number" class="am-box-input md-whiteframe-z1" placeholder="Enter Odometer Reading" ng-model="vm.service.odo" flex>
             </div>
-            <div layout="column" class="am-input-box" style="margin: 0.6rem 0.6rem 0 0.6rem">
+            <div layout="column" class="am-input-box" style="margin: 0.6rem 0.6rem 0 0.6rem" ng-hide="$root.isAllFranchiseOSelected()">
                 <label class="am-form-label">Vehicle Type:</label>
                 <div layout="row" layout-align="start center" class="am-input-box" style="margin: 0.6rem 0.6rem 0 0.6rem">
                     <md-radio-group ng-model="vm.vehicle.type" ng-change="vm.changeVehicleType()">
@@ -729,7 +729,7 @@
                             <span layout="row"><span class="md-body-2">Due:&nbsp;</span><span flex></span><span class="am-pp-dr" ng-click="vm.openPartialPaymentBox()"><span class="am-rupee">{{vm.currencySymbol}}</span>&nbsp;{{vm.calculateDue()}}</span></span>
                         </div>
                         <div layout="row" class="am-tab-margin">
-                            <md-button class="md-raised md-warn" ng-click="vm.save()">
+                            <md-button class="md-raised md-warn" ng-click="vm.save()" ng-disabled="$root.isAllFranchiseOSelected()">
                                 <md-icon>done</md-icon>
                                 <span layout-margin>Save</span>
                                 <md-tooltip md-direction="top">Save Service</md-tooltip>

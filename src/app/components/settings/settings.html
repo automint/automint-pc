@@ -96,7 +96,7 @@
 
 <md-content>
     <md-tabs md-dynamic-height md-border-bottom class="am-tab-margin">
-        <md-tab label="General">
+        <md-tab label="General" ng-disabled="$root.isAllFranchiseOSelected()">
             <md-content class="md-padding" layout-xs="column" layout="row">
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card class="md-hue-1 am-box-shadow">
@@ -197,7 +197,7 @@
                 </div>
             </md-content>
         </md-tab>
-        <md-tab label="Invoice" md-active="vm.invoiceTab" md-on-deselect="vm.changeInvoiceTab(false)">
+        <md-tab label="Invoice" md-active="vm.invoiceTab" md-on-deselect="vm.changeInvoiceTab(false)" ng-disabled="$root.isAllFranchiseOSelected()">
             <md-content class="md-padding" layout-xs="column" layout="row">
                 <div flex-xs flex-gt-xs="50" layout="column">
                     <md-card class="md-hue-1 am-box-shadow">
@@ -398,7 +398,7 @@
                 background: #FAFAFA;
             }
         </style>
-        <md-tab label="Tax" md-active="vm.taxTab" md-on-deselect="vm.changeTaxTab(false)">
+        <md-tab label="Tax" md-active="vm.taxTab" md-on-deselect="vm.changeTaxTab(false)" ng-disabled="$root.isAllFranchiseOSelected()">
             <md-content class="md-padding" layout="column" layout-align="start center">
                 <md-card class="md-hue-1" style="min-width: 600px;">
                     <md-card-content style="padding: 0">

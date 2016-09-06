@@ -2,7 +2,7 @@
  * Root level service
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -44,12 +44,17 @@
 
         //  map functions
         $rootScope.amGlobals.IsConfigDoc = IsConfigDoc;
+        $rootScope.isAllFranchiseOSelected = isAllFranchiseOSelected;
         vm.initDb = initDb;
         vm.syncDb = syncDb;
         vm.dbAfterLogin = dbAfterLogin;
         vm.generateCacheDocs = generateCacheDocs;
 
         //  function definitions
+
+        function isAllFranchiseOSelected() {
+            return ($rootScope.amGlobals.channel == 'all');
+        }
 
         function IsConfigDoc(id) {
             if (id.match(/\bsettings/i))
@@ -296,6 +301,7 @@
                             vhcl_manuf: vehicle.manuf,
                             vhcl_model: vehicle.model,
                             vhcl_nextdue: vehicle.nextdue,
+                            channel: curdoc.channel
                         }
                     }
                 }
@@ -349,7 +355,8 @@
                                 srvc_cost: service.cost,
                                 srvc_status: service.status,
                                 srvc_state: service.state,
-                                srvc_payreceived: payreceived
+                                srvc_payreceived: payreceived,
+                                channel: curdoc.channel
                             };
                         }
                     }
@@ -402,7 +409,8 @@
                                 vhcl_reg: vehicle.reg,
                                 vhcl_manuf: vehicle.manuf,
                                 vhcl_model: vehicle.model,
-                                vhcl_nextdue: vehicle.nextdue
+                                vhcl_nextdue: vehicle.nextdue,
+                                channel: row.doc.channel
                             }
                         }
                     }
@@ -454,7 +462,8 @@
                                     srvc_cost: service.cost,
                                     srvc_status: service.status,
                                     srvc_state: service.state,
-                                    srvc_payreceived: payreceived
+                                    srvc_payreceived: payreceived,
+                                    channel: row.doc.channel
                                 };
                             }
                         }

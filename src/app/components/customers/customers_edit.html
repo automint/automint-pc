@@ -149,7 +149,7 @@
 </md-button>
 <md-content layout="column">
     <md-card class="md-hue-1">
-        <md-button class="md-warn md-raised" style="position: absolute; top: 12px; right: 10px" ng-click="vm.save()">
+        <md-button class="md-warn md-raised" style="position: absolute; top: 12px; right: 10px" ng-click="vm.save()" ng-hide="$root.isAllFranchiseOSelected()">
             <md-icon>done</md-icon>
             <span layout-margin>Save</span>
         </md-button>
@@ -222,9 +222,13 @@
                 </div>
                 <div layout="row" layout-align="start center" ng-repeat="vehicle in vm.possibleVehicleList" class="am-vehicle-selector" ng-class="{'selected': vm.IsVehicleSelected(vehicle.id), 'all-vehicles': !vehicle.id}">
                     <span class="md-body-1" ng-click="vm.changeVehicle(vehicle.id)" flex>{{vehicle.shortname}}<md-tooltip ng-if="vehicle.isLongName">{{vehicle.name}}</md-tooltip></span>
-                    <div layout="row" layout-align="start center" class="am-button" ng-show="vehicle.id" ng-click="vm.editVehicle(vehicle.id)">
+                    <div layout="row" layout-align="start center" class="am-button" ng-show="vehicle.id" ng-click="vm.editVehicle(vehicle.id)" ng-if="!$root.isAllFranchiseOSelected()">
                         <md-icon>edit</md-icon>
                         <span class="md-caption">Edit</span>
+                    </div>
+                    <div layout="row" layout-align="start center" class="am-button" ng-show="vehicle.id" ng-click="vm.editVehicle(vehicle.id)" ng-if="$root.isAllFranchiseOSelected()">
+                        <md-icon>view_list</md-icon>
+                        <span class="md-caption">View</span>
                     </div>
                 </div>
                 <div flex></div>
@@ -237,7 +241,7 @@
                         </div>
                     </div>
                     <div flex></div>
-                    <md-button class="md-accent" ng-click="vm.editVehicle(undefined)">
+                    <md-button class="md-accent" ng-click="vm.editVehicle(undefined)" ng-hide="$root.isAllFranchiseOSelected()">
                         <md-icon>add</md-icon>
                         <span layout-margin>Add Vehicle</span>
                     </md-button>
