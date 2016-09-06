@@ -20,7 +20,8 @@
     "iconUrl": "http://cruzer.io/automint.ico",
     "win": {
       "authors": "Automint Pvt. Ltd.",
-      "loadingGif": "build/installer.gif"
+      "loadingGif": "build/installer.gif",
+      "remoteReleases": "http://updates.automint.in/releases/win32/ia32/"
     },
     "dmg": {
       "icon": "build/icon.icns",
