@@ -152,7 +152,7 @@
 
         mainWindow.loadURL('file://' + __dirname + '/index.html');
 
-        mainWindow.webContents.openDevTools();
+        // mainWindow.webContents.openDevTools();
 
         fs.watchFile(app.getPath('userData'), (curr, prev) => {
             if (curr.ino == 0) {
