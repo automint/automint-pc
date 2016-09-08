@@ -501,7 +501,7 @@
         function getCustomerNames() {
             var tracker = $q.defer();
             var dbOptions = {
-                include_docs: false
+                include_docs: ($rootScope.amGlobals.isFranchise == true)
             }
             var customers = [];
             pdbMain.getAll(dbOptions).then(success).catch(failure);
@@ -512,9 +512,11 @@
                 tracker.resolve(customers);
 
                 function iterateRows(row) {
+                    if (row.doc)
+                        delete row.doc.user;
                     if ($rootScope.amGlobals.IsConfigDoc(row.id))
                         return;
-                    if ($rootScope.amGlobals.channel && row.doc.channel && ($rootScope.amGlobals.channel != '') && ($rootScope.amGlobals.channel != 'all') && (row.doc.channel != '') && ($rootScope.amGlobals.channel != row.doc.channel))
+                    if (row.doc && $rootScope.amGlobals.channel && row.doc.channel && ($rootScope.amGlobals.channel != '') && ($rootScope.amGlobals.channel != 'all') && (row.doc.channel != '') && ($rootScope.amGlobals.channel != row.doc.channel))
                         return;
                     var splitname = row.id.split('-');
                     var name = splitname[1];
@@ -532,6 +534,7 @@
             }
 
             function failure(err) {
+                console.log(err);
                 tracker.reject(customers);
             }
         }

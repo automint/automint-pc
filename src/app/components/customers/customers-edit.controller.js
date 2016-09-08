@@ -633,6 +633,8 @@
 
                 function iterateServices(sId) {
                     var service = vehicle.services[sId];
+                    if (service._deleted == true)
+                        return;
                     var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.status == "paid") ? service.cost : 0);
                     vm.paymentDone += parseFloat(payreceived);
                     vm.paymentDue += ((service.status != "paid") ? (parseFloat(service.cost) - parseFloat(payreceived)) : 0);

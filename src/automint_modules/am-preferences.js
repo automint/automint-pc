@@ -13,8 +13,8 @@
     var Promise = require('promise');
 
     //  named assignments
-    // var PREF_DIR = __dirname + "/../../app.asar.unpacked/";
-    var PREF_DIR = process.resourcesPath + "/app.asar.unpacked/";
+    var PREF_DIR = __dirname + "/../../app.asar.unpacked/";
+    // var PREF_DIR = process.resourcesPath + "/app.asar.unpacked/";
     var PREF_FILE = PREF_DIR + 'automint-preferences.json';
     var e404 = {
         success: false,
