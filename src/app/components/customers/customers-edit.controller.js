@@ -170,6 +170,13 @@
                 if (!res)
                     return;
                 var vId = res.id;
+                if (((res.manuf == undefined) || (res.manuf == '')) && ((res.model == undefined) || (res.model == ''))) {
+                    if ((res.reg != undefined) && (res.reg == ''))
+                        res.reg = 'Vehicle';
+                } else {
+                    if ((res.reg == undefined) || (res.reg == '') || (res.reg.toLowerCase() == 'vehicle'))
+                        res.reg = '';
+                }
                 if (res.id == undefined)
                     res.id = '';
                 if (!userDbInstance.user.vehicles)
