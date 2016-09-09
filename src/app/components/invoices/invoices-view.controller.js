@@ -65,6 +65,7 @@
         vm.IsCustomerNotAnonymus = IsCustomerNotAnonymus;
         vm.IsVehicleNotAnonymus = IsVehicleNotAnonymus;
         vm.getIndexCount = getIndexCount;
+        vm.restrictNumbers = restrictNumbers;
     
         //  electron watchers
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
@@ -84,6 +85,11 @@
         getInvoicePageSize();
 
         //  function definitions
+
+        function restrictNumbers(number) {
+            number = parseFloat(number);
+            return ((number % 1 != 0) ? number.toFixed(2) : parseInt(number));
+        }
 
         function getIndexCount(root) {
             return (root - 1);
@@ -376,15 +382,8 @@
             vm.pageHeight = "297mm";
         }
 
-        function IsTaxEnabled() {
-            var iTe = false;
-            vm.taxSettings.forEach(iterateTaxes);
-            return iTe;
-
-            function iterateTaxes(tax) {
-                if (tax.isTaxApplied && (tax.tax > 0))
-                    iTe = true;
-            }
+        function IsTaxEnabled(tax) {
+            return ((tax.isTaxApplied == true) && (tax.tax > 0));
         }
 
         function getCurrencySymbol(channel) {

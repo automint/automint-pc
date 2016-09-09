@@ -2,8 +2,12 @@
  * Customised style sheet for Automint App
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
+
+ .am-white-background {
+     background: white !important;
+ }
 
  .am-restart-app .message {
      margin-bottom: 4px;
