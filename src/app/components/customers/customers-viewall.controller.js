@@ -11,9 +11,9 @@
     angular.module('automintApp')
         .controller('amCtrlCuRA', CustomersViewAll);
 
-    CustomersViewAll.$inject = ['$scope', '$state', '$timeout', '$mdDialog', 'utils', 'amCustomers'];
+    CustomersViewAll.$inject = ['$rootScope', '$scope', '$state', '$timeout', '$mdDialog', 'utils', 'amCustomers'];
 
-    function CustomersViewAll($scope, $state, $timeout, $mdDialog, utils, amCustomers) {
+    function CustomersViewAll($rootScope, $scope, $state, $timeout, $mdDialog, utils, amCustomers) {
         //  initialize view model
         var vm = this, queryChangedPromise, isFirstTime = true, configCount = 0;
         
@@ -39,6 +39,7 @@
         vm.IsVehicleAnonymous = IsVehicleAnonymous;
         
         //  default watchers
+        $rootScope.isCUSection = false;
         $scope.$watch('vm.customerQuery', watchCustomerQuery);
         amCustomers.countConfigDocs().then(countConfigDocs).catch(countConfigDocs);
         

@@ -158,6 +158,7 @@
             default:
                 break;
         }
+        $rootScope.isCUSection = false;
         loadBlock();
         //  default execution steps [END]
 

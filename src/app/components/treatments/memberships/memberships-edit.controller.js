@@ -2,7 +2,7 @@
  * Controller for Edit Membership component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -45,6 +45,7 @@
             errorAndExit();
             return;
         }
+        $rootScope.isCUSection = true;
         changeOccurencesLabel();
         changeDurationLabel();
         getVehicleTypes(getTreatments, getMembershipInfo);

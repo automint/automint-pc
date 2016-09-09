@@ -2,7 +2,7 @@
  * Controller for Add Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -35,6 +35,7 @@
         vm.convertVtToTitleCase = convertVtToTitleCase;
         
         //  default execution steps
+        $rootScope.isCUSection = true;
         setTimeout(focusTreatmentName, 300);
         getVehicleTypes();
 

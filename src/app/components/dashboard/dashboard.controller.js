@@ -103,6 +103,7 @@
 
         //  default execution steps
         $rootScope.hidePreloader = true;
+        $rootScope.isCUSection = false;
         initCurrentTimeSet();
         getFilterMonths();
         processPreferences();

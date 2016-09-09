@@ -54,7 +54,7 @@
 
         //  default execution steps
         $scope.$watch('vm.serviceQuery', watchServiceQuery);
-
+        $rootScope.isCUSection = false;
         getCurrencySymbol();
         getFilterMonths(processPreferences);
         initCurrentTimeSet();

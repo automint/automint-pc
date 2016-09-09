@@ -208,6 +208,7 @@
 
         //  default execution steps
 
+        $rootScope.isCUSection = true;
         setCoverPic();
         changeUserInfoState(true);   //  ammToDo: Enable this while commiting
         setTimeout(focusUserName, 700);

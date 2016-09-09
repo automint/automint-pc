@@ -2,7 +2,7 @@
  * Controller for Add Inventory component
  * @author ndkcha
  * @since 0.6.1
- * @version 0.6.1
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlInCI', AddInventoryController);
 
-    AddInventoryController.$inject = ['$state', 'utils', 'amInventory'];
+    AddInventoryController.$inject = ['$rootScope', '$state', 'utils', 'amInventory'];
 
-    function AddInventoryController($state, utils, amInventory) {
+    function AddInventoryController($rootScope, $state, utils, amInventory) {
         //  Initialize view model
         var vm = this;
 
@@ -34,6 +34,7 @@
         vm.save = save;
 
         //  default execution steps
+        $rootScope.isCUSection = true;
         setTimeout(focusInventoryName, 300);
 
         //  function definitions

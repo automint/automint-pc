@@ -77,6 +77,7 @@
             $state.go('restricted.services.all');
             return;
         }
+        $rootScope.isCUSection = false;
         getCurrencySymbol();
         fillInvoiceDetails();
         loadInvoiceWLogo();

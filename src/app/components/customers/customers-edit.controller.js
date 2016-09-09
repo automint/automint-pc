@@ -81,6 +81,7 @@
 
         //  default execution steps
         if ($state.params.id != undefined) {
+            $rootScope.isCUSection = true;
             getCurrencySymbol();
             getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
             setTimeout(focusCustomerMobile, 300);

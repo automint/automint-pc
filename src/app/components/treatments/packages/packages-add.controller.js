@@ -2,7 +2,7 @@
  * Controller for Add Package component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.7.0
+ * @version 0.7.22
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -31,6 +31,7 @@
         vm.selectedTreatments = [];
 
         //  default execution steps
+        $rootScope.isCUSection = true;
         getVehicleTypes(getTreatments);
 
         //  function maps

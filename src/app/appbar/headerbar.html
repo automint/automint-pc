@@ -1,10 +1,17 @@
+<style>
+    .franchise-add-section {
+        position: absolute;
+        left: 46px;
+        z-index: 996;
+    }
+</style>
 <div style="box-shadow: 0px 1px 3px 1px #E0E0E0; z-index: 999; height: 1px; width: 100%; position: absolute"></div>
 <md-toolbar class="md-default am-headerbar-shadow" style="background: #FFF;">
     <div class="md-toolbar-tools">
         <md-button class="md-icon-button" aria-label="Go Back" ng-click="headerVm.toggleSideNavbar()" hide-gt-md>
             <md-icon style="color: #424242">menu</md-icon>
         </md-button>
-        <md-menu style="padding: 0" ng-show="$root.amGlobals.isFranchise">
+        <md-menu style="padding: 0" ng-class="{'franchise-add-section':$root.isCUSection}" ng-show="$root.amGlobals.isFranchise">
             <md-button aria-label="Franchise Software" ng-click="headerVm.openFranchiseOptions($mdOpenMenu, $event)">
                 <span class="md-caption" style="color: #000; padding-left: 10px">{{headerVm.currentFranchiseChannel}}</span>
                 <md-icon style="color: #000">keyboard_arrow_down</md-icon>

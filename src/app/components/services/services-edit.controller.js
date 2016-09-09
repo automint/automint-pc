@@ -203,6 +203,8 @@
         $(window).on('resize', OnWindowResize);
 
         //  default execution steps
+
+        $rootScope.isCUSection = true;
         setCoverPic();
         buildDelayedToggler('service-details-left');
         changeServiceInfoState(true);
