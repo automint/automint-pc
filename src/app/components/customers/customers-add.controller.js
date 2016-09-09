@@ -91,7 +91,7 @@
             var found = $filter('filter')(vm.possibleVehicleList, {
                 id: id
             }, true);
-            if (found.length > 0) {
+            if ((found.length > 0) && (found[0]._deleted != true)) {
                 vm.currentVehicleId = found[0].id;
                 vm.vehicle.id = found[0].id;
                 vm.vehicle.reg = found[0].reg;
@@ -140,13 +140,26 @@
                     vId = utils.generateUUID(prefixVehicle);
                 
                 if (vehicles[vId]) {
-                    var tv = vehicles[vId];
-                    if ((tv.manuf != res.manuf) || (tv.model != res.model)) {
-                        vId = utils.generateUUID(prefixVehicle);
-                        vehicles[vId] = tv;
-                        vm.vNextDue[vId] = vm.vNextDue[res.id];
-                        delete vehicles[res.id];
-                        delete vm.vNextDue[res.id];
+                    if (res._deleted == true) {
+                        var vfound = $filter('filter')(vm.possibleVehicleList, {
+                            id: res.id
+                        }, true);
+                        if (vfound.length == 1) {
+                            var index = vm.possibleVehicleList.indexOf(vfound[0]);
+                            vm.possibleVehicleList.splice(index, 1);
+                        }        
+                        delete vehicles[vId];
+                        changeVehicle(vId);
+                        return;
+                    } else {
+                        var tv = vehicles[vId];
+                        if ((tv.manuf != res.manuf) || (tv.model != res.model)) {
+                            vId = utils.generateUUID(prefixVehicle);
+                            vehicles[vId] = tv;
+                            vm.vNextDue[vId] = vm.vNextDue[res.id];
+                            delete vehicles[res.id];
+                            delete vm.vNextDue[res.id];
+                        }
                     }
                 } else
                     vehicles[vId] = {};

@@ -308,6 +308,8 @@
                     delete vehicles;
 
                     function iterateVehicle(vId) {
+                        if (value.vehicles[vId]._deleted == true)
+                            return;
                         vehicles.push({
                             reg: value.vehicles[vId].reg,
                             manuf: value.vehicles[vId].manuf,
@@ -351,6 +353,8 @@
                         delete vehicles;
 
                         function iterateVehicle(vId) {
+                            if (row.doc.user.vehicles[vId]._deleted == true)
+                                return;
                             vehicles.push({
                                 reg: row.doc.user.vehicles[vId].reg,
                                 manuf: row.doc.user.vehicles[vId].manuf,

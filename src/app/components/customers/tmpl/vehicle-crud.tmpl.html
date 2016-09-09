@@ -26,11 +26,29 @@
         transition: all 600ms ease !important;
         background: #fff !important;
     }
+
+    .am-dvc-cancel {
+        color: #F44336;
+    }
+
+    .am-dvc-cancel md-icon {
+        color: #F44336;
+    }
 </style>
 <md-dialog aria-label="Customize Vehicle" style="min-width: 500px" class="md-hue-1">
     <md-dialog-content style="padding: 24px" layout="column">
-        <span class="md-title">Edit Vehicle Info</span>
-        <div layout="column" style="padding: 16px">
+        <div layout="row" layout-align="start center">
+            <span class="md-title"><span ng-show="vm.isDeleteDialog">Are you sure you want to delete ?</span><span ng-hide="vm.isDeleteDialog">Vehicle Info</span></span>
+            <span flex></span>
+            <md-button class="am-dvc-cancel md-icon-button" ng-click="vm.deleteVehicle()" ng-show="vm.vehicle.id" ng-if="vm.viewDeleteIcon()">
+                <md-icon>delete</md-icon>
+                <md-tooltip>Delete Vehicle</md-tooltip>
+            </md-button>
+        </div>
+        <div layout="column" style="padding: 24px 16px 0" ng-show="vm.isDeleteDialog">
+            <span class="md-body-1">All the services of <span class="md-body-2">{{vm.vehicle.manuf}} {{vm.vehicle.model}}<span ng-if="vm.vehicle.reg" class="md-caption">({{vm.vehicle.reg}})</span></span> will be deleted</span>
+        </div>
+        <div layout="column" style="padding: 16px" ng-hide="vm.isDeleteDialog">
             <div layout="column" class="am-vdbox">
                 <label class="am-form-label">Manufacturer:</label>
                 <md-autocomplete md-autofocus class="am-full-width" md-selected-item="vm.selectedManuf" md-search-text="vm.vehicle.manuf" md-items="manuf in vm.manufacturersQuerySearch()" md-item-text="manuf" placeholder="Type Manufacturer Name" md-search-text-change="vm.searchVehicleChange()" flex>
@@ -53,7 +71,7 @@
             </div>
         </div>
     </md-dialog-content>
-    <md-dialog-actions layout="row" layout-align="end center" style="margin-bottom: 6px; margin-right: 6px;">
+    <md-dialog-actions layout="row" layout-align="end center" style="margin-bottom: 6px; margin-right: 6px;" ng-hide="vm.isDeleteDialog">
         <md-button class="md-warn md-raised" ng-click="vm.save()" ng-hide="$root.isAllFranchiseOSelected()">
             <md-icon>done</md-icon>
             <span layout-margin>Save</span>
@@ -62,6 +80,16 @@
             <md-icon>close</md-icon>
             <span layout-margin ng-if="!$root.isAllFranchiseOSelected()">Cancel</span>
             <span layout-margin ng-if="$root.isAllFranchiseOSelected()">Close</span>
+        </md-button>
+    </md-dialog-actions>
+    <md-dialog-actions layout="row" layout-align="end center" style="margin-bottom: 6px; margin-right: 6px;" ng-show="vm.isDeleteDialog">
+        <md-button class="md-primary md-raised" ng-click="vm.performDelete()">
+            <md-icon>delete</md-icon>
+            <span layout-margin>Delete</span>
+        </md-button>
+        <md-button class="md-accent" ng-click="vm.cancelDelete()">
+            <md-icon>close</md-icon>
+            <span layout-margin>Cancel</span>
         </md-button>
     </md-dialog-actions>
 </md-dialog>

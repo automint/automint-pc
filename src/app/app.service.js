@@ -287,7 +287,7 @@
                             return;
                         }
                         var cd = moment(vehicle.nextdue).format('MMM YYYY');
-                        if (lastVehicle && lvcd) {
+                        if ((vehicle._deleted == true) || (lastVehicle && lvcd)) {
                             if ((cachedoc[lvcd] != undefined) && (cachedoc[lvcd][vId] != undefined))
                                 delete cachedoc[lvcd][vId];
                         }
@@ -329,7 +329,7 @@
                             var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.status == "paid") ? service.cost : 0);
                             var cd = moment(service.date).format('MMM YYYY');
                             cd = angular.lowercase(cd).replace(' ', '-');
-                            if (service._deleted == true) {
+                            if ((vehicle._deleted == true) || (service._deleted == true)) {
                                 if (cachedoc[cd] && cachedoc[cd][sId])
                                     delete cachedoc[cd][sId];
                                 return;
@@ -397,6 +397,8 @@
                         
                         function iterateVehicles(vId) {
                             var vehicle = row.doc.user.vehicles[vId];
+                            if (vehicle._deleted == true)
+                                return;
                             if (!vehicle.nextdue)
                                 return;
                             var cd = moment(vehicle.nextdue).format('MMM YYYY');
@@ -434,6 +436,10 @@
 
                         function iterateVehicles(vId) {
                             var vehicle = row.doc.user.vehicles[vId];
+                            if (vehicle._deleted == true) {
+                                isChanged = true;
+                                return;
+                            }
                             if (vehicle.services)
                                 Object.keys(vehicle.services).forEach(iterateServices);
 

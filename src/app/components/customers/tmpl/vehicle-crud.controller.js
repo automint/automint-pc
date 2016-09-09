@@ -2,7 +2,7 @@
  * Controller for Dialog box for CRUD Operations on Particular Vehicle
  * @author ndkcha
  * @since 0.7.0
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlCuVeCRUD', VehicleCRUDController);
 
-    VehicleCRUDController.$inject = ['$mdDialog', '$q', 'utils', 'amCustomers', 'vehicle'];
+    VehicleCRUDController.$inject = ['$rootScope', '$mdDialog', '$q', 'utils', 'amCustomers', 'vehicle'];
 
-    function VehicleCRUDController($mdDialog, $q, utils, amCustomers, vehicle) {
+    function VehicleCRUDController($rootScope, $mdDialog, $q, utils, amCustomers, vehicle) {
         //  initialize view model
         var vm = this;
 
@@ -32,8 +32,31 @@
         vm.convertRegToCaps = convertRegToCaps;
         vm.save = save;
         vm.cancel = cancel;
+        vm.deleteVehicle = deleteVehicle;
+        vm.cancelDelete = cancelDelete;
+        vm.performDelete = performDelete;
+        vm.viewDeleteIcon = viewDeleteIcon;
 
         //  function definitions
+
+        function viewDeleteIcon() {
+            if ($rootScope.isAllFranchiseOSelected() == true)
+                return false;
+            return (!vm.isDeleteDialog);
+        }
+
+        function cancelDelete() {
+            vm.isDeleteDialog = false;
+        }
+
+        function deleteVehicle() {
+            vm.isDeleteDialog = true;
+        }
+
+        function performDelete() {
+            vm.vehicle._deleted = true;
+            save();
+        }
 
         //  query search for manufacturers [autocomplete]
         function manufacturersQuerySearch() {

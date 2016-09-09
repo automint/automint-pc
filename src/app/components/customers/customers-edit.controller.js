@@ -203,6 +203,8 @@
                 intermvehicle.reg = res.reg;
                 intermvehicle.manuf = res.manuf;
                 intermvehicle.model = res.model;
+                if (res._deleted == true)
+                    intermvehicle._deleted = true;
 
                 var longname = (intermvehicle.manuf ? intermvehicle.manuf + ' ' : '') + (intermvehicle.model ? intermvehicle.model + ' ' : '') + (intermvehicle.reg ? ((intermvehicle.manuf || intermvehicle.model) ? ' - ' : '') + intermvehicle.reg : '');
                 var shortname = (longname.length <= 45) ? longname : longname.substr(0, 45) + '...';
@@ -213,6 +215,8 @@
                 }, true);
 
                 if (vfound.length == 1) {
+                    if (res._deleted == true)
+                        vfound[0]._deleted = true;
                     vfound[0].id = vId
                     vfound[0].reg = res.reg;
                     vfound[0].manuf = res.manuf;
@@ -220,7 +224,9 @@
                     vfound[0].name = longname;
                     vfound[0].shortname = shortname;
                     vfound[0].isLongName = isLongName;
-                } else {
+                    var index = vm.possibleVehicleList.indexOf(vfound[0]);
+                    vm.possibleVehicleList.splice(index, 1);
+                } else if (res._deleted != true) {
                     vm.possibleVehicleList.push({
                         id: vId,
                         reg: res.reg,
@@ -586,6 +592,8 @@
 
                 function iterateVehicle(vId) {
                     var vehicle = res.user.vehicles[vId];
+                    if (vehicle._deleted == true)
+                        return;
                     var longname = (vehicle.manuf ? vehicle.manuf + ' ' : '') + (vehicle.model ? vehicle.model + ' ' : '') + (vehicle.reg ? ((vehicle.manuf || vehicle.model) ? ' - ' : '') + vehicle.reg : '');
                     var shortname = (longname.length <= 45) ? longname : longname.substr(0, 45) + '...';
                     var isLongName = (longname.length > 45);
@@ -636,6 +644,8 @@
 
             function iterateVehicle(vId) {
                 var vehicle = userDbInstance.user.vehicles[vId];
+                if (vehicle._deleted == true)
+                    return;
                 if (vehicle.services)
                     Object.keys(vehicle.services).forEach(iterateServices);
 
@@ -671,7 +681,7 @@
             var found = $filter('filter')(vm.possibleVehicleList, {
                 id: id
             }, true);
-            if (found.length > 0) {
+            if ((found.length > 0) && (found[0]._deleted != true)) {
                 vm.currentVehicleId = found[0].id;
                 vm.vehicle.id = found[0].id;
                 vm.vehicle.reg = found[0].reg;

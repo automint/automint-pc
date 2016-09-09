@@ -165,7 +165,7 @@
     <md-toolbar class="md-accent am-headerbar-shadow" layout="row" layout-align="start center" layout-padding>
         <span class="md-subhead">{{vm.label_titleCustomerMoreInfo()}} Information</span>
     </md-toolbar>
-    <md-content layout-margin layout="column" class="md-hue-1">
+    <md-content layout-margin layout="column" class="am-white-background">
         <div layout="row" layout-align="start center" flex="auto" class="am-input-box">
             <label class="am-form-label" flex="15">Email: </label>
             <input md-autofocus type="email" class="am-box-input md-whiteframe-z1" placeholder="Enter Email Address" ng-model="vm.user.email" flex>
@@ -199,7 +199,7 @@
     </md-content>
 </md-sidenav>
 <md-sidenav class="md-sidenav-left md-whiteframe-4dp md-hue-1 am-service-details-panel" md-component-id="service-details-left" style="position: fixed" md-disable-backdrop md-is-locked-open="vm.lockServiceNavbar">
-    <md-content layout="column" class="md-hue-1">
+    <md-content layout="column" class="am-white-background">
         <md-toolbar>
             <img src="assets/img/logo-250x125px.png" id="am-sp-cover-pic" style="box-shadow: 1px 1px 3px 1px #212121; background: #212121; outline: none; cursor:pointer" ng-click="vm.goToDashboard()">
         </md-toolbar>
@@ -238,8 +238,8 @@
         </div>
     </md-content>
 </md-sidenav>
-<md-content style="margin: 0 0.8rem; overflow: hidden" class="md-hue-1 md-whiteframe-z1">
-    <div layout="row" class="md-hue-1">
+<md-content style="margin: 0 0.8rem; overflow: hidden" class="am-white-background md-whiteframe-z1">
+    <div layout="row" class="am-white-background">
         <md-item class="am-el-item" ng-class="{ 'am-selected-el-item': vm.isUserInfoExpanded }" flex>
             <md-item-content class="el-item service-form tile" ng-class="{'selected': vm.isUserInfoExpanded}" layout="column" flex>
                 <div layout-xs="column" layout="row" layout-align="start center" layout-fill ng-click="vm.changeUserInfoState(true)" class="folded am-blue-bar c800">
@@ -339,7 +339,7 @@
             <div layout="column" layout-fill class="expanded">
                 <div layout="row">
                     <div layout="column" flex="80" id="am-service-viewport">
-                        <md-content class="md-hue-1">
+                        <md-content class="am-white-background">
                             <div layout="row" layout-align="center center">
                                 <md-button ng-if="$first" id="ami-service-state" ng-repeat-start="state in vm.serviceStateList" ng-class="{'md-raised': vm.IsServiceStateSelected(state), 'am-jobcard-button': vm.IsServiceStateJc(state), 'am-estimate-button': vm.IsServiceStateEs(state), 'am-invoice-button': vm.IsServiceStateIv(state)}" ng-click="vm.selectServiceState(state)">
                                     <span layout-margin class="md-caption">{{state}}</span>
@@ -349,7 +349,7 @@
                                 </md-button>
                                 <span class="am-form-label" style="padding-bottom: 0; margin-bottom: 0" ng-hide="$last" ng-repeat-end>>></span>
                             </div>
-                            <div ng-show="vm.IsMembershipEnabled()" aria-label="Memberships" class="md-hue-1" style="margin: 24px 0 6px 0">
+                            <div ng-show="vm.IsMembershipEnabled()" aria-label="Memberships" class="am-white-background" style="margin: 24px 0 6px 0">
                                 <div layout="column">
                                     <div layout="row">
                                         <div aria-label="checkbox" layout="row" layout-align="center center" flex="5">
@@ -401,7 +401,7 @@
                                     </div>
                                 </div>
                             </div>
-                            <div class="md-hue-1">
+                            <div class="am-white-background">
                                 <md-table-container ng-if="!vm.displayTreatmentAsList">
                                     <table md-table md-row-select multiple ng-model="vm.selectedProblems" md-progress="vm.problemPromise">
                                         <thead md-head>
@@ -608,7 +608,7 @@
                                     </table>
                                 </md-table-container>
                             </div>
-                            <div ng-show="vm.IsPackageEnabled()" aria-label="Packages" class="md-hue-1" style="margin: 24px 6px 0 0">
+                            <div ng-show="vm.IsPackageEnabled()" aria-label="Packages" class="am-white-background" style="margin: 24px 6px 0 0">
                                 <div layout="column">
                                     <div layout="row">
                                         <div aria-label="checkbox" flex="10" layout="row" layout-align="center center">
