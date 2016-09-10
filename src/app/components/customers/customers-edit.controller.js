@@ -215,8 +215,6 @@
                 }, true);
 
                 if (vfound.length == 1) {
-                    if (res._deleted == true)
-                        vfound[0]._deleted = true;
                     vfound[0].id = vId
                     vfound[0].reg = res.reg;
                     vfound[0].manuf = res.manuf;
@@ -224,8 +222,11 @@
                     vfound[0].name = longname;
                     vfound[0].shortname = shortname;
                     vfound[0].isLongName = isLongName;
-                    var index = vm.possibleVehicleList.indexOf(vfound[0]);
-                    vm.possibleVehicleList.splice(index, 1);
+                    if (res._deleted == true) {
+                        vfound[0]._deleted = true;
+                        var index = vm.possibleVehicleList.indexOf(vfound[0]);
+                        vm.possibleVehicleList.splice(index, 1);
+                    }
                 } else if (res._deleted != true) {
                     vm.possibleVehicleList.push({
                         id: vId,

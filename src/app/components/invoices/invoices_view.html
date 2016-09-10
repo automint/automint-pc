@@ -224,7 +224,7 @@
                                     <td>{{inventory.name}}</td>
                                     <td ng-if="vm.service.inventories.length > 0">{{vm.currencySymbol}} {{vm.restrictNumbers(inventory.rate)}}</td>
                                     <td ng-if="vm.service.inventories.length > 0">{{vm.restrictNumbers(inventory.qty)}}</td>
-                                    <td align="right">{{vm.currencySymbol}} {{restrictNumbers(inventory.total)}}</td>
+                                    <td align="right">{{vm.currencySymbol}} {{vm.restrictNumbers(inventory.total)}}</td>
                                 </tr>
                                 <tr class="tax" ng-if="vm.IsSubtotalEnabled() && vm.IsLastPage(page.index)">
                                     <td>Sub Total</td>
