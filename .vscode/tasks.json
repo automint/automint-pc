@@ -16,10 +16,16 @@
         ]
     },{
         "taskName": "release",
-        "isBuildCommand": true,
         "suppressTaskName": true,
         "args": [
             "\"cd pkg & npm run release\""
+        ]
+    },{
+        "taskName": "run",
+        "isBuildCommand": true,
+        "suppressTaskName": true,
+        "args": [
+            "\"cd pkg\\dist\\win-ia32-unpacked & Automint.exe\""
         ]
     }]
 }
