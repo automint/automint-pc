@@ -1,12 +1,12 @@
 <md-content>
     <md-content class="md-table-toolbar md-default am-toolbar-strip" ng-hide="vm.isQueryMode" style="height: 60px" layout-gt-xs="row" layout-xs="column" layout-align="start center">
-        <md-button aria-label="Add Service" class="md-raised md-accent" ng-click="vm.addService()">
+        <md-button aria-label="Add Service" class="md-raised md-accent" ng-click="vm.addService()" ng-hide="$root.isAllFranchiseOSelected()">
             <md-icon style="color: white">person_add</md-icon>
             <span style="color: white" layout-padding>Add Service</span>
         </md-button>
         <div flex></div>
         <div layout="row" layout-align="center center">
-            <span class="md-body-1">Showing data for : {{vm.ddTimeSet}} </span>
+            <span class="md-body-1">Showing data for : {{vm.ddTimeSetCaption}} </span>
             <md-button class="md-icon-button" ng-click="vm.openTimeFilter($event)">
                 <md-icon style="font-size: 16pt; color: #424242">date_range</md-icon>
             </md-button>
@@ -17,7 +17,7 @@
     </md-content>
     <md-content class="md-table-toolbar md-default" ng-show="vm.isQueryMode" style="height: 60px" layout-gt-xs="row" layout-xs="column" layout-align="start center">
         <div layout="row" layout-align="center center" layout-margin>
-            <span class="md-body-1">Showing data for : {{vm.ddTimeSet}} </span>
+            <span class="md-body-1">Showing data for : {{vm.ddTimeSetCaption}} </span>
             <md-button class="md-icon-button" ng-click="vm.openTimeFilter($event)">
                 <md-icon style="font-size: 16pt; color: #424242">date_range</md-icon>
             </md-button>
@@ -27,7 +27,7 @@
             <md-icon>close</md-icon>
         </md-button>
     </md-content>
-    <md-content class="md-hue-1 am-box-shadow">
+    <md-content class="am-white-background am-box-shadow">
         <md-table-container>
             <table md-table md-progress="vm.promise">
                 <thead md-head md-order="vm.sortColumns" md-on-reorder="vm.sortByColumns">

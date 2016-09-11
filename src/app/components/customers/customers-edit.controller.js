@@ -2,7 +2,7 @@
  * Controller for Edit Customer component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -81,6 +81,7 @@
 
         //  default execution steps
         if ($state.params.id != undefined) {
+            $rootScope.isCUSection = true;
             getCurrencySymbol();
             getMemberships(getRegularTreatments, getVehicleTypes, getCustomer);
             setTimeout(focusCustomerMobile, 300);
@@ -136,10 +137,15 @@
         }
 
         function getCurrencySymbol() {
+            if ($rootScope.isAllFranchiseOSelected() == true) {
+                vm.currencySymbol = $rootScope.currencySymbol;
+                return;
+            }
             amCustomers.getCurrencySymbol().then(success).catch(failure);
 
             function success(res) {
                 vm.currencySymbol = res;
+                $rootScope.currencySymbol = res;
             }
 
             function failure(err) {
@@ -165,6 +171,13 @@
                 if (!res)
                     return;
                 var vId = res.id;
+                if (((res.manuf == undefined) || (res.manuf == '')) && ((res.model == undefined) || (res.model == ''))) {
+                    if ((res.reg != undefined) && (res.reg == ''))
+                        res.reg = 'Vehicle';
+                } else {
+                    if ((res.reg == undefined) || (res.reg == '') || (res.reg.toLowerCase() == 'vehicle'))
+                        res.reg = '';
+                }
                 if (res.id == undefined)
                     res.id = '';
                 if (!userDbInstance.user.vehicles)
@@ -190,6 +203,8 @@
                 intermvehicle.reg = res.reg;
                 intermvehicle.manuf = res.manuf;
                 intermvehicle.model = res.model;
+                if (res._deleted == true)
+                    intermvehicle._deleted = true;
 
                 var longname = (intermvehicle.manuf ? intermvehicle.manuf + ' ' : '') + (intermvehicle.model ? intermvehicle.model + ' ' : '') + (intermvehicle.reg ? ((intermvehicle.manuf || intermvehicle.model) ? ' - ' : '') + intermvehicle.reg : '');
                 var shortname = (longname.length <= 45) ? longname : longname.substr(0, 45) + '...';
@@ -207,7 +222,12 @@
                     vfound[0].name = longname;
                     vfound[0].shortname = shortname;
                     vfound[0].isLongName = isLongName;
-                } else {
+                    if (res._deleted == true) {
+                        vfound[0]._deleted = true;
+                        var index = vm.possibleVehicleList.indexOf(vfound[0]);
+                        vm.possibleVehicleList.splice(index, 1);
+                    }
+                } else if (res._deleted != true) {
                     vm.possibleVehicleList.push({
                         id: vId,
                         reg: res.reg,
@@ -573,6 +593,8 @@
 
                 function iterateVehicle(vId) {
                     var vehicle = res.user.vehicles[vId];
+                    if (vehicle._deleted == true)
+                        return;
                     var longname = (vehicle.manuf ? vehicle.manuf + ' ' : '') + (vehicle.model ? vehicle.model + ' ' : '') + (vehicle.reg ? ((vehicle.manuf || vehicle.model) ? ' - ' : '') + vehicle.reg : '');
                     var shortname = (longname.length <= 45) ? longname : longname.substr(0, 45) + '...';
                     var isLongName = (longname.length > 45);
@@ -623,11 +645,15 @@
 
             function iterateVehicle(vId) {
                 var vehicle = userDbInstance.user.vehicles[vId];
+                if (vehicle._deleted == true)
+                    return;
                 if (vehicle.services)
                     Object.keys(vehicle.services).forEach(iterateServices);
 
                 function iterateServices(sId) {
                     var service = vehicle.services[sId];
+                    if (service._deleted == true)
+                        return;
                     var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.status == "paid") ? service.cost : 0);
                     vm.paymentDone += parseFloat(payreceived);
                     vm.paymentDue += ((service.status != "paid") ? (parseFloat(service.cost) - parseFloat(payreceived)) : 0);
@@ -656,7 +682,7 @@
             var found = $filter('filter')(vm.possibleVehicleList, {
                 id: id
             }, true);
-            if (found.length > 0) {
+            if ((found.length > 0) && (found[0]._deleted != true)) {
                 vm.currentVehicleId = found[0].id;
                 vm.vehicle.id = found[0].id;
                 vm.vehicle.reg = found[0].reg;

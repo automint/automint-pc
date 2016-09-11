@@ -2,7 +2,7 @@
  * Controller for Edit Treatments component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../../typings/main.d.ts" />
@@ -45,6 +45,7 @@
             });
             return;
         }
+        $rootScope.isCUSection = true;
         getVehicleTypes();
         
         //  function definitions

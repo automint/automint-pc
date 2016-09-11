@@ -2,7 +2,7 @@
  * Controller for View all Customers component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -11,11 +11,11 @@
     angular.module('automintApp')
         .controller('amCtrlCuRA', CustomersViewAll);
 
-    CustomersViewAll.$inject = ['$scope', '$state', '$timeout', '$mdDialog', 'utils', 'amCustomers'];
+    CustomersViewAll.$inject = ['$rootScope', '$scope', '$state', '$timeout', '$mdDialog', 'utils', 'amCustomers'];
 
-    function CustomersViewAll($scope, $state, $timeout, $mdDialog, utils, amCustomers) {
+    function CustomersViewAll($rootScope, $scope, $state, $timeout, $mdDialog, utils, amCustomers) {
         //  initialize view model
-        var vm = this, queryChangedPromise;
+        var vm = this, queryChangedPromise, isFirstTime = true, configCount = 0;
         
         //  named assginments for tracking UI elements
         vm.selectedCustomers = [];
@@ -39,16 +39,26 @@
         vm.IsVehicleAnonymous = IsVehicleAnonymous;
         
         //  default watchers
+        $rootScope.isCUSection = false;
         $scope.$watch('vm.customerQuery', watchCustomerQuery);
-        getCustomers();
+        amCustomers.countConfigDocs().then(countConfigDocs).catch(countConfigDocs);
         
         //  function definitions
+
+        function countConfigDocs(res) {
+            configCount = res;
+            getCustomers();
+        }
 
         function IsVehicleAnonymous(vehicle) {
             return (vehicle.reg == 'Vehicle');
         }
         
         function watchCustomerQuery(newValue, oldValue) {
+            if (isFirstTime == true) {
+                isFirstTime = false;
+                return;
+            } 
             if(queryChangedPromise){
                 $timeout.cancel(queryChangedPromise);
             }
@@ -77,7 +87,7 @@
             function success(res) {
                 vm.displayItemPage = 1;
                 vm.customers = res.customers;
-                vm.query.total = res.total;
+                vm.query.total = res.total - configCount;
             }
             
             function failure(error) {

@@ -2,7 +2,7 @@
  * Controller for dashboard view
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -17,7 +17,8 @@
     function DashboardController($rootScope, $state, $filter, $log, $mdDialog, $amRoot, utils, amDashboard) {
         //  initialize view model
         var vm = this;
-        var ubServices = [], nwCustomers = [], filterRange = [], isNextDueServicesOpened = false;
+        var ubServices = [], nwCustomers = [], isNextDueServicesOpened = false;
+        var filterRange = [], frYears = {}, frYearAmChecker = {};
 
         //  named assignments to keep track of UI
         vm.totalCustomersServed = 0;
@@ -102,6 +103,7 @@
 
         //  default execution steps
         $rootScope.hidePreloader = true;
+        $rootScope.isCUSection = false;
         initCurrentTimeSet();
         getFilterMonths();
         processPreferences();
@@ -163,10 +165,15 @@
         }
 
         function getCurrencySymbol() {
+            if ($rootScope.isAllFranchiseOSelected() == true) {
+                vm.currencySymbol = $rootScope.currencySymbol;
+                return;
+            }
             amDashboard.getCurrencySymbol().then(success).catch(failure);
 
             function success(res) {
                 vm.currencySymbol = res;
+                $rootScope.currencySymbol = res;
             }
 
             function failure(err) {
@@ -281,10 +288,43 @@
 
         function displayCurrentTimeSet() {
             vm.ddTimeSet = '';
-            var years = [];
+            vm.ddTimeSetCaption = '';
+            var years = [], isEverythingChecked = true;
             vm.currentTimeSet.forEach(iterateTimeSets);
+            if (Object.keys(frYears).length > 0) {
+                Object.keys(frYearAmChecker).forEach(resetAmcRange);
+                Object.keys(frYears).forEach(iterateRange);
+                Object.keys(frYearAmChecker).forEach(iterateAmcRange);
+            }
             years.forEach(iterateYears);
             vm.ddTimeSet = vm.ddTimeSet.substr(0, vm.ddTimeSet.length - 2);
+            if (isEverythingChecked)
+                vm.ddTimeSetCaption = 'Everything';
+            else
+                vm.ddTimeSetCaption = vm.ddTimeSetCaption.substr(0, vm.ddTimeSetCaption.length - 2);
+
+            function resetAmcRange(rmr) {
+                frYearAmChecker[rmr] = true;
+            }
+
+            function iterateAmcRange(amcr) {
+                if (frYearAmChecker[amcr] == false)
+                    isEverythingChecked = false;
+            }
+
+            function iterateRange(r) {
+                frYears[r].forEach(iterateRangeMonths);
+
+                function iterateRangeMonths(ry) {
+                    var ryfound = $filter('filter')(vm.currentTimeSet, {
+                        month: ry,
+                        year: r
+                    });
+
+                    if (ryfound.length == 0)
+                        frYearAmChecker[r] = false;
+                }
+            }
 
             function iterateYears(y) {
                 var tyf = $filter('filter')(vm.currentTimeSet, {
@@ -293,9 +333,12 @@
 
                 tyf.forEach(iterateFoundYear);
                 vm.ddTimeSet += y + '; ';
+                vm.ddTimeSetCaption += y + ' | ';
 
                 function iterateFoundYear(fy) {
                     vm.ddTimeSet += moment(fy.month, 'MMM').format('MMMM') + ', ';
+                    if (frYearAmChecker[y] != true)
+                        vm.ddTimeSetCaption += moment(fy.month, 'MMM').format('MMMM') + ', ';
                 }
             }
 
@@ -320,6 +363,21 @@
 
             function success(res) {
                 filterRange = res;
+                filterRange.forEach(iterateRange);
+                displayCurrentTimeSet();
+
+                function iterateRange(r) {
+                    if (frYears[r.year] == undefined)
+                        frYears[r.year] = [];
+                    
+                    if (frYearAmChecker[r.year] == undefined)
+                        frYearAmChecker[r.year] = true
+                    
+                    var rfound = $filter('filter')(frYears[r.year], r.month, true);
+
+                    if (rfound.length == 0)
+                        frYears[r.year].push(r.month);
+                }
             }
 
             function failure(err) {
@@ -553,4 +611,4 @@
             //  do nothing
         }
     }
-})();;
+})();

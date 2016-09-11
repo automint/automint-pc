@@ -2,7 +2,7 @@
  * Root level service
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -44,12 +44,17 @@
 
         //  map functions
         $rootScope.amGlobals.IsConfigDoc = IsConfigDoc;
+        $rootScope.isAllFranchiseOSelected = isAllFranchiseOSelected;
         vm.initDb = initDb;
         vm.syncDb = syncDb;
         vm.dbAfterLogin = dbAfterLogin;
         vm.generateCacheDocs = generateCacheDocs;
 
         //  function definitions
+
+        function isAllFranchiseOSelected() {
+            return ($rootScope.amGlobals.channel == 'all');
+        }
 
         function IsConfigDoc(id) {
             if (id.match(/\bsettings/i))
@@ -282,7 +287,7 @@
                             return;
                         }
                         var cd = moment(vehicle.nextdue).format('MMM YYYY');
-                        if (lastVehicle && lvcd) {
+                        if ((vehicle._deleted == true) || (lastVehicle && lvcd)) {
                             if ((cachedoc[lvcd] != undefined) && (cachedoc[lvcd][vId] != undefined))
                                 delete cachedoc[lvcd][vId];
                         }
@@ -296,6 +301,7 @@
                             vhcl_manuf: vehicle.manuf,
                             vhcl_model: vehicle.model,
                             vhcl_nextdue: vehicle.nextdue,
+                            channel: curdoc.channel
                         }
                     }
                 }
@@ -323,7 +329,7 @@
                             var payreceived = (service.partialpayment) ? service.partialpayment.total : ((service.status == "paid") ? service.cost : 0);
                             var cd = moment(service.date).format('MMM YYYY');
                             cd = angular.lowercase(cd).replace(' ', '-');
-                            if (service._deleted == true) {
+                            if ((vehicle._deleted == true) || (service._deleted == true)) {
                                 if (cachedoc[cd] && cachedoc[cd][sId])
                                     delete cachedoc[cd][sId];
                                 return;
@@ -349,7 +355,8 @@
                                 srvc_cost: service.cost,
                                 srvc_status: service.status,
                                 srvc_state: service.state,
-                                srvc_payreceived: payreceived
+                                srvc_payreceived: payreceived,
+                                channel: curdoc.channel
                             };
                         }
                     }
@@ -390,6 +397,8 @@
                         
                         function iterateVehicles(vId) {
                             var vehicle = row.doc.user.vehicles[vId];
+                            if (vehicle._deleted == true)
+                                return;
                             if (!vehicle.nextdue)
                                 return;
                             var cd = moment(vehicle.nextdue).format('MMM YYYY');
@@ -402,7 +411,8 @@
                                 vhcl_reg: vehicle.reg,
                                 vhcl_manuf: vehicle.manuf,
                                 vhcl_model: vehicle.model,
-                                vhcl_nextdue: vehicle.nextdue
+                                vhcl_nextdue: vehicle.nextdue,
+                                channel: row.doc.channel
                             }
                         }
                     }
@@ -426,6 +436,10 @@
 
                         function iterateVehicles(vId) {
                             var vehicle = row.doc.user.vehicles[vId];
+                            if (vehicle._deleted == true) {
+                                isChanged = true;
+                                return;
+                            }
                             if (vehicle.services)
                                 Object.keys(vehicle.services).forEach(iterateServices);
 
@@ -454,7 +468,8 @@
                                     srvc_cost: service.cost,
                                     srvc_status: service.status,
                                     srvc_state: service.state,
-                                    srvc_payreceived: payreceived
+                                    srvc_payreceived: payreceived,
+                                    channel: row.doc.channel
                                 };
                             }
                         }

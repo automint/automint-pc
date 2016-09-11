@@ -2,7 +2,7 @@
  * Factory that handles database interactions between services database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -352,7 +352,7 @@
             query = angular.lowercase(query);
             var tracker = $q.defer();
             pdbCache.get(constants.pdb_cache_views.view_services).then(success).catch(failure);
-            return tracker.promise;
+        return tracker.promise;
             
             function success(res) {
                 var result = [], currentRange = '';
@@ -377,6 +377,8 @@
                 
                 function iterateService(sId) {
                     var target = res[currentRange][sId];
+                    if ($rootScope.amGlobals.channel && target.channel && ($rootScope.amGlobals.channel != '') && ($rootScope.amGlobals.channel != 'all') && (target.channel != '') && ($rootScope.amGlobals.channel != target.channel))
+                        return;
                     if (query != undefined) {
                         if (query != undefined && (target.cstmr_name && angular.lowercase(target.cstmr_name).search(query) > -1) || (target.srvc_state && angular.lowercase(target.srvc_state).search(query) > -1) || (target.srvc_status && angular.lowercase(target.srvc_status).search(query) > -1) || (target.vhcl_manuf && angular.lowercase(target.vhcl_manuf).search(query) > -1) || (target.vhcl_model && angular.lowercase(target.vhcl_model).search(query) > -1) || (target.vhcl_reg && angular.lowercase(target.vhcl_reg).search(query) > -1) || (target.srvc_cost && target.srvc_cost.toString().search(query) > -1) || (target.srvc_date && angular.lowercase(target.srvc_date).search(query) > -1)) {
                             target.srvc_status = utils.convertToTitleCase(target.srvc_status);
@@ -499,7 +501,7 @@
         function getCustomerNames() {
             var tracker = $q.defer();
             var dbOptions = {
-                include_docs: false
+                include_docs: ($rootScope.amGlobals.isFranchise == true)
             }
             var customers = [];
             pdbMain.getAll(dbOptions).then(success).catch(failure);
@@ -510,7 +512,11 @@
                 tracker.resolve(customers);
 
                 function iterateRows(row) {
+                    if (row.doc)
+                        delete row.doc.user;
                     if ($rootScope.amGlobals.IsConfigDoc(row.id))
+                        return;
+                    if (row.doc && $rootScope.amGlobals.channel && row.doc.channel && ($rootScope.amGlobals.channel != '') && ($rootScope.amGlobals.channel != 'all') && (row.doc.channel != '') && ($rootScope.amGlobals.channel != row.doc.channel))
                         return;
                     var splitname = row.id.split('-');
                     var name = splitname[1];
@@ -528,6 +534,7 @@
             }
 
             function failure(err) {
+                console.log(err);
                 tracker.reject(customers);
             }
         }
@@ -587,6 +594,8 @@
             
             function success(res) {
                 var doc = res.rows[0].doc;
+                if ($rootScope.amGlobals.channel && doc.channel && ($rootScope.amGlobals.channel != '') && ($rootScope.amGlobals.channel != 'all') && (doc.channel != '') && ($rootScope.amGlobals.channel != doc.channel))
+                    return;
                 var response = {};
                 var pvl = [];
                 response.id = doc._id;

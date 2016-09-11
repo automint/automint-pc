@@ -100,7 +100,7 @@
             <span class="md-body-1">Refresh Dashboard</span>
         </div>
         <div flex></div>
-        <span class="md-body-1">Showing data for : {{vm.ddTimeSet}} </span>
+        <span class="md-body-1">Showing data for : {{vm.ddTimeSetCaption}} </span>
         <md-button class="md-icon-button" ng-click="vm.openTimeFilter($event)">
             <md-icon style="font-size: 16pt; color: #fff">date_range</md-icon>
         </md-button>
@@ -157,7 +157,7 @@
                         <md-icon>list</md-icon>
                         <span layout-margin>View All Services</span>
                     </md-button>
-                    <md-button class="md-raised md-warn" ng-click="vm.addNewService()">
+                    <md-button class="md-raised md-warn" ng-click="vm.addNewService()" ng-hide="$root.isAllFranchiseOSelected()">
                         <md-icon>add</md-icon>
                         <span layout-margin>Add Service</span>
                     </md-button>

@@ -2,7 +2,7 @@
  * Controller to handle master view for displaying Treatments module
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -10,9 +10,9 @@
 (function() {
     angular.module('automintApp').controller('amCtrlTrMaster', TreatmentMasterController);
 
-    TreatmentMasterController.$inject = ['$state'];
+    TreatmentMasterController.$inject = ['$rootScope', '$state'];
 
-    function TreatmentMasterController($state) {
+    function TreatmentMasterController($rootScope, $state) {
         //  initialize view model
         var vm = this;
         
@@ -21,6 +21,7 @@
         vm.changePackagesTab = changePackagesTab;
         
         //  default execution steps
+        $rootScope.isCUSection = false;
         switch ($state.params.openTab) {
             case 'treatments':
                 changeTreatmentsTab(true);

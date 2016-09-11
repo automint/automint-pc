@@ -2,7 +2,7 @@
  * Factory that handles database interactions between invoices database and controller
  * @author ndkcha
  * @since 0.5.0
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -29,9 +29,10 @@
 
         //  function definitions
 
-        function getInvoicePageSize() {
+        function getInvoicePageSize(channel) {
             var tracker = $q.defer();
-            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
+            var docId = ($rootScope.isAllFranchiseOSelected() == true) ? ('settings-' + channel) : $rootScope.amGlobals.configDocIds.settings; 
+            pdbMain.get(docId).then(getSettingsObject).catch(failure);
             return tracker.promise;
 
             function getSettingsObject(res) {
@@ -46,9 +47,10 @@
             }
         }
 
-        function getCurrencySymbol() {
+        function getCurrencySymbol(channel) {
             var tracker = $q.defer();
-            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
+            var docId = ($rootScope.isAllFranchiseOSelected() == true) ? ('settings-' + channel) : $rootScope.amGlobals.configDocIds.settings;
+            pdbMain.get(docId).then(getSettingsObject).catch(failure);
             return tracker.promise;
 
             function getSettingsObject(res) {
@@ -82,9 +84,10 @@
             }
         }
 
-        function getIvAlignMargins() {
+        function getIvAlignMargins(channel) {
             var tracker = $q.defer();
-            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
+            var docId = ($rootScope.isAllFranchiseOSelected() == true) ? ('settings-' + channel) : $rootScope.amGlobals.configDocIds.settings;
+            pdbMain.get(docId).then(getSettingsObject).catch(failure);
             return tracker.promise;
 
             function getSettingsObject(res) {
@@ -121,6 +124,7 @@
                 makeInventoriesArray();
                 if (response.service.packages)
                     makePackageArray();
+                response.channel = res.channel;
                 tracker.resolve(response);
 
                 function iterateVehicles(vId) {
@@ -200,15 +204,18 @@
         }
 
         //  get workshop details from database
-        function getWorkshopDetails() {
+        function getWorkshopDetails(channel) {
             var tracker = $q.defer();
-            pdbMain.get($rootScope.amGlobals.configDocIds.workshop).then(getWorkshopObject).catch(failure);
+            var docId = ($rootScope.isAllFranchiseOSelected() == true) ? ('workshop-' + channel) : $rootScope.amGlobals.configDocIds.workshop;
+            pdbMain.get(docId).then(getWorkshopObject).catch(failure);
             return tracker.promise;
             
             function getWorkshopObject(res) {
-                if (res.workshop)
+                if (res.workshop) {
+                    if ($rootScope.isAllFranchiseOSelected() == true)
+                        res.workshop.channel = channel;
                     tracker.resolve(res.workshop);
-                else
+                } else
                     failure();
             }
             function failure(err) {
@@ -223,9 +230,10 @@
         }
         
         //  get display configurations
-        function getIvSettings() {
+        function getIvSettings(channel) {
             var tracker = $q.defer();
-            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObject).catch(failure);
+            var docId = ($rootScope.isAllFranchiseOSelected() == true) ? ('settings-' + channel) : $rootScope.amGlobals.configDocIds.settings;
+            pdbMain.get(docId).then(getSettingsObject).catch(failure);
             return tracker.promise;
             
             function getSettingsObject(res) {

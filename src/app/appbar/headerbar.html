@@ -1,9 +1,35 @@
+<style>
+    .franchise-add-section {
+        position: absolute;
+        left: 46px;
+        z-index: 996;
+    }
+</style>
 <div style="box-shadow: 0px 1px 3px 1px #E0E0E0; z-index: 999; height: 1px; width: 100%; position: absolute"></div>
 <md-toolbar class="md-default am-headerbar-shadow" style="background: #FFF;">
     <div class="md-toolbar-tools">
         <md-button class="md-icon-button" aria-label="Go Back" ng-click="headerVm.toggleSideNavbar()" hide-gt-md>
             <md-icon style="color: #424242">menu</md-icon>
         </md-button>
+        <md-menu style="padding: 0" ng-class="{'franchise-add-section':$root.isCUSection}" ng-show="$root.amGlobals.isFranchise">
+            <md-button aria-label="Franchise Software" ng-click="headerVm.openFranchiseOptions($mdOpenMenu, $event)">
+                <span class="md-caption" style="color: #000; padding-left: 10px">{{headerVm.currentFranchiseChannel}}</span>
+                <md-icon style="color: #000">keyboard_arrow_down</md-icon>
+            </md-button>
+            <md-menu-content width="4" class="md-hue-1">
+                <md-menu-item ng-repeat="fc in headerVm.franchiseChannels">
+                    <md-button ng-click="headerVm.selectFranchiseChannel($index)">
+                        <span class="md-caption">{{fc.name}}</span>
+                    </md-button>
+                </md-menu-item>
+                <md-divider></md-divider>
+                <md-menu-item>
+                    <md-button ng-click="headerVm.selectFranchiseChannel(-1)">
+                        <span class="md-caption">{{headerVm.allFrenchiseObject.name}}</span>
+                    </md-button>
+                </md-menu-item>
+            </md-menu-content>
+        </md-menu>
         <div layout="column" layout-align="center center" flex>
             <span class="md-title" style="color: #424242"> {{ module_title }} </span>
         </div>
@@ -11,7 +37,7 @@
             <md-icon style="color: #424242">refresh</md-icon>
             <md-tooltip>Relaunch Automint</md-tooltip>
         </md-button>
-        <md-button aria-label="Help" class="md-icon-button" ng-click="headerVm.addService()">
+        <md-button aria-label="Help" class="md-icon-button" ng-click="headerVm.addService()" ng-hide="$root.isAllFranchiseOSelected()">
             <md-icon style="color: #424242">add</md-icon>
             <md-tooltip>Add Service</md-tooltip>
         </md-button>

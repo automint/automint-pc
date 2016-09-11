@@ -2,7 +2,7 @@
  * Angular Service for Login and Licensing Mechanism
  * @author ndkcha
  * @since 0.7.0
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../typings/main.d.ts" />
@@ -194,7 +194,14 @@
                                 if ((licensestartdate.localeCompare(today) < 0) && (licenseenddate.localeCompare(today) > 0))
                                     isLoggedIn = true;
                             }
-                            amLogin.saveLicense($rootScope.amGlobals.credentials.username, $rootScope.amGlobals.credentials.password, channel, licenseData.license, licenseData.cloud).then(proceed).catch(failure);
+                            if (Object.keys(userData.channels).length > 2) {
+                                var franchannels = Object.keys(userData.channels);
+                                franchannels.splice(0, 1);
+                                $rootScope.amGlobals.isFranchise = true;
+                                $rootScope.amGlobals.franchiseChannels = franchannels;
+                                amLogin.saveLicense($rootScope.amGlobals.credentials.username, $rootScope.amGlobals.credentials.password, franchannels, licenseData.license, licenseData.cloud).then(proceed).catch(failure);
+                            } else
+                                amLogin.saveLicense($rootScope.amGlobals.credentials.username, $rootScope.amGlobals.credentials.password, channel, licenseData.license, licenseData.cloud).then(proceed).catch(failure);
                         } else
                             processMintCode(330);
                     }
@@ -214,6 +221,8 @@
                 };
 
                 var isDbToBeChanged = (($rootScope.amGlobals != undefined) && ($rootScope.amGlobals.creator != '') && ($rootScope.amGlobals.channel != ''));
+                if ($rootScope.amGlobals.isFranchise == true)
+                    isDbToBeChanged = false;
 
                 if (isDbToBeChanged)
                     amLogin.changeExistingDocs().then(finalize).catch(finalize);
@@ -278,7 +287,7 @@
             }
         }
 
-        function checkLogin(isLdtbSynced) {
+        function checkLogin(isLdtbSynced, isChannelAssignBlocked) {
             var tracker = $q.defer();
             var errm = undefined;
             var today = moment().format(), isLoggedIn = false, isCloudEnabled = false, type, isCloudForceEnabled;
@@ -391,13 +400,21 @@
                 failure(res);
 
                 function respond(saveresponse) {
-                    $rootScope.amGlobals.creator = (res.username ? res.username : '');
-                    $rootScope.amGlobals.channel = (res.channel ? res.channel : '');
-                    $rootScope.amGlobals.configDocIds = {
-                        settings: 'settings' + (res.channel ? '-' + res.channel : ''),
-                        treatment: 'treatments' + (res.channel ? '-' + res.channel : ''),
-                        inventory: 'inventory' + (res.channel ? '-' + res.channel : ''),
-                        workshop: 'workshop' + (res.channel ? '-' + res.channel : '')
+                    if (isChannelAssignBlocked != true) {
+                        var currentchannel = angular.isArray(res.channel) ? res.channel[0] : res.channel;
+                        if (angular.isArray(res.channel)) {
+                            $rootScope.amGlobals.isFranchise = true;
+                            $rootScope.amGlobals.franchiseChannels = res.channel;
+                        }
+
+                        $rootScope.amGlobals.creator = (res.username ? res.username : '');
+                        $rootScope.amGlobals.channel = (currentchannel ? currentchannel : '');
+                        $rootScope.amGlobals.configDocIds = {
+                            settings: 'settings' + (currentchannel ? '-' + currentchannel : ''),
+                            treatment: 'treatments' + (currentchannel ? '-' + currentchannel : ''),
+                            inventory: 'inventory' + (currentchannel ? '-' + currentchannel : ''),
+                            workshop: 'workshop' + (currentchannel ? '-' + currentchannel : '')
+                        }
                     }
                     var obj = {
                         isCloudForceEnabled: isCloudForceEnabled,

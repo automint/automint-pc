@@ -218,43 +218,43 @@
                                     <td>{{problem.details}}</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
-                                    <td align="right">{{vm.currencySymbol}} {{problem.rate}}</td>
+                                    <td align="right">{{vm.currencySymbol}} {{vm.restrictNumbers(problem.rate)}}</td>
                                 </tr>
                                 <tr class="row" ng-repeat="inventory in vm.service.inventories | limitTo: page.inventoryCount: (vm.getIndexCount(page.inventorypages) * page.inventoryCount)">
                                     <td>{{inventory.name}}</td>
-                                    <td ng-if="vm.service.inventories.length > 0">{{vm.currencySymbol}} {{inventory.rate}}</td>
-                                    <td ng-if="vm.service.inventories.length > 0">{{inventory.qty}}</td>
-                                    <td align="right">{{vm.currencySymbol}} {{inventory.total}}</td>
+                                    <td ng-if="vm.service.inventories.length > 0">{{vm.currencySymbol}} {{vm.restrictNumbers(inventory.rate)}}</td>
+                                    <td ng-if="vm.service.inventories.length > 0">{{vm.restrictNumbers(inventory.qty)}}</td>
+                                    <td align="right">{{vm.currencySymbol}} {{vm.restrictNumbers(inventory.total)}}</td>
                                 </tr>
                                 <tr class="tax" ng-if="vm.IsSubtotalEnabled() && vm.IsLastPage(page.index)">
                                     <td>Sub Total</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
-                                    <td align="right">{{vm.currencySymbol}} {{vm.subtotal}}</td>
+                                    <td align="right">{{vm.currencySymbol}} {{vm.restrictNumbers(vm.subtotal)}}</td>
                                 </tr>
                                 <tr ng-class="{'tax': !vm.IsSubtotalEnabled(), 'subt': vm.IsSubtotalEnabled()}" ng-if="vm.isDiscountApplied && vm.IsLastPage(page.index)">
                                     <td>Discount</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
-                                    <td align="right">{{vm.currencySymbol}} {{vm.discountValue}}</td>
+                                    <td align="right">{{vm.currencySymbol}} {{vm.restrictNumbers(vm.discountValue)}}</td>
                                 </tr>
-                                <tr class="subt" ng-repeat="tax in vm.taxSettings" ng-if="vm.IsTaxEnabled() && vm.IsLastPage(page.index)">
+                                <tr class="subt" ng-repeat="tax in vm.taxSettings" ng-if="vm.IsTaxEnabled(tax) && vm.IsLastPage(page.index)">
                                     <td>{{tax.name}} ({{tax.percent}}<small>%</small>)</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
-                                    <td align="right">{{vm.currencySymbol}} {{tax.tax}}</td>
+                                    <td align="right">{{vm.currencySymbol}} {{vm.restrictNumbers(tax.tax)}}</td>
                                 </tr>
                                 <tr ng-class="{'tax': !vm.IsSubtotalEnabled() && !vm.isDiscountApplied, 'subt': vm.IsSubtotalEnabled() || vm.isDiscountApplied}" class="subt" ng-if="vm.isRoundOff && vm.IsLastPage(page.index)">
                                     <td>Round Off</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
-                                    <td align="right">{{vm.currencySymbol}} {{vm.service.roundoff}}</td>
+                                    <td align="right">{{vm.currencySymbol}} {{vm.restrictNumbers(vm.service.roundoff)}}</td>
                                 </tr>
                                 <tr class="total" ng-class="{'tax': !vm.IsSubtotalEnabled() && !vm.isDiscountApplied && !vm.isRoundOff}" ng-if="vm.IsLastPage(page.index)">
                                     <td>Total</td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
                                     <td ng-if="vm.service.inventories.length > 0"></td>
-                                    <td align="right">{{vm.currencySymbol}} {{vm.service.cost}}</td>
+                                    <td align="right">{{vm.currencySymbol}} {{vm.restrictNumbers(vm.service.cost)}}</td>
                                 </tr>
                             </table>
                         </center>

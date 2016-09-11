@@ -2,7 +2,7 @@
  * Controller for Edit Inventory component
  * @author ndkcha
  * @since 0.6.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -37,6 +37,7 @@
             OnFailedHit();
             return;
         }
+        $rootScope.isCUSection = true;
         getInventory();
 
         //  function definitions

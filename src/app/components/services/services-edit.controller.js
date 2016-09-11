@@ -2,7 +2,7 @@
  * Controller for Edit Service component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -203,6 +203,8 @@
         $(window).on('resize', OnWindowResize);
 
         //  default execution steps
+
+        $rootScope.isCUSection = true;
         setCoverPic();
         buildDelayedToggler('service-details-left');
         changeServiceInfoState(true);
@@ -292,10 +294,15 @@
         }
 
         function getCurrencySymbol() {
+            if ($rootScope.isAllFranchiseOSelected() == true) {
+                vm.currencySymbol = $rootScope.currencySymbol;
+                return;
+            }
             amServices.getCurrencySymbol().then(success).catch(failure);
 
             function success(res) {
                 vm.currencySymbol = res;
+                $rootScope.currencySymbol = res;
             }
 
             function failure(err) {
@@ -2163,6 +2170,14 @@
 
         //  save to database
         function save(redirect) {
+            if (($rootScope.isAllFranchiseOSelected() == true) && (redirect == vm.redirect.invoice)) {
+                $state.go('restricted.invoices.view', {
+                    userId: $state.params.userId,
+                    vehicleId: $state.params.vehicleId,
+                    serviceId: $state.params.serviceId
+                });
+                return;
+            }
             validate();
             switch (vm.serviceType) {
                 case vm.serviceTypeList[0]:

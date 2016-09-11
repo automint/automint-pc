@@ -2,7 +2,7 @@
  * Factory that handles database interactions between customer database and controller
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.2
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -27,12 +27,37 @@
             getRegularTreatments: getRegularTreatments,
             getVehicleTypes: getVehicleTypes,
             getCustomerByMobile: getCustomerByMobile,
-            getCurrencySymbol: getCurrencySymbol
+            getCurrencySymbol: getCurrencySymbol,
+            countConfigDocs: countConfigDocs
         };
 
         return factory;
 
         //  function definitions
+
+        function countConfigDocs() {
+            var tracker = $q.defer();
+            var dbOptions = {
+                include_docs: false
+            }
+            pdbMain.getAll(dbOptions).then(success).catch(failure);
+            return tracker.promise;
+
+            function success(res) {
+                var count = 0;
+                res.rows.forEach(iterateRows);
+                tracker.resolve(count);
+
+                function iterateRows(row) {
+                    if ($rootScope.amGlobals.IsConfigDoc(row.id))
+                        count++;
+                }
+            }
+
+            function failure(err) {
+                tracker.reject(0);
+            }
+        }
 
         function getCurrencySymbol() {
             var tracker = $q.defer();
@@ -191,6 +216,8 @@
                 pdbMain.getAll({
                     include_docs: true,
                     limit: limit,
+                    startkey: 'usr',
+                    endkey: 'uss',
                     skip: --page * limit
                 }).then(successBulk).catch(failure);
             } else {
@@ -209,10 +236,14 @@
 
             // map-reduce function for querying database [BEGIN]
             function mapQuery(doc, emit) {
-                if (doc.user.vehicles)
+                if (doc.user && doc.user.vehicles)
                     Object.keys(doc.user.vehicles).forEach(iterateVehicles);
-                doc.user._id = doc._id;
-                emit(query, doc.user);
+                if (doc.user) {
+                    doc.user._id = doc._id;
+                    doc.user.channel = doc.channel;
+                    doc.user.rootchannel = $rootScope.amGlobals.channel;
+                    emit(query, doc.user);
+                }
 
                 function iterateVehicles(vehicle) {
                     delete vehicle.services;
@@ -227,6 +258,8 @@
 
                 function iterateValues(value) {
                     var vehicleFound = false;
+                    if (value.rootchannel && value.channel && (value.rootchannel != '') && (value.rootchannel != 'all') && (value.channel != '') && (value.rootchannel != value.channel))
+                        return;
                     if (value.vehicles)
                         Object.keys(value.vehicles).forEach(iterateVehicles);
                     if ((value.name && angular.lowercase(value.name).search(q) > -1) || (value.email && angular.lowercase(value.email).search(q) > -1) || (value.mobile && angular.lowercase(value.mobile).search(q) > -1) || vehicleFound) {
@@ -275,6 +308,8 @@
                     delete vehicles;
 
                     function iterateVehicle(vId) {
+                        if (value.vehicles[vId]._deleted == true)
+                            return;
                         vehicles.push({
                             reg: value.vehicles[vId].reg,
                             manuf: value.vehicles[vId].manuf,
@@ -286,12 +321,21 @@
 
             //  if documents are accisible in database
             function successBulk(res) {
+                var totalc = res.total_rows;
                 if (res.rows.length > 0) {
                     res.rows.forEach(iterateRow);
 
                     function iterateRow(row) {
-                        if ($rootScope.amGlobals.IsConfigDoc(row.id) || (row.doc.user.name == 'Anonymous'))
+                        if ($rootScope.amGlobals.IsConfigDoc(row.id))
                             return;
+                        if (row.doc.user.name == 'Anonymous') {
+                            totalc--;
+                            return;
+                        }
+                        if ($rootScope.amGlobals.channel && row.doc.channel && ($rootScope.amGlobals.channel != '') && (row.doc.channel != '') && ($rootScope.amGlobals.channel != 'all') && ($rootScope.amGlobals.channel != row.doc.channel)) {
+                            totalc--;
+                            return;
+                        }
                         var customer = {}, vehicles = [];
                         if (row.doc && row.doc.user) {
                             customer.id = row.doc._id;
@@ -309,6 +353,8 @@
                         delete vehicles;
 
                         function iterateVehicle(vId) {
+                            if (row.doc.user.vehicles[vId]._deleted == true)
+                                return;
                             vehicles.push({
                                 reg: row.doc.user.vehicles[vId].reg,
                                 manuf: row.doc.user.vehicles[vId].manuf,
@@ -316,9 +362,9 @@
                             });
                         }
                     }
-                }
+                }    
                 tracker.resolve({
-                    total: res.total_rows,
+                    total: totalc,
                     customers: customers
                 });
             }

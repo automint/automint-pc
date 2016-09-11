@@ -2,9 +2,30 @@
     // See https://go.microsoft.com/fwlink/?LinkId=733558
     // for the documentation about the tasks.json format
     "version": "0.1.0",
-    "command": "electron",
+    "command": "cmd.exe",
     "isShellCommand": true,
+    "showOutput": "always",
     "args": [
-        "src"
-    ]
+        "/c"
+    ],
+    "tasks" : [{
+        "taskName": "electron",
+        "suppressTaskName": true,
+        "args": [
+            "\"cd src & electron .\""
+        ]
+    },{
+        "taskName": "release",
+        "suppressTaskName": true,
+        "args": [
+            "\"cd pkg & npm run release\""
+        ]
+    },{
+        "taskName": "run",
+        "isBuildCommand": true,
+        "suppressTaskName": true,
+        "args": [
+            "\"cd pkg\\dist\\win-ia32-unpacked & Automint.exe\""
+        ]
+    }]
 }
