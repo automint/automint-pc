@@ -11,7 +11,7 @@
         <md-button class="md-icon-button" aria-label="Go Back" ng-click="headerVm.toggleSideNavbar()" hide-gt-md>
             <md-icon style="color: #424242">menu</md-icon>
         </md-button>
-        <md-menu style="padding: 0" ng-class="{'franchise-add-section':$root.isCUSection}" ng-show="$root.amGlobals.isFranchise">
+        <md-menu style="padding: 0; position: absolute" ng-class="{'franchise-add-section':$root.isCUSection}" ng-show="$root.amGlobals.isFranchise">
             <md-button aria-label="Franchise Software" ng-click="headerVm.openFranchiseOptions($mdOpenMenu, $event)">
                 <span class="md-caption" style="color: #000; padding-left: 10px">{{headerVm.currentFranchiseChannel}}</span>
                 <md-icon style="color: #000">keyboard_arrow_down</md-icon>
@@ -45,7 +45,7 @@
             <md-icon style="color: #424242">help</md-icon>
             <md-tooltip>Open Automint Help</md-tooltip>
         </md-button>
-        <md-button ng-if="isPasscodeEnabled" aria-label="Lock" class="md-icon-button" ng-click="headerVm.openLockScreen()">
+        <md-button ng-if="vm.IsPasscodeEnabled()" aria-label="Lock" class="md-icon-button" ng-click="headerVm.openLockScreen()">
             <md-icon style="color: #424242">lock</md-icon>
             <md-tooltip>Lock Screen</md-tooltip>
         </md-button>

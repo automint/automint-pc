@@ -2,7 +2,7 @@
  * Controller for Settings component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.2
+ * @version 0.7.3
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -146,6 +146,7 @@
         vm.cloudSettings.submit = csSubmit;
         vm.cloudSettings.changeAvailability = csChangeAvailability;
         vm.cloudSettings.changePassword = csChangePassword;
+        vm.saveFranchiseChannelName = saveFranchiseChannelName;
 
         $rootScope.loadSettingsBlock = loadBlock;
         //  function maps [END]
@@ -182,6 +183,55 @@
             getLoginState();
             // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
             // changeTaxTab(true);     //  testing purposes amTODO: remove it
+            loadCloudChannelValues();
+        }
+
+        function saveFranchiseChannelName(franchise) {
+            if (franchise.name == '') {
+                utils.showSimpleToast('You must give a name to franchise.');
+                franchise.name = $rootScope.amGlobals.franchiseChannels[franchise.id];
+                return;
+            }
+            amLoginSettings.saveCloudChannelName(franchise).then(success).catch(failure);
+
+            function success(res) {
+                utils.showSimpleToast('Franchise name saved successfully');
+                $rootScope.loadChannelValues();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Could not save Franchise name. Please Try Again!');
+                franchise.name = $rootScope.amGlobals.franchiseChannels[franchise.id];
+            }
+        }
+
+        function loadCloudChannelValues() {
+            if ($rootScope.amGlobals.isFranchise != true)
+                return;
+            vm.franchiseChannels = [];
+            amLoginSettings.getCloudChannelNames().then(success).catch(failure);
+
+            function success(res) {
+                Object.keys(res).forEach(iterateMaps);
+
+                function iterateMaps(m) {
+                    vm.franchiseChannels.push({
+                        id: m,
+                        name: res[m]
+                    });
+                }
+            }
+
+            function failure(err) {
+                $rootScope.amGlobals.franchiseChannels.forEach(iterateFranchiseChannels);
+
+                function iterateFranchiseChannels(fc) {
+                    vm.franchiseChannels.push({
+                        id: fc,
+                        name: utils.convertToTitleCase(fc.replace('.', ' '))
+                    });
+                }
+            }
         }
 
         function csChangePassword(event) {

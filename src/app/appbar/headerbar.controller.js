@@ -2,7 +2,7 @@
  * Controller for Header Bar
  * @author ndkcha
  * @since 0.7.0
- * @version 0.7.2
+ * @version 0.7.3
  */
 
 /// <reference path="../../typings/main.d.ts" />
@@ -13,9 +13,9 @@
 
     angular.module('automintApp').controller('amCtrlHeaderbar', HeaderBarController);
 
-    HeaderBarController.$inject = ['$rootScope', '$scope', '$state', '$timeout', '$mdSidenav', '$amRoot', 'amAppbar', 'utils'];
+    HeaderBarController.$inject = ['$rootScope', '$scope', '$state', '$timeout', '$mdSidenav', '$amRoot', '$filter', 'amAppbar', 'utils'];
 
-    function HeaderBarController($rootScope, $scope, $state, $timeout, $mdSidenav, $amRoot, amAppbar, utils) {
+    function HeaderBarController($rootScope, $scope, $state, $timeout, $mdSidenav, $amRoot, $filter, amAppbar, utils) {
         var vm = this;
 
         //  named assignments for view model
@@ -37,23 +37,63 @@
         vm.relaunch = relaunch;
         vm.openFranchiseOptions = openFranchiseOptions;
         vm.selectFranchiseChannel = selectFranchiseChannel;
+        vm.IsPasscodeEnabled = IsPasscodeEnabled;
+        $rootScope.loadChannelValues = loadChannelValues;
 
         //  default execution steps
         $rootScope.hidePreloader = true;
-        if ($rootScope.amGlobals.isFranchise == true) {
-            vm.currentFranchiseChannel = utils.convertToTitleCase($rootScope.amGlobals.channel.replace('.', ' '));
-            $rootScope.amGlobals.franchiseChannels.forEach(iterateFranchiseChannels);
-        }
+        loadChannelValues();
         amAppbar.getPasscode().then(gps).catch(failure);
 
         //  function definitions
+
+        function loadChannelValues() {
+            if ($rootScope.amGlobals.isFranchise == true) {
+                vm.currentFranchiseChannel = utils.convertToTitleCase($rootScope.amGlobals.channel.replace('.', ' '));
+                amAppbar.getCloudChannelNames().then(success).catch(failure);
+            }
+
+            function success(res) {
+                vm.franchiseChannels = [];
+                Object.keys(res).forEach(iterateMaps);
+                var cfound = $filter('filter')(vm.franchiseChannels, {
+                    id: $rootScope.amGlobals.channel
+                }, true);
+
+                if (cfound.length == 1)
+                    vm.currentFranchiseChannel = cfound[0].name;
+
+                function iterateMaps(m) {
+                    vm.franchiseChannels.push({
+                        id: m,
+                        name: res[m]
+                    });
+                }
+            }
+
+            function failure(err) {
+                vm.franchiseChannels = [];
+                $rootScope.amGlobals.franchiseChannels.forEach(iterateFranchiseChannels);
+
+                function iterateFranchiseChannels(fc) {
+                    vm.franchiseChannels.push({
+                        id: fc,
+                        name: utils.convertToTitleCase(fc.replace('.', ' '))
+                    });
+                }
+            }
+        }
 
         function selectFranchiseChannel(index) {
             if (index == -1)
                 $rootScope.amGlobals.channel = vm.allFrenchiseObject.id;
             else
                 $rootScope.amGlobals.channel = vm.franchiseChannels[index].id;
-            vm.currentFranchiseChannel = utils.convertToTitleCase($rootScope.amGlobals.channel.replace('.', ' '));
+            var cfound = $filter('filter')(vm.franchiseChannels, {
+                id: $rootScope.amGlobals.channel
+            }, true);
+
+            vm.currentFranchiseChannel = (cfound.length == 1) ? cfound[0].name : utils.convertToTitleCase($rootScope.amGlobals.channel.replace('.', ' '));
             $rootScope.amGlobals.configDocIds = {
                 settings: 'settings' + ($rootScope.amGlobals.channel ? '-' + $rootScope.amGlobals.channel : ''),
                 treatment: 'treatments' + ($rootScope.amGlobals.channel ? '-' + $rootScope.amGlobals.channel : ''),
@@ -68,13 +108,6 @@
                 }
             }
             $state.go($state.current, {}, {reload: true});
-        }
-
-        function iterateFranchiseChannels(fc) {
-            vm.franchiseChannels.push({
-                id: fc,
-                name: utils.convertToTitleCase(fc.replace('.', ' '))
-            });
         }
 
         function openFranchiseOptions($mdOpenMenu, ev) {
@@ -93,8 +126,14 @@
             ammHelp.openHelpWindow();
         }
 
+        function IsPasscodeEnabled() {
+            if ($rootScope.isFranchise == true)
+                return false;
+            return ($rootScope.isPasscodeEnabled);
+        }
+
         function gps(res) {
-            if (res == undefined)
+            if (($rootScope.amGlobals.isFranchise == true) || (res == undefined))
                 return;
             $rootScope.isPasscodeEnabled = res.enabled;
             $rootScope.isAutomintLocked = res.enabled;
