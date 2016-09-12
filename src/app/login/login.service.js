@@ -2,7 +2,7 @@
  * Angular Service for Login and Licensing Mechanism
  * @author ndkcha
  * @since 0.7.0
- * @version 0.7.2
+ * @version 0.7.3
  */
 
 /// <reference path="../../typings/main.d.ts" />
@@ -435,7 +435,14 @@
                             obj.enddate = res.activation.enddate;
                             break;
                     }
-                    tracker.resolve(obj);
+                    if ($rootScope.amGlobals.isFranchise == true)
+                        amLogin.saveFranchiseNames($rootScope.amGlobals.franchiseChannels).then(respondAfterFranchise).catch(respondAfterFranchise);
+                    else
+                        tracker.resolve(obj);
+
+                    function respondAfterFranchise(fresponse) {
+                        tracker.resolve(obj);
+                    }
                 }
             }
 

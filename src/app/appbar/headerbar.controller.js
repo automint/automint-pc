@@ -60,7 +60,6 @@
                     id: $rootScope.amGlobals.channel
                 }, true);
                 if ((res.default != undefined) && $rootScope.firstTimers && ($rootScope.firstTimers.isFranchise == true)) {
-                    console.log('show call kiya');
                     $rootScope.busyApp.show = true;
                     $rootScope.firstTimers.isFranchise = false;
                     $rootScope.busyApp.message = "Loading Franchise...";

@@ -2,7 +2,7 @@
  * Factories for Login Mechanism
  * @author ndkcha
  * @since 0.7.0
- * @version 0.7.2
+ * @version 0.7.3
  */
 
 /// <reference path="../../typings/main.d.ts" />
@@ -11,14 +11,14 @@
     angular.module('automintApp').factory('amLogin', LoginFactory).factory('amLoginBase64', LoginBase64Factory);
 
     LoginBase64Factory.$inject = [];
-    LoginFactory.$inject = ['$rootScope', '$http', '$q', 'amLoginBase64', 'amFactory', 'constants', 'pdbLocal', 'pdbMain'];
+    LoginFactory.$inject = ['$rootScope', '$http', '$q', 'utils', 'amLoginBase64', 'amFactory', 'constants', 'pdbLocal', 'pdbMain'];
 
     /*
         === NOTE ===
         Do not include $amRoot as dependency as this module is used in it. 
     */
 
-    function LoginFactory($rootScope, $http, $q, amLoginBase64, amFactory, constants, pdbLocal, pdbMain) {
+    function LoginFactory($rootScope, $http, $q, utils, amLoginBase64, amFactory, constants, pdbLocal, pdbMain) {
         //  initialize factory and functino mappings
         var factory = {
             saveLicense: saveLicense,
@@ -26,12 +26,39 @@
             saveActivationDetails: saveActivationDetails,
             setLoginState: setLoginState,
             savePassword: savePassword,
-            cloudForceEnabled: cloudForceEnabled
+            cloudForceEnabled: cloudForceEnabled,
+            saveFranchiseNames: saveFranchiseNames
         }
 
         return factory;
 
         //  function definitions
+
+        function saveFranchiseNames(channels) {
+            var tracker = $q.defer();
+            pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(failure);
+            return tracker.promise;
+
+            function getLoginDoc(res) {
+                if (res.localchannelmaps == undefined)
+                    res.localchannelmaps = {};
+                channels.forEach(iterateChannels);
+                pdbLocal.save(res).then(success).catch(failure);
+
+                function iterateChannels(channel) {
+                    if (res.localchannelmaps[channel] == undefined)
+                        res.localchannelmaps[channel] = utils.convertToTitleCase(channel.replace('.', ' '))
+                }
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function cloudForceEnabled(force) {
             var tracker = $q.defer();
