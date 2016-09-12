@@ -192,7 +192,7 @@
                 franchise.name = $rootScope.amGlobals.franchiseChannels[franchise.id];
                 return;
             }
-            amLoginSettings.saveCloudChannelName(franchise).then(success).catch(failure);
+            amLoginSettings.saveCloudChannelName(vm.franchiseChannels).then(success).catch(failure);
 
             function success(res) {
                 utils.showSimpleToast('Franchise name saved successfully');

@@ -26,16 +26,20 @@
         
         //  function definitions
 
-        function saveCloudChannelName(channel) {
+        function saveCloudChannelName(channels) {
             var tracker = $q.defer();
             pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(failure);
             return tracker.promise;
 
             function getLoginDoc(res) {
-                if (!res.localchannelmaps)
+                if (res.localchannelmaps == undefined)
                     res.localchannelmaps = {};
-                res.localchannelmaps[channel.id] = channel.name;
+                channels.forEach(iterateChannels);
                 pdbLocal.save(res).then(success).catch(failure);
+
+                function iterateChannels(channel) {
+                    res.localchannelmaps[channel.id] = channel.name;
+                }
             }
 
             function success(res) {
