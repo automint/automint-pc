@@ -533,14 +533,21 @@
                             <span class="md-body-2">Franchise Names</span>
                         </div>
                         <div class="am-cloudchannel-names">
-                            <table>
-                                <tbody>
-                                    <tr ng-repeat="channel in vm.franchiseChannels">
-                                        <th align="left"><span class="md-caption">{{channel.id}}:</span>&nbsp;</th>
-                                        <td><input type="text" id="ami-password" class="am-box-input" ng-model="channel.name" ng-blur="vm.saveFranchiseChannelName(channel)" flex></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <md-radio-group ng-model="vm.defaultFranchiseChannel" ng-change="vm.changeDefaultFranchiseChannel()">
+                                <table>
+                                    <tbody>
+                                        <tr ng-repeat="channel in vm.franchiseChannels">
+                                            <th align="left">
+                                                <md-radio-button ng-value="channel.id" style="margin-bottom: 0" layout="row" layout-align="start center"><md-tooltip>Make {{channel.name}} as default ?</md-tooltip><span class="md-caption">{{channel.id}}:</span>&nbsp;</md-radio-button>
+                                            </th>
+                                            <td><input type="text" id="ami-password" class="am-box-input" ng-model="channel.name" ng-blur="vm.saveFranchiseChannelName(channel, $index)" flex></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-radio-group>
+                            <div layout="row" layout-align="start center" style="margin-top: 16px">
+                                <span class="md-caption"><i>Click on radio (circled) button to make Franchise default</i></span>
+                            </div>
                         </div>
                     </md-card-content>
                 </md-card>

@@ -29,9 +29,14 @@
             return tracker.promise;
 
             function getLoginDoc(res) {
-                if (res.localchannelmaps)
-                    tracker.resolve(res.localchannelmaps);
-                else
+                if (res.localchannelmaps) {
+                    var response = {
+                        channels: res.localchannelmaps
+                    };
+                    if (res.defaultlocalchannel != undefined)
+                        response.default = res.defaultlocalchannel;
+                    tracker.resolve(response);
+                } else
                     failure();
             }
 

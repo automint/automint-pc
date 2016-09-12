@@ -55,10 +55,31 @@
 
             function success(res) {
                 vm.franchiseChannels = [];
-                Object.keys(res).forEach(iterateMaps);
+                Object.keys(res.channels).forEach(iterateMaps);
                 var cfound = $filter('filter')(vm.franchiseChannels, {
                     id: $rootScope.amGlobals.channel
                 }, true);
+                if ((res.default != undefined) && $rootScope.firstTimers && ($rootScope.firstTimers.isFranchise == true)) {
+                    console.log('show call kiya');
+                    $rootScope.busyApp.show = true;
+                    $rootScope.firstTimers.isFranchise = false;
+                    $rootScope.busyApp.message = "Loading Franchise...";
+                    setTimeout(loadDefaultFranchise, 1000);
+
+                    function loadDefaultFranchise() {
+                        var ffound = $filter('filter')(vm.franchiseChannels, {
+                            id: res.default
+                        }, true);
+
+                        if (ffound.length == 1) {
+                            var inx = vm.franchiseChannels.indexOf(ffound[0]);
+                            if (inx > -1)
+                                selectFranchiseChannel(inx);
+                            $rootScope.busyApp.show = false;
+                        } else
+                            $rootScope.busyApp.show = false;
+                    }
+                }
 
                 if (cfound.length == 1)
                     vm.currentFranchiseChannel = cfound[0].name;
@@ -66,7 +87,7 @@
                 function iterateMaps(m) {
                     vm.franchiseChannels.push({
                         id: m,
-                        name: res[m]
+                        name: res.channels[m]
                     });
                 }
             }

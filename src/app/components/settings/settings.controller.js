@@ -147,6 +147,7 @@
         vm.cloudSettings.changeAvailability = csChangeAvailability;
         vm.cloudSettings.changePassword = csChangePassword;
         vm.saveFranchiseChannelName = saveFranchiseChannelName;
+        vm.changeDefaultFranchiseChannel = changeDefaultFranchiseChannel;
 
         $rootScope.loadSettingsBlock = loadBlock;
         //  function maps [END]
@@ -186,10 +187,10 @@
             loadCloudChannelValues();
         }
 
-        function saveFranchiseChannelName(franchise) {
+        function saveFranchiseChannelName(franchise, i) {
             if (franchise.name == '') {
                 utils.showSimpleToast('You must give a name to franchise.');
-                franchise.name = $rootScope.amGlobals.franchiseChannels[franchise.id];
+                vm.franchiseChannels[i].name = utils.convertToTitleCase(franchise.id.replace('.', ' '));
                 return;
             }
             amLoginSettings.saveCloudChannelName(vm.franchiseChannels).then(success).catch(failure);
@@ -201,7 +202,22 @@
 
             function failure(err) {
                 utils.showSimpleToast('Could not save Franchise name. Please Try Again!');
-                franchise.name = $rootScope.amGlobals.franchiseChannels[franchise.id];
+                vm.franchiseChannels[i].name = utils.convertToTitleCase(franchise.id.replace('.', ' '));
+            }
+        }
+
+        function changeDefaultFranchiseChannel() {
+            amLoginSettings.saveDefaultFranchiseChannel(vm.defaultFranchiseChannel).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok)
+                    utils.showSimpleToast('Default Franchise saved successfully');
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Could not save Default Franchise. Please Try Again!');
             }
         }
 
@@ -212,12 +228,14 @@
             amLoginSettings.getCloudChannelNames().then(success).catch(failure);
 
             function success(res) {
-                Object.keys(res).forEach(iterateMaps);
+                Object.keys(res.channels).forEach(iterateMaps);
+                if (res.default != undefined)
+                    vm.defaultFranchiseChannel = res.default;
 
                 function iterateMaps(m) {
                     vm.franchiseChannels.push({
                         id: m,
-                        name: res[m]
+                        name: res.channels[m]
                     });
                 }
             }
@@ -226,6 +244,7 @@
                 $rootScope.amGlobals.franchiseChannels.forEach(iterateFranchiseChannels);
 
                 function iterateFranchiseChannels(fc) {
+                    console.log(fc);
                     vm.franchiseChannels.push({
                         id: fc,
                         name: utils.convertToTitleCase(fc.replace('.', ' '))

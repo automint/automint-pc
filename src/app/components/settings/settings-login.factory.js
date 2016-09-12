@@ -19,12 +19,32 @@
             getPasscode: getPasscode,
             savePasscode: savePasscode,
             getCloudChannelNames: getCloudChannelNames,
-            saveCloudChannelName: saveCloudChannelName
+            saveCloudChannelName: saveCloudChannelName,
+            saveDefaultFranchiseChannel: saveDefaultFranchiseChannel
         }
         
         return factory;
         
         //  function definitions
+
+        function saveDefaultFranchiseChannel(channel) {
+            var tracker = $q.defer();
+            pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(failure);
+            return tracker.promise;
+
+            function getLoginDoc(res) {
+                res.defaultlocalchannel = channel;
+                pdbLocal.save(res).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function saveCloudChannelName(channels) {
             var tracker = $q.defer();
@@ -57,9 +77,14 @@
             return tracker.promise;
 
             function getLoginDoc(res) {
-                if (res.localchannelmaps)
-                    tracker.resolve(res.localchannelmaps);
-                else
+                if (res.localchannelmaps) {
+                    var response = {
+                        channels: res.localchannelmaps
+                    };
+                    if (res.defaultlocalchannel != undefined)
+                        response.default = res.defaultlocalchannel;
+                    tracker.resolve(response);
+                } else
                     failure();
             }
 

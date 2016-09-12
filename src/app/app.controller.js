@@ -2,7 +2,7 @@
  * Closure for root level controllers
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.3
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -19,7 +19,9 @@
         var vm = this;
 
         //  default execution steps
-        $rootScope.isFirstLoad = true;
+        $rootScope.firstTimers = {
+            isFranchise: true
+        };
         $amLicense.checkLogin(true).then(success).catch(failure);
 
         //  function definitions
