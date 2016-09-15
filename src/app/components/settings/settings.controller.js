@@ -8,12 +8,18 @@
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
+    const fs = require('fs-extra');
     const ipcRenderer = require('electron').ipcRenderer;
     const electron = require('electron').remote;
+    const BrowserWindow = require('electron').remote.BrowserWindow;
     const fse = require('fs-extra');
     const amApp = electron.app;
     const dialog = electron.dialog;
     const ammPreferences = require('./automint_modules/am-preferences.js');
+
+    var TOKEN_DIR = process.resourcesPath + "/app.asar.unpacked/";
+    // var TOKEN_DIR = __dirname + "/../../../app.asar.unpacked/";
+    var TOKEN_PATH = TOKEN_DIR + 'google-cred.json';
 
     angular.module('automintApp').controller('amCtrlSettings', SettingsController);
 
@@ -148,7 +154,7 @@
         vm.cloudSettings.changePassword = csChangePassword;
         vm.saveFranchiseChannelName = saveFranchiseChannelName;
         vm.changeDefaultFranchiseChannel = changeDefaultFranchiseChannel;
-
+        vm.clearEmailSignInDetails = clearEmailSignInDetails;
         $rootScope.loadSettingsBlock = loadBlock;
         //  function maps [END]
 
@@ -165,6 +171,25 @@
         //  default execution steps [END]
 
         //  function definitions
+
+        function clearEmailSignInDetails() {
+            fs.remove(TOKEN_PATH, deletedCredFile);
+
+            function deletedCredFile(err) {
+                if (err) {
+                    console.error(err);
+                    utils.showSimpleToast('Could not clear Sign In details');
+                    return;
+                }
+                BrowserWindow.getFocusedWindow().webContents.session.clearStorageData({
+                    storages: ['cookies']
+                }, done);
+            }
+
+            function done() {
+                utils.showSimpleToast('Sign In data has been cleared');
+            }
+        }
 
         function loadBlock() {
             if ($rootScope.busyApp.show == true)

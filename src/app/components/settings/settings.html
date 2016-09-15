@@ -349,6 +349,17 @@
                         </md-card-contnet>
                     </md-card>
                     <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-content layout="row" layout-align="start center" style="padding: 8px 16px">
+                            <span class="md-title">Email Account</span>
+                            <span flex></span>
+                            <md-button class="md-raised" ng-click="vm.clearEmailSignInDetails()">
+                                <md-icon>clear_all</md-icon>
+                                <span layout-margin>Clear Details</span>
+                                <md-tooltip>Clear your sign in details</md-tooltip>
+                            </md-button>
+                        </md-card-content>
+                    </md-card>
+                    <md-card class="md-hue-1 am-box-shadow">
                         <md-card-content>
                             <div layout="row">
                                 <span class="md-title">Printing Margin&nbsp;<span style="font-size: small">(in cm)</span></span>
