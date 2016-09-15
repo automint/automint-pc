@@ -48,7 +48,7 @@
                         <td md-cell ng-click="vm.editService(service)"><span ng-class="{'am-red-text': vm.IsServiceDue(service.srvc_status)}">{{service.srvc_status}}</span></td>
                         <td md-cell ng-click="vm.editService(service)"><span ng-class="{'am-jobcard-text': vm.IsServiceStateJc(service.srvc_state), 'am-estimate-text': vm.IsServiceStateEs(service.srvc_state), 'am-invoice-text': vm.IsServiceStateIv(service.srvc_state)}">{{service.srvc_state}}</span></td>
                         <td md-cell class="am-datatable-actions view-all-services">
-                            <md-button class="md-icon-button" ng-click="vm.deleteService(service, $event)">
+                            <md-button class="md-icon-button" ng-click="vm.goToInvoice(service, $event)">
                                 <md-icon class="am-icon-button-size" style="color: red">delete</md-icon>
                             </md-button>
                         </td>

@@ -2,7 +2,7 @@
  * Service for Importing data to Automint
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.3
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -41,7 +41,7 @@
                         csvCallback(csvArray);
                     } catch(exception) {
                         isCsvFile = false;
-                        console.log(exception);
+                        console.error(exception);
                     }
                     if (isCsvFile)
                         return;
@@ -499,9 +499,9 @@
                                             if (vehicle.services != undefined) {
                                                 if (dbUser.user.vehicles[vId].services == undefined)
                                                     dbUser.user.vehicles[vId].services = {};
-                                                vehicle.services.forEach(iterateServices);
+                                                vehicle.services.forEach(iterateNewVehicleServices);
 
-                                                function iterateServices(service) {
+                                                function iterateNewVehicleServices(service) {
                                                     dbUser.user.vehicles[vId].services[utils.generateUUID('srvc')] = service;
                                                 }
                                             }
@@ -510,13 +510,19 @@
                                     if (!existingVehicleInDb) {
                                         var services = undefined;
                                         if (vehicle.services != undefined)
-                                            services = $.extend([], vehicle.services);
+                                            vehicle.services.forEach(copyServices);
                                         var prefixVehicle = 'vhcl';
                                         var vehicleId = utils.generateUUID('vhcl');
                                         delete vehicle.services;
                                         dbUser.user.vehicles[vehicleId] = vehicle;
                                         if (services != undefined)
                                             services.forEach(iterateServices);
+
+                                        function copyServices(service) {
+                                            if (services == undefined)
+                                                services = [];
+                                            services.push(service);
+                                        }
 
                                         function iterateServices(service) {
                                             if (dbUser.user.vehicles[vehicleId].services == undefined)
@@ -542,14 +548,20 @@
                                 function iterateVehicles(vehicle) {
                                     var services = undefined;
                                     if (vehicle.services != undefined)
-                                        services = $.extend([], vehicle.services);
+                                        vehicle.services.forEach(copyExistingUserServices);
                                     var vehicleId = utils.generateUUID('vhcl');
                                     delete vehicle.services;
                                     targetUser.user.vehicles[vehicleId] = vehicle;
                                     if (services != undefined)
-                                        services.forEach(iterateServices);
+                                        services.forEach(iterateExistingUserServices);
 
-                                    function iterateServices(service) {
+                                    function copyExistingUserServices(service) {
+                                        if (services == undefined)
+                                            services = [];
+                                        services.push(service);
+                                    }
+
+                                    function iterateExistingUserServices(service) {
                                         if (targetUser.user.vehicles[vehicleId].services == undefined)
                                             targetUser.user.vehicles[vehicleId].services = {};
                                         targetUser.user.vehicles[vehicleId].services[utils.generateUUID('srvc')] = service;
@@ -567,7 +579,7 @@
                 function saveSuccess(res) {
                     tracker.resolve({
                         success: true,
-                        message: addedCustomerCount + ' customers have been imported!'
+                        message: 'Customers have been imported!'
                     })
                 }
 
