@@ -5,7 +5,7 @@
  * @version 0.7.3
  */
 
-/// <reference path="../../../typings/main.d.ts" />
+/// <reference path="../../../../typings/main.d.ts" />
 
 (function() {
     //  import node dependencies and other automint modules

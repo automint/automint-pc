@@ -1,0 +1,230 @@
+<md-content layout="row" layout-xs="column" layout-margin>
+    <md-button aria-label="Back" class="md-fab md-raised md-mini" ng-click="vm.goBack()">
+        <md-icon aria-label="Back">arrow_back</md-icon>
+    </md-button>
+    <div flex></div>
+    <md-button aria-label="Email" class="md-fab md-raised md-mini" ng-click="vm.initiateMailInvoiceProcess($event)">
+        <md-icon aria-label="Email">email</md-icon>
+        <md-tooltip md-direction="bottom">Email</md-tooltip>
+    </md-button>
+    <md-button aria-label="Print" class="md-fab md-raised md-mini" ng-click="vm.printInvoice()">
+        <md-icon aria-label="Print">print</md-icon>
+        <md-tooltip md-direction="bottom">Print</md-tooltip>
+    </md-button>
+    <md-button aria-label="SMS" class="md-fab md-raised md-mini" ng-hide="true">
+        <md-icon aria-label="SMS">sms</md-icon>
+        <md-tooltip md-direction="bottom">SMS</md-tooltip>
+    </md-button>
+    <md-button aria-label="Edit Info" class="md-fab md-raised md-mini" ng-click="vm.editService()">
+        <md-icon aria-label="Edit Info">edit</md-icon>
+        <md-tooltip md-direction="bottom">Edit Service</md-tooltip>
+    </md-button>
+</md-content>
+<md-divider></md-divider>
+<md-content class="am-white-background">
+    <style>
+        .am-iv-table {
+            border-spacing: 0;
+            border-collapse:collapse;
+        }
+        .am-iv-table .am-table-body td {
+            padding: 8px;
+        }
+        .am-iv-table .am-table-body .apply-title-border td {
+            border: thin solid #616161;
+        }
+        .am-iv-table .am-table-body .apply-default-border td {
+            border: thin solid #E0E0E0;
+        }
+        .am-iv-table .am-table-body .apply-total-border td {
+            border-top: thin solid #E0E0E0;
+        }
+        .am-flex-layout {
+            display: flex;
+        }
+        .am-flex-layout.center {
+            align-items: center;
+        }
+        .am-flex-layout.middle {
+            justify-content: center;
+        }
+        .am-flex-layout.end {
+            justify-content: flex-end;
+        }
+        .am-flex-layout.column {
+            flex-direction: column
+        }
+        .am-font {
+            font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
+            line-height: 1.5;
+        }
+        .am-font.lh1-8, lh1-8 {
+            line-height: 1.8;
+        }
+        .am-font.w400, .w400 {
+            font-weight: 400;
+        }
+        .am-font.w600, .w600 {
+            font-weight: 600;
+        }
+        .am-font.s7, .s7 {
+            font-size: 7pt;
+        }
+        .am-font.s9, .s9 {
+            font-size: 9pt;
+        }
+        .am-font.s10, .s10 {
+            font-size: 10pt;
+        }
+        .am-font.s11, .s11 {
+            font-size: 11pt;
+        }
+        .am-font.s12, .s12 {
+            font-size: 11pt;
+        }
+        .am-font.s14, .s14 {
+            font-size: 14pt;
+        }
+        .am-font.cgrey700, .cgrey700 {
+            color: #616161;
+        }
+        .am-font.cgrey800, .cgrey800 {
+            color: #424242;
+        }
+        .am-invoice-input {
+            border: 0;
+            outline: none;
+            transition: border 300ms ease;
+        }
+        .am-invoice-input:hover {
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .am-notes-input {
+            border: 0;
+            border-bottom: 1px solid #EEEEEE;
+            padding: 0 10px;
+            outline: none;
+        }
+    </style>
+    <div style="padding: 24px">
+        <table style="width: 100%;" class="am-iv-table">
+            <thead>
+                <tr>
+                    <td colspan="100%">
+                        <div class="am-flex-layout center">
+                            <div class="am-flex-layout column" style="flex: 1">
+                                <input type="text" ng-model="vm.workshop.name" class="am-font s14 w600 am-invoice-input">
+                                <input type="text" ng-model="vm.workshop.address1" class="am-font s9 am-invoice-input">
+                                <input type="text" ng-model="vm.workshop.address2" class="am-font s9 am-invoice-input">
+                                <input type="text" ng-model="vm.workshop.city" class="am-font s9 am-invoice-input">
+                                <span class="am-flex-layout center am-font s9"><i class="s7">(M)</i>&nbsp;<input type="text" ng-model="vm.workshop.phone" class="am-invoice-input"></span>
+                            </div>
+                            <div class="am-flex-layout center end" style="flex: 1">
+                                <img src="assets/img/logo-250x125px.png">
+                            </div>
+                        </div>
+                        <hr style="background: grey; opacity: 0.2; margin: 0 30px 8px">
+                    </td>
+                </tr>
+                <tr class="am-row-invoice-details">
+                    <td colspan="100%">
+                        <table style="width: 100%">
+                            <tr>
+                                <td style="vertical-align: middle;">
+                                    <div class="am-flex-layout column">
+                                        <span class="am-font s11 lh1-8 cgrey800">Bill To:</span>
+                                        <div class="am-flex-layout center am-font">
+                                            <span class="s9 w400 cgrey700" style="width: 42px; text-align: right">Name:&nbsp;</span>
+                                            <input type="text" ng-model="vm.user.name" class="s10 am-invoice-input">
+                                        </div>
+                                        <div class="am-flex-layout center am-font">
+                                            <span class="s9 w400 cgrey700" style="width: 42px; text-align: right">Mobile:&nbsp;</span>
+                                            <input type="text" ng-model="vm.user.mobile" class="s10 am-invoice-input">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <div class="am-flex-layout column">
+                                        <div class="am-flex-layout center am-font">
+                                            <span class="s9 w400 cgrey700" style="flex: 1; text-align: right">Vehicle:&nbsp;</span>
+                                            <input type="text" ng-model="vm.vehicle.name" class="s10 am-invoice-input" style="flex: 1">
+                                        </div>
+                                        <div class="am-flex-layout center am-font">
+                                            <span class="s9 w400 cgrey700" style="flex: 1; text-align: right">Registration:&nbsp;</span>
+                                            <input type="text" ng-model="vm.vehicle.reg" class="s10 am-invoice-input" style="flex: 1">
+                                        </div>
+                                        <div class="am-flex-layout center am-font">
+                                            <span class="s9 w400 cgrey700" style="flex: 1; text-align: right">Odometer:&nbsp;</span>
+                                            <input type="text" ng-model="vm.service.odo" class="s10 am-invoice-input" style="flex: 1">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="vertical-align: middle;" align="right">
+                                    <div class="am-flex-layout column am-font">
+                                        <span class="s14" style="line-height: 1">Invoice</span>
+                                        <span class="s9 cgrey700">#{{vm.service.invoiceno}}</span>
+                                    </div>
+                                    <div class="am-flex-layout center end am-font">
+                                        <span class="s9 w400 cgrey700">Date:&nbsp;</span>
+                                        <input type="text" ng-model="vm.service.date" class="s10 am-invoice-input" style="text-align: right">
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <hr style="opacity: 0; margin-bottom: 16px;">
+                    </td>
+            </thead>
+            <tbody class="am-table-body">
+                <tr class="am-font s10 apply-title-border" style="color: white; background: #424242;">
+                    <td style="width: 5%; text-align: center; padding: 8px 0; border-left: 0">#</td>
+                    <td style="width: 63%">Item & Description</td>
+                    <td style="width: 8%; text-align: right">Qty</td>
+                    <td style="width: 12%; text-align: right">Rate</td>
+                    <td style="width: 12%; text-align: right; border-right: 0">Amount</td>
+                </tr>
+                <tr class="am-font s9 apply-default-border">
+                    <td style="text-align: center; border-left: 0"><span class="s7">1</span>
+                    <td><span>Steam Wash and Shampoo</span>
+                    <td style="text-align: right">1</td>
+                    <td style="text-align: right">1500</td>
+                    <td style="text-align: right; border-right: 0">1500</td>
+                </tr>
+                <tr class="am-font s9">
+                    <td colspan="4" style="text-align: right">Subtotal</td>
+                    <td style="text-align: right">1500</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr class="am-font s9">
+                    <td colspan="3">
+                        <div class="am-flex-layout">
+                            <span class="s9 w400 cgrey700" style="line-height: 1.1">Notes:</span>
+                            <textarea class="s10 am-notes-input" style="flex: 1;" rows="2"></textarea>
+                        </div>
+                    </td>
+                    <td style="text-align: right;" class="w600">Total</td>
+                    <td style="padding-right: 10px" class="w600 s10"><input type="number" ng-model="vm.service.cost" class="am-invoice-input" style="text-align: right"></td>
+                </tr>
+                <tr class="am-font s9">
+                    <td colspan="5">
+                        <div class="am-flex-layout center middle" style="padding: 16px">
+                            <span style="margin-right: 16px">Follow Us on:</span>
+                            <a class="am-flex-layout center">
+                                <img src="assets/img/facebook.svg" width="15" height="15">
+                                <span>/</span><input type="text" ng-model="vm.social.facebook" class="am-invoice-input">
+                            </a>
+                            <a class="am-flex-layout center">
+                                <img src="assets/img/instagram.svg" width="15" height="15">
+                                <span>/</span><input type="text" ng-model="vm.social.instagram" class="am-invoice-input">
+                            </a>
+                            <a class="am-flex-layout center">
+                                <img src="assets/img/twitter.svg" width="15" height="15">
+                                <span>/</span><input type="text" ng-model="vm.social.twitter" class="am-invoice-input">
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</md-content>

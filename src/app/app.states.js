@@ -267,7 +267,7 @@
             })
             .state('restricted.invoices.view', {
                 url: '/view',
-                templateUrl: 'app/components/invoices/invoices_view.html',
+                templateUrl: 'app/components/invoices/invoice.html',
                 params: {
                     userId: undefined,
                     vehicleId: undefined,
@@ -560,12 +560,12 @@
         function loadIvRIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/invoices/invoices-view.controller.js'
+                'app/components/invoices/invoice.controller.js',
             ])
         }
         function loadInvoicesDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/invoices/invoices.factory.js'
+                'app/components/invoices/invoice.factory.js',
             ])
         }
         function loadPackageDeps($ocLazyLoad) {
