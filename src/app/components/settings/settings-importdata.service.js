@@ -2,7 +2,7 @@
  * Service for Importing data to Automint
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.7.3
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -41,6 +41,7 @@
                         csvCallback(csvArray);
                     } catch(exception) {
                         isCsvFile = false;
+                        console.error(exception);
                     }
                     if (isCsvFile)
                         return;
@@ -340,20 +341,27 @@
                 switch (fieldName) {
                     case 'mobile':
                     case 'mo':
+                    case 'contact no':
+                    case 'contact number':
                     case 'mobile number':
                         csvMap.mobile = j;
                         break;
+                    case 'customer name':
                     case 'name':
                         csvMap.name = j;
                         break;
                     case 'reg':
                     case 'registration':
+                    case 'car registration':
+                    case 'bike registration':
                     case 'registration number':
                     case 'vehicle number':
                     case 'registration no':
                     case 'vehicle no':
                         csvMap.reg = j;
                         break;
+                    case 'bike model':
+                    case 'car model':
                     case 'model':
                     case 'car':
                         csvMap.model = j;
@@ -361,6 +369,21 @@
                     case 'manufacturer':
                     case 'company':
                         csvMap.manuf = j;
+                        break;
+                    case 'date':
+                        csvMap.servicedate = j;
+                        break;
+                    case 'treatments':
+                    case 'services':
+                        csvMap.servicetreatment = j;
+                        break;
+                    case 'price':
+                    case 'cost':
+                        csvMap.servicecost = j;
+                        break;
+                    case 'status':
+                    case 'paid':
+                        csvMap.servicestatus = j;
                         break;
                 }
             }
@@ -371,9 +394,15 @@
                 var reg = csvArray[row][csvMap.reg];
                 var manuf = csvArray[row][csvMap.manuf];
                 var model = csvArray[row][csvMap.model];
+                var servicedate = csvArray[row][csvMap.servicedate];
+                var servicetreatment = csvArray[row][csvMap.servicetreatment];
+                var servicecost = csvArray[row][csvMap.servicecost];
+                var servicestatus = csvArray[row][csvMap.servicestatus];
+
+                var isServiceAvailable = ((servicedate && (servicedate != '')) && (servicecost && (servicecost != '')) && (servicetreatment && (servicetreatment != '')));
 
                 //  check if at least one entry has been found, skip otherwise
-                if (!(mobile || name || reg || manuf || model))
+                if (!(mobile || name || reg || manuf || model || isServiceAvailable))
                     continue;
 
                 //  encode objects from derived data
@@ -386,6 +415,17 @@
                     manuf: manuf ? manuf : '',
                     model: model ? model : ''
                 }
+                var service = undefined;
+                if (isServiceAvailable) {
+                    service = {};
+                    service.date = moment(servicedate, 'YYYY-MM-DD').format();
+                    service.cost = parseFloat(servicecost);
+                    service.problems = {};
+                    service.problems[servicetreatment] = {
+                        rate: parseFloat(servicecost)
+                    }
+                    service.status = (servicestatus.toLowerCase() == 'paid') ? 'paid' : 'due';
+                }
 
                 //  reduce duplicates in imported file
                 var found = $filter('filter')(customers, {
@@ -396,16 +436,30 @@
                     var vfound = $filter('filter')(found[0].vehicles, {
                         reg: reg
                     }, true);
-                    if (vfound.length > 0)
-                        continue;
-                    else {
-                        if ((reg || manuf || model) && (reg != '' || manuf != '' || model != ''))
+                    if ((reg || manuf || model) && (reg != '' || manuf != '' || model != '')) {
+                        if (vfound.length > 0) {
+                            if (isServiceAvailable) {
+                                if (vfound[0].services == undefined)
+                                    vfound[0].services = [];
+                                vfound[0].services.push(service);
+                            }
+                        } else {
+                            if (isServiceAvailable) {
+                                vehicle.services = [];
+                                vehicle.services.push(service);
+                            }
                             found[0].vehicles.push(vehicle);
+                        }
                     }
                 } else {
                     user.vehicles = [];
-                    if ((reg || manuf || model) && (reg != '' || manuf != '' || model != ''))
+                    if ((reg || manuf || model) && (reg != '' || manuf != '' || model != '')) {
+                        if (isServiceAvailable) {
+                            vehicle.services = [];
+                            vehicle.services.push(service);
+                        }
                         user.vehicles.push(vehicle);
+                    }
                     customers.push(user);
                 }
             }
@@ -440,12 +494,41 @@
                                     var existingVehicleInDb = false;
                                     for (var i = 0; i < vIds.length; i++) {
                                         var vId = vIds[i];
-                                        if (dbUser.user.vehicles[vId].reg == vehicle.reg)
+                                        if (dbUser.user.vehicles[vId].reg == vehicle.reg) {
                                             existingVehicleInDb = true;
+                                            if (vehicle.services != undefined) {
+                                                if (dbUser.user.vehicles[vId].services == undefined)
+                                                    dbUser.user.vehicles[vId].services = {};
+                                                vehicle.services.forEach(iterateNewVehicleServices);
+
+                                                function iterateNewVehicleServices(service) {
+                                                    dbUser.user.vehicles[vId].services[utils.generateUUID('srvc')] = service;
+                                                }
+                                            }
+                                        }
                                     }
                                     if (!existingVehicleInDb) {
+                                        var services = undefined;
+                                        if (vehicle.services != undefined)
+                                            vehicle.services.forEach(copyServices);
                                         var prefixVehicle = 'vhcl';
-                                        dbUser.user.vehicles[utils.generateUUID('vhcl')] = vehicle;
+                                        var vehicleId = utils.generateUUID('vhcl');
+                                        delete vehicle.services;
+                                        dbUser.user.vehicles[vehicleId] = vehicle;
+                                        if (services != undefined)
+                                            services.forEach(iterateServices);
+
+                                        function copyServices(service) {
+                                            if (services == undefined)
+                                                services = [];
+                                            services.push(service);
+                                        }
+
+                                        function iterateServices(service) {
+                                            if (dbUser.user.vehicles[vehicleId].services == undefined)
+                                                dbUser.user.vehicles[vehicleId].services = {};
+                                            dbUser.user.vehicles[vehicleId].services[utils.generateUUID('srvc')] = service;
+                                        }
                                     }
                                 }
                             }
@@ -463,8 +546,26 @@
                                 customer.vehicles.forEach(iterateVehicles);
 
                                 function iterateVehicles(vehicle) {
-                                    var prefixVehicle = 'vhcl';
-                                    targetUser.user.vehicles[utils.generateUUID(prefixVehicle)] = vehicle;
+                                    var services = undefined;
+                                    if (vehicle.services != undefined)
+                                        vehicle.services.forEach(copyExistingUserServices);
+                                    var vehicleId = utils.generateUUID('vhcl');
+                                    delete vehicle.services;
+                                    targetUser.user.vehicles[vehicleId] = vehicle;
+                                    if (services != undefined)
+                                        services.forEach(iterateExistingUserServices);
+
+                                    function copyExistingUserServices(service) {
+                                        if (services == undefined)
+                                            services = [];
+                                        services.push(service);
+                                    }
+
+                                    function iterateExistingUserServices(service) {
+                                        if (targetUser.user.vehicles[vehicleId].services == undefined)
+                                            targetUser.user.vehicles[vehicleId].services = {};
+                                        targetUser.user.vehicles[vehicleId].services[utils.generateUUID('srvc')] = service;
+                                    }
                                 }
                             } else
                                 delete targetUser.user.vehicles;
@@ -478,7 +579,7 @@
                 function saveSuccess(res) {
                     tracker.resolve({
                         success: true,
-                        message: addedCustomerCount + ' customers have been imported!'
+                        message: 'Customers have been imported!'
                     })
                 }
 

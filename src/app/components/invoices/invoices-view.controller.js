@@ -2,7 +2,7 @@
  * Controller for View Invoice component
  * @author ndkcha
  * @since 0.5.0
- * @version 0.7.2
+ * @version 0.7.3
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -527,6 +527,11 @@
 
             function fillWorkshopDetails(res) {
                 vm.workshop = res;
+                if (vm.workshop && vm.workshop.social) {
+                    vm.facebooklink = 'https://facebook.com/' + vm.workshop.social.facebook;
+                    vm.instagramlink = 'https://instagram.com/' + vm.workshop.social.instagram;
+                    vm.twitterlink = 'https://twitter.com/' + vm.workshop.social.twitter;
+                }
                 vm.workshop.label_phone = (vm.workshop.phone || vm.workshop.phone != '') ? '(M)' : '&nbsp;';
                 var ch = ($rootScope.isAllFranchiseOSelected() == true) ? res.channel : undefined;
                 getDisplaySettings(ch);
@@ -736,11 +741,12 @@
 
             function doMailInvoice(result) {
                 vm.user.email = result;
-                mailInvoice();
                 if (vm.user.email != oCustomerEmail)
                     amInvoices.saveCustomerEmail($state.params.userId, vm.user.email).then(respond).catch(respond);
+                mailInvoice();
                 
                 function respond(res) {
+                    console.log(res);
                     //  do nothing
                 }
             }
@@ -756,49 +762,9 @@
                 utils.showSimpleToast(vm.user.name + '\'s email has not been set. Email can not be sent!');
                 return;
             }
-            var amInScFb = document.getElementById('am-invoice-social-facebook');
-            var amInScIn = document.getElementById('am-invoice-social-instagram');
-            var amInScTw = document.getElementById('am-invoice-social-twitter');
-            var amInLkFb = document.getElementById('am-invoice-link-facebook');
-            var amInLkIn = document.getElementById('am-invoice-link-instagram');
-            var amInLkTw = document.getElementById('am-invoice-link-twitter');
-            if (vm.workshop && vm.workshop.social && vm.workshop.social.enabled) {
-                if (IsSocialFacebook()) {
-                    amInLkFb.href = 'facebook.com/' + vm.workshop.social.facebook;
-                    amInScFb.src = 'https://www.facebook.com/images/fb_icon_325x325.png';
-                }
-                if (IsSocialInstagram()) {
-                    amInLkIn.href = 'instagram.com/' + vm.workshop.social.instagram;
-                    amInScIn.src = 'http://3835642c2693476aa717-d4b78efce91b9730bcca725cf9bb0b37.r51.cf1.rackcdn.com/Instagram_App_Large_May2016_200.png';
-                }
-                if (IsSocialTwitter()) {
-                    amInLkTw.href = 'twitter.com/' + vm.workshop.social.twitter;
-                    amInScTw.src = 'https://g.twimg.com/Twitter_logo_blue.png';
-                }
-            }
-            removeInvoiceWLogo();
-            removeInvoiceFogo();
-            var printObj = document.getElementById('am-invoice-mail-body');
+            var printObj = document.getElementById('am-iv-m-body');
             utils.showSimpleToast('Sending Mail...');
             ammMailApi.send(printObj.innerHTML, vm.user, (vm.workshop) ? vm.workshop.name : undefined, (vm.ivSettings) ? vm.ivSettings.emailsubject : undefined);
-            if (vm.workshop && vm.workshop.social && vm.workshop.social.enabled) {
-                if (IsSocialFacebook()) {
-                    amInLkFb.href = '';
-                    amInScFb.src = 'assets/img/facebook.svg';
-                }
-                if (IsSocialInstagram()) {
-                    amInLkIn.href = '';
-                    amInScIn.src = 'assets/img/instagram.svg';
-                }
-                if (IsSocialTwitter()) {
-                    amInLkTw.href = '';
-                    amInScTw.src = 'assets/img/twitter.svg';                
-                }
-            }
-            if (vm.ivSettings.display.workshopLogo)
-                addInvoiceWLogo();
-            if (vm.ivSettings.display.footerLogo)
-                addInvoiceFLogo();
         }
 
         function goBack() {

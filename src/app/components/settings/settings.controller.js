@@ -2,18 +2,24 @@
  * Controller for Settings component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.2
+ * @version 0.7.3
  */
 
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
+    const fs = require('fs-extra');
     const ipcRenderer = require('electron').ipcRenderer;
     const electron = require('electron').remote;
+    const BrowserWindow = require('electron').remote.BrowserWindow;
     const fse = require('fs-extra');
     const amApp = electron.app;
     const dialog = electron.dialog;
     const ammPreferences = require('./automint_modules/am-preferences.js');
+
+    var TOKEN_DIR = process.resourcesPath + "/app.asar.unpacked/";
+    // var TOKEN_DIR = __dirname + "/../../../app.asar.unpacked/";
+    var TOKEN_PATH = TOKEN_DIR + 'google-cred.json';
 
     angular.module('automintApp').controller('amCtrlSettings', SettingsController);
 
@@ -146,7 +152,9 @@
         vm.cloudSettings.submit = csSubmit;
         vm.cloudSettings.changeAvailability = csChangeAvailability;
         vm.cloudSettings.changePassword = csChangePassword;
-
+        vm.saveFranchiseChannelName = saveFranchiseChannelName;
+        vm.changeDefaultFranchiseChannel = changeDefaultFranchiseChannel;
+        vm.clearEmailSignInDetails = clearEmailSignInDetails;
         $rootScope.loadSettingsBlock = loadBlock;
         //  function maps [END]
 
@@ -163,6 +171,25 @@
         //  default execution steps [END]
 
         //  function definitions
+
+        function clearEmailSignInDetails() {
+            fs.remove(TOKEN_PATH, deletedCredFile);
+
+            function deletedCredFile(err) {
+                if (err) {
+                    console.error(err);
+                    utils.showSimpleToast('Could not clear Sign In details');
+                    return;
+                }
+                BrowserWindow.getFocusedWindow().webContents.session.clearStorageData({
+                    storages: ['cookies']
+                }, done);
+            }
+
+            function done() {
+                utils.showSimpleToast('Sign In data has been cleared');
+            }
+        }
 
         function loadBlock() {
             if ($rootScope.busyApp.show == true)
@@ -182,6 +209,73 @@
             getLoginState();
             // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
             // changeTaxTab(true);     //  testing purposes amTODO: remove it
+            loadCloudChannelValues();
+        }
+
+        function saveFranchiseChannelName(franchise, i) {
+            if (franchise.name == '') {
+                utils.showSimpleToast('You must give a name to franchise.');
+                vm.franchiseChannels[i].name = utils.convertToTitleCase(franchise.id.replace('.', ' '));
+                return;
+            }
+            amLoginSettings.saveCloudChannelName(vm.franchiseChannels).then(success).catch(failure);
+
+            function success(res) {
+                utils.showSimpleToast('Franchise name saved successfully');
+                $rootScope.loadChannelValues();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Could not save Franchise name. Please Try Again!');
+                vm.franchiseChannels[i].name = utils.convertToTitleCase(franchise.id.replace('.', ' '));
+            }
+        }
+
+        function changeDefaultFranchiseChannel() {
+            amLoginSettings.saveDefaultFranchiseChannel(vm.defaultFranchiseChannel).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok)
+                    utils.showSimpleToast('Default Franchise saved successfully');
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Could not save Default Franchise. Please Try Again!');
+            }
+        }
+
+        function loadCloudChannelValues() {
+            if ($rootScope.amGlobals.isFranchise != true)
+                return;
+            vm.franchiseChannels = [];
+            amLoginSettings.getCloudChannelNames().then(success).catch(failure);
+
+            function success(res) {
+                Object.keys(res.channels).forEach(iterateMaps);
+                if (res.default != undefined)
+                    vm.defaultFranchiseChannel = res.default;
+
+                function iterateMaps(m) {
+                    vm.franchiseChannels.push({
+                        id: m,
+                        name: res.channels[m]
+                    });
+                }
+            }
+
+            function failure(err) {
+                $rootScope.amGlobals.franchiseChannels.forEach(iterateFranchiseChannels);
+
+                function iterateFranchiseChannels(fc) {
+                    console.log(fc);
+                    vm.franchiseChannels.push({
+                        id: fc,
+                        name: utils.convertToTitleCase(fc.replace('.', ' '))
+                    });
+                }
+            }
         }
 
         function csChangePassword(event) {

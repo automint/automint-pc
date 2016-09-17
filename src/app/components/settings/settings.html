@@ -114,7 +114,7 @@
                             </div>
                             <md-progress-linear md-mode="indeterminate" ng-show="vm.isCsvProcessed"></md-progress-linear>
                             <div layout="column" layout-margin>
-                                <span class="md-body-1"><span style="font-size: small">First row of the CSV file must be the header row, divided into fields like this;</span><br><i style="font-weight: 500">name, mobile, registration, manufacturer, model.</i></span>
+                                <span class="md-body-1"><span style="font-size: small">First row of the CSV file must be the header row, divided into fields like this;</span><br><i style="font-weight: 500">name, mobile, registration, manufacturer, model, date, services, status (paid/pending)</i></span>
                             </div>
                         </md-card-content>
                     </md-card>
@@ -349,6 +349,17 @@
                         </md-card-contnet>
                     </md-card>
                     <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-content layout="row" layout-align="start center" style="padding: 8px 16px">
+                            <span class="md-title">Email Account</span>
+                            <span flex></span>
+                            <md-button class="md-raised" ng-click="vm.clearEmailSignInDetails()">
+                                <md-icon>clear_all</md-icon>
+                                <span layout-margin>Clear Details</span>
+                                <md-tooltip>Clear your sign in details</md-tooltip>
+                            </md-button>
+                        </md-card-content>
+                    </md-card>
+                    <md-card class="md-hue-1 am-box-shadow">
                         <md-card-content>
                             <div layout="row">
                                 <span class="md-title">Printing Margin&nbsp;<span style="font-size: small">(in cm)</span></span>
@@ -483,6 +494,11 @@
                 color: #1565C0;
                 text-decoration: none;
             }
+
+            #ami-username[disabled] {
+                background: white;
+                border: 0;
+            }
         </style>
         <md-tab label="Cloud" md-active="vm.cloudTab" md-on-deselect="vm.changeCloudTab(false)">
             <md-content class="md-padding" layout="column" layout-align="start center">
@@ -513,6 +529,35 @@
                                     <md-icon>send</md-icon>
                                 </md-button>
                                 <span class="am-change-password" ng-show="vm.cloudSettings.isLicensed" ng-click="vm.cloudSettings.changePassword($event)">Change Password</span>
+                            </div>
+                        </div>
+                    </md-card-content>
+                </md-card>
+                <style>
+                    .am-cloudchannel-names {
+                        padding: 0 24px 16px;
+                    }
+                </style>
+                <md-card class="md-hue-1" style="min-width: 600px;" ng-show="$root.amGlobals.isFranchise">
+                    <md-card-content style="padding: 0">
+                        <div layout="row" layout-align="start center" style="padding: 16px 24px">
+                            <span class="md-body-2">Franchise Names</span>
+                        </div>
+                        <div class="am-cloudchannel-names">
+                            <md-radio-group ng-model="vm.defaultFranchiseChannel" ng-change="vm.changeDefaultFranchiseChannel()">
+                                <table>
+                                    <tbody>
+                                        <tr ng-repeat="channel in vm.franchiseChannels">
+                                            <th align="left">
+                                                <md-radio-button ng-value="channel.id" style="margin-bottom: 0" layout="row" layout-align="start center"><md-tooltip>Make {{channel.name}} as default ?</md-tooltip><span class="md-caption">{{channel.id}}:</span>&nbsp;</md-radio-button>
+                                            </th>
+                                            <td><input type="text" id="ami-password" class="am-box-input" ng-model="channel.name" ng-blur="vm.saveFranchiseChannelName(channel, $index)" flex></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </md-radio-group>
+                            <div layout="row" layout-align="start center" style="margin-top: 16px">
+                                <span class="md-caption"><i>Click on radio (circled) button to make Franchise default</i></span>
                             </div>
                         </div>
                     </md-card-content>
