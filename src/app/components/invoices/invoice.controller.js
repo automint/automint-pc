@@ -8,6 +8,10 @@
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
+    const ammPrint = require('./automint_modules/print/am-print.js');
+    const ammMailApi = require('./automint_modules/am-mailer.js');
+    const eIpc = require("electron").ipcRenderer;
+
     angular.module('automintApp').controller('amCtrlIvRI', InvoiceController);
 
     //  dependency injections for Invoice controller
@@ -18,7 +22,7 @@
         var vm = this;
 
         //  temporary assignments for the instance
-        //  no such assignments
+        var oCustomerEmail = undefined;
 
         //  named assignments to view model
         vm.currencySymbol = "Rs.";
@@ -46,6 +50,12 @@
         vm.acVehicleReg = acVehicleReg;
         vm.acServiceDate = acServiceDate;
         vm.IsA4Size = IsA4Size;
+        vm.editService = editService;
+        vm.printInvoice = printInvoice;
+        vm.askEmail = askEmail;
+
+        //  electron watchers
+        eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
 
         //  default execution steps
         if ($state.params.userId == undefined || $state.params.vehicleId == undefined || $state.params.serviceId == undefined) {
@@ -58,6 +68,101 @@
 
         //  function definitions
 
+        function OnInvoiceMailSent(event, arg) {
+            var message = (arg) ? 'Mail has been sent!' : 'Could not sent email. Please Try Again!'; 
+            utils.showSimpleToast(message);
+        }
+
+        function askEmail(event) {
+            $mdDialog.show({
+                controller: 'amIvConfirmEmailCtrl',
+                controllerAs: 'vm',
+                templateUrl: 'app/components/invoices/addons/confirmemail.html',
+                parent: angular.element(document.body),
+                targetEvent: event,
+                locals: {
+                    utils: utils,
+                    user: vm.user
+                },
+                clickOutsideToClose: true
+            }).then(doMailInvoice).catch(doNothing);
+
+            function doMailInvoice(result) {
+                vm.user.email = result;
+                if (vm.user.email != oCustomerEmail)
+                    amInvoice.saveCustomerEmail($state.params.userId, vm.user.email).then(doNothing).catch(doNothing);
+                mailInvoice();
+            }
+
+            function doNothing(something) {
+                //  do nothing
+            }
+        }
+
+        function mailInvoice() {
+            if (vm.user.email == undefined || vm.user.email == '') {
+                utils.showSimpleToast(vm.user.name + '\'s email has not been set. Email can not be sent!');
+                return;
+            }
+            var printObj = document.getElementById('am-mail-body');
+            utils.showSimpleToast('Sending Mail...');
+            ammMailApi.send(printObj.innerHTML, vm.user, (vm.workshop) ? vm.workshop.name : undefined, (vm.settings) ? vm.settings.emailsubject : undefined);
+        }
+
+        function printInvoice() {
+            var amSocialFacebook = document.getElementById('am-social-facebook');
+            var amSocialInstagram = document.getElementById('am-social-instagram');
+            var amSocialTwitter = document.getElementById('am-social-twitter');
+
+            if (vm.isSocialLinkVisible) {
+                if (vm.isFacebookLinkVisible) {
+                    var ic = document.createElement('canvas'),
+                        icontext = ic.getContext('2d');
+                    ic.width = amSocialFacebook.width;
+                    ic.height = amSocialFacebook.height;
+                    icontext.drawImage(amSocialFacebook, 0, 0, amSocialFacebook.width, amSocialFacebook.height);
+                    amSocialFacebook.src = ic.toDataURL();
+                }
+                if (vm.isInstagramLinkVisible) {
+                    var ic = document.createElement('canvas'),
+                        icontext = ic.getContext('2d');
+                    ic.width = amSocialInstagram.width;
+                    ic.height = amSocialInstagram.height;
+                    icontext.drawImage(amSocialInstagram, 0, 0, amSocialInstagram.width, amSocialInstagram.height);
+                    amSocialInstagram.src = ic.toDataURL();
+                }
+                if (vm.isTwitterLinkVisible) {
+                    var ic = document.createElement('canvas'),
+                        icontext = ic.getContext('2d');
+                    ic.width = amSocialTwitter.width;
+                    ic.height = amSocialTwitter.height;
+                    icontext.drawImage(amSocialTwitter, 0, 0, amSocialTwitter.width, amSocialTwitter.height);
+                    amSocialTwitter.src = ic.toDataURL();
+                }
+            }
+
+            var printObj = document.getElementById('am-print-body');
+            ammPrint.doPrint(printObj.innerHTML);
+
+            if (vm.isSocialLinkVisible) {
+                if (vm.isFacebookLinkVisible)
+                    amSocialFacebook.src = 'assets/img/facebook.svg';
+                if (vm.isInstagramLinkVisible)
+                    amSocialInstagram.src = 'assets/img/instagram.svg';
+                if (vm.isTwitterLinkVisible)
+                    amSocialTwitter.src = 'assets/img/twitter.svg';
+            }
+        }
+
+        function editService() {
+            $state.go('restricted.services.edit', {
+                userId: $state.params.userId,
+                vehicleId: $state.params.vehicleId,
+                serviceId: $state.params.serviceId,
+                fromState: 'invoice'
+            });
+        }
+
         function loadInvoiceFLogo() {
             var source = localStorage.getItem('invoice-f-pic');
             if (source == undefined) {
@@ -65,12 +170,16 @@
                     vm.settings.display.footerLogo = false;
                 return;
             }
-            var elem = document.getElementById('am-footerlogo-holder');
-            if (elem.hasChildNodes())
-                return;
-            var x = document.createElement("IMG");
-            x.setAttribute("src", source);
-            elem.appendChild(x);
+            var elems = document.getElementsByName('am-footerlogo-holder');
+            elems.forEach(iterateElements);
+
+            function iterateElements(elem) {
+                if (elem.hasChildNodes())
+                    return;
+                var x = document.createElement("IMG");
+                x.setAttribute("src", source);
+                elem.appendChild(x);
+            }
         }
 
         function loadInvoiceWLogo() {
@@ -80,14 +189,18 @@
                     vm.settings.display.workshopLogo = false;
                 return;
             }
-            var elem = document.getElementById('am-workshoplogo-holder');
-            if (elem.hasChildNodes())
-                    return;
-            var x = document.createElement("IMG");
-            x.setAttribute("src", source);
-            x.setAttribute("width", "250");
-            x.setAttribute("height", "125");
-            elem.appendChild(x);
+            var elems = document.getElementsByName('am-workshoplogo-holder');
+            elems.forEach(iterateElements);
+
+            function iterateElements(elem) {
+                if (elem.hasChildNodes())
+                        return;
+                var x = document.createElement("IMG");
+                x.setAttribute("src", source);
+                x.setAttribute("width", "250");
+                x.setAttribute("height", "125");
+                elem.appendChild(x);
+            }
         }
 
         function IsA4Size() {
@@ -134,6 +247,7 @@
 
             function usersuccess(res) {
                 vm.user = res.user;
+                oCustomerEmail = res.user.email;
                 vm.vehicle = res.vehicle;
                 vm.service = res.service;
                 if (vm.service.discount != undefined) {
@@ -149,7 +263,6 @@
 
             function settingssuccess(res) {
                 vm.settings = res;
-                console.log(res);
                 if (vm.settings.display != undefined) {
                     if (vm.settings.display.workshopLogo == true)
                         setTimeout(loadInvoiceWLogo, 300);
@@ -169,6 +282,12 @@
                     vm.isFacebookLinkVisible = ((res.social.facebook != undefined) && (res.social.facebook != ''));
                     vm.isInstagramLinkVisible = ((res.social.instagram != undefined) && (res.social.instagram != ''));
                     vm.isTwitterLinkVisible = ((res.social.twitter != undefined) && (res.social.twitter != ''));
+                    if (vm.isFacebookLinkVisible)
+                        vm.facebooklink = 'https://facebook.com/' + vm.workshop.social.facebook;
+                    if (vm.isInstagramLinkVisible)
+                        vm.instagramlink = 'https://instagram.com/' + vm.workshop.social.instagram;
+                    if (vm.isTwitterLinkVisible)
+                        vm.twitterlink = 'https://twitter.com/' + vm.workshop.social.twitter;
                     vm.isSocialLinkVisible = ((res.social.enabled == true) && (vm.isFacebookLinkVisible || vm.isTwitterLinkVisible || vm.isInstagramLinkVisible));
                 }
             }

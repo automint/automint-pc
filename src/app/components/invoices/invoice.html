@@ -3,7 +3,7 @@
         <md-icon aria-label="Back">arrow_back</md-icon>
     </md-button>
     <div flex></div>
-    <md-button aria-label="Email" class="md-fab md-raised md-mini" ng-click="vm.initiateMailInvoiceProcess($event)">
+    <md-button aria-label="Email" class="md-fab md-raised md-mini" ng-click="vm.askEmail($event)">
         <md-icon aria-label="Email">email</md-icon>
         <md-tooltip md-direction="bottom">Email</md-tooltip>
     </md-button>
@@ -21,7 +21,7 @@
     </md-button>
 </md-content>
 <md-divider></md-divider>
-<md-content class="am-white-background">
+<md-content class="am-white-background" ng-hide="false">
     <style>
         .am-default-cursor {
             cursor: default;
@@ -164,7 +164,7 @@
                                 <input type="text" ng-model="vm.workshop.city" placeholder="Workshop City" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopCity()">
                                 <span class="am-flex-layout center am-font s9"><i class="s7 am-default-cursor">(M)</i>&nbsp;<input type="text" ng-model="vm.workshop.phone" placeholder="Workshop Contact Number" class="am-invoice-input" style="flex: 1"></span>
                             </div>
-                            <div class="am-flex-layout center end" style="flex: 1" id="am-workshoplogo-holder" ng-if="vm.settings.display.workshopLogo"></div>
+                            <div class="am-flex-layout center end" style="flex: 1" name="am-workshoplogo-holder" ng-if="vm.settings.display.workshopLogo"></div>
                         </div>
                         <hr style="background: grey; opacity: 0.2; margin: 0 30px 8px" ng-if="vm.isWorkshopAreaVisible">
                     </td>
@@ -246,7 +246,7 @@
                     <td colspan="3">
                         <div class="am-flex-layout" ng-class="{'am-footer-margintop': !vm.isSubtotalVisible}">
                             <span class="s9 w400 cgrey700 am-default-cursor" style="line-height: 1.1">Notes:</span>
-                            <textarea class="s10 am-notes-input" style="flex: 1;" rows="2"></textarea>
+                            <textarea class="s10 am-notes-input" ng-model="vm.notes" style="flex: 1;" rows="2"></textarea>
                         </div>
                     </td>
                     <td colspan="2">
@@ -295,7 +295,618 @@
                 </tr>
                 <tr>
                     <td colspan="100%">
-                        <div class="am-flex-layout center middle" id="am-footerlogo-holder" ng-if="vm.settings.display.footerLogo"></div>
+                        <div class="am-flex-layout center middle" name="am-footerlogo-holder" ng-if="vm.settings.display.footerLogo"></div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</md-content>
+<md-content class="am-white-background" id="am-print-body" ng-hide="true">
+    <style>
+        .am-default-cursor {
+            cursor: default;
+        }
+        .am-iv-table {
+            border-spacing: 0;
+            border-collapse:collapse;
+        }
+        .am-iv-table.a4size {
+            min-height: 297mm;
+        }
+        .am-iv-table .am-table-body td {
+            padding: 8px;
+        }
+        .am-iv-table .am-table-body .money-control.subtotal td {
+            padding: 8px 8px 4px;
+        }
+        .am-iv-table .am-table-body .money-control td {
+            padding: 6px 8px;
+        }
+        .am-iv-table .am-table-body .apply-title-border td {
+            border: thin solid #616161;
+        }
+        .am-iv-table .am-table-body .apply-default-border td {
+            border: thin solid #E0E0E0;
+        }
+        .am-iv-table .am-table-body .apply-total-border td {
+            border-top: thin solid #E0E0E0;
+        }
+        .am-flex-layout {
+            display: flex;
+        }
+        .am-flex-layout.center {
+            align-items: center;
+        }
+        .am-flex-layout.middle {
+            justify-content: center;
+        }
+        .am-flex-layout.end {
+            justify-content: flex-end;
+        }
+        .am-flex-layout.column {
+            flex-direction: column
+        }
+        .am-font {
+            font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
+            line-height: 1.5;
+        }
+        .am-font.lh1-8, lh1-8 {
+            line-height: 1.8;
+        }
+        .am-font.w400, .w400 {
+            font-weight: 400;
+        }
+        .am-font.w600, .w600 {
+            font-weight: 600;
+        }
+        .am-font.s7, .s7 {
+            font-size: 7pt;
+        }
+        .am-font.s9, .s9 {
+            font-size: 9pt;
+        }
+        .am-font.s10, .s10 {
+            font-size: 10pt;
+        }
+        .am-font.s11, .s11 {
+            font-size: 11pt;
+        }
+        .am-font.s12, .s12 {
+            font-size: 11pt;
+        }
+        .am-font.s14, .s14 {
+            font-size: 14pt;
+        }
+        .am-font.cgrey700, .cgrey700 {
+            color: #616161;
+        }
+        .am-font.cgrey800, .cgrey800 {
+            color: #424242;
+        }
+        .am-invoice-input::-webkit-input-placeholder {
+            color: white;
+            transition: color 300ms ease;
+        }
+        .am-invoice-input:hover::-webkit-input-placeholder {
+            color: #BDBDBD;
+        }
+        .am-invoice-input {
+            border: 0;
+            border-bottom: 1px solid white;
+            outline: none;
+            transition: border-bottom 300ms ease;
+        }
+        .am-invoice-input:hover {
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .am-invoice-input.item {
+            width: 100%;
+            border-bottom: 0 !important;
+        }
+        .am-invoice-input.item:hover {
+            border-bottom: 0 !important;
+        }
+        .am-notes-input {
+            border: 0;
+            border-bottom: 1px solid #EEEEEE;
+            padding: 0 10px;
+            outline: none;
+        }
+        .am-itemheader-index {
+            width: 5%;
+        }
+        .am-itemheader-item {
+            width: 63%;
+        }
+        .am-itemheader-qty {
+            width: 6%;
+        }
+        .am-itemheader-rate {
+            width: 12%;
+        }
+        .am-itemheader-amount {
+            width: 12%;
+        }
+        .am-footer-margintop {
+            margin-top: 6px;
+        }
+    </style>
+    <div style="padding: 24px;">
+        <table style="width: 100%; margin-top: {{vm.settings.margin.top}}cm; margin-bottom: {{vm.settings.margin.bottom}}cm" class="am-iv-table" ng-class="{'a4size': vm.IsA4Size()}">
+            <thead>
+                <tr>
+                    <td colspan="100%">
+                        <div class="am-flex-layout center">
+                            <div class="am-flex-layout column" style="flex: 1; padding-bottom: 4px" ng-if="vm.settings.display.workshopDetails">
+                                <span class="am-font s14 w600">{{vm.workshop.name}}</span>
+                                <span class="am-font s9">{{vm.workshop.address1}}</span>
+                                <span class="am-font s9">{{vm.workshop.address2}}</span>
+                                <span class="am-font s9">{{vm.workshop.city}}</span>
+                                <span class="am-font s9"><i class="s7">(M)</i>&nbsp;{{vm.workshop.phone}}</span>
+                            </div>
+                            <div class="am-flex-layout center end" style="flex: 1" name="am-workshoplogo-holder" ng-if="vm.settings.display.workshopLogo"></div>
+                        </div>
+                        <hr style="background: grey; opacity: 0.2; margin: 0 30px 8px" ng-if="vm.isWorkshopAreaVisible">
+                    </td>
+                </tr>
+                <tr class="am-row-invoice-details">
+                    <td colspan="100%">
+                        <table style="width: 100%">
+                            <tr>
+                                <td style="vertical-align: middle;">
+                                    <div class="am-flex-layout column">
+                                        <span class="am-font s11 lh1-8 cgrey800 am-default-cursor">Bill To:</span>
+                                        <div class="am-flex-layout center am-font">
+                                            <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Name:&nbsp;</span>
+                                            <span class="s10">{{vm.user.name}}</span>
+                                        </div>
+                                        <div class="am-flex-layout center am-font">
+                                            <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Mobile:&nbsp;</span>
+                                            <span class="s10">{{vm.user.mobile}}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <div class="am-flex-layout column">
+                                        <div class="am-flex-layout center am-font">
+                                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Vehicle:&nbsp;</span>
+                                            <span class="s10">{{vm.vehicle.name}}</span>
+                                        </div>
+                                        <div class="am-flex-layout center am-font">
+                                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Registration:&nbsp;</span>
+                                            <span class="s10">{{vm.vehicle.reg}}</span>
+                                        </div>
+                                        <div class="am-flex-layout center am-font">
+                                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Odometer:&nbsp;</span>
+                                            <span class="s10">{{vm.service.odo}}</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td style="vertical-align: middle;" align="right">
+                                    <div class="am-flex-layout column am-font">
+                                        <span class="s14 am-default-cursor" style="line-height: 1">Invoice</span>
+                                        <span class="s9 cgrey700 am-default-cursor">#{{vm.service.invoiceno}}</span>
+                                    </div>
+                                    <div class="am-flex-layout center end am-font">
+                                        <span class="s9 w400 cgrey700 am-default-cursor">Date:&nbsp;</span>
+                                        <span class="s10">{{vm.service.date}}</span>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                        <hr style="opacity: 0; margin-bottom: 16px;">
+                    </td>
+            </thead>
+            <tbody class="am-table-body">
+                <tr class="am-font s10 apply-title-border" style="color: white; background: #424242; height: 0">
+                    <td class="am-itemheader-index" style="text-align: center; padding: 8px 0; border-left: 0"><span class="am-default-cursor">#</span></td>
+                    <td class="am-itemheader-item"><span class="am-default-cursor">Item & Description</span></td>
+                    <td class="am-itemheader-qty" style="text-align: right"><span class="am-default-cursor">Qty</span></td>
+                    <td class="am-itemheader-rate" style="text-align: right"><span class="am-default-cursor">Rate</span></td>
+                    <td class="am-itemheader-amount" style="text-align: right; border-right: 0"><span class="am-default-cursor">Amount</span></td>
+                </tr>
+                <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, problem) in vm.service.problems">
+                    <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getProblemIndex($index)}}</span>
+                    <td><span class="s9">{{name}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">1</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{problem.rate}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{problem.amount}}</span></td>
+                </tr>
+                <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, inventory) in vm.service.inventories">
+                    <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getInventoryIndex($index)}}</span></td>
+                    <td><span class="s9">{{name}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{inventory.qty}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{inventory.rate}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{inventory.amount}}</span></td>
+                </tr>
+                <tr></tr>
+            </tbody>
+            <tfoot>
+                <tr class="am-font s9" style="vertical-align: bottom">
+                    <td colspan="3">
+                        <div class="am-flex-layout" ng-class="{'am-footer-margintop': !vm.isSubtotalVisible}">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="line-height: 1.1">Notes:</span>
+                            <span class="s10">{{vm.notes}}</span>
+                        </div>
+                    </td>
+                    <td colspan="2">
+                        <table style="width: 100%;">
+                            <tr class="am-font s9" ng-if="vm.isSubtotalVisible">
+                                <td style="text-align: right"><span class="am-default-cursor">Subtotal:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.service.subtotal}}</span></td>
+                            </tr>
+                            <tr class="am-font s9" ng-if="vm.isDiscountVisible">
+                                <td style="text-align: right"><span class="am-default-cursor">Discount:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.service.discount.total}}</span></td>
+                            </tr>
+                            <tr class="am-font s9" ng-repeat="(taxname, tax) in vm.service.taxes" ng-if="vm.IsTaxVisible(tax)">
+                                <td style="text-align: right"><span class="am-default-cursor">{{taxname}}:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{tax.tax}}</span></td>
+                            </tr>
+                            <tr class="am-font s9" ng-if="vm.isRoundOffVisible">
+                                <td style="text-align: right"><span class="am-default-cursor">Round Off:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.service.roundoff}}</span></td>
+                            </tr>
+                            <tr class="am-font s9">
+                                <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
+                                <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.service.cost}}</span></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr class="am-font s9">
+                    <td colspan="100%">
+                        <div class="am-flex-layout center middle" style="padding: 16px" ng-if="vm.isSocialLinkVisible">
+                            <span style="margin-right: 16px" class="am-default-cursor">Follow Us on:</span>
+                            <a class="am-flex-layout center" ng-if="vm.isFacebookLinkVisible" style="margin-right: 4px;">
+                                <img src="assets/img/facebook.svg" width="15" height="15" id="am-social-facebook">
+                                <span>/</span>{{vm.workshop.social.facebook}}
+                            </a>
+                            <a class="am-flex-layout center" ng-if="vm.isInstagramLinkVisible" style="margin: 0 4px;">
+                                <img src="assets/img/instagram.svg" width="15" height="15" id="am-social-instagram">
+                                <span>/</span>{{vm.workshop.social.instagram}}
+                            </a>
+                            <a class="am-flex-layout center" ng-if="vm.isTwitterLinkVisible" style="margin: 0 4px">
+                                <img src="assets/img/twitter.svg" width="15" height="15" id="am-social-twitter">
+                                <span>/</span>{{vm.workshop.social.twitter}}
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="100%">
+                        <div class="am-flex-layout center middle" name="am-footerlogo-holder" ng-if="vm.settings.display.footerLogo"></div>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</md-content>
+<md-content class="am-white-background" id="am-mail-body" ng-hide="true">
+    <style>
+        .am-default-cursor {
+            cursor: default;
+        }
+        .am-iv-table {
+            border-spacing: 0;
+            border-collapse:collapse;
+        }
+        .am-iv-table.a4size {
+            min-height: 297mm;
+        }
+        .am-iv-table .am-table-body td {
+            padding: 8px;
+        }
+        .am-iv-table .am-table-body .money-control.subtotal td {
+            padding: 8px 8px 4px;
+        }
+        .am-iv-table .am-table-body .money-control td {
+            padding: 6px 8px;
+        }
+        .am-iv-table .am-table-body .apply-title-border td {
+            border: thin solid #616161;
+        }
+        .am-iv-table .am-table-body .apply-default-border td {
+            border: thin solid #E0E0E0;
+        }
+        .am-iv-table .am-table-body .apply-total-border td {
+            border-top: thin solid #E0E0E0;
+        }
+        .am-flex-layout {
+            display: flex;
+        }
+        .am-flex-layout.center {
+            align-items: center;
+        }
+        .am-flex-layout.middle {
+            justify-content: center;
+        }
+        .am-flex-layout.end {
+            justify-content: flex-end;
+        }
+        .am-flex-layout.column {
+            flex-direction: column
+        }
+        .am-font {
+            font-family: "Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Lucida Sans", Tahoma, sans-serif;
+            line-height: 1.5;
+        }
+        .am-font.lh1-8, lh1-8 {
+            line-height: 1.8;
+        }
+        .am-font.w400, .w400 {
+            font-weight: 400;
+        }
+        .am-font.w600, .w600 {
+            font-weight: 600;
+        }
+        .am-font.s7, .s7 {
+            font-size: 7pt;
+        }
+        .am-font.s9, .s9 {
+            font-size: 9pt;
+        }
+        .am-font.s10, .s10 {
+            font-size: 10pt;
+        }
+        .am-font.s11, .s11 {
+            font-size: 11pt;
+        }
+        .am-font.s12, .s12 {
+            font-size: 11pt;
+        }
+        .am-font.s14, .s14 {
+            font-size: 14pt;
+        }
+        .am-font.cgrey700, .cgrey700 {
+            color: #616161;
+        }
+        .am-font.cgrey800, .cgrey800 {
+            color: #424242;
+        }
+        .am-invoice-input::-webkit-input-placeholder {
+            color: white;
+            transition: color 300ms ease;
+        }
+        .am-invoice-input:hover::-webkit-input-placeholder {
+            color: #BDBDBD;
+        }
+        .am-invoice-input {
+            border: 0;
+            border-bottom: 1px solid white;
+            outline: none;
+            transition: border-bottom 300ms ease;
+        }
+        .am-invoice-input:hover {
+            border-bottom: 1px solid #E0E0E0;
+        }
+        .am-invoice-input.item {
+            width: 100%;
+            border-bottom: 0 !important;
+        }
+        .am-invoice-input.item:hover {
+            border-bottom: 0 !important;
+        }
+        .am-notes-input {
+            border: 0;
+            border-bottom: 1px solid #EEEEEE;
+            padding: 0 10px;
+            outline: none;
+        }
+        .am-itemheader-index {
+            width: 5%;
+        }
+        .am-itemheader-item {
+            width: 63%;
+        }
+        .am-itemheader-qty {
+            width: 6%;
+        }
+        .am-itemheader-rate {
+            width: 12%;
+        }
+        .am-itemheader-amount {
+            width: 12%;
+        }
+        .am-footer-margintop {
+            margin-top: 6px;
+        }
+        .am-social-link {
+            text-decoration: none;
+            color: #616161;
+            transition: color 300ms ease;
+        }
+        .am-social-link:hover {
+            color: #424242;
+        }
+    </style>
+    <div style="padding: 0;">
+        <table style="width: 100%;" class="am-iv-table">
+            <thead>
+                <tr>
+                    <td colspan="100%">
+                        <table style="width: 100%">
+                            <tr>
+                                <td>
+                                    <table style="width: 100%">
+                                        <tr>
+                                            <td><span class="am-font s14 w600">{{vm.workshop.name}}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="am-font s9">{{vm.workshop.address1}}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="am-font s9">{{vm.workshop.address2}}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="am-font s9">{{vm.workshop.city}}</span></td>
+                                        </tr>
+                                        <tr>
+                                            <td><span class="am-font s9"><i class="s7">(M)</i>&nbsp;{{vm.workshop.phone}}</span></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="vertical-align: middle;" align="right">
+                                    <table>
+                                        <tr>
+                                            <td style="text-align: right">
+                                                <span class="s14 am-default-cursor" style="line-height: 1">Invoice</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td style="text-align: right">
+                                                <span class="s9 cgrey700 am-default-cursor">#{{vm.service.invoiceno}}</span>
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <span class="s9 w400 cgrey700 am-default-cursor">Date:&nbsp;</span>
+                                                <span class="s10">{{vm.service.date}}</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <hr style="background: grey; opacity: 0.2; margin: 0 30px 8px" ng-if="vm.isWorkshopAreaVisible">
+                    </td>
+                </tr>
+                <tr class="am-row-invoice-details">
+                    <td colspan="100%">
+                        <table style="width: 100%">
+                            <tr>
+                                <td style="vertical-align: middle;">
+                                    <table style="width: 100%">
+                                        <tr>
+                                            <td colspan="2"><span class="am-font s11 lh1-8 cgrey800 am-default-cursor">Bill To:</span></td>
+                                        </tr>
+                                        <tr ng-if="vm.user.name">
+                                            <td style="width: 10%">
+                                                <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Name:&nbsp;</span>
+                                            </td>
+                                            <td>
+                                                <span class="s10">{{vm.user.name}}</span>
+                                            </td>
+                                        </tr>
+                                        <tr ng-if="vm.user.mobile">
+                                            <td>
+                                                <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Mobile:&nbsp;</span>
+                                            </td>
+                                            <td>
+                                                <span class="s10">{{vm.user.mobile}}</span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </td>
+                                <td style="vertical-align: middle;">
+                                    <table style="width: 100%" class="am-font">
+                                        <tr ng-if="vm.vehicle.name">
+                                            <td colspan="100%" style="text-align: right">
+                                                <span class="s10">{{vm.vehicle.name}}</span>
+                                            </td>
+                                        </tr>
+                                        <tr ng-if="vm.vehicle.reg">
+                                            <td style="width: 84%; text-align: right"><span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Registration:&nbsp;</span></td>
+                                            <td style="text-align: right"><span class="s10">{{vm.vehicle.reg}}</span></td>
+                                        </tr>
+                                        <tr ng-if="vm.service.odo">
+                                            <td style="width: 84%; text-align: right"><span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Odometer:&nbsp;</span></td>
+                                            <td style="text-align: right"><span class="s10">{{vm.service.odo}}</span></td>
+                                        </tr>
+                                    </table>
+                                </td>
+                            </tr>
+                        </table>
+                        <hr style="opacity: 0; margin-bottom: 16px;">
+                    </td>
+            </thead>
+            <tbody class="am-table-body">
+                <tr class="am-font s10 apply-title-border" style="color: white; background: #424242; height: 0">
+                    <td class="am-itemheader-index" style="text-align: center; padding: 8px 0; border-left: 0"><span class="am-default-cursor">#</span></td>
+                    <td class="am-itemheader-item"><span class="am-default-cursor">Item & Description</span></td>
+                    <td class="am-itemheader-qty" style="text-align: right"><span class="am-default-cursor">Qty</span></td>
+                    <td class="am-itemheader-rate" style="text-align: right"><span class="am-default-cursor">Rate</span></td>
+                    <td class="am-itemheader-amount" style="text-align: right; border-right: 0"><span class="am-default-cursor">Amount</span></td>
+                </tr>
+                <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, problem) in vm.service.problems">
+                    <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getProblemIndex($index)}}</span>
+                    <td><span class="s9">{{name}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">1</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{problem.rate}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{problem.amount}}</span></td>
+                </tr>
+                <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, inventory) in vm.service.inventories">
+                    <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getInventoryIndex($index)}}</span></td>
+                    <td><span class="s9">{{name}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{inventory.qty}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{inventory.rate}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{inventory.amount}}</span></td>
+                </tr>
+                <tr></tr>
+            </tbody>
+            <tfoot>
+                <tr class="am-font s9" style="vertical-align: bottom">
+                    <td colspan="3">
+                        <div style="display: flex">
+                            <span class="s9 w400 cgrey700 am-default-cursor">Notes:&nbsp;</span>
+                            <span class="s10">{{vm.notes}}</span>
+                        </div>
+                    </td>
+                    <td colspan="2">
+                        <table style="width: 100%;">
+                            <tr class="am-font s9" ng-if="vm.isSubtotalVisible">
+                                <td style="text-align: right"><span class="am-default-cursor">Subtotal:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.service.subtotal}}</span></td>
+                            </tr>
+                            <tr class="am-font s9" ng-if="vm.isDiscountVisible">
+                                <td style="text-align: right"><span class="am-default-cursor">Discount:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.service.discount.total}}</span></td>
+                            </tr>
+                            <tr class="am-font s9" ng-repeat="(taxname, tax) in vm.service.taxes" ng-if="vm.IsTaxVisible(tax)">
+                                <td style="text-align: right"><span class="am-default-cursor">{{taxname}}:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{tax.tax}}</span></td>
+                            </tr>
+                            <tr class="am-font s9" ng-if="vm.isRoundOffVisible">
+                                <td style="text-align: right"><span class="am-default-cursor">Round Off:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.service.roundoff}}</span></td>
+                            </tr>
+                            <tr class="am-font s9">
+                                <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
+                                <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.service.cost}}</span></td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+                <tr class="am-font s9">
+                    <td colspan="100%">
+                        <div style="padding: 16px" ng-if="vm.isSocialLinkVisible" style="text-align: center">
+                            <center>
+                                <table>
+                                    <tr>
+                                        <td><span style="margin-right: 16px" class="am-default-cursor">Follow Us on:</span></td>
+                                        <td>
+                                            <a href="{{vm.facebookLink}}" target="_blank" class="am-flex-layout center am-social-link" ng-if="vm.isFacebookLinkVisible" style="margin-right: 4px">
+                                                <img src="https://www.facebook.com/images/fb_icon_325x325.png" width="15" height="15">
+                                                <span>/</span>{{vm.workshop.social.facebook}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{{vm.instagramLink}}" target="_blank" class="am-flex-layout center am-social-link" ng-if="vm.isInstagramLinkVisible" style="margin: 0 4px"> 
+                                                <img src="http://3835642c2693476aa717-d4b78efce91b9730bcca725cf9bb0b37.r51.cf1.rackcdn.com/Instagram_App_Large_May2016_200.png" width="15" height="15">
+                                                <span>/</span>{{vm.workshop.social.instagram}}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <a href="{{vm.twitterLink}}" target="_blank" class="am-flex-layout center am-social-link" ng-if="vm.isTwitterLinkVisible" style="margin: 0 4px">
+                                                <img src="https://g.twimg.com/Twitter_logo_blue.png" width="15" height="15">
+                                                <span>/</span>{{vm.workshop.social.twitter}}
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </center>
+                        </div>
                     </td>
                 </tr>
             </tfoot>

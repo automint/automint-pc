@@ -19,13 +19,33 @@
             getCurrencySymbol: getCurrencySymbol,
             getWorkshopDetails: getWorkshopDetails,
             getServiceDetails: getServiceDetails,
-            getInvoiceSettings: getInvoiceSettings
+            getInvoiceSettings: getInvoiceSettings,
+            saveCustomerEmail: saveCustomerEmail
         }
 
         //  return factory object to root
         return factory;
 
         //  function definitions
+
+        function saveCustomerEmail(userId, email) {
+            var tracker = $q.defer();
+            pdbMain.get(userId).then(getUserObject).catch(failure);
+            return tracker.promise;
+
+            function getUserObject(res) {
+                res.user.email = email;
+                pdbMain.save(res).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function getInvoiceSettings(channel) {
             var tracker = $q.defer();

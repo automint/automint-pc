@@ -11,9 +11,9 @@
     angular.module('automintApp').controller('amIvConfirmEmailCtrl', ConfirmemailController);
 
     //  dependency injections for Confirm Email controller
-    ConfirmemailController.$inject = [];
+    ConfirmemailController.$inject = ['$mdDialog', 'utils', 'user'];
 
-    function ConfirmemailController() {
+    function ConfirmemailController($mdDialog, utils, user) {
         //  initialize view model
         var vm = this;
 
@@ -21,12 +21,24 @@
         //  no such assignments
 
         //  named assignments for view model
-        //  no such assignments
+        vm.user = user;
 
         //  function maps to view model
-        //  no such assignments
+        vm.sendInvoice = sendInvoice;
+        vm.cancelInvoice = cancelInvoice;
         
         //  function definitions
-        //  no such definitions
+        
+        function sendInvoice() {
+            if (vm.user.email == '' || vm.user.email == undefined) {
+                utils.showSimpleToast('Please Enter Email Address');
+                return;
+            }
+            $mdDialog.hide(vm.user.email);
+        }
+
+        function cancelInvoice() {
+            $mdDialog.cancel();
+        }
     }
 })();

@@ -2,7 +2,7 @@
  * Closure for state definitions and mappings to template files
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.8.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -561,6 +561,7 @@
             return $ocLazyLoad.load([
                 'material-datatable',
                 'app/components/invoices/invoice.controller.js',
+                'app/components/invoices/addons/confirmemail.controller.js'
             ])
         }
         function loadInvoicesDeps($ocLazyLoad) {
