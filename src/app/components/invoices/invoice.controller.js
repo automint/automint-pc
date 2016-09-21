@@ -70,9 +70,7 @@
         //  function definitions
 
         function parseNotes() {
-            // vm.notes = vm.settings.notes.note;
             vm.notes = (vm.settings.notes.note !== undefined) ? vm.settings.notes.note.replace(/\n/g, '<br>') : '';
-            console.log(vm.notes);
         }
 
         function OnInvoiceMailSent(event, arg) {
@@ -257,6 +255,15 @@
                 oCustomerEmail = res.user.email;
                 vm.vehicle = res.vehicle;
                 vm.service = res.service;
+                if (vm.service.status.toLowerCase() == 'due') {
+                    if (vm.service.partialpayment == undefined) {
+                        vm.service.partialpayment = {
+                            total: 0
+                        };
+                    }
+                    vm.paymentdue = parseFloat(vm.service.cost) - parseFloat(vm.service.partialpayment.total);
+                } else
+                    delete vm.service.partialpayment;
                 if (vm.service.discount != undefined) {
                     vm.service.discount.total = parseFloat(vm.service.discount.total);
                     vm.service.discount.total = (vm.service.discount.total % 1 != 0) ? vm.service.discount.total.toFixed(2) : parseInt(vm.service.discount.total); 
