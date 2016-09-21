@@ -244,9 +244,9 @@
             <tfoot>
                 <tr class="am-font s9" style="vertical-align: bottom">
                     <td colspan="3">
-                        <div class="am-flex-layout" ng-class="{'am-footer-margintop': !vm.isSubtotalVisible}">
+                        <div class="am-flex-layout" ng-class="{'am-footer-margintop': !vm.isSubtotalVisible}" ng-if="vm.settings.notes.enabled">
                             <span class="s9 w400 cgrey700 am-default-cursor" style="line-height: 1.1">Notes:</span>
-                            <textarea class="s10 am-notes-input" ng-model="vm.notes" style="flex: 1;" rows="2"></textarea>
+                            <textarea am-elastic-text-area class="s9 am-notes-input" ng-change="vm.parseNotes()" ng-model="vm.settings.notes.note" style="flex: 1;" rows="2"></textarea>
                         </div>
                     </td>
                     <td colspan="2">
@@ -525,9 +525,9 @@
             <tfoot>
                 <tr class="am-font s9" style="vertical-align: bottom">
                     <td colspan="3">
-                        <div class="am-flex-layout" ng-class="{'am-footer-margintop': !vm.isSubtotalVisible}">
-                            <span class="s9 w400 cgrey700 am-default-cursor" style="line-height: 1.1">Notes:</span>
-                            <span class="s10">{{vm.notes}}</span>
+                        <div class="am-flex-layout" ng-class="{'am-footer-margintop': !vm.isSubtotalVisible}" ng-if="vm.settings.notes.enabled">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="margin-right: 6px">Notes:</span>
+                            <span class="s9" ng-bind-html="vm.notes"></span>
                         </div>
                     </td>
                     <td colspan="2">
@@ -848,9 +848,9 @@
             <tfoot>
                 <tr class="am-font s9" style="vertical-align: bottom">
                     <td colspan="3">
-                        <div style="display: flex">
-                            <span class="s9 w400 cgrey700 am-default-cursor">Notes:&nbsp;</span>
-                            <span class="s10">{{vm.notes}}</span>
+                        <div style="display: flex" ng-if="vm.settings.notes.enabled">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="margin-right: 6px">Notes:&nbsp;</span>
+                            <span class="s10" ng-bind-html="vm.notes"></span>
                         </div>
                     </td>
                     <td colspan="2">

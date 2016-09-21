@@ -94,6 +94,10 @@
             isCloudEnabled: false
         };
         vm.isLoginBoxOpen = false;
+        vm.invoiceNotes = {
+            note: '',
+            enabled: false
+        }
 
         //  function maps to view model
         vm.changeInvoiceTab = changeInvoiceTab;
@@ -158,6 +162,7 @@
         vm.saveFranchiseChannelName = saveFranchiseChannelName;
         vm.changeDefaultFranchiseChannel = changeDefaultFranchiseChannel;
         vm.clearEmailSignInDetails = clearEmailSignInDetails;
+        vm.saveInvoiceNotes = saveInvoiceNotes;
         $rootScope.loadSettingsBlock = loadBlock;
 
         //  default execution steps
@@ -179,6 +184,21 @@
             getLoginState();
             loadInvoiceFLogo();
             loadInvoiceWLogo();
+        }
+
+        function saveInvoiceNotes() {
+            amSettings.saveInvoiceNotes(vm.invoiceNotes).then(success).catch(failure);
+
+            function success(res) {
+                if (res.ok)
+                    utils.showSimpleToast('Notes settings saved successfully');
+                else
+                    failure();
+            }
+
+            function failure(err) {
+                utils.showSimpleToast('Could not save notes settings! Please Try Again Later!');
+            }
         }
 
         function clearEmailSignInDetails() {
@@ -1003,6 +1023,9 @@
                     oIvAlignTop = res.settings.invoices.margin.top;
                     oIvAlignBottom = res.settings.invoices.margin.bottom;
                 }
+                //  notes settings
+                if (res.settings.invoices.notes != undefined)
+                    vm.invoiceNotes = res.settings.invoices.notes; 
             }
             //  tax settings
             if (res.settings && res.settings.tax) {

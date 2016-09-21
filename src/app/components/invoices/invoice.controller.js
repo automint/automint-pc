@@ -53,6 +53,7 @@
         vm.editService = editService;
         vm.printInvoice = printInvoice;
         vm.askEmail = askEmail;
+        vm.parseNotes = parseNotes;
 
         //  electron watchers
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
@@ -67,6 +68,12 @@
         getInvoiceDetails();
 
         //  function definitions
+
+        function parseNotes() {
+            // vm.notes = vm.settings.notes.note;
+            vm.notes = (vm.settings.notes.note !== undefined) ? vm.settings.notes.note.replace(/\n/g, '<br>') : '';
+            console.log(vm.notes);
+        }
 
         function OnInvoiceMailSent(event, arg) {
             var message = (arg) ? 'Mail has been sent!' : 'Could not sent email. Please Try Again!'; 
@@ -274,6 +281,8 @@
                     if (vm.settings.margin.enabled != true)
                         delete vm.settings.margin;
                 }
+                if (vm.settings.notes != undefined)
+                    parseNotes();
             }
 
             function workshopsuccess(res) {

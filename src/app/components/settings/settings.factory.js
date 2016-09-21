@@ -33,13 +33,51 @@
             saveIvDisplaySettings: saveIvDisplaySettings,
             saveIvEmailSubject: saveIvEmailSubject,
             getInvoiceSettings: getInvoiceSettings,
-            getAllTaxSettings: getAllTaxSettings
+            getAllTaxSettings: getAllTaxSettings,
+            saveInvoiceNotes: saveInvoiceNotes
         }
 
         // return the holder
         return factory;
 
         //  function definitions
+
+        function saveInvoiceNotes(notes) {
+            var tracker = $q.defer();
+            pdbMain.get($rootScope.amGlobals.configDocIds.settings).then(getSettingsObj).catch(writeSettingsDoc);
+            return tracker.promise;
+
+            function getSettingsObj(res) {
+                if (res.settings == undefined)
+                    res.settings = {};
+                if (res.settings.invoices == undefined)
+                    res.settings.invoices = {};
+                res.settings.invoices.notes = notes;
+                pdbMain.save(res).then(success).catch(failure);
+            }
+
+            function writeSettingsDoc(err) {
+                var doc = {
+                    _id: $rootScope.amGlobals.configDocIds.settings,
+                    creator: $rootScope.amGlobals.creator,
+                    channel: $rootScope.amGlobals.channel,
+                    settings: {
+                        invoices: {
+                            notes: notes
+                        }
+                    }
+                }
+                pdbMain.save(doc).then(success).catch(failure);
+            }
+
+            function success(res) {
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function getAllTaxSettings() {
             var tracker = $q.defer();
