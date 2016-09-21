@@ -548,10 +548,7 @@
                 'app/components/settings/tmpl/changepassword.controller.js',
                 'app/components/settings/settings.controller.js',
                 'app/components/settings/settings-backup.factory.js',
-                'app/components/settings/settings-login.factory.js',
                 'app/components/settings/settings-importdata.service.js',
-                'app/components/settings/settings-invoices.factory.js',
-                'app/components/settings/settings-tax.factory.js',
                 'app/components/settings/settings.factory.js',
                 'assets/js/angular-elastic-input.min.js',
                 'assets/js/jquery.csv.min.js'

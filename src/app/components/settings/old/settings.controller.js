@@ -1,14 +1,13 @@
 /**
- * Controller for Automint Settings Module
+ * Controller for Settings component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.8.0
+ * @version 0.7.3
  */
 
 /// <reference path="../../../typings/main.d.ts" />
 
 (function() {
-    //  import server side modules
     const fs = require('fs-extra');
     const ipcRenderer = require('electron').ipcRenderer;
     const electron = require('electron').remote;
@@ -22,18 +21,15 @@
     // var TOKEN_DIR = __dirname + "/../../../app.asar.unpacked/";
     var TOKEN_PATH = TOKEN_DIR + 'google-cred.json';
 
-    //  now let client breath
     angular.module('automintApp').controller('amCtrlSettings', SettingsController);
 
-    // define dependencies of controller
-    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$mdDialog', '$amLicense', '$amRoot', 'utils', 'amBackup', 'amImportdata', 'amSettings', 'amLogin'];
+    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$log', '$mdDialog', '$amLicense', '$amRoot', 'utils', 'amBackup', 'amLoginSettings', 'amImportdata', 'amIvSettings', 'amTaxSettings', 'amSettings', 'amLogin'];
 
-    //  have fun coding the controller
-    function SettingsController($rootScope, $scope, $state, $mdDialog, $amLicense, $amRoot, utils, amBackup, amImportdata, amSettings, amLogin) {
+    function SettingsController($rootScope, $scope, $state, $log, $mdDialog, $amLicense, $amRoot, utils, amBackup, amLoginSettings, amImportdata, amIvSettings, amTaxSettings, amSettings, amLogin) {
         //  initialize view model
         var vm = this;
 
-        //  temporary named assignments for this instance
+        //  temporary named assignments
         var olino = 0,
             oljbno = 0,
             oleno = 0;
@@ -45,8 +41,8 @@
         var currentTaxFocusIndex = -1;
         var csMessage,
             isAutomintLoggedIn;
-        
-        //  named assignments to view model
+
+        //  named assignments to keep track of UI [BEGIN]
         vm.user = {
             username: '',
             password: ''
@@ -55,7 +51,7 @@
         vm.label_password = 'Enter Password:';
         vm.serviceStateList = ['Job Card', 'Estimate', 'Bill'];
         vm.serviceState = vm.serviceStateList[2];
-        vm.amAppPath = amApp.getPath('userData');
+        vm.amAppPath = 'Default';
         vm.workshop = {
             name: '',
             phone: '',
@@ -94,8 +90,9 @@
             isCloudEnabled: false
         };
         vm.isLoginBoxOpen = false;
+        //  named assignments to keep track of UI [END]
 
-        //  function maps to view model
+        //  function maps [BEGIN]
         vm.changeInvoiceTab = changeInvoiceTab;
         vm.changeUsernameLabel = changeUsernameLabel;
         vm.changePasswordLabel = changePasswordLabel;
@@ -159,8 +156,9 @@
         vm.changeDefaultFranchiseChannel = changeDefaultFranchiseChannel;
         vm.clearEmailSignInDetails = clearEmailSignInDetails;
         $rootScope.loadSettingsBlock = loadBlock;
+        //  function maps [END]
 
-        //  default execution steps
+        //  default execution steps [BEGIN]
         switch ($state.params.openTab) {
             case 'invoice':
                 vm.invoiceTab = true;
@@ -170,16 +168,9 @@
         }
         $rootScope.isCUSection = false;
         loadBlock();
+        //  default execution steps [END]
 
         //  function definitions
-
-        function loadBlock() {
-            amSettings.fetchSettings().then(processSettingsObject).catch(failure);
-            amSettings.fetchWorkshopDetails().then(processWorkshopObject).catch(failure);
-            getLoginState();
-            loadInvoiceFLogo();
-            loadInvoiceWLogo();
-        }
 
         function clearEmailSignInDetails() {
             fs.remove(TOKEN_PATH, deletedCredFile);
@@ -200,13 +191,34 @@
             }
         }
 
+        function loadBlock() {
+            if ($rootScope.busyApp.show == true)
+                $rootScope.busyApp.message = 'Loading Data';
+            getPasscode();
+            getDefaultServiceType();
+            getAmAppDataPath();
+            getWorkshopDetails();
+            getInvoiceSettings();
+            loadInvoiceWLogo();
+            loadInvoiceFLogo();
+            getIvAlignMargins();
+            getAllTaxSettings();
+            getCurrencySymbol();
+            getInvoicePageSize();
+            // changeCloudTab(true) //  testing purposes amTODO: remove it
+            getLoginState();
+            // changeInvoiceTab(true)  //  testing purposes amTODO: remove it
+            // changeTaxTab(true);     //  testing purposes amTODO: remove it
+            loadCloudChannelValues();
+        }
+
         function saveFranchiseChannelName(franchise, i) {
             if (franchise.name == '') {
                 utils.showSimpleToast('You must give a name to franchise.');
                 vm.franchiseChannels[i].name = utils.convertToTitleCase(franchise.id.replace('.', ' '));
                 return;
             }
-            amSettings.saveCloudChannelName(vm.franchiseChannels).then(success).catch(failure);
+            amLoginSettings.saveCloudChannelName(vm.franchiseChannels).then(success).catch(failure);
 
             function success(res) {
                 utils.showSimpleToast('Franchise name saved successfully');
@@ -220,7 +232,7 @@
         }
 
         function changeDefaultFranchiseChannel() {
-            amSettings.saveDefaultFranchiseChannel(vm.defaultFranchiseChannel).then(success).catch(failure);
+            amLoginSettings.saveDefaultFranchiseChannel(vm.defaultFranchiseChannel).then(success).catch(failure);
 
             function success(res) {
                 if (res.ok)
@@ -238,7 +250,7 @@
             if ($rootScope.amGlobals.isFranchise != true)
                 return;
             vm.franchiseChannels = [];
-            amSettings.getCloudChannelNames().then(success).catch(failure);
+            amLoginSettings.getCloudChannelNames().then(success).catch(failure);
 
             function success(res) {
                 Object.keys(res.channels).forEach(iterateMaps);
@@ -433,8 +445,20 @@
             vm.invoiceFLogo = source;
         }
 
+        function getInvoicePageSize() {
+            amIvSettings.getInvoicePageSize().then(success).catch(failure);
+
+            function success(res) {
+                vm.invoicePageSize = res;
+            }
+
+            function failure(err) {
+                vm.invoicePageSize = vm.invoicePageSizeList[0];
+            }
+        }
+
         function saveInvoicePageSize() {
-            amSettings.saveInvoicePageSize(vm.invoicePageSize).then(success).catch(failure);
+            amIvSettings.saveInvoicePageSize(vm.invoicePageSize).then(success).catch(failure);
 
             function success(res) {
                 if (res.ok)
@@ -445,6 +469,18 @@
 
             function failure(err) {
                 utils.showSimpleToast('Could not save invoice settings! Please try again!');
+            }
+        }
+
+        function getCurrencySymbol() {
+            amSettings.getCurrencySymbol().then(success).catch(failure);
+
+            function success(res) {
+                vm.currencySymbol = res;
+            }
+
+            function failure(err) {
+                vm.currencySymbol = "Rs.";
             }
         }
 
@@ -473,12 +509,27 @@
             tax.name = utils.autoCapitalizeWord(tax.name);
         }
 
+        function getAllTaxSettings() {
+            amTaxSettings.getAllTaxSettings().then(success).catch(failure);
+
+            function success(res) {
+                if (angular.isArray(res))
+                    vm.taxSettings = res;
+                else
+                    failure('No Taxes Found!');
+            }
+
+            function failure(err) {
+                //  do nothing
+            }
+        }
+
         function saveTax(tax) {
             if ((tax.name == '') || (tax.name == undefined)) {
                 utils.showSimpleToast('Please enter name of tax in order to save it!');
                 return;
             }
-            amSettings.saveTaxSettings(tax).then(success).catch(failure);
+            amTaxSettings.saveTaxSettings(tax).then(success).catch(failure);
 
             function success(res) {
                 if (res.ok)
@@ -498,12 +549,12 @@
                 vm.taxSettings.splice(index, 1);
                 return;
             }
-            amSettings.deleteTaxSettings(tax).then(success).catch(failure);
+            amTaxSettings.deleteTaxSettings(tax).then(success).catch(failure);
 
             function success(res) {
                 if (res.ok) {
                     utils.showSimpleToast(tax.name + ' deleted successfully!');
-                    amSettings.getAllTaxSettings().then(processTaxSettingsObject).catch(failure);
+                    getAllTaxSettings();
                 } else
                     failure();
             }
@@ -559,6 +610,24 @@
             // /Users/ndkcha/Library/Application Support/Automint
         }
 
+        function getAmAppDataPath() {
+            vm.amAppPath = amApp.getPath('userData');
+        }
+
+        function getDefaultServiceType() {
+            amSettings.getDefaultServiceType().then(success).catch(failure);
+
+            function success(res) {
+                vm.serviceState = res;
+                oDefaultServiceType = res;
+            }
+
+            function failure(err) {
+                vm.serviceState = vm.serviceStateList[2];
+                oDefaultServiceType = vm.serviceStateList[2];
+            }
+        }
+
         function saveDefaultServiceType() {
             if (oDefaultServiceType == vm.serviceState)
                 return;
@@ -607,10 +676,10 @@
         }
 
         function resetLastJobCardNo(jobcardno, reset) {
-            amSettings.changeLastJobCardNo((jobcardno == undefined) ? 0 : jobcardno).then(respond).catch(respond);
+            amIvSettings.changeLastJobCardNo((jobcardno == undefined) ? 0 : jobcardno).then(respond).catch(respond);
 
             function respond(res) {
-                amSettings.getInvoiceSettings().then(processInvoiceSettingsObject).catch(failure);
+                getInvoiceSettings();
                 if (reset != true)
                     utils.showActionToast('Job Card Number has been ' + ((jobcardno == undefined) ? 'reset' : 'changed'), 'Undo', resetLastJobCardNo, oljbno, true);
             }
@@ -625,10 +694,10 @@
         }
 
         function resetLastEstimateNo(estimateno, reset) {
-            amSettings.changeLastEstimateNo((estimateno == undefined) ? 0 : estimateno).then(respond).catch(respond);
+            amIvSettings.changeLastEstimateNo((estimateno == undefined) ? 0 : estimateno).then(respond).catch(respond);
 
             function respond(res) {
-                amSettings.getInvoiceSettings().then(processInvoiceSettingsObject).catch(failure);
+                getInvoiceSettings();
                 if (reset != true)
                     utils.showActionToast('Estimate number has been ' + ((estimateno == undefined) ? 'reset' : 'changed'), 'Undo', resetLastEstimateNo, oleno, true);
             }
@@ -638,10 +707,31 @@
             document.getElementById('am-passcode').type = (visible) ? 'text' : 'password';
         }
 
+        function getIvAlignMargins() {
+            amIvSettings.getIvAlignMargins().then(success).catch(failure);
+
+            function success(res) {
+                vm.ivAlign = res;
+                changeTopAlignLabel();
+                changeBottomAlignLabel();
+                oIvAlignTop = res.top;
+                oIvAlignBottom = res.bottom;
+            }
+
+            function failure(err) {
+                vm.ivAlign = {
+                    top: '',
+                    bottom: ''
+                };
+                oIvAlignTop = '';
+                oIvAlignBottom = '';
+            }
+        }
+
         function saveIvAlignMargins(force) {
             if (vm.ivAlign.top == oIvAlignTop && vm.ivAlign.bottom == oIvAlignBottom && !force)
                 return;
-            amSettings.saveIvAlignMargins(vm.ivAlign).then(success).catch(failure);
+            amIvSettings.saveIvAlignMargins(vm.ivAlign).then(success).catch(failure);
 
             function success(res) {
                 oIvAlignTop = vm.ivAlign.top;
@@ -668,6 +758,28 @@
             vm.label_ivAlignBottomAlignment = vm.isBottomAlignment ? 'Bottom:' : 'Enter Bottom Margin:';
         }
 
+        function getPasscode() {
+            amLoginSettings.getPasscode().then(success).catch(failure);
+
+            function success(res) {
+                if (!res) {
+                    failure();
+                    return;
+                }
+                vm.passcode = res.code;
+                vm.isPasscodeEnabled = res.enabled;
+                oPasscode = res.code;
+                oPasscodeEnabled = res.enabled;
+            }
+
+            function failure(err) {
+                vm.passcode = '1234';
+                oPasscode = '1234';
+                vm.isPasscodeEnabled = false;
+                oPasscodeEnabled = false;
+            }
+        }
+
         function savePasscode() {
             if (vm.passcode == '' || vm.passcode == undefined) {
                 utils.showSimpleToast('Passcode cannot be blank');
@@ -676,7 +788,7 @@
             }
             if (vm.passcode == oPasscode && vm.isPasscodeEnabled == oPasscodeEnabled)
                 return;
-            amSettings.savePasscode(vm.passcode, vm.isPasscodeEnabled).then(success).catch(failure);
+            amLoginSettings.savePasscode(vm.passcode, vm.isPasscodeEnabled).then(success).catch(failure);
 
             function success(res) {
                 if (res.ok) {
@@ -828,7 +940,34 @@
 
             function respond(res) {
                 amBackup.clearReferences();
-                console.info(res);
+                $log.info(res);
+            }
+        }
+
+        //  functions defined for invoice settings
+        //  get workshop details from database
+        function getWorkshopDetails() {
+            amIvSettings.getWorkshopDetails().then(getWorkshopObject).catch(failure);
+
+            function getWorkshopObject(res) {
+                vm.workshop = res;
+                oIvWorkshopName = res.name;
+                oIvWorkshopPhone = res.phone;
+                oIvWorkshopAddress1 = res.address1;
+                oIvWorkshopAddress2 = res.address2;
+                oIvWorkshopCity = res.city;
+                oIvFacebookLink = res.social.facebook;
+                oIvTwitterLink = res.social.twitter;
+                oIvInstagramLink = res.social.instagram;
+                changeWorkshopNameLabel();
+                changeWorkshopPhoneLabel();
+                changeWorkshopAddress1Label();
+                changeWorkshopAddress2Label();
+                changeWorkshopCityLabel();
+            }
+
+            function failure(err) {
+                //  do nothing
             }
         }
 
@@ -864,7 +1003,7 @@
 
         //  save workshop details to database
         function saveWorkshopDetails() {
-            amSettings.saveWorkshopDetails(vm.workshop).then(success).catch(failure);
+            amIvSettings.saveWorkshopDetails(vm.workshop).then(success).catch(failure);
 
             function success(res) {
                 oIvWorkshopName = vm.workshop.name;
@@ -883,6 +1022,31 @@
             }
         }
 
+        //  get invoice settings
+        function getInvoiceSettings() {
+            amIvSettings.getInvoiceSettings().then(success).catch(failure);
+
+            function success(res) {
+                vm.ivSettings = res;
+                if (!vm.ivSettings.lastJobCardNo)
+                    vm.ivSettings.lastJobCardNo = 0;
+                if (!vm.ivSettings.lastEstimateNo)
+                    vm.ivSettings.lastEstimateNo = 0;
+                if (!vm.ivSettings.lastInvoiceNumber)
+                    vm.ivSettings.lastInvoiceNumber = 0;
+
+                olino = res.lastInvoiceNumber;
+                oljbno = res.lastJobCardNo;
+                oleno = res.lastEstimateNo;
+                ivEmailSubject = res.emailsubject;
+            }
+
+            function failure(err) {
+                //  do nothing
+            }
+        }
+
+        //  change workshop logo in invoice settings
         function changeInvoiceWLogo(e) {
             var files = e.target.files;
             if (!files[0].type.match(/image/g)) {
@@ -917,17 +1081,18 @@
 
         //  reset invoice number sequence
         function resetLastInvoiceNo(invoiceno, reset) {
-            amSettings.changeLastInvoiceNo((invoiceno == undefined) ? 0 : invoiceno).then(respond).catch(respond);
+            amIvSettings.changeLastInvoiceNo((invoiceno == undefined) ? 0 : invoiceno).then(respond).catch(respond);
 
             function respond(res) {
-                amSettings.getInvoiceSettings().then(processInvoiceSettingsObject).catch(failure);
+                getInvoiceSettings();
                 if (reset != true)
                     utils.showActionToast('Invoice number has been ' + ((invoiceno == undefined) ? 'reset' : 'changed'), 'Undo', resetLastInvoiceNo, olino, true);
             }
         }
 
+        //  change display settings
         function saveIvDisplaySettings() {
-            amSettings.saveIvDisplaySettings(vm.ivSettings.display).then(success).catch(failure);
+            amIvSettings.saveIvDisplaySettings(vm.ivSettings.display).then(success).catch(failure);
 
             function success(res) {
                 utils.showSimpleToast('Settings saved successfully!');
@@ -941,119 +1106,16 @@
         function saveIvEmailSubject(es, reset) {
             if (vm.ivSettings.emailsubject == undefined || ((ivEmailSubject == vm.ivSettings.emailsubject) && !es))
                 return;
-            amSettings.saveIvEmailSubject((es == undefined) ? vm.ivSettings.emailsubject : es).then(respond).catch(respond);
+            amIvSettings.saveIvEmailSubject((es == undefined) ? vm.ivSettings.emailsubject : es).then(respond).catch(respond);
 
             function respond(res) {
-                amSettings.getInvoiceSettings().then(processInvoiceSettingsObject).catch(failure);
+                getInvoiceSettings();
                 if (ivEmailSubject != undefined) {
                     if (reset != true)
                         utils.showActionToast('Email Subject has been changed!', 'Undo', saveIvEmailSubject, ivEmailSubject, true);
                 } else
                     utils.showSimpleToast('Email Subject has been changed!')
             }
-        }
-
-        function processTaxSettingsObject(res) {
-            if (angular.isArray(res))
-                vm.taxSettings = res;
-            else
-                failure('No Taxes Found!');
-        }
-
-        function processInvoiceSettingsObject(res) {
-            vm.ivSettings = res;
-            if (!vm.ivSettings.lastJobCardNo)
-                vm.ivSettings.lastJobCardNo = 0;
-            if (!vm.ivSettings.lastEstimateNo)
-                vm.ivSettings.lastEstimateNo = 0;
-            if (!vm.ivSettings.lastInvoiceNumber)
-                vm.ivSettings.lastInvoiceNumber = 0;
-
-            olino = res.lastInvoiceNumber;
-            oljbno = res.lastJobCardNo;
-            oleno = res.lastEstimateNo;
-            ivEmailSubject = res.emailsubject;
-        }
-
-        function processSettingsObject(res) {
-            //  currency settings
-            vm.currencySymbol = (res.currency != undefined) ? res.currency : $rootScope.currencySymbol;
-            //  invoice settings
-            if (res.settings && res.settings.invoices) {
-                //  general invoice settings
-                vm.ivSettings = res.settings.invoices;
-                if (!vm.ivSettings.lastJobCardNo)
-                    vm.ivSettings.lastJobCardNo = 0;
-                if (!vm.ivSettings.lastEstimateNo)
-                    vm.ivSettings.lastEstimateNo = 0;
-                if (!vm.ivSettings.lastInvoiceNumber)
-                    vm.ivSettings.lastInvoiceNumber = 0;
-
-                olino = res.settings.invoices.lastInvoiceNumber;
-                oljbno = res.settings.invoices.lastJobCardNo;
-                oleno = res.settings.invoices.lastEstimateNo;
-                ivEmailSubject = res.settings.invoices.emailsubject;
-                //  page size settings
-                vm.invoicePageSize = (res.settings.invoices.pageSize != undefined) ? res.settings.invoices.pageSize : vm.invoicePageSizeList[0];
-                //  invoice margins
-                if (res.settings.invoices.margin) {
-                    vm.ivAlign = res.settings.invoices.margin;
-                    changeTopAlignLabel();
-                    changeBottomAlignLabel();
-                    oIvAlignTop = res.settings.invoices.margin.top;
-                    oIvAlignBottom = res.settings.invoices.margin.bottom;
-                }
-            }
-            //  tax settings
-            if (res.settings && res.settings.tax) {
-                vm.taxSettings = [];
-                Object.keys(res.settings.tax).forEach(iterateTax);
-
-                function iterateTax(tax) {
-                    var t = res.settings.tax[tax];
-                    vm.taxSettings.push({
-                        inclusive: (t.type == "inclusive"),
-                        isTaxApplied: t.isTaxApplied,
-                        isForTreatments: t.isForTreatments,
-                        isForInventory: t.isForInventory,
-                        percent: t.percent,
-                        name: tax
-                    });
-                }
-            }
-            //  service types
-            if (res.settings && res.settings.servicestate) {
-                vm.serviceState = (res.settings.servicestate != undefined) ? res.settings.servicestate : vm.serviceStateList[2];
-                oDefaultServiceType = (res.settings.servicestate != undefined) ? res.settings.servicestate : vm.serviceStateList[2];
-            }
-            //  passcode settings
-            if (res.passcode) {
-                vm.passcode = (res.passcode.code != undefined) ? res.passcode.code : '1234';
-                vm.isPasscodeEnabled = (res.passcode.enabled != undefined) ? res.passcode.enabled : false;
-                oPasscode = (res.passcode.code != undefined) ? res.passcode.code : '1234';
-                oPasscodeEnabled = (res.passcode.enabled != undefined) ? res.passcode.enabled : false;
-            }
-        }
-
-        function processWorkshopObject(res) {
-            vm.workshop = res;
-            oIvWorkshopName = res.name;
-            oIvWorkshopPhone = res.phone;
-            oIvWorkshopAddress1 = res.address1;
-            oIvWorkshopAddress2 = res.address2;
-            oIvWorkshopCity = res.city;
-            oIvFacebookLink = res.social.facebook;
-            oIvTwitterLink = res.social.twitter;
-            oIvInstagramLink = res.social.instagram;
-            changeWorkshopNameLabel();
-            changeWorkshopPhoneLabel();
-            changeWorkshopAddress1Label();
-            changeWorkshopAddress2Label();
-            changeWorkshopCityLabel();
-        }
-
-        function failure(err) {
-            console.error(err);
         }
     }
 })();
