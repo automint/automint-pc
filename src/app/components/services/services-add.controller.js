@@ -637,6 +637,7 @@
             function success(res) {
                 vm.service.state = res;
                 vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
+                selectServiceState(vm.service.state);
             }
 
             function failure(err) {
@@ -1014,8 +1015,10 @@
                         name: tax.name
                     }, true);
 
-                    if (found.length == 0)
+                    if (found.length == 0) {
                         vm.taxSettings.push(tax);
+                        taxSettingsSnap.push(tax);
+                    }
                 }
             }
 
@@ -1120,8 +1123,10 @@
                         name: tax.name
                     }, true);
 
-                    if (found.length == 0)
+                    if (found.length == 0) {
                         vm.taxSettings.push(tax);
+                        taxSettingsSnap.push(tax);
+                    }
                 }
             }
 
