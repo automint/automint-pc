@@ -158,11 +158,11 @@
                     <td colspan="100%">
                         <div class="am-flex-layout center">
                             <div class="am-flex-layout column" style="flex: 1; padding-bottom: 4px" ng-if="vm.settings.display.workshopDetails">
-                                <input type="text" ng-model="vm.workshop.name" placeholder="Workshop Name" class="am-font s14 w600 am-invoice-input" ng-change="vm.acWorkshopName()">
-                                <input type="text" ng-model="vm.workshop.address1" placeholder="Workshop Address Line 1" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopAddress1()">
-                                <input type="text" ng-model="vm.workshop.address2" placeholder="Workshop Address Line 2" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopAddress2()">
-                                <input type="text" ng-model="vm.workshop.city" placeholder="Workshop City" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopCity()">
-                                <span class="am-flex-layout center am-font s9"><i class="s7 am-default-cursor">(M)</i>&nbsp;<input type="text" ng-model="vm.workshop.phone" placeholder="Workshop Contact Number" class="am-invoice-input" style="flex: 1"></span>
+                                <input type="text" ng-model="vm.workshop.name" placeholder="Workshop Name" class="am-font s14 w600 am-invoice-input" ng-change="vm.acWorkshopName()" ng-blur="vm.changeWorkshopDetails()">
+                                <input type="text" ng-model="vm.workshop.address1" placeholder="Workshop Address Line 1" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopAddress1()" ng-blur="vm.changeWorkshopDetails()">
+                                <input type="text" ng-model="vm.workshop.address2" placeholder="Workshop Address Line 2" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopAddress2()" ng-blur="vm.changeWorkshopDetails()">
+                                <input type="text" ng-model="vm.workshop.city" placeholder="Workshop City" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopCity()" ng-blur="vm.changeWorkshopDetails()">
+                                <span class="am-flex-layout center am-font s9"><i class="s7 am-default-cursor">(M)</i>&nbsp;<input type="text" ng-model="vm.workshop.phone" placeholder="Workshop Contact Number" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails()" style="flex: 1"></span>
                             </div>
                             <div class="am-flex-layout center end" style="flex: 1; margin-bottom: 6px" name="am-workshoplogo-holder" ng-if="vm.settings.display.workshopLogo"></div>
                         </div>
@@ -178,11 +178,11 @@
                                         <span class="am-font s11 lh1-8 cgrey800 am-default-cursor">Bill To:</span>
                                         <div class="am-flex-layout center am-font">
                                             <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Name:&nbsp;</span>
-                                            <input type="text" ng-model="vm.user.name" class="s10 am-invoice-input" placeholder="Customer Name" ng-change="vm.acUserName()">
+                                            <input type="text" ng-model="vm.user.name" ng-blur="vm.changeInvoiceCache()" style="width: 100%" class="s10 am-invoice-input" placeholder="Customer Name" ng-change="vm.acUserName()">
                                         </div>
                                         <div class="am-flex-layout center am-font">
                                             <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Mobile:&nbsp;</span>
-                                            <input type="text" ng-model="vm.user.mobile" class="s10 am-invoice-input" placeholder="Customer Mobile" ng-change="vm.acUserMobile()">
+                                            <input type="text" ng-model="vm.user.mobile" ng-blur="vm.changeInvoiceCache()" class="s10 am-invoice-input" placeholder="Customer Mobile" ng-change="vm.acUserMobile()">
                                         </div>
                                     </div>
                                 </td>
@@ -190,15 +190,15 @@
                                     <div class="am-flex-layout column">
                                         <div class="am-flex-layout center am-font">
                                             <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Vehicle:&nbsp;</span>
-                                            <input type="text" ng-model="vm.vehicle.name" class="s10 am-invoice-input" style="flex: 1" placeholder="Vehicle Name" ng-change="vm.acVehicleName()">
+                                            <input type="text" ng-model="vm.vehicle.name" ng-blur="vm.changeInvoiceCache()" class="s10 am-invoice-input" style="flex: 1" placeholder="Vehicle Name" ng-change="vm.acVehicleName()">
                                         </div>
                                         <div class="am-flex-layout center am-font">
                                             <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Registration:&nbsp;</span>
-                                            <input type="text" ng-model="vm.vehicle.reg" class="s10 am-invoice-input" style="flex: 1" placeholder="Vehicle Registration" ng-change="vm.acVehicleReg()">
+                                            <input type="text" ng-model="vm.vehicle.reg" ng-blur="vm.changeServiceDetails()" class="s10 am-invoice-input" style="flex: 1" placeholder="Vehicle Registration" ng-change="vm.acVehicleReg()">
                                         </div>
                                         <div class="am-flex-layout center am-font">
                                             <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Odometer:&nbsp;</span>
-                                            <input type="text" ng-model="vm.service.odo" class="s10 am-invoice-input" style="flex: 1" placeholder="Odometer Reading">
+                                            <input type="text" ng-model="vm.service.odo" ng-blur="vm.changeServiceDetails()" class="s10 am-invoice-input" style="flex: 1" placeholder="Odometer Reading">
                                         </div>
                                     </div>
                                 </td>
@@ -209,7 +209,7 @@
                                     </div>
                                     <div class="am-flex-layout center end am-font">
                                         <span class="s9 w400 cgrey700 am-default-cursor">Date:&nbsp;</span>
-                                        <input type="text" ng-model="vm.service.date" class="s10 am-invoice-input" style="text-align: right" placeholder="Service Date" ng-change="vm.acServiceDate()">
+                                        <span class="s10 am-default-cursor">{{vm.service.date}}</span>
                                     </div>
                                 </td>
                             </tr>
@@ -227,14 +227,14 @@
                 </tr>
                 <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, problem) in vm.service.problems">
                     <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getProblemIndex($index)}}</span>
-                    <td><input type="text" ng-model="name" class="s9 am-invoice-input item" placeholder="Enter Title"></td>
+                    <td><span class="am-default-cursor">{{name}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">1</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">{{problem.rate}}</span></td>
                     <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{problem.amount}}</span></td>
                 </tr>
                 <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, inventory) in vm.service.inventories">
                     <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getInventoryIndex($index)}}</span></td>
-                    <td><input type="text" ng-model="name" class="s9 am-invoice-input item" placeholder="Enter Title"></td>
+                    <td><span class="am-default-cursor">{{name}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">{{inventory.qty}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">{{inventory.rate}}</span></td>
                     <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{inventory.amount}}</span></td>
@@ -288,15 +288,15 @@
                             <span style="margin-right: 16px" class="am-default-cursor">Follow Us on:</span>
                             <a class="am-flex-layout center" ng-if="vm.isFacebookLinkVisible">
                                 <img src="assets/img/facebook.svg" width="15" height="15">
-                                <span>/</span><input type="text" ng-model="vm.workshop.social.facebook" class="am-invoice-input">
+                                <span>/</span><input type="text" ng-model="vm.workshop.social.facebook" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails()">
                             </a>
                             <a class="am-flex-layout center" ng-if="vm.isInstagramLinkVisible">
                                 <img src="assets/img/instagram.svg" width="15" height="15">
-                                <span>/</span><input type="text" ng-model="vm.workshop.social.instagram" class="am-invoice-input">
+                                <span>/</span><input type="text" ng-model="vm.workshop.social.instagram" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails()">
                             </a>
                             <a class="am-flex-layout center" ng-if="vm.isTwitterLinkVisible">
                                 <img src="assets/img/twitter.svg" width="15" height="15">
-                                <span>/</span><input type="text" ng-model="vm.workshop.social.twitter" class="am-invoice-input">
+                                <span>/</span><input type="text" ng-model="vm.workshop.social.twitter" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails">
                             </a>
                         </div>
                     </td>

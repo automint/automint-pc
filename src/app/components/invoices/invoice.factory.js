@@ -20,13 +20,86 @@
             getWorkshopDetails: getWorkshopDetails,
             getServiceDetails: getServiceDetails,
             getInvoiceSettings: getInvoiceSettings,
-            saveCustomerEmail: saveCustomerEmail
+            saveCustomerEmail: saveCustomerEmail,
+            saveCacheDetails: saveCacheDetails,
+            saveServiceDetails: saveServiceDetails,
+            saveWorkshopDetails: saveWorkshopDetails
         }
 
         //  return factory object to root
         return factory;
 
         //  function definitions
+
+        function saveWorkshopDetails(workshop) {
+            var tracker = $q.defer();
+            pdbMain.get($rootScope.amGlobals.configDocIds.workshop).then(getWorkshopObject).catch(failure);
+            return tracker.promise;
+
+            function getWorkshopObject(res) {
+                res.workshop = workshop;
+                pdbMain.save(res).then(success).catch(failure);
+            }
+
+            function success(res) {
+                console.log('hit workshop');
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function saveServiceDetails(userId, vehicleId, serviceId, reg, odo) {
+            var tracker = $q.defer();
+            pdbMain.get(userId).then(getUserObject).catch(failure);
+            return tracker.promise;
+
+            function getUserObject(res) {
+                if (res.user && res.user.vehicles && res.user.vehicles[vehicleId] && res.user.vehicles[vehicleId].services && res.user.vehicles[vehicleId].services[serviceId]) {
+                    res.user.vehicles[vehicleId].reg = reg;
+                    res.user.vehicles[vehicleId].services[serviceId].odo = parseFloat(odo);
+                    pdbMain.save(res).then(success).catch(failure);
+                }
+            }
+
+            function success(res) {
+                console.log('hit service');
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
+
+        function saveCacheDetails(userId, vehicleId, name, mobile, vehicle) {
+            var tracker = $q.defer();
+            pdbMain.get(userId).then(getUserObject).catch(failure);
+            return tracker.promise;
+
+            function getUserObject(res) {
+                if (res.user && res.user.vehicles && res.user.vehicles[vehicleId]) {
+                    res.user.vehicles[vehicleId].invoicedetails = {
+                        name: name,
+                        mobile: mobile,
+                        vehicle: vehicle
+                    };
+                    pdbMain.save(res).then(success).catch(failure);
+                } else
+                    failure();
+            }
+
+            function success(res) {
+                console.log('hit cache')
+                tracker.resolve(res);
+            }
+
+            function failure(err) {
+                tracker.reject(err);
+            }
+        }
 
         function saveCustomerEmail(userId, email) {
             var tracker = $q.defer();
@@ -79,7 +152,6 @@
                 delete response.vehicle.services;
                 response.service = $.extend({}, res.user.vehicles[vehicleId].services[serviceId]);
                 response.service.date = moment(response.service.date).format('MMMM DD, YYYY');
-                response.service.odo = (response.service.odo && response.service.odo != '') ? response.service.odo + ' km.' : '';
                 response.channel = res.channel;
                 tracker.resolve(response);
             }

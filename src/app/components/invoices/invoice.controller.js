@@ -23,6 +23,7 @@
 
         //  temporary assignments for the instance
         var oCustomerEmail = undefined;
+        var oUserName, oUserMobile, oVehicleName, oVehicleReg, oServiceOdo, oWorkshop, oSocial;
 
         //  named assignments to view model
         vm.currencySymbol = "Rs.";
@@ -48,12 +49,14 @@
         vm.acUserName = acUserName;
         vm.acVehicleName = acVehicleName;
         vm.acVehicleReg = acVehicleReg;
-        vm.acServiceDate = acServiceDate;
         vm.IsA4Size = IsA4Size;
         vm.editService = editService;
         vm.printInvoice = printInvoice;
         vm.askEmail = askEmail;
         vm.parseNotes = parseNotes;
+        vm.changeInvoiceCache = changeInvoiceCache;
+        vm.changeServiceDetails = changeServiceDetails;
+        vm.changeWorkshopDetails = changeWorkshopDetails;
 
         //  electron watchers
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
@@ -68,6 +71,58 @@
         getInvoiceDetails();
 
         //  function definitions
+
+        function changeWorkshopDetails() {
+            var isWorkshopChanged = ((vm.workshop.name != oWorkshop.name) || (vm.workshop.address1 != oWorkshop.address1) || (vm.workshop.address2 != oWorkshop.address2) || (vm.workshop.city != oWorkshop.city));
+            var isSocialLinkChanged = ((vm.isSocialLinkVisible) && ((vm.workshop.social.facebook != oSocial.facebook) || (vm.workshop.social.instagram != oSocial.instagram) || (vm.workshop.social.twitter != oSocial.twitter)));
+            if (isWorkshopChanged || isSocialLinkChanged)
+                amInvoice.saveWorkshopDetails(vm.workshop).then(success).catch(failure);
+            
+            function success(res) {
+                if (res.ok) {
+                    oWorkshop = $.extend({}, vm.workshop);
+                    if (vm.workshop.social != undefined)
+                        oSocial = $.extend({}, vm.workshop.social);
+                }
+            }
+
+            function failure(err) {
+                console.error(err);
+            }
+        }
+
+        function changeServiceDetails() {
+            if ((vm.vehicle.reg != oVehicleReg) || (vm.service.odo != oServiceOdo))
+                amInvoice.saveServiceDetails($state.params.userId, $state.params.vehicleId, $state.params.serviceId, vm.vehicle.reg, vm.service.odo).then(success).catch(failure);
+            
+            function success(res) {
+                if (res.ok) {
+                    oVehicleReg = vm.vehicle.reg;
+                    oServiceOdo = vm.service.odo;
+                }
+            }
+
+            function failure(err) {
+                console.error(err);
+            }
+        }
+
+        function changeInvoiceCache() {
+            if ((vm.user.mobile != oUserMobile) || (vm.user.name != oUserName) || (vm.vehicle.name != oVehicleName))
+                amInvoice.saveCacheDetails($state.params.userId, $state.params.vehicleId, vm.user.name, vm.user.mobile, vm.vehicle.name).then(success).catch(failure);
+            
+            function success(res) {
+                if (res.ok) {
+                    oUserMobile = vm.user.mobile;
+                    oUserName = vm.user.name;
+                    oVehicleName = vm.vehicle.name;
+                }
+            }
+
+            function failure(err) {
+                console.error(err);
+            }
+        }
 
         function parseNotes() {
             vm.notes = (vm.settings.notes.note !== undefined) ? vm.settings.notes.note.replace(/\n/g, '<br>') : '';
@@ -255,6 +310,8 @@
                 oCustomerEmail = res.user.email;
                 vm.vehicle = res.vehicle;
                 vm.service = res.service;
+                oVehicleReg = vm.vehicle.reg;
+                oServiceOdo = vm.service.odo;
                 if (vm.service.status.toLowerCase() == 'due') {
                     if (vm.service.partialpayment == undefined) {
                         vm.service.partialpayment = {
@@ -264,6 +321,14 @@
                     vm.paymentdue = parseFloat(vm.service.cost) - parseFloat(vm.service.partialpayment.total);
                 } else
                     delete vm.service.partialpayment;
+                if (vm.vehicle.invoicedetails != undefined) {
+                    vm.user.name = vm.vehicle.invoicedetails.name;
+                    vm.user.mobile = vm.vehicle.invoicedetails.mobile;
+                    vm.vehicle.name = vm.vehicle.invoicedetails.vehicle;  
+                    oUserName = vm.vehicle.invoicedetails.name;
+                    oUserMobile = vm.vehicle.invoicedetails.mobile;
+                    oVehicleName = vm.vehicle.invoicedetails.vehicle;
+                }
                 if (vm.service.discount != undefined) {
                     vm.service.discount.total = parseFloat(vm.service.discount.total);
                     vm.service.discount.total = (vm.service.discount.total % 1 != 0) ? vm.service.discount.total.toFixed(2) : parseInt(vm.service.discount.total); 
@@ -294,6 +359,9 @@
 
             function workshopsuccess(res) {
                 vm.workshop = res;
+                oWorkshop = $.extend({}, vm.workshop);
+                if (vm.workshop.social != undefined)
+                    oSocial = $.extend({}, vm.workshop.social);
                 if (res.social != undefined) {
                     vm.isFacebookLinkVisible = ((res.social.facebook != undefined) && (res.social.facebook != ''));
                     vm.isInstagramLinkVisible = ((res.social.instagram != undefined) && (res.social.instagram != ''));
@@ -360,10 +428,6 @@
 
         function acVehicleReg() {
             vm.vehicle.reg = vm.vehicle.reg.toUpperCase();
-        }
-
-        function acServiceDate() {
-            vm.service.date = utils.autoCapitalizeWord(vm.service.date);
         }
     }
 })();
