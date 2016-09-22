@@ -561,6 +561,14 @@
                                 <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
                                 <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.service.cost}}</span></td>
                             </tr>
+                            <tr class="am-font s9" ng-if="vm.service.partialpayment">
+                                <td style="text-align: right"><span class="am-default-cursor">Receieved:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.service.partialpayment.total}}</span></td>
+                            </tr>
+                            <tr class="am-font s9" ng-if="vm.service.partialpayment">
+                                <td style="text-align: right" class="w600"><span class="am-default-cursor">Due:</span></td>
+                                <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.paymentdue}}</span></td>
+                            </tr>
                         </table>
                     </td>
                 </tr>
@@ -885,6 +893,14 @@
                             <tr class="am-font s9">
                                 <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
                                 <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.service.cost}}</span></td>
+                            </tr>
+                            <tr class="am-font s9" ng-if="vm.service.partialpayment">
+                                <td style="text-align: right"><span class="am-default-cursor">Receieved:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.service.partialpayment.total}}</span></td>
+                            </tr>
+                            <tr class="am-font s9" ng-if="vm.service.partialpayment">
+                                <td style="text-align: right" class="w600"><span class="am-default-cursor">Due:</span></td>
+                                <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.paymentdue}}</span></td>
                             </tr>
                         </table>
                     </td>
