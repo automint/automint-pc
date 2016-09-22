@@ -2,7 +2,7 @@
  * Module to send emails
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.8.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -79,6 +79,7 @@
                         BrowserWindow.getFocusedWindow().webContents.send('am-invoice-mail-sent', false);
                     return;
                 }
+                console.info('Email has been sent');
                 BrowserWindow.getFocusedWindow().webContents.send('am-invoice-mail-sent', true);
             });
         });

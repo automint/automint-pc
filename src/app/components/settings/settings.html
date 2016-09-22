@@ -392,6 +392,27 @@
                             </div>
                         </md-card-content>
                     </md-card>
+                    <style>
+                        .am-invoice-notes {
+                            margin-top: 6px;
+                            border: 0;
+                            border-bottom: 1px solid #EEEEEE;
+                            padding: 0 10px;
+                            outline: none;
+                            line-height: 1.2;
+                        }
+                    </style>
+                    <md-card class="md-hue-1 am-box-shadow">
+                        <md-card-content layout="column">
+                            <div layout="row">
+                                <span class="md-title">Note:</span>
+                                <textarea cols="2" am-elastic-text-area ng-model="vm.invoiceNotes.note" class="am-invoice-notes md-caption" ng-blur="vm.saveInvoiceNotes()" placeholder="Enter Here" flex></textarea>
+                            </div>
+                            <md-switch ng-model="vm.invoiceNotes.enabled" ng-change="vm.saveInvoiceNotes()" style="margin: 8px 8px 2px">
+                                <span layout-padding class="am-form-label">Display in Invoice</span>
+                            </md-switch>
+                        </md-card-content>
+                    </md-card>
                 </div>
             </md-content>
         </md-tab>

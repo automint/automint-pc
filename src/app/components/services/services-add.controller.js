@@ -2,7 +2,7 @@
  * Controller for Add Service module
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.2
+ * @version 0.8.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -31,6 +31,7 @@
         var treatmentTotal = 0, inventoryTotal = 0;
         var dTreatmentTax, dInventoryTax, dTreatment, dInventory;
         var taxSettingsSnap = [], lastServiceState;
+        var isTreatmentTaxLoaded = false, isInventoryTaxLoaded = false, isDefaultServiceTypeLoaded = false;
 
         //  vm assignments to keep track of UI related elements
         vm.vehicleTypeList = [];
@@ -636,7 +637,9 @@
 
             function success(res) {
                 vm.service.state = res;
-                vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
+                isDefaultServiceTypeLoaded = true;
+                if (isDefaultServiceTypeLoaded && isTreatmentTaxLoaded && isInventoryTaxLoaded)
+                    selectServiceState(vm.service.state);
             }
 
             function failure(err) {
@@ -1007,6 +1010,9 @@
             function success(res) {
                 res.forEach(iterateTaxes);
                 OnTaxEnabledChange();
+                isInventoryTaxLoaded = true;
+                if (isDefaultServiceTypeLoaded && isTreatmentTaxLoaded && isInventoryTaxLoaded)
+                    selectServiceState(vm.service.state);
 
                 function iterateTaxes(tax) {
                     tax.tax = 0;
@@ -1014,8 +1020,10 @@
                         name: tax.name
                     }, true);
 
-                    if (found.length == 0)
+                    if (found.length == 0) {
                         vm.taxSettings.push(tax);
+                        taxSettingsSnap.push(tax);
+                    }
                 }
             }
 
@@ -1113,6 +1121,9 @@
                 res.forEach(iterateTaxes);
                 getPackages();
                 OnTaxEnabledChange();
+                isTreatmentTaxLoaded = true;
+                if (isDefaultServiceTypeLoaded && isTreatmentTaxLoaded && isInventoryTaxLoaded)
+                    selectServiceState(vm.service.state);
 
                 function iterateTaxes(tax) {
                     tax.tax = 0;
@@ -1120,8 +1131,10 @@
                         name: tax.name
                     }, true);
 
-                    if (found.length == 0)
+                    if (found.length == 0) {
                         vm.taxSettings.push(tax);
+                        taxSettingsSnap.push(tax);
+                    }
                 }
             }
 

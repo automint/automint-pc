@@ -2,7 +2,7 @@
  * Closure for root level directives
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.8.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -13,9 +13,11 @@
         .directive('amDropFiles', amDropFilesDirective)
         .directive('amUploadFiles', amUploadFilesDirective)
         .directive('amOnEnter', OnEnterDirective)
-        .directive('amCustomAutofocus', amCustomAutofocusDirective);
+        .directive('amCustomAutofocus', amCustomAutofocusDirective)
+        .directive('amElasticTextArea', amElasticTextArea);
 
     PageTitleDirective.$inject = ['$rootScope', '$timeout'];
+    amElasticTextArea.$inject = ['$timeout'];
 
     function OnEnterDirective() {
         return onEnter;
@@ -133,6 +135,24 @@
                 if (newValue === true){
                     element[0].focus();
                }
+            }
+        }
+    }
+
+    function amElasticTextArea($timeout) {
+        return {
+            restrict: 'A',
+            link: link
+        };
+
+        function link($scope, element) {
+            $scope.initialHeight = $scope.initialHeight || element[0].style.height;
+            element.on("input change", resize);
+            $timeout(resize, 0);
+
+            function resize() {
+                element[0].style.height = $scope.initialHeight;
+                element[0].style.height = "" + element[0].scrollHeight + "px";
             }
         }
     }

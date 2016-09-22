@@ -2,7 +2,7 @@
  * Closure for state definitions and mappings to template files
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.0
+ * @version 0.8.0
  */
 
 /// <reference path="../typings/main.d.ts" />
@@ -267,7 +267,7 @@
             })
             .state('restricted.invoices.view', {
                 url: '/view',
-                templateUrl: 'app/components/invoices/invoices_view.html',
+                templateUrl: 'app/components/invoices/invoice.html',
                 params: {
                     userId: undefined,
                     vehicleId: undefined,
@@ -548,10 +548,7 @@
                 'app/components/settings/tmpl/changepassword.controller.js',
                 'app/components/settings/settings.controller.js',
                 'app/components/settings/settings-backup.factory.js',
-                'app/components/settings/settings-login.factory.js',
                 'app/components/settings/settings-importdata.service.js',
-                'app/components/settings/settings-invoices.factory.js',
-                'app/components/settings/settings-tax.factory.js',
                 'app/components/settings/settings.factory.js',
                 'assets/js/angular-elastic-input.min.js',
                 'assets/js/jquery.csv.min.js'
@@ -560,12 +557,13 @@
         function loadIvRIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'material-datatable',
-                'app/components/invoices/invoices-view.controller.js'
+                'app/components/invoices/invoice.controller.js',
+                'app/components/invoices/addons/confirmemail.controller.js'
             ])
         }
         function loadInvoicesDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/invoices/invoices.factory.js'
+                'app/components/invoices/invoice.factory.js',
             ])
         }
         function loadPackageDeps($ocLazyLoad) {

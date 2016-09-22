@@ -1,0 +1,32 @@
+<style>
+    .am-icmd .input-block {
+        padding: 1rem 2rem;
+    }
+
+    .am-icmd .email {
+        outline: none;
+        border: 0;
+        border-bottom: 1px solid #263238;
+        transition: all 600ms ease;
+    }
+
+    .am-icmd .email:focus {
+        border-bottom: 1px solid #03A9F4;
+    }    
+</style>
+<md-content class="am-white-background am-icmd" layout="column">
+    <div layout="column" class="input-block" layout-padding>
+        <span class="md-title">Confirm Email Address</span>
+        <span class="md-body-1">Please enter {{vm.user.name}}'s email address</span>
+        <input md-autofocus class="email" type="email" placeholder="Enter Email Address" ng-model="vm.user.email" am-on-enter="vm.sendInvoice()" flex>
+    </div>
+    <div layout="row" layout-align="end center">
+        <md-button class="md-primary" ng-click="vm.cancelInvoice()">
+            <span layout-margin>Cancel</span>
+        </md-button>
+        <md-button class="md-warn md-raised" ng-click="vm.sendInvoice()">
+            <span layout-margin>Send</span>
+            <md-icon>send</md-icon>
+        </md-button>
+    </div>
+</md-content>

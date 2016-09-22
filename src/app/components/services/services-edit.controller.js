@@ -2,7 +2,7 @@
  * Controller for Edit Service component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.2
+ * @version 0.8.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -35,6 +35,7 @@
         var taxSettingsSnap = [], lastServiceState;
         var orgVehicle = {}, userMobile = undefined;
         var isPackageAvailInService = false;
+        var isAnyTaxAppliedBefore = false;
 
         //  vm assignments to keep track of UI related elements
         vm.vehicleTypeList = [];
@@ -696,7 +697,7 @@
             if (vm.service.state != vm.serviceStateList[2]) {
                 vm.areTaxesHidden = true;
                 if ((lastServiceState == vm.serviceStateList[2]) || !lastServiceState) {
-                    taxSettingsSnap = [];
+                    taxSettingsSnap = []; //
                     vm.taxSettings.forEach(iterateTaxes);
                 }
             } else {
@@ -1060,13 +1061,16 @@
 
                 function iterateTaxes(tax) {
                     tax.tax = 0;
-                    tax.isTaxApplied = false;
+                    if (!isAnyTaxAppliedBefore)
+                        tax.isTaxApplied = false;
                     var found = $filter('filter')(vm.taxSettings, {
                         name: tax.name
                     }, true);
-
-                    if (found.length == 0)
+                    
+                    if (found.length == 0) {
                         vm.taxSettings.push(tax);
+                        taxSettingsSnap.push(tax);
+                    }
                 }
             }
 
@@ -1189,13 +1193,16 @@
 
                 function iterateTaxes(tax) {
                     tax.tax = 0;
-                    tax.isTaxApplied = false;
+                    if (!isAnyTaxAppliedBefore)
+                        tax.isTaxApplied = false;
                     var found = $filter('filter')(vm.taxSettings, {
                         name: tax.name
                     }, true);
 
-                    if (found.length == 0)
+                    if (found.length == 0) {
                         vm.taxSettings.push(tax);
+                        taxSettingsSnap.push(tax);
+                    }
                 }
             }
 
@@ -1591,8 +1598,6 @@
                 vm.service.status = res.vehicle.service.status;
                 if (res.vehicle.service.partialpayment)
                     vm.service.partialpayment = res.vehicle.service.partialpayment;
-                vm.service.state = (res.vehicle.service.state == undefined) ? vm.serviceStateList[2] : res.vehicle.service.state;
-                vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
                 if (res.vehicle.service.roundoff) {
                     vm.isRoundOffVal = true;
                     isManualRoundOff = vm.isRoundOffVal;
@@ -1620,6 +1625,8 @@
                 getLastJobCardNo();
                 getLastEstimateNo();
                 getLastInvoiceNo();
+                selectServiceState((res.vehicle.service.state == undefined) ? vm.serviceStateList[2] : res.vehicle.service.state)
+                vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
                 if (res.vehicle.service.discount) {
                     vm.isDiscountApplied = true;
                     if (res.vehicle.service.discount.amount) {
@@ -1632,7 +1639,17 @@
 
                 function iterateTaxes(tax) {
                     var t = res.vehicle.service.taxes[tax];
+                    isAnyTaxAppliedBefore = true;
 
+                    taxSettingsSnap.push({
+                        tax: t.tax,
+                        inclusive: (t.type == "inclusive"),
+                        isTaxApplied: t.isTaxApplied,
+                        isForTreatments: t.isForTreatments,
+                        isForInventory: t.isForInventory,
+                        percent: t.percent,
+                        name: tax
+                    });
                     vm.taxSettings.push({
                         tax: t.tax,
                         inclusive: (t.type == "inclusive"),
