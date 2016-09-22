@@ -35,6 +35,7 @@
         var taxSettingsSnap = [], lastServiceState;
         var orgVehicle = {}, userMobile = undefined;
         var isPackageAvailInService = false;
+        var isAnyTaxAppliedBefore = false;
 
         //  vm assignments to keep track of UI related elements
         vm.vehicleTypeList = [];
@@ -1060,11 +1061,12 @@
 
                 function iterateTaxes(tax) {
                     tax.tax = 0;
-                    tax.isTaxApplied = false;
+                    if (!isAnyTaxAppliedBefore)
+                        tax.isTaxApplied = false;
                     var found = $filter('filter')(vm.taxSettings, {
                         name: tax.name
                     }, true);
-
+                    
                     if (found.length == 0) {
                         vm.taxSettings.push(tax);
                         taxSettingsSnap.push(tax);
@@ -1191,7 +1193,8 @@
 
                 function iterateTaxes(tax) {
                     tax.tax = 0;
-                    tax.isTaxApplied = false;
+                    if (!isAnyTaxAppliedBefore)
+                        tax.isTaxApplied = false;
                     var found = $filter('filter')(vm.taxSettings, {
                         name: tax.name
                     }, true);
@@ -1636,7 +1639,17 @@
 
                 function iterateTaxes(tax) {
                     var t = res.vehicle.service.taxes[tax];
+                    isAnyTaxAppliedBefore = true;
 
+                    taxSettingsSnap.push({
+                        tax: t.tax,
+                        inclusive: (t.type == "inclusive"),
+                        isTaxApplied: t.isTaxApplied,
+                        isForTreatments: t.isForTreatments,
+                        isForInventory: t.isForInventory,
+                        percent: t.percent,
+                        name: tax
+                    });
                     vm.taxSettings.push({
                         tax: t.tax,
                         inclusive: (t.type == "inclusive"),
