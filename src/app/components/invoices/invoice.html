@@ -229,15 +229,15 @@
                     <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getProblemIndex($index)}}</span>
                     <td><span class="am-default-cursor">{{name}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">1</span></td>
-                    <td style="text-align: right"><span class="am-default-cursor">{{problem.rate}}</span></td>
-                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{problem.amount}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(problem.rate)}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(problem.amount)}}</span></td>
                 </tr>
                 <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, inventory) in vm.service.inventories">
                     <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getInventoryIndex($index)}}</span></td>
                     <td><span class="am-default-cursor">{{name}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">{{inventory.qty}}</span></td>
-                    <td style="text-align: right"><span class="am-default-cursor">{{inventory.rate}}</span></td>
-                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{inventory.amount}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.rate)}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.amount)}}</span></td>
                 </tr>
                 <tr></tr>
             </tbody>
@@ -253,31 +253,31 @@
                         <table style="width: 100%;">
                             <tr class="am-font s9" ng-if="vm.isSubtotalVisible">
                                 <td style="text-align: right"><span class="am-default-cursor">Subtotal:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.service.subtotal}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.subtotal)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.isDiscountVisible">
                                 <td style="text-align: right"><span class="am-default-cursor">Discount:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.service.discount.total}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.discount.total)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-repeat="(taxname, tax) in vm.service.taxes" ng-if="vm.IsTaxVisible(tax)">
                                 <td style="text-align: right"><span class="am-default-cursor">{{taxname}}:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{tax.tax}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(tax.tax)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.isRoundOffVisible">
                                 <td style="text-align: right"><span class="am-default-cursor">Round Off:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.service.roundoff}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.restrictNumbers(vm.service.roundoff)}}</span></td>
                             </tr>
                             <tr class="am-font s9">
                                 <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
-                                <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.service.cost}}</span></td>
+                                <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.service.cost)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.service.partialpayment">
                                 <td style="text-align: right"><span class="am-default-cursor">Receieved:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.service.partialpayment.total}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.restrictNumbers(vm.service.partialpayment.total)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.service.partialpayment">
                                 <td style="text-align: right" class="w600"><span class="am-default-cursor">Due:</span></td>
-                                <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.paymentdue}}</span></td>
+                                <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.paymentdue)}}</span></td>
                             </tr>
                         </table>
                     </td>
@@ -519,15 +519,15 @@
                     <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getProblemIndex($index)}}</span>
                     <td><span class="s9">{{name}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">1</span></td>
-                    <td style="text-align: right"><span class="am-default-cursor">{{problem.rate}}</span></td>
-                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{problem.amount}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(problem.rate)}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(problem.amount)}}</span></td>
                 </tr>
                 <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, inventory) in vm.service.inventories">
                     <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getInventoryIndex($index)}}</span></td>
                     <td><span class="s9">{{name}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">{{inventory.qty}}</span></td>
-                    <td style="text-align: right"><span class="am-default-cursor">{{inventory.rate}}</span></td>
-                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{inventory.amount}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.rate)}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.amount)}}</span></td>
                 </tr>
                 <tr></tr>
             </tbody>
@@ -543,31 +543,31 @@
                         <table style="width: 100%;">
                             <tr class="am-font s9" ng-if="vm.isSubtotalVisible">
                                 <td style="text-align: right"><span class="am-default-cursor">Subtotal:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.service.subtotal}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.subtotal)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.isDiscountVisible">
                                 <td style="text-align: right"><span class="am-default-cursor">Discount:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.service.discount.total}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.discount.total)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-repeat="(taxname, tax) in vm.service.taxes" ng-if="vm.IsTaxVisible(tax)">
                                 <td style="text-align: right"><span class="am-default-cursor">{{taxname}}:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{tax.tax}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(tax.tax)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.isRoundOffVisible">
                                 <td style="text-align: right"><span class="am-default-cursor">Round Off:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.service.roundoff}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.restrictNumbers(vm.service.roundoff)}}</span></td>
                             </tr>
                             <tr class="am-font s9">
                                 <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
-                                <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.service.cost}}</span></td>
+                                <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.service.cost)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.service.partialpayment">
                                 <td style="text-align: right"><span class="am-default-cursor">Receieved:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.service.partialpayment.total}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.restrictNumbers(vm.service.partialpayment.total)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.service.partialpayment">
                                 <td style="text-align: right" class="w600"><span class="am-default-cursor">Due:</span></td>
-                                <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.paymentdue}}</span></td>
+                                <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.paymentdue)}}</span></td>
                             </tr>
                         </table>
                     </td>
@@ -852,15 +852,15 @@
                     <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getProblemIndex($index)}}</span>
                     <td><span class="s9">{{name}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">1</span></td>
-                    <td style="text-align: right"><span class="am-default-cursor">{{problem.rate}}</span></td>
-                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{problem.amount}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(problem.rate)}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(problem.amount)}}</span></td>
                 </tr>
                 <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, inventory) in vm.service.inventories">
                     <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getInventoryIndex($index)}}</span></td>
                     <td><span class="s9">{{name}}</span></td>
-                    <td style="text-align: right"><span class="am-default-cursor">{{inventory.qty}}</span></td>
-                    <td style="text-align: right"><span class="am-default-cursor">{{inventory.rate}}</span></td>
-                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{inventory.amount}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.qty)}}</span></td>
+                    <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.rate)}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.amount)}}</span></td>
                 </tr>
                 <tr></tr>
             </tbody>
@@ -876,31 +876,31 @@
                         <table style="width: 100%;">
                             <tr class="am-font s9" ng-if="vm.isSubtotalVisible">
                                 <td style="text-align: right"><span class="am-default-cursor">Subtotal:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.service.subtotal}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.subtotal)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.isDiscountVisible">
                                 <td style="text-align: right"><span class="am-default-cursor">Discount:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.service.discount.total}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.discount.total)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-repeat="(taxname, tax) in vm.service.taxes" ng-if="vm.IsTaxVisible(tax)">
                                 <td style="text-align: right"><span class="am-default-cursor">{{taxname}}:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{tax.tax}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(tax.tax)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.isRoundOffVisible">
                                 <td style="text-align: right"><span class="am-default-cursor">Round Off:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.service.roundoff}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.restrictNumbers(vm.service.roundoff)}}</span></td>
                             </tr>
                             <tr class="am-font s9">
                                 <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
-                                <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.service.cost}}</span></td>
+                                <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.service.cost)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.service.partialpayment">
                                 <td style="text-align: right"><span class="am-default-cursor">Receieved:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.service.partialpayment.total}}</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.restrictNumbers(vm.service.partialpayment.total)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.service.partialpayment">
                                 <td style="text-align: right" class="w600"><span class="am-default-cursor">Due:</span></td>
-                                <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.paymentdue}}</span></td>
+                                <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.paymentdue)}}</span></td>
                             </tr>
                         </table>
                     </td>

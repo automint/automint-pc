@@ -57,6 +57,7 @@
         vm.changeInvoiceCache = changeInvoiceCache;
         vm.changeServiceDetails = changeServiceDetails;
         vm.changeWorkshopDetails = changeWorkshopDetails;
+        vm.restrictNumbers = restrictNumbers;
 
         //  electron watchers
         eIpc.on('am-invoice-mail-sent', OnInvoiceMailSent);
@@ -71,6 +72,11 @@
         getInvoiceDetails();
 
         //  function definitions
+
+        function restrictNumbers(n) {
+            n = parseFloat(n);
+            return ((n % 1 != 0) ? n.toFixed(2) : parseInt(n));
+        }
 
         function changeWorkshopDetails() {
             var isWorkshopChanged = ((vm.workshop.name != oWorkshop.name) || (vm.workshop.address1 != oWorkshop.address1) || (vm.workshop.address2 != oWorkshop.address2) || (vm.workshop.city != oWorkshop.city));
