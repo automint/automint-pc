@@ -307,8 +307,12 @@
 
             function usersuccess(res) {
                 vm.user = res.user;
+                if (res.user.name == 'Anonymous')
+                    vm.user.name = '';
                 oCustomerEmail = res.user.email;
                 vm.vehicle = res.vehicle;
+                if (res.vehicle.reg.toLowerCase() == 'vehicle')
+                    vm.vehicle.reg = ''; 
                 vm.service = res.service;
                 oVehicleReg = vm.vehicle.reg;
                 oServiceOdo = vm.service.odo;
@@ -324,7 +328,7 @@
                 if (vm.vehicle.invoicedetails != undefined) {
                     vm.user.name = vm.vehicle.invoicedetails.name;
                     vm.user.mobile = vm.vehicle.invoicedetails.mobile;
-                    vm.vehicle.name = vm.vehicle.invoicedetails.vehicle;  
+                    vm.vehicle.name = vm.vehicle.invoicedetails.vehicle;
                     oUserName = vm.vehicle.invoicedetails.name;
                     oUserMobile = vm.vehicle.invoicedetails.mobile;
                     oVehicleName = vm.vehicle.invoicedetails.vehicle;

@@ -2,7 +2,7 @@
  * Controller for Edit Service component
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.2
+ * @version 0.8.0
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -696,7 +696,7 @@
             if (vm.service.state != vm.serviceStateList[2]) {
                 vm.areTaxesHidden = true;
                 if ((lastServiceState == vm.serviceStateList[2]) || !lastServiceState) {
-                    taxSettingsSnap = [];
+                    taxSettingsSnap = []; //
                     vm.taxSettings.forEach(iterateTaxes);
                 }
             } else {
@@ -1065,8 +1065,10 @@
                         name: tax.name
                     }, true);
 
-                    if (found.length == 0)
+                    if (found.length == 0) {
                         vm.taxSettings.push(tax);
+                        taxSettingsSnap.push(tax);
+                    }
                 }
             }
 
@@ -1194,8 +1196,10 @@
                         name: tax.name
                     }, true);
 
-                    if (found.length == 0)
+                    if (found.length == 0) {
                         vm.taxSettings.push(tax);
+                        taxSettingsSnap.push(tax);
+                    }
                 }
             }
 
@@ -1591,8 +1595,6 @@
                 vm.service.status = res.vehicle.service.status;
                 if (res.vehicle.service.partialpayment)
                     vm.service.partialpayment = res.vehicle.service.partialpayment;
-                vm.service.state = (res.vehicle.service.state == undefined) ? vm.serviceStateList[2] : res.vehicle.service.state;
-                vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
                 if (res.vehicle.service.roundoff) {
                     vm.isRoundOffVal = true;
                     isManualRoundOff = vm.isRoundOffVal;
@@ -1620,6 +1622,8 @@
                 getLastJobCardNo();
                 getLastEstimateNo();
                 getLastInvoiceNo();
+                selectServiceState((res.vehicle.service.state == undefined) ? vm.serviceStateList[2] : res.vehicle.service.state)
+                vm.label_invoice = (vm.service.state == vm.serviceStateList[2]) ? 'Invoice' : 'Send';
                 if (res.vehicle.service.discount) {
                     vm.isDiscountApplied = true;
                     if (res.vehicle.service.discount.amount) {
