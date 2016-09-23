@@ -424,7 +424,6 @@
             margin-top: 6px;
         }
     </style>
-    <!--padding-top: {{vm.settings.margin.top}}cm; padding-bottom: {{vm.settings.margin.bottom}}cm-->
     <div style="height: 100%; width: 100%;" class="am-flex-layout column">
         <div style="height: {{vm.settings.margin.top}}cm;"></div>
         <div class="am-flex-layout center">
@@ -508,7 +507,7 @@
                 <tr></tr>
             </tbody>
         </table>
-        <div style="flex: 1"></div>
+        <div style="flex: 1" ng-if="vm.IsA4Size()"></div>
         <table class="am-iv-table" style="width: 100%">
             <tr class="am-font s9" style="vertical-align: bottom">
                 <td colspan="2">
