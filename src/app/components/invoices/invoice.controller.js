@@ -2,7 +2,7 @@
  * Controller for Invoice
  * @author ndkcha
  * @since 0.5.0
- * @version 0.8.0
+ * @version 0.8.1
  */
 
 /// <reference path="../../../typings/main.d.ts" />
@@ -322,6 +322,8 @@
                 vm.service = res.service;
                 oVehicleReg = vm.vehicle.reg;
                 oServiceOdo = vm.service.odo;
+                if (vm.service.inventories != undefined)
+                    Object.keys(vm.service.inventories).forEach(iterateInventories);
                 if (vm.service.status.toLowerCase() == 'due') {
                     if (vm.service.partialpayment == undefined) {
                         vm.service.partialpayment = {
@@ -348,6 +350,10 @@
                 vm.isSubtotalVisible = (vm.isDiscountVisible || vm.isRoundOffVisible);
                 amInvoice.getWorkshopDetails(res.channel).then(workshopsuccess).catch(failure);
                 amInvoice.getInvoiceSettings(res.channel).then(settingssuccess).catch(failure);
+
+                function iterateInventories(inventory) {
+                    vm.service.inventories[inventory].total = parseFloat(vm.service.inventories[inventory].qty) * parseFloat(vm.service.inventories[inventory].amount); 
+                }
             }
 
             function settingssuccess(res) {

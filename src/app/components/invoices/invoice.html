@@ -30,9 +30,6 @@
             border-spacing: 0;
             border-collapse:collapse;
         }
-        .am-iv-table.a4size {
-            min-height: 297mm;
-        }
         .am-iv-table .am-table-body td {
             padding: 8px;
         }
@@ -151,72 +148,63 @@
             margin-top: 6px;
         }
     </style>
-    <div style="padding: 24px;">
-        <table style="width: 100%; margin-top: {{vm.settings.margin.top}}cm; margin-bottom: {{vm.settings.margin.bottom}}cm" class="am-iv-table" ng-class="{'a4size': vm.IsA4Size()}">
-            <thead>
-                <tr>
-                    <td colspan="100%">
-                        <div class="am-flex-layout center">
-                            <div class="am-flex-layout column" style="flex: 1; padding-bottom: 4px" ng-if="vm.settings.display.workshopDetails">
-                                <input type="text" ng-model="vm.workshop.name" placeholder="Workshop Name" class="am-font s14 w600 am-invoice-input" ng-change="vm.acWorkshopName()" ng-blur="vm.changeWorkshopDetails()">
-                                <input type="text" ng-model="vm.workshop.address1" placeholder="Workshop Address Line 1" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopAddress1()" ng-blur="vm.changeWorkshopDetails()">
-                                <input type="text" ng-model="vm.workshop.address2" placeholder="Workshop Address Line 2" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopAddress2()" ng-blur="vm.changeWorkshopDetails()">
-                                <input type="text" ng-model="vm.workshop.city" placeholder="Workshop City" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopCity()" ng-blur="vm.changeWorkshopDetails()">
-                                <span class="am-flex-layout center am-font s9"><i class="s7 am-default-cursor">(M)</i>&nbsp;<input type="text" ng-model="vm.workshop.phone" placeholder="Workshop Contact Number" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails()" style="flex: 1"></span>
-                            </div>
-                            <div class="am-flex-layout center end" style="flex: 1; margin-bottom: 6px" name="am-workshoplogo-holder" ng-if="vm.settings.display.workshopLogo"></div>
+    <div style="padding: 24px">
+        <div class="am-flex-layout center">
+            <div class="am-flex-layout column" style="flex: 1; padding-bottom: 4px" ng-if="vm.settings.display.workshopDetails">
+                <input type="text" ng-model="vm.workshop.name" placeholder="Workshop Name" class="am-font s14 w600 am-invoice-input" ng-change="vm.acWorkshopName()" ng-blur="vm.changeWorkshopDetails()">
+                <input type="text" ng-model="vm.workshop.address1" placeholder="Workshop Address Line 1" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopAddress1()" ng-blur="vm.changeWorkshopDetails()">
+                <input type="text" ng-model="vm.workshop.address2" placeholder="Workshop Address Line 2" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopAddress2()" ng-blur="vm.changeWorkshopDetails()">
+                <input type="text" ng-model="vm.workshop.city" placeholder="Workshop City" class="am-font s9 am-invoice-input" ng-change="vm.acWorkshopCity()" ng-blur="vm.changeWorkshopDetails()">
+                <span class="am-flex-layout center am-font s9"><i class="s7 am-default-cursor">(M)</i>&nbsp;<input type="text" ng-model="vm.workshop.phone" placeholder="Workshop Contact Number" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails()" style="flex: 1"></span>
+            </div>
+            <div class="am-flex-layout center end" style="flex: 1; margin-bottom: 6px" name="am-workshoplogo-holder" ng-if="vm.settings.display.workshopLogo"></div>
+        </div>
+        <hr style="background: grey; opacity: 0.2; margin: 0 30px 8px" ng-if="vm.isWorkshopAreaVisible">
+        <table style="width: 100%">
+            <tr>
+                <td style="vertical-align: middle;">
+                    <div class="am-flex-layout column">
+                        <span class="am-font s11 lh1-8 cgrey800 am-default-cursor">Bill To:</span>
+                        <div class="am-flex-layout center am-font">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Name:&nbsp;</span>
+                            <input type="text" ng-model="vm.user.name" ng-blur="vm.changeInvoiceCache()" style="width: 100%" class="s10 am-invoice-input" placeholder="Customer Name" ng-change="vm.acUserName()">
                         </div>
-                        <hr style="background: grey; opacity: 0.2; margin: 0 30px 8px" ng-if="vm.isWorkshopAreaVisible">
-                    </td>
-                </tr>
-                <tr class="am-row-invoice-details">
-                    <td colspan="100%">
-                        <table style="width: 100%">
-                            <tr>
-                                <td style="vertical-align: middle;">
-                                    <div class="am-flex-layout column">
-                                        <span class="am-font s11 lh1-8 cgrey800 am-default-cursor">Bill To:</span>
-                                        <div class="am-flex-layout center am-font">
-                                            <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Name:&nbsp;</span>
-                                            <input type="text" ng-model="vm.user.name" ng-blur="vm.changeInvoiceCache()" style="width: 100%" class="s10 am-invoice-input" placeholder="Customer Name" ng-change="vm.acUserName()">
-                                        </div>
-                                        <div class="am-flex-layout center am-font">
-                                            <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Mobile:&nbsp;</span>
-                                            <input type="text" ng-model="vm.user.mobile" ng-blur="vm.changeInvoiceCache()" class="s10 am-invoice-input" placeholder="Customer Mobile" ng-change="vm.acUserMobile()">
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="vertical-align: middle;">
-                                    <div class="am-flex-layout column">
-                                        <div class="am-flex-layout center am-font">
-                                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Vehicle:&nbsp;</span>
-                                            <input type="text" ng-model="vm.vehicle.name" ng-blur="vm.changeInvoiceCache()" class="s10 am-invoice-input" style="flex: 1" placeholder="Vehicle Name" ng-change="vm.acVehicleName()">
-                                        </div>
-                                        <div class="am-flex-layout center am-font">
-                                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Registration:&nbsp;</span>
-                                            <input type="text" ng-model="vm.vehicle.reg" ng-blur="vm.changeServiceDetails()" class="s10 am-invoice-input" style="flex: 1" placeholder="Vehicle Registration" ng-change="vm.acVehicleReg()">
-                                        </div>
-                                        <div class="am-flex-layout center am-font">
-                                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Odometer:&nbsp;</span>
-                                            <input type="text" ng-model="vm.service.odo" ng-blur="vm.changeServiceDetails()" class="s10 am-invoice-input" style="flex: 1" placeholder="Odometer Reading">
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="vertical-align: middle;" align="right">
-                                    <div class="am-flex-layout column am-font">
-                                        <span class="s14 am-default-cursor" style="line-height: 1">Invoice</span>
-                                        <span class="s9 cgrey700 am-default-cursor">#{{vm.service.invoiceno}}</span>
-                                    </div>
-                                    <div class="am-flex-layout center end am-font">
-                                        <span class="s9 w400 cgrey700 am-default-cursor">Date:&nbsp;</span>
-                                        <span class="s10 am-default-cursor">{{vm.service.date}}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                        <hr style="opacity: 0; margin-bottom: 16px;">
-                    </td>
-            </thead>
+                        <div class="am-flex-layout center am-font">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Mobile:&nbsp;</span>
+                            <input type="text" ng-model="vm.user.mobile" ng-blur="vm.changeInvoiceCache()" class="s10 am-invoice-input" placeholder="Customer Mobile" ng-change="vm.acUserMobile()">
+                        </div>
+                    </div>
+                </td>
+                <td style="vertical-align: middle;">
+                    <div class="am-flex-layout column">
+                        <div class="am-flex-layout center am-font">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Vehicle:&nbsp;</span>
+                            <input type="text" ng-model="vm.vehicle.name" ng-blur="vm.changeInvoiceCache()" class="s10 am-invoice-input" style="flex: 1" placeholder="Vehicle Name" ng-change="vm.acVehicleName()">
+                        </div>
+                        <div class="am-flex-layout center am-font">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Registration:&nbsp;</span>
+                            <input type="text" ng-model="vm.vehicle.reg" ng-blur="vm.changeServiceDetails()" class="s10 am-invoice-input" style="flex: 1" placeholder="Vehicle Registration" ng-change="vm.acVehicleReg()">
+                        </div>
+                        <div class="am-flex-layout center am-font">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Odometer:&nbsp;</span>
+                            <input type="text" ng-model="vm.service.odo" ng-blur="vm.changeServiceDetails()" class="s10 am-invoice-input" style="flex: 1" placeholder="Odometer Reading">
+                        </div>
+                    </div>
+                </td>
+                <td style="vertical-align: middle;" align="right">
+                    <div class="am-flex-layout column am-font">
+                        <span class="s14 am-default-cursor" style="line-height: 1">Invoice</span>
+                        <span class="s9 cgrey700 am-default-cursor">#{{vm.service.invoiceno}}</span>
+                    </div>
+                    <div class="am-flex-layout center end am-font">
+                        <span class="s9 w400 cgrey700 am-default-cursor">Date:&nbsp;</span>
+                        <span class="s10 am-default-cursor">{{vm.service.date}}</span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <hr style="opacity: 0; margin-bottom: 16px;">
+        <table class="am-iv-table" style="width: 100%;">
             <tbody class="am-table-body">
                 <tr class="am-font s10 apply-title-border" style="color: white; background: #424242; height: 0">
                     <td class="am-itemheader-index" style="text-align: center; padding: 8px 0; border-left: 0"><span class="am-default-cursor">#</span></td>
@@ -226,7 +214,7 @@
                     <td class="am-itemheader-amount" style="text-align: right; border-right: 0"><span class="am-default-cursor">Amount</span></td>
                 </tr>
                 <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, problem) in vm.service.problems">
-                    <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getProblemIndex($index)}}</span>
+                    <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getProblemIndex($index)}}</span></td>
                     <td><span class="am-default-cursor">{{name}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">1</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(problem.rate)}}</span></td>
@@ -237,76 +225,75 @@
                     <td><span class="am-default-cursor">{{name}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">{{inventory.qty}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.rate)}}</span></td>
-                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.amount)}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.total)}}</span></td>
                 </tr>
-                <tr></tr>
             </tbody>
-            <tfoot>
-                <tr class="am-font s9" style="vertical-align: bottom">
-                    <td colspan="3">
-                        <div class="am-flex-layout" ng-class="{'am-footer-margintop': !vm.isSubtotalVisible}" ng-if="vm.settings.notes.enabled">
-                            <span class="s9 w400 cgrey700 am-default-cursor" style="line-height: 1.1">Notes:</span>
-                            <textarea am-elastic-text-area class="s9 am-notes-input" ng-change="vm.parseNotes()" ng-model="vm.settings.notes.note" style="flex: 1;" rows="2"></textarea>
-                        </div>
-                    </td>
-                    <td colspan="2">
-                        <table style="width: 100%;">
-                            <tr class="am-font s9" ng-if="vm.isSubtotalVisible">
-                                <td style="text-align: right"><span class="am-default-cursor">Subtotal:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.subtotal)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9" ng-if="vm.isDiscountVisible">
-                                <td style="text-align: right"><span class="am-default-cursor">Discount:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.discount.total)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9" ng-repeat="(taxname, tax) in vm.service.taxes" ng-if="vm.IsTaxVisible(tax)">
-                                <td style="text-align: right"><span class="am-default-cursor">{{taxname}}:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(tax.tax)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9" ng-if="vm.isRoundOffVisible">
-                                <td style="text-align: right"><span class="am-default-cursor">Round Off:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.restrictNumbers(vm.service.roundoff)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9">
-                                <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
-                                <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.service.cost)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9" ng-if="vm.service.partialpayment">
-                                <td style="text-align: right"><span class="am-default-cursor">Receieved:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.restrictNumbers(vm.service.partialpayment.total)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9" ng-if="vm.service.partialpayment">
-                                <td style="text-align: right" class="w600"><span class="am-default-cursor">Due:</span></td>
-                                <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.paymentdue)}}</span></td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr class="am-font s9">
-                    <td colspan="100%">
-                        <div class="am-flex-layout center middle" style="padding: 16px" ng-if="vm.isSocialLinkVisible">
-                            <span style="margin-right: 16px" class="am-default-cursor">Follow Us on:</span>
-                            <a class="am-flex-layout center" ng-if="vm.isFacebookLinkVisible">
-                                <img src="assets/img/facebook.svg" width="15" height="15">
-                                <span>/</span><input type="text" ng-model="vm.workshop.social.facebook" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails()">
-                            </a>
-                            <a class="am-flex-layout center" ng-if="vm.isInstagramLinkVisible">
-                                <img src="assets/img/instagram.svg" width="15" height="15">
-                                <span>/</span><input type="text" ng-model="vm.workshop.social.instagram" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails()">
-                            </a>
-                            <a class="am-flex-layout center" ng-if="vm.isTwitterLinkVisible">
-                                <img src="assets/img/twitter.svg" width="15" height="15">
-                                <span>/</span><input type="text" ng-model="vm.workshop.social.twitter" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails">
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="100%">
-                        <div class="am-flex-layout center middle" name="am-footerlogo-holder" ng-if="vm.settings.display.footerLogo"></div>
-                    </td>
-                </tr>
-            </tfoot>
+        </table>
+        <table class="am-iv-table" style="width: 100%">
+            <tr class="am-font s9" style="vertical-align: bottom">
+                <td style="width: 76%">
+                    <div class="am-flex-layout" ng-class="{'am-footer-margintop': !vm.isSubtotalVisible}" ng-if="vm.settings.notes.enabled">
+                        <span class="s9 w400 cgrey700 am-default-cursor" style="line-height: 1.1">Notes:</span>
+                        <textarea am-elastic-text-area class="s9 am-notes-input" ng-change="vm.parseNotes()" ng-model="vm.settings.notes.note" style="flex: 1;" rows="2"></textarea>
+                    </div>
+                </td>
+                <td>
+                    <table style="width: 100%;">
+                        <tr class="am-font s9" ng-if="vm.isSubtotalVisible">
+                            <td style="text-align: right"><span class="am-default-cursor">Subtotal:</span></td>
+                            <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.subtotal)}}</span></td>
+                        </tr>
+                        <tr class="am-font s9" ng-if="vm.isDiscountVisible">
+                            <td style="text-align: right"><span class="am-default-cursor">Discount:</span></td>
+                            <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.discount.total)}}</span></td>
+                        </tr>
+                        <tr class="am-font s9" ng-repeat="(taxname, tax) in vm.service.taxes" ng-if="vm.IsTaxVisible(tax)">
+                            <td style="text-align: right"><span class="am-default-cursor">{{taxname}}:</span></td>
+                            <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(tax.tax)}}</span></td>
+                        </tr>
+                        <tr class="am-font s9" ng-if="vm.isRoundOffVisible">
+                            <td style="text-align: right"><span class="am-default-cursor">Round Off:</span></td>
+                            <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.restrictNumbers(vm.service.roundoff)}}</span></td>
+                        </tr>
+                        <tr class="am-font s9">
+                            <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
+                            <td style="width: 50%; text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s7">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.service.cost)}}</span></td>
+                        </tr>
+                        <tr class="am-font s9" ng-if="vm.service.partialpayment">
+                            <td style="text-align: right"><span class="am-default-cursor">Receieved:</span></td>
+                            <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.restrictNumbers(vm.service.partialpayment.total)}}</span></td>
+                        </tr>
+                        <tr class="am-font s9" ng-if="vm.service.partialpayment">
+                            <td style="text-align: right" class="w600"><span class="am-default-cursor">Due:</span></td>
+                            <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s7">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.paymentdue)}}</span></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="am-font s9">
+                <td colspan="100%">
+                    <div class="am-flex-layout center middle" style="padding: 16px" ng-if="vm.isSocialLinkVisible">
+                        <span style="margin-right: 16px" class="am-default-cursor">Follow Us on:</span>
+                        <a class="am-flex-layout center" ng-if="vm.isFacebookLinkVisible">
+                            <img src="assets/img/facebook.svg" width="15" height="15">
+                            <span>/</span><input type="text" ng-model="vm.workshop.social.facebook" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails()">
+                        </a>
+                        <a class="am-flex-layout center" ng-if="vm.isInstagramLinkVisible">
+                            <img src="assets/img/instagram.svg" width="15" height="15">
+                            <span>/</span><input type="text" ng-model="vm.workshop.social.instagram" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails()">
+                        </a>
+                        <a class="am-flex-layout center" ng-if="vm.isTwitterLinkVisible">
+                            <img src="assets/img/twitter.svg" width="15" height="15">
+                            <span>/</span><input type="text" ng-model="vm.workshop.social.twitter" class="am-invoice-input" ng-blur="vm.changeWorkshopDetails">
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="100%">
+                    <div class="am-flex-layout center middle" name="am-footerlogo-holder" ng-if="vm.settings.display.footerLogo"></div>
+                </td>
+            </tr>
         </table>
     </div>
 </md-content>
@@ -319,9 +306,6 @@
             border-spacing: 0;
             border-collapse:collapse;
         }
-        .am-iv-table.a4size {
-            min-height: 297mm;
-        }
         .am-iv-table .am-table-body td {
             padding: 8px;
         }
@@ -440,73 +424,64 @@
             margin-top: 6px;
         }
     </style>
-    <div style="padding: 24px;">
-        <table style="width: 100%; margin-top: {{vm.settings.margin.top}}cm; margin-bottom: {{vm.settings.margin.bottom}}cm" class="am-iv-table" ng-class="{'a4size': vm.IsA4Size()}">
-            <thead>
-                <tr>
-                    <td colspan="100%">
-                        <div class="am-flex-layout center">
-                            <div class="am-flex-layout column" style="flex: 1; padding-bottom: 4px" ng-if="vm.settings.display.workshopDetails">
-                                <span class="am-font s14 w600">{{vm.workshop.name}}</span>
-                                <span class="am-font s9">{{vm.workshop.address1}}</span>
-                                <span class="am-font s9">{{vm.workshop.address2}}</span>
-                                <span class="am-font s9">{{vm.workshop.city}}</span>
-                                <span class="am-font s9"><i class="s7">(M)</i>&nbsp;{{vm.workshop.phone}}</span>
-                            </div>
-                            <div class="am-flex-layout center end" style="flex: 1; margin-bottom: 6px" name="am-workshoplogo-holder" ng-if="vm.settings.display.workshopLogo"></div>
+    <div style="height: 100%; width: 100%;" class="am-flex-layout column">
+        <div style="height: {{vm.settings.margin.top}}cm;"></div>
+        <div class="am-flex-layout center">
+            <div class="am-flex-layout column" style="flex: 1; padding-bottom: 4px" ng-if="vm.settings.display.workshopDetails">
+                <span class="am-font s14 w600">{{vm.workshop.name}}</span>
+                <span class="am-font s9">{{vm.workshop.address1}}</span>
+                <span class="am-font s9">{{vm.workshop.address2}}</span>
+                <span class="am-font s9">{{vm.workshop.city}}</span>
+                <span class="am-font s9"><i class="s7">(M)</i>&nbsp;{{vm.workshop.phone}}</span>
+            </div>
+            <div class="am-flex-layout center end" style="flex: 1; margin-bottom: 6px" name="am-workshoplogo-holder" ng-if="vm.settings.display.workshopLogo"></div>
+        </div>
+        <hr style="background: grey; opacity: 0.2; margin: 0 30px 8px" ng-if="vm.isWorkshopAreaVisible">
+        <table style="width: 100%">
+            <tr>
+                <td style="vertical-align: middle; padding: 0">
+                    <div class="am-flex-layout column">
+                        <span class="am-font s11 lh1-8 cgrey800 am-default-cursor">Bill To:</span>
+                        <div class="am-flex-layout center am-font" style="width: 100%;">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Name:&nbsp;</span>
+                            <span class="s10" style="width: 100%;">{{vm.user.name}}</span>
                         </div>
-                        <hr style="background: grey; opacity: 0.2; margin: 0 30px 8px" ng-if="vm.isWorkshopAreaVisible">
-                    </td>
-                </tr>
-                <tr class="am-row-invoice-details">
-                    <td colspan="100%">
-                        <table style="width: 100%">
-                            <tr>
-                                <td style="vertical-align: middle;">
-                                    <div class="am-flex-layout column">
-                                        <span class="am-font s11 lh1-8 cgrey800 am-default-cursor">Bill To:</span>
-                                        <div class="am-flex-layout center am-font">
-                                            <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Name:&nbsp;</span>
-                                            <span class="s10">{{vm.user.name}}</span>
-                                        </div>
-                                        <div class="am-flex-layout center am-font">
-                                            <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Mobile:&nbsp;</span>
-                                            <span class="s10">{{vm.user.mobile}}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="vertical-align: middle;">
-                                    <div class="am-flex-layout column">
-
-                                        <div class="am-flex-layout center am-font">
-                                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Vehicle:&nbsp;</span>
-                                            <span class="s10" style="flex: 1">{{vm.vehicle.name}}</span>
-                                        </div>
-                                        <div class="am-flex-layout center am-font">
-                                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Registration:&nbsp;</span>
-                                            <span class="s10" style="flex: 1">{{vm.vehicle.reg}}</span>
-                                        </div>
-                                        <div class="am-flex-layout center am-font">
-                                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Odometer:&nbsp;</span>
-                                            <span class="s10" style="flex: 1">{{vm.service.odo}}</span>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td style="vertical-align: middle;" align="right">
-                                    <div class="am-flex-layout column am-font">
-                                        <span class="s14 am-default-cursor" style="line-height: 1">Invoice</span>
-                                        <span class="s9 cgrey700 am-default-cursor">#{{vm.service.invoiceno}}</span>
-                                    </div>
-                                    <div class="am-flex-layout center end am-font">
-                                        <span class="s9 w400 cgrey700 am-default-cursor">Date:&nbsp;</span>
-                                        <span class="s10">{{vm.service.date}}</span>
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                        <hr style="opacity: 0; margin-bottom: 16px;">
-                    </td>
-            </thead>
+                        <div class="am-flex-layout center am-font" style="width: 100%;">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Mobile:&nbsp;</span>
+                            <span class="s10" style="width: 100%;">{{vm.user.mobile}}</span>
+                        </div>
+                    </div>
+                </td>
+                <td style="vertical-align: middle; padding: 0">
+                    <div class="am-flex-layout column">
+                        <div class="am-flex-layout center am-font" style="width: 100%;">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Vehicle:&nbsp;</span>
+                            <span class="s10" style="flex: 1" style="width: 100%;">{{vm.vehicle.name}}</span>
+                        </div>
+                        <div class="am-flex-layout center am-font" style="width: 100%;">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Registration:&nbsp;</span>
+                            <span class="s10" style="flex: 1" style="width: 100%;">{{vm.vehicle.reg}}</span>
+                        </div>
+                        <div class="am-flex-layout center am-font" style="width: 100%;">
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Odometer:&nbsp;</span>
+                            <span class="s10" style="flex: 1" style="width: 100%;">{{vm.service.odo}}</span>
+                        </div>
+                    </div>
+                </td>
+                <td style="vertical-align: middle; padding: 0" align="right">
+                    <div class="am-flex-layout column am-font">
+                        <span class="s14 am-default-cursor" style="line-height: 1">Invoice</span>
+                        <span class="s9 cgrey700 am-default-cursor">#{{vm.service.invoiceno}}</span>
+                    </div>
+                    <div class="am-flex-layout center end am-font">
+                        <span class="s9 w400 cgrey700 am-default-cursor">Date:&nbsp;</span>
+                        <span class="s10">{{vm.service.date}}</span>
+                    </div>
+                </td>
+            </tr>
+        </table>
+        <hr style="opacity: 0; margin-bottom: 16px;">
+        <table class="am-iv-table" style="width: 100%;">
             <tbody class="am-table-body">
                 <tr class="am-font s10 apply-title-border" style="color: white; background: #424242; height: 0; -webkit-print-color-adjust: exact;">
                     <td class="am-itemheader-index" style="text-align: center; padding: 8px 0; border-left: 0"><span class="am-default-cursor">#</span></td>
@@ -527,77 +502,79 @@
                     <td><span class="s9">{{name}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">{{inventory.qty}}</span></td>
                     <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.rate)}}</span></td>
-                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.amount)}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.total)}}</span></td>
                 </tr>
                 <tr></tr>
             </tbody>
-            <tfoot>
-                <tr class="am-font s9" style="vertical-align: bottom">
-                    <td colspan="3">
-                        <div class="am-flex-layout" ng-class="{'am-footer-margintop': !vm.isSubtotalVisible}" ng-if="vm.settings.notes.enabled">
-                            <span class="s9 w400 cgrey700 am-default-cursor" style="margin-right: 6px">Notes:</span>
-                            <span class="s9" ng-bind-html="vm.notes"></span>
-                        </div>
-                    </td>
-                    <td colspan="2">
-                        <table style="width: 100%;">
-                            <tr class="am-font s9" ng-if="vm.isSubtotalVisible">
-                                <td style="text-align: right"><span class="am-default-cursor">Subtotal:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.subtotal)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9" ng-if="vm.isDiscountVisible">
-                                <td style="text-align: right"><span class="am-default-cursor">Discount:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.discount.total)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9" ng-repeat="(taxname, tax) in vm.service.taxes" ng-if="vm.IsTaxVisible(tax)">
-                                <td style="text-align: right"><span class="am-default-cursor">{{taxname}}:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(tax.tax)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9" ng-if="vm.isRoundOffVisible">
-                                <td style="text-align: right"><span class="am-default-cursor">Round Off:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.restrictNumbers(vm.service.roundoff)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9">
-                                <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
-                                <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.service.cost)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9" ng-if="vm.service.partialpayment">
-                                <td style="text-align: right"><span class="am-default-cursor">Receieved:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.restrictNumbers(vm.service.partialpayment.total)}}</span></td>
-                            </tr>
-                            <tr class="am-font s9" ng-if="vm.service.partialpayment">
-                                <td style="text-align: right" class="w600"><span class="am-default-cursor">Due:</span></td>
-                                <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.paymentdue)}}</span></td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-                <tr class="am-font s9">
-                    <td colspan="100%">
-                        <div class="am-flex-layout center middle" style="padding: 16px" ng-if="vm.isSocialLinkVisible">
-                            <span style="margin-right: 16px" class="am-default-cursor">Follow Us on:</span>
-                            <a class="am-flex-layout center" ng-if="vm.isFacebookLinkVisible" style="margin-right: 4px;">
-                                <img src="assets/img/facebook.svg" width="15" height="15" id="am-social-facebook">
-                                <span>/</span>{{vm.workshop.social.facebook}}
-                            </a>
-                            <a class="am-flex-layout center" ng-if="vm.isInstagramLinkVisible" style="margin: 0 4px;">
-                                <img src="assets/img/instagram.svg" width="15" height="15" id="am-social-instagram">
-                                <span>/</span>{{vm.workshop.social.instagram}}
-                            </a>
-                            <a class="am-flex-layout center" ng-if="vm.isTwitterLinkVisible" style="margin: 0 4px">
-                                <img src="assets/img/twitter.svg" width="15" height="15" id="am-social-twitter">
-                                <span>/</span>{{vm.workshop.social.twitter}}
-                            </a>
-                        </div>
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="100%">
-                        <div class="am-flex-layout center middle" name="am-footerlogo-holder" ng-if="vm.settings.display.footerLogo"></div>
-                    </td>
-                </tr>
-            </tfoot>
         </table>
+        <div style="flex: 1" ng-if="vm.IsA4Size()"></div>
+        <table class="am-iv-table" style="width: 100%">
+            <tr class="am-font s9" style="vertical-align: bottom">
+                <td style="width: 76%">
+                    <div class="am-flex-layout" ng-class="{'am-footer-margintop': !vm.isSubtotalVisible}" ng-if="vm.settings.notes.enabled">
+                        <span class="s9 w400 cgrey700 am-default-cursor" style="margin-right: 6px">Notes:</span>
+                        <span class="s9" ng-bind-html="vm.notes"></span>
+                    </div>
+                </td>
+                <td>
+                    <table style="width: 100%;">
+                        <tr class="am-font s9" ng-if="vm.isSubtotalVisible">
+                            <td style="text-align: right"><span class="am-default-cursor">Subtotal:</span></td>
+                            <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.subtotal)}}</span></td>
+                        </tr>
+                        <tr class="am-font s9" ng-if="vm.isDiscountVisible">
+                            <td style="text-align: right"><span class="am-default-cursor">Discount:</span></td>
+                            <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.discount.total)}}</span></td>
+                        </tr>
+                        <tr class="am-font s9" ng-repeat="(taxname, tax) in vm.service.taxes" ng-if="vm.IsTaxVisible(tax)">
+                            <td style="text-align: right"><span class="am-default-cursor">{{taxname}}:</span></td>
+                            <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(tax.tax)}}</span></td>
+                        </tr>
+                        <tr class="am-font s9" ng-if="vm.isRoundOffVisible">
+                            <td style="text-align: right"><span class="am-default-cursor">Round Off:</span></td>
+                            <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.restrictNumbers(vm.service.roundoff)}}</span></td>
+                        </tr>
+                        <tr class="am-font s9">
+                            <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
+                            <td style="width: 50%; text-align: right; padding-right: 8px"><span class="am-default-cursor"><span class="s7">{{vm.currencySymbol}}</span> <span class="w600">{{vm.restrictNumbers(vm.service.cost)}}</span></span></td>
+                        </tr>
+                        <tr class="am-font s9" ng-if="vm.service.partialpayment">
+                            <td style="text-align: right"><span class="am-default-cursor">Receieved:</span></td>
+                            <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.restrictNumbers(vm.service.partialpayment.total)}}</span></td>
+                        </tr>
+                        <tr class="am-font s9" ng-if="vm.service.partialpayment">
+                            <td style="text-align: right" class="w600"><span class="am-default-cursor">Due:</span></td>
+                            <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor"><span class="s7">{{vm.currencySymbol}}</span> <span class="w600">{{vm.restrictNumbers(vm.paymentdue)}}</span></span></td>
+                        </tr>
+                    </table>
+                </td>
+            </tr>
+            <tr class="am-font s9">
+                <td colspan="100%">
+                    <div class="am-flex-layout center middle" style="padding: 16px" ng-if="vm.isSocialLinkVisible">
+                        <span style="margin-right: 16px" class="am-default-cursor">Follow Us on:</span>
+                        <a class="am-flex-layout center" ng-if="vm.isFacebookLinkVisible" style="margin-right: 4px;">
+                            <img src="assets/img/facebook.svg" width="15" height="15" id="am-social-facebook">
+                            <span>/</span>{{vm.workshop.social.facebook}}
+                        </a>
+                        <a class="am-flex-layout center" ng-if="vm.isInstagramLinkVisible" style="margin: 0 4px;">
+                            <img src="assets/img/instagram.svg" width="15" height="15" id="am-social-instagram">
+                            <span>/</span>{{vm.workshop.social.instagram}}
+                        </a>
+                        <a class="am-flex-layout center" ng-if="vm.isTwitterLinkVisible" style="margin: 0 4px">
+                            <img src="assets/img/twitter.svg" width="15" height="15" id="am-social-twitter">
+                            <span>/</span>{{vm.workshop.social.twitter}}
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="100%">
+                    <div class="am-flex-layout center middle" name="am-footerlogo-holder" ng-if="vm.settings.display.footerLogo"></div>
+                </td>
+            </tr>
+        </table>
+        <div style="height: {{vm.settings.margin.bottom}}cm"></div>
     </div>
 </md-content>
 <md-content class="am-white-background" id="am-mail-body" ng-hide="true">
@@ -608,9 +585,6 @@
         .am-iv-table {
             border-spacing: 0;
             border-collapse:collapse;
-        }
-        .am-iv-table.a4size {
-            min-height: 297mm;
         }
         .am-iv-table .am-table-body td {
             padding: 8px;
@@ -752,16 +726,16 @@
                                             <td><span style="color: black" class="am-font s14 w600">{{vm.workshop.name}}</span></td>
                                         </tr>
                                         <tr>
-                                            <td><span class="am-font s9">{{vm.workshop.address1}}</span></td>
+                                            <td><span style="color: black" class="am-font s9">{{vm.workshop.address1}}</span></td>
                                         </tr>
                                         <tr>
-                                            <td><span class="am-font s9">{{vm.workshop.address2}}</span></td>
+                                            <td><span style="color: black" class="am-font s9">{{vm.workshop.address2}}</span></td>
                                         </tr>
                                         <tr>
-                                            <td><span class="am-font s9">{{vm.workshop.city}}</span></td>
+                                            <td><span style="color: black" class="am-font s9">{{vm.workshop.city}}</span></td>
                                         </tr>
                                         <tr>
-                                            <td><span class="am-font s9"><i class="s7">(M)</i>&nbsp;{{vm.workshop.phone}}</span></td>
+                                            <td><span style="color: black" class="am-font s9"><i class="s7">(M)</i>&nbsp;{{vm.workshop.phone}}</span></td>
                                         </tr>
                                     </table>
                                 </td>
@@ -769,18 +743,18 @@
                                     <table>
                                         <tr>
                                             <td style="text-align: right">
-                                                <span class="s14 am-default-cursor" style="line-height: 1">Invoice</span>
+                                                <span style="color: black" class="s14 am-default-cursor" style="line-height: 1">Invoice</span>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td style="text-align: right">
-                                                <span class="s9 cgrey700 am-default-cursor">#{{vm.service.invoiceno}}</span>
+                                                <span style="color: #616161;" class="s9 cgrey700 am-default-cursor">#{{vm.service.invoiceno}}</span>
                                             </td>
                                         </tr>
                                         <tr>
                                             <td>
-                                                <span class="s9 w400 cgrey700 am-default-cursor">Date:&nbsp;</span>
-                                                <span class="s10">{{vm.service.date}}</span>
+                                                <span style="color: #616161;" class="s9 w400 cgrey700 am-default-cursor">Date:&nbsp;</span>
+                                                <span style="color: black" class="s10">{{vm.service.date}}</span>
                                             </td>
                                         </tr>
                                     </table>
@@ -797,22 +771,22 @@
                                 <td style="vertical-align: middle;">
                                     <table style="width: 100%">
                                         <tr>
-                                            <td colspan="2"><span class="am-font s11 lh1-8 cgrey800 am-default-cursor">Bill To:</span></td>
+                                            <td colspan="2"><span style="color: #424242;" class="am-font s11 lh1-8 cgrey800 am-default-cursor">Bill To:</span></td>
                                         </tr>
                                         <tr ng-if="vm.user.name">
                                             <td style="width: 10%">
-                                                <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Name:&nbsp;</span>
+                                                <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right; color: #616161;">Name:&nbsp;</span>
                                             </td>
                                             <td>
-                                                <span class="s10">{{vm.user.name}}</span>
+                                                <span style="color: black" class="s10">{{vm.user.name}}</span>
                                             </td>
                                         </tr>
                                         <tr ng-if="vm.user.mobile">
                                             <td>
-                                                <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right">Mobile:&nbsp;</span>
+                                                <span class="s9 w400 cgrey700 am-default-cursor" style="width: 42px; text-align: right; color: #616161;">Mobile:&nbsp;</span>
                                             </td>
                                             <td>
-                                                <span class="s10">{{vm.user.mobile}}</span>
+                                                <span style="color: black" class="s10">{{vm.user.mobile}}</span>
                                             </td>
                                         </tr>
                                     </table>
@@ -821,16 +795,16 @@
                                     <table style="width: 100%" class="am-font">
                                         <tr ng-if="vm.vehicle.name">
                                             <td colspan="100%" style="text-align: right">
-                                                <span class="s10">{{vm.vehicle.name}}</span>
+                                                <span style="color: black" class="s10">{{vm.vehicle.name}}</span>
                                             </td>
                                         </tr>
                                         <tr ng-if="vm.vehicle.reg">
-                                            <td style="width: 84%; text-align: right"><span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Registration:&nbsp;</span></td>
-                                            <td style="text-align: right"><span class="s10">{{vm.vehicle.reg}}</span></td>
+                                            <td style="width: 84%; text-align: right"><span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right; color: #616161;">Registration:&nbsp;</span></td>
+                                            <td style="text-align: right"><span style="color: black" class="s10">{{vm.vehicle.reg}}</span></td>
                                         </tr>
                                         <tr ng-if="vm.service.odo">
-                                            <td style="width: 84%; text-align: right"><span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right">Odometer:&nbsp;</span></td>
-                                            <td style="text-align: right"><span class="s10">{{vm.service.odo}}</span></td>
+                                            <td style="width: 84%; text-align: right"><span class="s9 w400 cgrey700 am-default-cursor" style="flex: 1; text-align: right; color: #616161;">Odometer:&nbsp;</span></td>
+                                            <td style="text-align: right"><span style="color: black" class="s10">{{vm.service.odo}}</span></td>
                                         </tr>
                                     </table>
                                 </td>
@@ -849,18 +823,18 @@
                     <td class="am-itemheader-amount" style="text-align: right; border-right: 0"><span class="am-default-cursor">Amount</span></td>
                 </tr>
                 <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, problem) in vm.service.problems">
-                    <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getProblemIndex($index)}}</span>
-                    <td><span class="s9">{{name}}</span></td>
-                    <td style="text-align: right"><span class="am-default-cursor">1</span></td>
-                    <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(problem.rate)}}</span></td>
-                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(problem.amount)}}</span></td>
+                    <td style="text-align: center; border-left: 0"><span style="color: black" class="s7 am-default-cursor">{{vm.getProblemIndex($index)}}</span>
+                    <td><span style="color: black" class="s9">{{name}}</span></td>
+                    <td style="text-align: right"><span style="color: black" class="am-default-cursor">1</span></td>
+                    <td style="text-align: right"><span style="color: black" class="am-default-cursor">{{vm.restrictNumbers(problem.rate)}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span style="color: black" class="am-default-cursor">{{vm.restrictNumbers(problem.amount)}}</span></td>
                 </tr>
                 <tr class="am-font s9 apply-default-border" style="height: 0" ng-repeat="(name, inventory) in vm.service.inventories">
-                    <td style="text-align: center; border-left: 0"><span class="s7 am-default-cursor">{{vm.getInventoryIndex($index)}}</span></td>
-                    <td><span class="s9">{{name}}</span></td>
-                    <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.qty)}}</span></td>
-                    <td style="text-align: right"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.rate)}}</span></td>
-                    <td style="text-align: right; border-right: 0"><span class="am-default-cursor">{{vm.restrictNumbers(inventory.amount)}}</span></td>
+                    <td style="text-align: center; border-left: 0"><span style="color: black" class="s7 am-default-cursor">{{vm.getInventoryIndex($index)}}</span></td>
+                    <td><span style="color: black" class="s9">{{name}}</span></td>
+                    <td style="text-align: right"><span style="color: black" class="am-default-cursor">{{vm.restrictNumbers(inventory.qty)}}</span></td>
+                    <td style="text-align: right"><span style="color: black" class="am-default-cursor">{{vm.restrictNumbers(inventory.rate)}}</span></td>
+                    <td style="text-align: right; border-right: 0"><span style="color: black" class="am-default-cursor">{{vm.restrictNumbers(inventory.total)}}</span></td>
                 </tr>
                 <tr></tr>
             </tbody>
@@ -868,39 +842,39 @@
                 <tr class="am-font s9" style="vertical-align: bottom">
                     <td colspan="3">
                         <div style="display: flex" ng-if="vm.settings.notes.enabled">
-                            <span class="s9 w400 cgrey700 am-default-cursor" style="margin-right: 6px">Notes:&nbsp;</span>
-                            <span class="s10" ng-bind-html="vm.notes"></span>
+                            <span class="s9 w400 cgrey700 am-default-cursor" style="margin-right: 6px; color: #616161;">Notes:&nbsp;</span>
+                            <span class="s10" style="color: black" ng-bind-html="vm.notes"></span>
                         </div>
                     </td>
                     <td colspan="2">
                         <table style="width: 100%;">
                             <tr class="am-font s9" ng-if="vm.isSubtotalVisible">
-                                <td style="text-align: right"><span class="am-default-cursor">Subtotal:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.subtotal)}}</span></td>
+                                <td style="text-align: right"><span style="color: black" class="am-default-cursor">Subtotal:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span style="color: black" class="am-default-cursor">{{vm.restrictNumbers(vm.service.subtotal)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.isDiscountVisible">
-                                <td style="text-align: right"><span class="am-default-cursor">Discount:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(vm.service.discount.total)}}</span></td>
+                                <td style="text-align: right"><span style="color: black" class="am-default-cursor">Discount:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span style="color: black" class="am-default-cursor">{{vm.restrictNumbers(vm.service.discount.total)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-repeat="(taxname, tax) in vm.service.taxes" ng-if="vm.IsTaxVisible(tax)">
-                                <td style="text-align: right"><span class="am-default-cursor">{{taxname}}:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cursor">{{vm.restrictNumbers(tax.tax)}}</span></td>
+                                <td style="text-align: right"><span style="color: black" class="am-default-cursor">{{taxname}}:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span style="color: black" class="am-default-cursor">{{vm.restrictNumbers(tax.tax)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.isRoundOffVisible">
-                                <td style="text-align: right"><span class="am-default-cursor">Round Off:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-curosr">{{vm.restrictNumbers(vm.service.roundoff)}}</span></td>
+                                <td style="text-align: right"><span style="color: black" class="am-default-cursor">Round Off:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span style="color: black" class="am-default-curosr">{{vm.restrictNumbers(vm.service.roundoff)}}</span></td>
                             </tr>
                             <tr class="am-font s9">
-                                <td style="width: 50%; text-align: right;" class="w600"><span class="am-default-cursor">Total:</span></td>
-                                <td style="width: 50%; text-align: right; padding-right: 8px" class="w600 s11"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.service.cost)}}</span></td>
+                                <td style="width: 50%; text-align: right;" class="w600"><span style="color: black" class="am-default-cursor">Total:</span></td>
+                                <td style="width: 50%; text-align: right; padding-right: 8px"><span style="color: black" class="am-default-cursor"><span class="s7" style="color: black">{{vm.currencySymbol}}</span> <span class="w600" style="color: black">{{vm.restrictNumbers(vm.service.cost)}}</span></span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.service.partialpayment">
-                                <td style="text-align: right"><span class="am-default-cursor">Receieved:</span></td>
-                                <td style="text-align: right; padding-right: 8px"><span class="am-default-cusror">{{vm.restrictNumbers(vm.service.partialpayment.total)}}</span></td>
+                                <td style="text-align: right"><span style="color: black" class="am-default-cursor">Receieved:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span style="color: black" class="am-default-cusror">{{vm.restrictNumbers(vm.service.partialpayment.total)}}</span></td>
                             </tr>
                             <tr class="am-font s9" ng-if="vm.service.partialpayment">
-                                <td style="text-align: right" class="w600"><span class="am-default-cursor">Due:</span></td>
-                                <td style="text-align: right; padding-right: 8px" class="w600"><span class="am-default-cursor"><span class="s9">{{vm.currencySymbol}}</span> {{vm.restrictNumbers(vm.paymentdue)}}</span></td>
+                                <td style="text-align: right" class="w600"><span style="color: black" class="am-default-cursor">Due:</span></td>
+                                <td style="text-align: right; padding-right: 8px"><span style="color: black" class="am-default-cursor"><span class="s7" style="color: black">{{vm.currencySymbol}}</span> <span class="w600" style="color: black">{{vm.restrictNumbers(vm.paymentdue)}}</span></span></td>
                             </tr>
                         </table>
                     </td>
@@ -913,19 +887,19 @@
                                     <tr>
                                         <td><span style="margin-right: 16px" class="am-default-cursor">Follow Us on:</span></td>
                                         <td>
-                                            <a href="{{vm.facebookLink}}" target="_blank" class="am-flex-layout center am-social-link" ng-if="vm.isFacebookLinkVisible" style="margin-right: 4px">
+                                            <a href="{{vm.facebookLink}}" style="color: black" target="_blank" class="am-flex-layout center am-social-link" ng-if="vm.isFacebookLinkVisible" style="margin-right: 4px">
                                                 <img src="https://www.facebook.com/images/fb_icon_325x325.png" width="15" height="15">
                                                 <span>/</span>{{vm.workshop.social.facebook}}
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="{{vm.instagramLink}}" target="_blank" class="am-flex-layout center am-social-link" ng-if="vm.isInstagramLinkVisible" style="margin: 0 4px"> 
+                                            <a href="{{vm.instagramLink}}" style="color: black" target="_blank" class="am-flex-layout center am-social-link" ng-if="vm.isInstagramLinkVisible" style="margin: 0 4px"> 
                                                 <img src="http://3835642c2693476aa717-d4b78efce91b9730bcca725cf9bb0b37.r51.cf1.rackcdn.com/Instagram_App_Large_May2016_200.png" width="15" height="15">
                                                 <span>/</span>{{vm.workshop.social.instagram}}
                                             </a>
                                         </td>
                                         <td>
-                                            <a href="{{vm.twitterLink}}" target="_blank" class="am-flex-layout center am-social-link" ng-if="vm.isTwitterLinkVisible" style="margin: 0 4px">
+                                            <a href="{{vm.twitterLink}}" style="color: black" target="_blank" class="am-flex-layout center am-social-link" ng-if="vm.isTwitterLinkVisible" style="margin: 0 4px">
                                                 <img src="https://g.twimg.com/Twitter_logo_blue.png" width="15" height="15">
                                                 <span>/</span>{{vm.workshop.social.twitter}}
                                             </a>
