@@ -45,7 +45,7 @@
             <md-icon style="color: #424242">help</md-icon>
             <md-tooltip>Open Automint Help</md-tooltip>
         </md-button>
-        <md-button ng-if="vm.IsPasscodeEnabled()" aria-label="Lock" class="md-icon-button" ng-click="headerVm.openLockScreen()">
+        <md-button ng-if="headerVm.IsPasscodeEnabled()" aria-label="Lock" class="md-icon-button" ng-click="headerVm.openLockScreen()">
             <md-icon style="color: #424242">lock</md-icon>
             <md-tooltip>Lock Screen</md-tooltip>
         </md-button>

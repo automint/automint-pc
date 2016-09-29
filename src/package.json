@@ -1,6 +1,6 @@
 {
-  "name": "Automint",
-  "version": "0.8.1",
+  "name": "automint",
+  "version": "0.8.2",
   "description": "CRM by Automint",
   "main": "main.js",
   "scripts": {
