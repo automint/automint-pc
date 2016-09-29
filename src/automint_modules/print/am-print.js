@@ -2,7 +2,7 @@
  * Print document
  * @author ndkcha
  * @since 0.5.0
- * @version 0.5.0
+ * @version 0.8.2
  */
 
 /// <reference path="../../typings/main.d.ts" />
@@ -27,7 +27,8 @@
             height: 600
         });
         win.loadURL('file://' + path);
-        setTimeout(performPrint, 600);
+        win.webContents.on('dom-ready', performPrint);
+        // setTimeout(performPrint, 600);
         
         function performPrint() {
             win.webContents.print();
