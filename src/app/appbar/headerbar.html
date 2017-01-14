@@ -11,25 +11,6 @@
         <md-button class="md-icon-button" aria-label="Go Back" ng-click="headerVm.toggleSideNavbar()" hide-gt-md>
             <md-icon style="color: #424242">menu</md-icon>
         </md-button>
-        <md-menu style="padding: 0; position: absolute" ng-class="{'franchise-add-section':$root.isCUSection}" ng-show="$root.amGlobals.isFranchise">
-            <md-button aria-label="Franchise Software" ng-click="headerVm.openFranchiseOptions($mdOpenMenu, $event)">
-                <span class="md-caption" style="color: #000; padding-left: 10px">{{headerVm.currentFranchiseChannel}}</span>
-                <md-icon style="color: #000">keyboard_arrow_down</md-icon>
-            </md-button>
-            <md-menu-content width="4" class="md-hue-1">
-                <md-menu-item ng-repeat="fc in headerVm.franchiseChannels">
-                    <md-button ng-click="headerVm.selectFranchiseChannel($index)">
-                        <span class="md-caption">{{fc.name}}</span>
-                    </md-button>
-                </md-menu-item>
-                <md-divider></md-divider>
-                <md-menu-item>
-                    <md-button ng-click="headerVm.selectFranchiseChannel(-1)">
-                        <span class="md-caption">{{headerVm.allFrenchiseObject.name}}</span>
-                    </md-button>
-                </md-menu-item>
-            </md-menu-content>
-        </md-menu>
         <div layout="column" layout-align="center center" flex>
             <span class="md-title" style="color: #424242"> {{ module_title }} </span>
         </div>

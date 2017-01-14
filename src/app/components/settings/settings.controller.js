@@ -26,10 +26,10 @@
     angular.module('automintApp').controller('amCtrlSettings', SettingsController);
 
     // define dependencies of controller
-    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$mdDialog', '$amLicense', '$amRoot', 'utils', 'amBackup', 'amImportdata', 'amSettings', 'amLogin'];
+    SettingsController.$inject = ['$rootScope', '$scope', '$state', '$mdDialog', '$amRoot', 'utils', 'amBackup', 'amImportdata', 'amSettings'];
 
     //  have fun coding the controller
-    function SettingsController($rootScope, $scope, $state, $mdDialog, $amLicense, $amRoot, utils, amBackup, amImportdata, amSettings, amLogin) {
+    function SettingsController($rootScope, $scope, $state, $mdDialog, $amRoot, utils, amBackup, amImportdata, amSettings) {
         //  initialize view model
         var vm = this;
 
@@ -84,16 +84,6 @@
         vm.currencySymbol = "Rs.";
         vm.invoicePageSizeList = ['Single Page', 'A4'];
         vm.invoicePageSize = vm.invoicePageSizeList[1];
-        vm.cloudSettings = {
-            username: '',
-            password: '',
-            message: undefined,
-            enable: false,
-            isLicensed: false,
-            cloudenddate: undefined,
-            isCloudEnabled: false
-        };
-        vm.isLoginBoxOpen = false;
         vm.invoiceNotes = {
             note: '',
             enabled: false
@@ -153,14 +143,6 @@
         vm.saveInvoicePageSize = saveInvoicePageSize;
         vm.changeInvoiceFLogo = changeInvoiceFLogo;
         vm.uploadInvoiceFLogo = uploadInvoiceFLogo;
-        vm.changeCloudTab = changeCloudTab;
-        vm.cloudSettings.OnKeyDown = csOnKeyDown;
-        vm.cloudSettings.changeUserDetails = csChangeuserDetails;
-        vm.cloudSettings.submit = csSubmit;
-        vm.cloudSettings.changeAvailability = csChangeAvailability;
-        vm.cloudSettings.changePassword = csChangePassword;
-        vm.saveFranchiseChannelName = saveFranchiseChannelName;
-        vm.changeDefaultFranchiseChannel = changeDefaultFranchiseChannel;
         vm.clearEmailSignInDetails = clearEmailSignInDetails;
         vm.saveInvoiceNotes = saveInvoiceNotes;
         $rootScope.loadSettingsBlock = loadBlock;
@@ -181,7 +163,6 @@
         function loadBlock() {
             amSettings.fetchSettings().then(processSettingsObject).catch(failure);
             amSettings.fetchWorkshopDetails().then(processWorkshopObject).catch(failure);
-            getLoginState();
             loadInvoiceFLogo();
             loadInvoiceWLogo();
         }
@@ -218,203 +199,6 @@
             function done() {
                 utils.showSimpleToast('Sign In data has been cleared');
             }
-        }
-
-        function saveFranchiseChannelName(franchise, i) {
-            if (franchise.name == '') {
-                utils.showSimpleToast('You must give a name to franchise.');
-                vm.franchiseChannels[i].name = utils.convertToTitleCase(franchise.id.replace('.', ' '));
-                return;
-            }
-            amSettings.saveCloudChannelName(vm.franchiseChannels).then(success).catch(failure);
-
-            function success(res) {
-                utils.showSimpleToast('Franchise name saved successfully');
-                $rootScope.loadChannelValues();
-            }
-
-            function failure(err) {
-                utils.showSimpleToast('Could not save Franchise name. Please Try Again!');
-                vm.franchiseChannels[i].name = utils.convertToTitleCase(franchise.id.replace('.', ' '));
-            }
-        }
-
-        function changeDefaultFranchiseChannel() {
-            amSettings.saveDefaultFranchiseChannel(vm.defaultFranchiseChannel).then(success).catch(failure);
-
-            function success(res) {
-                if (res.ok)
-                    utils.showSimpleToast('Default Franchise saved successfully');
-                else
-                    failure();
-            }
-
-            function failure(err) {
-                utils.showSimpleToast('Could not save Default Franchise. Please Try Again!');
-            }
-        }
-
-        function loadCloudChannelValues() {
-            if ($rootScope.amGlobals.isFranchise != true)
-                return;
-            vm.franchiseChannels = [];
-            amSettings.getCloudChannelNames().then(success).catch(failure);
-
-            function success(res) {
-                Object.keys(res.channels).forEach(iterateMaps);
-                if (res.default != undefined)
-                    vm.defaultFranchiseChannel = res.default;
-
-                function iterateMaps(m) {
-                    vm.franchiseChannels.push({
-                        id: m,
-                        name: res.channels[m]
-                    });
-                }
-            }
-
-            function failure(err) {
-                $rootScope.amGlobals.franchiseChannels.forEach(iterateFranchiseChannels);
-
-                function iterateFranchiseChannels(fc) {
-                    console.log(fc);
-                    vm.franchiseChannels.push({
-                        id: fc,
-                        name: utils.convertToTitleCase(fc.replace('.', ' '))
-                    });
-                }
-            }
-        }
-
-        function csChangePassword(event) {
-            $mdDialog.show({
-                controller: 'amCtrlSeChPwd',
-                controllerAs: 'vm',
-                templateUrl: 'app/components/settings/tmpl/changepassword.html',
-                parent: angular.element(document.body),
-                targetEvent: event,
-                clickOutsideToClose: true
-            }).then(success).catch(success);
-
-            function success(res) {
-                if (res == true) {
-                    if ($rootScope.amDbSync)
-                        $rootScope.amDbSync.cancel();
-                    $amRoot.syncDb();
-                    getLoginState();
-                }
-            }
-        }
-
-        function csChangeAvailability() {
-            vm.isLoginBoxOpen = vm.cloudSettings.enable;
-            if (vm.cloudSettings.isLicensed && vm.cloudSettings.isCloudEnabled)
-                amLogin.cloudForceEnabled(vm.cloudSettings.enable).then(success).catch(failure);
-
-            function success(res) {
-                if (vm.cloudSettings.enable == true) {
-                    if ($rootScope.amDbSync)
-                        $rootScope.amDbSync.cancel();
-                    $amRoot.syncDb();
-                } else if ($rootScope.amDbSync)
-                    $rootScope.amDbSync.cancel();
-                vm.cloudSettings.isCloudForceEnabled = vm.cloudSettings.enable;
-
-                utils.showSimpleToast('Automint Cloud Services has been ' + (vm.cloudSettings.enable ? 'enabled' : 'disabled') + ' successfully');
-            }
-
-            function failure(failure) {
-                utils.showSimpleToast('Could not ' + (vm.cloudSettings.enable ? 'enable' : 'disable') +' Audomint Cloud Service at moment! Please Try Again!');
-                vm.cloudSettings.enable = vm.cloudSettings.isCloudForceEnabled;
-            }
-        }
-
-        function getLoginState() {
-            $amLicense.checkLogin(false, true).then(success).catch(failure);
-
-            function success(res) {
-                vm.cloudSettings.enable = ((res.isCloudEnabled != undefined) ? res.isCloudEnabled : false);
-                if (vm.cloudSettings.enable == true)
-                    vm.cloudSettings.isCloudForceEnabled = ((res.isCloudForceEnabled != undefined) ? res.isCloudForceEnabled : vm.cloudSettings.enable);
-                vm.cloudSettings.enable = vm.cloudSettings.isCloudForceEnabled; 
-                vm.cloudSettings.isCloudEnabled = res.isCloudEnabled;
-                vm.cloudSettings.isLicensed = ((res.isLoggedIn == true) && (res.type == 'license'));
-                vm.cloudSettings.cloudenddate = ((res.cloudenddate != undefined) ? res.cloudenddate : undefined);
-                if (res.type != 'license')
-                    csMessage = 'You need to login to enable Automint Cloud Services';
-                else {
-                    vm.cloudSettings.username = $rootScope.amGlobals.credentials.username;
-                    if (res.cloudenddate) {
-                        var ced = moment(res.cloudenddate, 'YYYY-MM-DD').format('D MMMM YYYY');
-                        csMessage = (res.isCloudEnabled == true) ? ('Your license expires on ' + ced) : ('Your license has expired on ' + ced + '. Please contact Automint Care to extend it');
-                    } 
-                }
-                vm.cloudSettings.message = csMessage;
-                vm.isLoginBoxOpen = vm.cloudSettings.enable;
-            }
-
-            function failure(err) {
-                $rootScope.busyApp.show = true;
-                $rootScope.busyApp.message = err;
-                $rootScope.busyApp.isRaEnabled = true;
-                setTimeout(restartApp, 1000);
-
-                function restartApp(res) {
-                    ipcRenderer.send('am-do-restart', true);
-                }
-                console.error(err);
-            }
-        }
-
-        function csSubmit() {
-            if ((vm.cloudSettings.username == '') && (vm.cloudSettings.password == '')) {
-                vm.cloudSettings.message = 'Please Enter Username and Password!';
-                return;
-            }
-            if ((vm.cloudSettings.username != '') && (vm.cloudSettings.password == '')) {
-                vm.cloudSettings.message = 'Please Enter Password!';
-                return;
-            }
-            if ((vm.cloudSettings.password != '') && (vm.cloudSettings.username == '')) {
-                vm.cloudSettings.message = 'Please Enter Username!';
-                return;
-            }
-
-            $rootScope.busyApp.show = true;
-            $rootScope.busyApp.message = 'Loging In';
-            $amLicense.loadCredentials(vm.cloudSettings.username, vm.cloudSettings.password);
-            $amLicense.login(false).then(success).catch(failure);
-
-            function success(res) {
-                if (res.isLoggedIn) {
-                    vm.cloudSettings.isLicensed = (res.isLoggedIn == true);
-                    if (res.isSyncableDb) {
-                        $rootScope.isSyncCalledFromSettings = true;
-                        $amRoot.syncDb();
-                        $rootScope.busyApp.message = 'Syncing';
-                    } else
-                        $rootScope.busyApp.show = false;
-                } else
-                    getLoginState();
-            }
-
-            function failure(err) {
-                $rootScope.busyApp.show = false;
-                vm.cloudSettings.message = err.message;
-            }
-        }
-
-        function csChangeuserDetails() {
-            vm.cloudSettings.message = csMessage;
-        }
-
-        function csOnKeyDown(event) {
-            if (event.keyCode == 13)
-                csSubmit();
-        }
-
-        function changeCloudTab(bool) {
-            vm.cloudTab = true;
         }
 
         function uploadInvoiceFLogo() {

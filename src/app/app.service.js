@@ -12,9 +12,9 @@
 
     angular.module('automintApp').service('$amRoot', AutomintService);
 
-    AutomintService.$inject = ['$rootScope', '$state', '$q', '$mdDialog', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal', 'amFactory'];
+    AutomintService.$inject = ['$rootScope', '$state', '$q', '$mdDialog', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal'];
 
-    function AutomintService($rootScope, $state, $q, $mdDialog, constants, pdbMain, pdbCache, pdbLocal, amFactory) {
+    function AutomintService($rootScope, $state, $q, $mdDialog, constants, pdbMain, pdbCache, pdbLocal) {
         //  set up service view model
         var vm = this;
 
@@ -46,7 +46,6 @@
         $rootScope.amGlobals.IsConfigDoc = IsConfigDoc;
         $rootScope.isAllFranchiseOSelected = isAllFranchiseOSelected;
         vm.initDb = initDb;
-        vm.syncDb = syncDb;
         vm.dbAfterLogin = dbAfterLogin;
         vm.generateCacheDocs = generateCacheDocs;
 
@@ -76,115 +75,11 @@
             pdbLocal.setDatabase(constants.pdb_local);
         }
 
-        function syncDb() {
-            var username = $rootScope.amGlobals.credentials.username, password = $rootScope.amGlobals.credentials.password;
-            if ((username == '') || (username == undefined) || (password == '') || (password == undefined)) {
-                console.error('No Username or Password provided for database sync');
-                return;
-            }
-            var url = amFactory.generateDbUrl(username, password, constants.sgw_w_main);
-            if ((url == undefined) || (url == '')) {
-                console.error('Username/Password/Database name missing from url');
-                return;
-            }
-            
-            $rootScope.amDbSync = pdbMain.sync(url);
-            $rootScope.amDbSync.on('complete', onCompleteDb);
-            $rootScope.amDbSync.on('paused', onPausedDb);
-            $rootScope.amDbSync.on('error', onErrorDb);
-            $rootScope.amDbSync.on('denied', onDeniedDb);
-            $rootScope.amDbSync.on('change', onChangedDb);
-            $rootScope.amDbSync.on('active', onActiveDb);
-
-            function onChangedDb(info) {
-                //  listen to on change event
-                console.info('pdbSync change', info);
-            }
-
-            function onPausedDb(err) {
-                //  listen to on pause event\
-                console.warn('pdbSync pause', err);
-
-                if ($rootScope.isSyncCalledFromSettings == true) {
-                    setTimeout(loadSb, 1000);
-                    $rootScope.isSyncCalledFromSettings = false;
-
-                    function loadSb() {
-                        generateCacheDocs(true).then(tr).catch(tr);
-
-                        function tr() {
-                            $rootScope.loadSettingsBlock();
-                            $rootScope.busyApp.show = false;
-                        }
-                    }
-                }
-                
-                if ($rootScope.isSyncCalledManually == true) {
-                    setTimeout(prepraeTransit, 1000);
-                    $rootScope.isSyncCalledManually = false;
-
-                    function prepraeTransit() {
-                        $rootScope.isOnChangeMainDbBlocked = false;
-                        //  handle database migration if any and generate cache docs after the process
-                        //  no such migrations right now
-                        generateCacheDocs(true).then(transitToDashboard).catch(transitToDashboard); 
-                    }
-                }
-            }
-
-            function onActiveDb() {
-                //  listen to on active event
-            }
-
-            function onDeniedDb(err) {
-                //  listen to on denied event
-                if (err.status && (err.status == 401)) {
-                    $mdDialog.show({
-                        controller: 'amUpdatePwdCtrl',
-                        controllerAs: 'vm',
-                        templateUrl: 'app/views/updatepassword.tmpl.html',
-                        parent: angular.element(document.body),
-                        targetEvent: event,
-                        clickOutsideToClose: true
-                    }).then(success).catch(success);
-
-                    function success(res) {
-                        //  do nothing
-                    }
-                }
-                console.error('pdbSync deny', err);
-            }
-
-            function onCompleteDb(info) {
-                //  listen to on complete event
-                console.info('pdbSync complete', info);
-            }
-
-            function onErrorDb(err) {
-                //  listen to on error event
-                if (err.status && (err.status == 401)) {
-                    $mdDialog.show({
-                        controller: 'amUpdatePwdCtrl',
-                        controllerAs: 'vm',
-                        templateUrl: 'app/views/updatepassword.tmpl.html',
-                        parent: angular.element(document.body),
-                        targetEvent: event,
-                        clickOutsideToClose: true
-                    }).then(success).catch(success);
-
-                    function success(res) {
-                        //  do nothing
-                    }
-                }
-                console.error('pdbSync error', err);
-            }
-        }
-
         function transitToDashboard() {
             $state.go('restricted.dashboard');
         }
 
-        function dbAfterLogin(wait) {
+        function dbAfterLogin() {
 
             //  setup database change listeners
             pdbMain.OnDbChanged({
@@ -192,41 +87,9 @@
                 live: true
             }).on('change', OnChangeMainDb);
 
-            if ($rootScope.checkAutomintValidity == undefined)
-                $rootScope.checkAutomintValidity = setInterval(checkAutomintValidity, 1000*60*60*24);
-
-            if (wait)
-                $rootScope.isSyncCalledManually = true;
-            else {
-                //  handle database migration if any and generate cache docs after the process
-                //  no such migrations right now
-                generateCacheDocs().then(transitToDashboard).catch(transitToDashboard);
-            }
-
-            function checkAutomintValidity() {
-                $amLicense.checkLogin(true).then(success).catch(failure);
-
-                function success(res) {
-                    if (res.isLoggedIn) {
-                        if ((!res.isCloudEnabled) || (res.isCloudEnabled && (res.isCloudForceEnabled == false))) {
-                            if ($rootScope.amDbSync)
-                                $rootScope.amDbSync.cancel();
-                        }
-                    } else
-                        failure("Something went wrong. Login Again");
-                }
-
-                function failure(err) {
-                    $rootScope.busyApp.show = true;
-                    $rootScope.busyApp.message = err;
-                    $rootScope.busyApp.isRaEnabled = true;
-                    setTimeout(restartApp, 1000);
-                }
-
-                function restartApp(err) {
-                    ipcRenderer.send('am-do-restart', true);
-                }
-            }
+            //  handle database migration if any and generate cache docs after the process
+            //  no such migrations right now
+            generateCacheDocs().then(transitToDashboard).catch(transitToDashboard);
         }
 
         function OnChangeMainDb(change) {

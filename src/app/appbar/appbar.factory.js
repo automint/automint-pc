@@ -10,40 +10,17 @@
 (function() {
     angular.module('automintApp').factory('amAppbar', AppbarFactory);
 
-    AppbarFactory.$inject = ['$q', '$rootScope', 'pdbMain', 'pdbLocal', 'constants'];
+    AppbarFactory.$inject = ['$q', '$rootScope', 'pdbMain', 'pdbLocal'];
 
-    function AppbarFactory($q, $rootScope, pdbMain, pdbLocal, constants) {
+    function AppbarFactory($q, $rootScope, pdbMain, pdbLocal) {
         //  initialize factory object and function maps
         var factory = {
-            getPasscode: getPasscode,
-            getCloudChannelNames: getCloudChannelNames
+            getPasscode: getPasscode
         }
 
         return factory;
 
         //  function definitions
-
-        function getCloudChannelNames() {
-            var tracker = $q.defer();
-            pdbLocal.get(constants.pdb_local_docs.login).then(getLoginDoc).catch(failure);
-            return tracker.promise;
-
-            function getLoginDoc(res) {
-                if (res.localchannelmaps) {
-                    var response = {
-                        channels: res.localchannelmaps
-                    };
-                    if (res.defaultlocalchannel != undefined)
-                        response.default = res.defaultlocalchannel;
-                    tracker.resolve(response);
-                } else
-                    failure();
-            }
-
-            function failure(err) {
-                tracker.reject(404);
-            }
-        }
 
         function getPasscode() {
             var tracker = $q.defer();

@@ -23,15 +23,6 @@
                 controller: 'amCtrl',
                 controllerAs: 'vm'
             })
-            .state('login', {
-                url: '/login',
-                templateUrl: 'app/login/login.html',
-                controller: 'amLoginCtrl',
-                controllerAs: 'vm',
-                resolve: {
-                    deps: ['$ocLazyLoad', loadLoginDeps]
-                }
-            })
             .state('restricted', {
                 abstract: true,
                 url: '',
@@ -419,12 +410,6 @@
             ])
         }
 
-        function loadLoginDeps($ocLazyLoad) {
-            return $ocLazyLoad.load([
-                'app/login/login.controller.js'
-            ])
-        }
-
         function loadInUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'app/components/inventory/inventory-edit.controller.js'
@@ -545,7 +530,6 @@
         }
         function loadSettingsDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/settings/tmpl/changepassword.controller.js',
                 'app/components/settings/settings.controller.js',
                 'app/components/settings/settings-backup.factory.js',
                 'app/components/settings/settings-importdata.service.js',
