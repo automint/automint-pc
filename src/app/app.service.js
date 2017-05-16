@@ -2,19 +2,17 @@
  * Root level service
  * @author ndkcha
  * @since 0.4.1
- * @version 0.7.2
+ * @version 0.9.0
  */
-
-/// <reference path="../typings/main.d.ts" />
 
 (function() {
     const ipcRenderer = require('electron').ipcRenderer;
 
     angular.module('automintApp').service('$amRoot', AutomintService);
 
-    AutomintService.$inject = ['$rootScope', '$state', '$q', '$mdDialog', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal', 'amFactory'];
+    AutomintService.$inject = ['$rootScope', '$state', '$q', '$mdDialog', 'constants', 'pdbMain', 'pdbCache', 'pdbLocal'];
 
-    function AutomintService($rootScope, $state, $q, $mdDialog, constants, pdbMain, pdbCache, pdbLocal, amFactory) {
+    function AutomintService($rootScope, $state, $q, $mdDialog, constants, pdbMain, pdbCache, pdbLocal) {
         //  set up service view model
         var vm = this;
 
@@ -82,7 +80,7 @@
                 console.error('No Username or Password provided for database sync');
                 return;
             }
-            var url = amFactory.generateDbUrl(username, password, constants.sgw_w_main);
+            var url = "";
             if ((url == undefined) || (url == '')) {
                 console.error('Username/Password/Database name missing from url');
                 return;
@@ -192,41 +190,9 @@
                 live: true
             }).on('change', OnChangeMainDb);
 
-            if ($rootScope.checkAutomintValidity == undefined)
-                $rootScope.checkAutomintValidity = setInterval(checkAutomintValidity, 1000*60*60*24);
-
-            if (wait)
-                $rootScope.isSyncCalledManually = true;
-            else {
-                //  handle database migration if any and generate cache docs after the process
-                //  no such migrations right now
-                generateCacheDocs().then(transitToDashboard).catch(transitToDashboard);
-            }
-
-            function checkAutomintValidity() {
-                $amLicense.checkLogin(true).then(success).catch(failure);
-
-                function success(res) {
-                    if (res.isLoggedIn) {
-                        if ((!res.isCloudEnabled) || (res.isCloudEnabled && (res.isCloudForceEnabled == false))) {
-                            if ($rootScope.amDbSync)
-                                $rootScope.amDbSync.cancel();
-                        }
-                    } else
-                        failure("Something went wrong. Login Again");
-                }
-
-                function failure(err) {
-                    $rootScope.busyApp.show = true;
-                    $rootScope.busyApp.message = err;
-                    $rootScope.busyApp.isRaEnabled = true;
-                    setTimeout(restartApp, 1000);
-                }
-
-                function restartApp(err) {
-                    ipcRenderer.send('am-do-restart', true);
-                }
-            }
+            //  handle database migration if any and generate cache docs after the process
+            //  no such migrations right now
+            generateCacheDocs().then(transitToDashboard).catch(transitToDashboard);
         }
 
         function OnChangeMainDb(change) {

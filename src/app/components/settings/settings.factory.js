@@ -2,10 +2,8 @@
  * Factory to fetch and retrieve service tax settings from database
  * @author ndkcha
  * @since 0.6.4
- * @version 0.8.0
+ * @version 0.9.0
  */
-
-/// <reference path="../../../typings/main.d.ts" />
 
 (function() {
     //  define angular factory

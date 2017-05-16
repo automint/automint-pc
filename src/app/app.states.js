@@ -2,10 +2,8 @@
  * Closure for state definitions and mappings to template files
  * @author ndkcha
  * @since 0.4.1
- * @version 0.8.0
+ * @version 0.9.0
  */
-
-/// <reference path="../typings/main.d.ts" />
 
 (function() {
     angular.module('automintApp')
@@ -22,15 +20,6 @@
                 templateUrl: 'app/views/initializing.html',
                 controller: 'amCtrl',
                 controllerAs: 'vm'
-            })
-            .state('login', {
-                url: '/login',
-                templateUrl: 'app/login/login.html',
-                controller: 'amLoginCtrl',
-                controllerAs: 'vm',
-                resolve: {
-                    deps: ['$ocLazyLoad', loadLoginDeps]
-                }
             })
             .state('restricted', {
                 abstract: true,
@@ -419,12 +408,6 @@
             ])
         }
 
-        function loadLoginDeps($ocLazyLoad) {
-            return $ocLazyLoad.load([
-                'app/login/login.controller.js'
-            ])
-        }
-
         function loadInUIDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
                 'app/components/inventory/inventory-edit.controller.js'
@@ -545,7 +528,6 @@
         }
         function loadSettingsDeps($ocLazyLoad) {
             return $ocLazyLoad.load([
-                'app/components/settings/tmpl/changepassword.controller.js',
                 'app/components/settings/settings.controller.js',
                 'app/components/settings/settings-backup.factory.js',
                 'app/components/settings/settings-importdata.service.js',
